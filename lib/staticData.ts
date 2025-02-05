@@ -418,3 +418,29 @@ export const jobBoardData = [
         ]
     }
 ];
+
+export const testimonials = [
+    {
+      image: '/static/images/testimonialImage.png',
+      comment: 'This is an amazing product!',
+      name: 'John Doe',
+      position: 'CEO, Company A',
+      stars: 5,
+    },
+    {
+      image: '/static/images/testimonialImage.png',
+      comment: 'I highly recommend this service.',
+      name: 'Jane Smith',
+      position: 'CTO, Company B',
+      stars: 5,
+    },
+    {
+      image: '/static/images/testimonialImage.png',
+      comment: 'Great experience overall.',
+      name: 'Alice Johnson',
+      position: 'Manager, Company C',
+      stars: 5,
+    },
+  ];
+  
+
