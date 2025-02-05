@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Image from "next/image";
 
 // This is sample data.
 const data = {
@@ -39,19 +40,23 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar
-      variant="floating"
-      {...props}
-      className="bg-gradient-to-b from-[#020217] to-[#9164CF]"
-    >
-      <div className="bg-gradient-to-b from-[#020217] to-[#9164CF] text-[#CECFD2] h-screen">
-        <SidebarHeader>
+    <Sidebar variant="floating" {...props} className="bg-background ">
+      <div className="bg-gradient-to-b from-[#020217] to-[#9164CF] text-[#CECFD2] h-screen rounded-2xl border-[#454545] border-[2px] ">
+        <SidebarHeader className="border-b-[2px] border-[#1F242F]">
+          <div className="flex items-center justify-center">
+            <Image
+              src={"/static/icons/aipplyLogo.svg"}
+              alt="Aipply Logo"
+              width={142}
+              height={48}
+            />
+          </div>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
                 <a href="#">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <UserRound className="size-4" />
+                  <div className="flex rounded-full size-12 items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground">
+                    <UserRound className="size-8" />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
                     <span className="font-semibold">Gwen Stacy</span>
@@ -68,7 +73,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {data.navMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url} className="font-medium text-text-md-semibold font-inter">
+                    <a
+                      href={item.url}
+                      className="font-medium text-text-md-semibold font-inter"
+                    >
                       {item.title}
                     </a>
                   </SidebarMenuButton>

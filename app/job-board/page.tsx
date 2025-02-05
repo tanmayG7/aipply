@@ -57,7 +57,7 @@ export default function Page() {
     >
       <AppSidebar />
       <SidebarInset>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-4 bg-[#050513] relative">
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
           <div className="flex flex-row justify-between">
             <h1 className="text-inter font-bold text-[40px] text-[#ECECED]">
               Job Board
@@ -99,7 +99,7 @@ export default function Page() {
                 isJobDescriptionVisible ? "translate-x-0" : "translate-x-full"
               }`}
             >
-              <div className="w-[960px] bg-[#050513] p-8 border-l border-white border-opacity-[60%] rounded-l-2xl h-fit">
+              <div className="w-[960px] p-8 border-l border-white border-opacity-[60%] rounded-l-2xl h-fit">
                 <div className="flex flex-col gap-6">
                   <div className="flex justify-between items-center">
                     <h4 className="font-inter font-semibold text-white text-[18px]">

@@ -35,7 +35,7 @@ export default function ProfileSetup() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-[#050513]">
+    <div className="h-screen flex items-center justify-center ">
       <div className="flex flex-col w-[30%]">
         <Card className="text-white">
           <CardHeader className="text-center items-center ">

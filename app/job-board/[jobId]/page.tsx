@@ -64,7 +64,7 @@ const JobBoardPage = async ({
   return (
     <>
       {job && (
-        <div className="bg-[#050513] flex flex-col gap-6 px-8 py-8">
+        <div className=" flex flex-col gap-6 px-8 py-8">
           <div>
             <h4 className="flex font-inter font-semibold text-white text-[18px]">Job Description</h4>
           </div>
