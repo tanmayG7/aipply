@@ -81,6 +81,13 @@ export default {
           fontWeight: "600",
         },
       ],
+      "text-md-semibold": [
+        "16px",
+        {
+          lineHeight: "24px",
+          fontWeight: "600",
+        },
+      ],
 		}
   },
   plugins: [require("tailwindcss-animate")],

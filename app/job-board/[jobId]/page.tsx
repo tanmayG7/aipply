@@ -69,7 +69,7 @@ const JobBoardPage = async ({
             <h4 className="flex font-inter font-semibold text-white text-[18px]">Job Description</h4>
           </div>
           <JobCard job={job} />
-          <JobDescription job={job} />
+          <JobDescription job={job} isVisible={true} />
         </div>
       )}
     </>

@@ -19,9 +19,12 @@ interface Job {
 
 interface JobCardProps {
   job: Job;
+  isVisible: boolean;
 }
 
-const JobDescription: React.FC<JobCardProps> = ({ job }) => {
+const JobDescription: React.FC<JobCardProps> = ({ job, isVisible }) => {
+  if (!isVisible) return null;
+
   return (
     <div className=" text-white">
       <div className="flex flex-col gap-6">

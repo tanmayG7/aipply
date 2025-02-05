@@ -21,8 +21,8 @@ interface JobCardProps {
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
   return (
-    <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border border-gray-700 shadow-lg">
-      <div className="flex flex-row justify-between items-start">
+    <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg">
+      <div className="flex flex-row justify-between items-start border-b pb-6">
         <div className="flex flex-col gap-4">
           <div className="flex flex-row gap-3 items-center">
             <h1 className="font-inter font-semibold text-[24px] text-white">
@@ -90,7 +90,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
           </div>
         </div>
 
-        <div className="flex flex-row items-center gap-3">
+        <div className="flex flex-row items-center justify-center gap-3">
           <Image
             src="/static/jobBoardImages/catalogLogo.jpeg"
             alt="Company Logo"
@@ -100,9 +100,9 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
           />
           <div className="flex flex-col">
             <p className="text-white font-semibold">{job.companyName}</p>
-            <Link href={job.applyLink} className="text-blue-400 text-sm">
-              Apply Now
-            </Link>
+            {/* <Link href={job.applyLink} className="text-blue text-sm">
+              {job.applyLink}
+            </Link> */}
           </div>
         </div>
       </div>
