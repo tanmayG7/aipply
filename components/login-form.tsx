@@ -54,7 +54,7 @@ export function LoginForm({
           />
           <div className="flex flex-col gap-3">
             <CardTitle className="text-display-sm-semibold font-inter">
-              Welcome back
+              Welcome
             </CardTitle>
             <p className="text-[#94969C] font-inter text-text-md-regular">
               Find your next opportunity!
@@ -146,7 +146,7 @@ export function LoginForm({
         </CardContent>
       </Card>
       <div className="font-inter text-center text-text-md-regular text-muted-foreground text-[#94969C]">
-        By clicking continue, you agree to our{" "} <br />
+        By signing up, you agree to {" "}
         <a href="#" className="font-bold">
           Terms of Service
         </a>{" "}

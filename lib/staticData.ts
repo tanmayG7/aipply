@@ -420,27 +420,30 @@ export const jobBoardData = [
 ];
 
 export const testimonials = [
-    {
-      image: '/static/images/testimonialImage.png',
-      comment: 'This is an amazing product!',
-      name: 'John Doe',
-      position: 'CEO, Company A',
-      stars: 5,
-    },
-    {
-      image: '/static/images/testimonialImage.png',
-      comment: 'I highly recommend this service.',
-      name: 'Jane Smith',
-      position: 'CTO, Company B',
-      stars: 5,
-    },
-    {
-      image: '/static/images/testimonialImage.png',
-      comment: 'Great experience overall.',
-      name: 'Alice Johnson',
-      position: 'Manager, Company C',
-      stars: 5,
-    },
-  ];
+  {
+    image: "/static/images/testimonialImage.png",
+    comment:
+      "“AipPly.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!”",
+    name: "John Doe",
+    position: "CEO, Company A",
+    stars: 5,
+  },
+  {
+    image: "/static/images/testimonialImg2.png",
+    comment:
+      "“AipPly.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!”",
+    name: "Jane Smith",
+    position: "CTO, Company B",
+    stars: 5,
+  },
+  {
+    image: "/static/images/testimonialImg3.png",
+    comment:
+      "“AipPly.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!”",
+    name: "Alice Johnson",
+    position: "Manager, Company C",
+    stars: 5,
+  },
+];
   
 
