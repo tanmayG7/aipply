@@ -31,9 +31,13 @@ const TestimonialsCard: React.FC<TestimonialProps> = ({
         }}
       >
         <div className="bg-black bg-opacity-50 p-5 rounded-b-2xl">
-          <p>{comment}</p>
-          <h2>{name}</h2>
-          <h4>{position}</h4>
+          <p className="text-display-sm-semibold font-inter text-white">
+            {comment}
+          </p>
+          <div className="flex flex-col display">
+            <h2>{name}</h2>
+            <h4>{position}</h4>
+          </div>
           <div>
             {"★".repeat(stars)}
             {"☆".repeat(5 - stars)}

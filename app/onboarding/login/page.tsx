@@ -22,7 +22,7 @@ export default function LoginPage() {
   const currentTestimonial = testimonials[currentTestimonialIndex];
 
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-full bg-[#020218]">
       <div className="grid grid-cols-2 items-center justify-center w-full">
         <div className="w-[60%] m-auto items-center justify-center">
           <LoginForm />
