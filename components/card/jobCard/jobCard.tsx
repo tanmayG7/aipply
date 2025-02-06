@@ -6,7 +6,7 @@ interface Job {
   id: string;
   jobTitle: string;
   companyName: string;
-  package: string;
+  jobPackage: string;
   workType: string;
   experience: string;
   location: string;
@@ -56,7 +56,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
                 width={20}
                 height={20}
               />
-              <span>{job.package}</span>
+              <span>{job.jobPackage}</span>
             </div>
             <div className="flex items-center gap-2">
               <Image

@@ -4,7 +4,7 @@ interface Job {
   id: string;
   jobTitle: string;
   companyName: string;
-  package: string;
+  jobPackage: string;
   workType: string;
   experience: string;
   location: string;
