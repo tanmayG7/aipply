@@ -35,22 +35,34 @@ export default function ProfileSetup() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center ">
-      <div className="flex flex-col w-[30%]">
-        <Card className="text-white">
-          <CardHeader className="text-center items-center ">
+    <div className="h-screen flex items-center justify-center bg-[#020218]">
+      <div className="flex flex-col w-[40%] gap-[60px]">
+        <div className="flex gap-4 items-center justify-center ">
+          {[...Array(6)].map((_, index) => (
+            <div
+              key={index}
+              className={`w-[10%] p-[3px] ${
+                page - 1 > index ? "bg-[#5D29FF]" : "bg-white"
+              }`}
+            ></div>
+          ))}
+        </div>
+        <Card className="text-white flex flex-col gap-[100px]">
+          <CardHeader className="flex flex-col gap-10 text-center items-center">
             <Image
               src={"/static/icons/aipplyLogo.svg"}
               alt="Aipply Logo"
-              width={142}
-              height={48}
+              width={224}
+              height={76}
             />
-            <CardTitle className="text-display-sm-semibold font-inter">
-              Hello Gwen, Create your profile
-            </CardTitle>
-            <div className="text-text-md-regular font-inter text-[#94969C]">
-              Apply privately to thousands of tech companies and start-ups with
-              one profile.
+            <div className="grid grid-cols-1 gap-3">
+              <CardTitle className="text-display-sm-semibold font-inter">
+                Hello Gwen, Create your profile
+              </CardTitle>
+              <div className="text-text-md-regular font-inter text-[#94969C]">
+                Apply privately to thousands of tech companies and start-ups
+                with one profile.
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -189,15 +201,27 @@ export default function ProfileSetup() {
                   </div>
                 </div>
               )}
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-16">
                 {page > 1 && (
                   <Button type="button" onClick={handleBack}>
+                    <Image
+                      src="/static/icons/arrow-left.svg"
+                      alt="Back"
+                      width={24}
+                      height={24}
+                    />
                     Back
                   </Button>
                 )}
                 {page < 6 ? (
                   <Button type="button" onClick={handleNext}>
                     Next
+                    <Image
+                      src="/static/icons/arrow-right.svg"
+                      alt="Back"
+                      width={24}
+                      height={24}
+                    />
                   </Button>
                 ) : (
                   <Button type="submit">Submit</Button>
