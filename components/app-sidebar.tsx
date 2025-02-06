@@ -1,5 +1,5 @@
 import * as React from "react";
-import {  UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 
 import {
   Sidebar,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { Button } from "./ui/button";
-
+import { Progress } from "./ui/progress";
 
 const data = {
   navMain: [
@@ -75,6 +75,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </div>
                 </a>
               </SidebarMenuButton>
+              <div className="flex flex-row items-center gap-2">
+                <Progress value={40} />
+                <p className="font-inter text-[#CECFD2] font-medium text-[12px]">40%</p>
+              </div>
               <Button
                 size="lg"
                 variant="secondary"

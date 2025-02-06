@@ -480,3 +480,47 @@ export const getWorkTypeImage = (workType: string) => {
       return "/static/icons/Dot.svg";
   }
 };
+
+
+export const DashboardData = [
+  {
+    id: "1",
+    title: "Job Searches",
+    totalNumber: 27,
+  },
+  {
+    id: "2",
+    title: "Total matches",
+    totalNumber: 21,
+  },
+  {
+    id: "3",
+    title: "Total applied",
+    totalNumber: 18,
+  },
+  {
+    id: "4",
+    title: "Emails sent",
+    totalNumber: 16,
+  },
+  {
+    id: "5",
+    title: "Callbacks",
+    totalNumber: 10,
+  },
+  {
+    id: "6",
+    title: "Interview scheduled",
+    totalNumber: 7,
+  },
+  {
+    id: "7",
+    title: "Pending",
+    totalNumber: 3,
+  },
+  {
+    id: "8",
+    title: "Offers",
+    totalNumber: 4,
+  },
+];
