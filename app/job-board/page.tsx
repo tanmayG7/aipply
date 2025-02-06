@@ -1,6 +1,7 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import JobCard from "@/components/card/jobCard/jobCard";
+import Header from "@/components/header/header";
 import JobDescription from "@/components/jobdescription/jobDescription";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { jobBoardData } from "@/lib/staticData";
@@ -57,6 +58,7 @@ export default function Page() {
     >
       <AppSidebar />
       <SidebarInset>
+        <Header />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
           <div className="flex flex-row justify-between">
             <h1 className="text-inter font-bold text-[40px] text-[#ECECED]">
@@ -65,14 +67,14 @@ export default function Page() {
             <div className="flex gap-2 ">
               <input
                 type="text"
-                className="border bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md"
+                className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md"
                 value={filter}
                 onChange={handleFilterChange}
                 placeholder="Search jobs"
               />
               <button
                 onClick={handleFilterClick}
-                className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border"
+                className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545]"
               >
                 <Image
                   src="/static/icons/filter.svg"

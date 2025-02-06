@@ -2,6 +2,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import JobTrackerGridCard from "@/components/card/jobTrackerCard/jobTrackerGridCard";
 import JobTrackerTableCard from "@/components/card/jobTrackerCard/jobTrackerTableCard";
+import Header from "@/components/header/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { jobBoardData } from "@/lib/staticData";
 import Image from "next/image";
@@ -26,6 +27,7 @@ const JobTrackerPage: React.FC = () => {
     >
       <AppSidebar />
       <SidebarInset>
+        <Header />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative bg-[#020218] text-white ">
           <div className="gap-2">
             <h1 className="font-inter text-[#ECECED] font-bold text-[40px]">
@@ -54,7 +56,7 @@ const JobTrackerPage: React.FC = () => {
               onClick={() => setView("table")}
               className="flex flex-row bg-[#161B26] px-3 py-2 rounded-sm gap-2"
             >
-              Table View {" "}
+              Table View{" "}
               <Image
                 src={"/static/icons/tableView.svg"}
                 width={24}
@@ -65,7 +67,7 @@ const JobTrackerPage: React.FC = () => {
           </div>
           <div
             className={`grid gap-6 ${
-              view == "grid" ? "grid-cols-3" : "grid-cols-1"
+              view === "grid" ? "grid-cols-3" : "grid-cols-1"
             }`}
           >
             <section className="flex flex-col gap-6">
@@ -81,6 +83,11 @@ const JobTrackerPage: React.FC = () => {
                   <span className="pl-1">({appliedJobs.length})</span>
                 </h2>
               </div>
+              <div
+                className={`h-[1px] ${
+                  view === "grid" ? "w-[50%]" : "w-[12%]"
+                } bg-gradient-to-r from-[#282835] to-[#FFFFFF]`}
+              ></div>
               <div>
                 {view === "grid" ? (
                   <div className="grid-view flex flex-row flex-wrap gap-4">
@@ -123,6 +130,11 @@ const JobTrackerPage: React.FC = () => {
                   <span className="pl-1">({interviewingJobs.length})</span>
                 </h2>
               </div>
+              <div
+                className={`h-[1px] ${
+                  view === "grid" ? "w-[50%]" : "w-[12%]"
+                } bg-gradient-to-r from-[#282835] to-[#FFFFFF]`}
+              ></div>
               {view === "grid" ? (
                 <div className="grid-view flex flex-row flex-wrap gap-4">
                   {interviewingJobs.map((job) => (
@@ -162,6 +174,11 @@ const JobTrackerPage: React.FC = () => {
                   Offers <span className="pl-1">({offerJobs.length})</span>
                 </h2>
               </div>
+              <div
+                className={`h-[0.5px] ${
+                  view === "grid" ? "w-[50%]" : "w-[9%]"
+                } bg-gradient-to-r from-[#282835] to-[#FFFFFF]`}
+              ></div>
               {view === "grid" ? (
                 <div className="grid-view flex flex-row flex-wrap gap-4">
                   {offerJobs.map((job) => (

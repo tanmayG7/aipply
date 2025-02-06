@@ -1,3 +1,4 @@
+import { getWorkTypeImage } from "@/lib/staticData";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -20,9 +21,10 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
+
   return (
     <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg">
-      <div className="flex flex-row justify-between items-start border-b pb-6">
+      <div className="flex flex-row justify-between items-start border-b-[1px] border-[#454545] pb-6">
         <div className="flex flex-col gap-4">
           <div className="flex flex-row gap-3 items-center">
             <h1 className="font-inter font-semibold text-[24px] text-white">
@@ -30,7 +32,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             </h1>
             <div className="flex flex-row border border-gray-500 rounded-md px-2 items-center gap-1">
               <Image
-                src="/static/jobBoardImages/Dot.svg"
+                src={getWorkTypeImage(job.workType)}
                 alt="Dot"
                 width={8}
                 height={8}

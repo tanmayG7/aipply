@@ -364,7 +364,7 @@ export const jobBoardData = [
     jobTitle: "Cloud Architect",
     companyName: "CloudMasters",
     jobPackage: "18 - 25 LPA",
-    workType: "Remote",
+    workType: "Hybrid",
     experience: "6 - 8 years",
     location: "Gurgaon",
     roleType: "Fulltime",
@@ -404,7 +404,7 @@ export const jobBoardData = [
     jobTitle: "UI/UX Designer",
     companyName: "DesignHub",
     jobPackage: "10 - 15 LPA",
-    workType: "Onsite",
+    workType: "Hybrid",
     experience: "3 - 5 years",
     location: "Noida",
     roleType: "Fulltime",
@@ -468,4 +468,15 @@ export const testimonials = [
   },
 ];
 
-
+export const getWorkTypeImage = (workType: string) => {
+  switch (workType) {
+    case "Onsite":
+      return "/static/icons/Dot.svg";
+    case "Hybrid":
+      return "/static/icons/pinkDot.svg";
+    case "Remote":
+      return "/static/icons/blueDot.svg";
+    default:
+      return "/static/icons/Dot.svg";
+  }
+};

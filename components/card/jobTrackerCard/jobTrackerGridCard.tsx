@@ -1,3 +1,4 @@
+import { getWorkTypeImage } from "@/lib/staticData";
 import Image from "next/image";
 import React from "react";
 
@@ -18,6 +19,7 @@ const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
   experience,
   location,
 }) => {
+
   return (
     <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg">
       <div className="flex flex-row justify-between items-start">
@@ -28,7 +30,7 @@ const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
             </h1>
             <div className="flex flex-row border border-gray-500 rounded-md px-2 items-center gap-1">
               <Image
-                src="/static/jobBoardImages/Dot.svg"
+                src={getWorkTypeImage(workType)}
                 alt="Dot"
                 width={8}
                 height={8}
