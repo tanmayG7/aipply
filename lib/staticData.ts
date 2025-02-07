@@ -6,7 +6,7 @@ export const jobBoardData = [
     jobPackage: "15 - 20 LPA",
     workType: "Onsite",
     experience: "5 - 7 years",
-    location: "Noida",
+    location: "Noida, India",
     roleType: "Fulltime",
     skills: ["SQL", "Node.js", "React.js", "Express.js", "Salesforce"],
     applyLink: "https://example.com/apply",
@@ -366,7 +366,7 @@ export const jobBoardData = [
     jobPackage: "18 - 25 LPA",
     workType: "Hybrid",
     experience: "6 - 8 years",
-    location: "Gurgaon",
+    location: "Gurgaon, India",
     roleType: "Fulltime",
     skills: ["AWS", "Azure", "GCP", "Cloud Security"],
     applyLink: "https://example.com/apply",
@@ -406,7 +406,89 @@ export const jobBoardData = [
     jobPackage: "10 - 15 LPA",
     workType: "Hybrid",
     experience: "3 - 5 years",
-    location: "Noida",
+    location: "Noida, India",
+    roleType: "Fulltime",
+    skills: ["Sketch", "Figma", "Adobe XD", "User Research"],
+    applyLink: "https://example.com/apply",
+    jobDescription:
+      "As a Software Engineer you will be specializing in Java and SQL and play a vital role in designing, developing, and maintaining robust software applications that leverage the strengths of Java for application logic and SQL for database interactions. This role requires a solid understanding of Java programming, including object-oriented design principles as well as writing efficient SQL queries in relational databases or NoSQL. This role also involves debugging and resolving software defects, optimizing code for performance, and maintain code quality.",
+    keyResponsibilities: [
+      "Analyze, design, develop, test, and maintain scalable applications using Java for backend and modern JavaScript frameworks for frontend",
+      "Build distributed system based on service-oriented architecture and SOLID design principles",
+      "Develop and optimize SQL queries, and database schema designs",
+      "Write clean, maintainable, and efficient code following best practices and coding standards",
+      "Be passionate about delivering quality code and build culture of continuous learning and improvement in team by identifying technical debts/improvements",
+      "Have the desire to collaborate, and like sharing and learning from your colleagues",
+      "Provide input and guidance to resolve issues and meet objectives",
+    ],
+    requiredSkillsExperienceQualifications: [
+      "BE/BTech or MS degree in Computer Science from a reputed university",
+      "4+ years of full-stack, hands on experience designing & developing of product development experience in Java and related technologies",
+      "Experience implementing Design Patterns/SOLID principles/OOPS",
+      "Experience developing and working with databases (Oracle, MSSQL, NoSQL)",
+      "Experience in successful implementation/adoption of Agile and Scrum methodologies",
+      "Test-driven development, which includes Unit and End-to-End Testing",
+      "Excellent analytical, problem-solving and communication skills",
+      "Experience working with teams across different time-zones and countries",
+      "Ability to work independently and collaboratively",
+    ],
+    aboutCompany: [
+      "We’re a diverse group of visionary innovators who provide trading and workflow automation software, high-value analytics, and strategic consulting to corporations, central banks, financial institutions, and governments. Founded in 1999, we’ve achieved tremendous growth by bringing together some of the best and most successful financial technology companies in the world.",
+      "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
+      "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
+    ],
+    status: "offer",
+  },
+
+  {
+    id: "12",
+    jobTitle: "UI/UX Designer",
+    companyName: "DesignHub",
+    jobPackage: "10 - 15 LPA",
+    workType: "Hybrid",
+    experience: "3 - 5 years",
+    location: "Chennai",
+    roleType: "Fulltime",
+    skills: ["Sketch", "Figma", "Adobe XD", "User Research"],
+    applyLink: "https://example.com/apply",
+    jobDescription:
+      "As a Software Engineer you will be specializing in Java and SQL and play a vital role in designing, developing, and maintaining robust software applications that leverage the strengths of Java for application logic and SQL for database interactions. This role requires a solid understanding of Java programming, including object-oriented design principles as well as writing efficient SQL queries in relational databases or NoSQL. This role also involves debugging and resolving software defects, optimizing code for performance, and maintain code quality.",
+    keyResponsibilities: [
+      "Analyze, design, develop, test, and maintain scalable applications using Java for backend and modern JavaScript frameworks for frontend",
+      "Build distributed system based on service-oriented architecture and SOLID design principles",
+      "Develop and optimize SQL queries, and database schema designs",
+      "Write clean, maintainable, and efficient code following best practices and coding standards",
+      "Be passionate about delivering quality code and build culture of continuous learning and improvement in team by identifying technical debts/improvements",
+      "Have the desire to collaborate, and like sharing and learning from your colleagues",
+      "Provide input and guidance to resolve issues and meet objectives",
+    ],
+    requiredSkillsExperienceQualifications: [
+      "BE/BTech or MS degree in Computer Science from a reputed university",
+      "4+ years of full-stack, hands on experience designing & developing of product development experience in Java and related technologies",
+      "Experience implementing Design Patterns/SOLID principles/OOPS",
+      "Experience developing and working with databases (Oracle, MSSQL, NoSQL)",
+      "Experience in successful implementation/adoption of Agile and Scrum methodologies",
+      "Test-driven development, which includes Unit and End-to-End Testing",
+      "Excellent analytical, problem-solving and communication skills",
+      "Experience working with teams across different time-zones and countries",
+      "Ability to work independently and collaboratively",
+    ],
+    aboutCompany: [
+      "We’re a diverse group of visionary innovators who provide trading and workflow automation software, high-value analytics, and strategic consulting to corporations, central banks, financial institutions, and governments. Founded in 1999, we’ve achieved tremendous growth by bringing together some of the best and most successful financial technology companies in the world.",
+      "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
+      "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
+    ],
+    status: "offer",
+  },
+
+  {
+    id: "13",
+    jobTitle: "UI/UX Designer",
+    companyName: "DesignHub",
+    jobPackage: "10 - 15 LPA",
+    workType: "Hybrid",
+    experience: "3 - 5 years",
+    location: "Delhi",
     roleType: "Fulltime",
     skills: ["Sketch", "Figma", "Adobe XD", "User Research"],
     applyLink: "https://example.com/apply",
@@ -481,6 +563,20 @@ export const getWorkTypeImage = (workType: string) => {
   }
 };
 
+export const getJobDataByLocation = () => {
+  const locationData = jobBoardData.reduce((acc: { [key: string]: number }, job) => {
+    if (!acc[job.location]) {
+      acc[job.location] = 0;
+    }
+    acc[job.location]++;
+    return acc;
+  }, {});
+
+  return Object.keys(locationData).map((location) => ({
+    location,
+    count: locationData[location],
+  }));
+};
 
 export const DashboardData = [
   {

@@ -33,7 +33,7 @@ const JobTrackerPage: React.FC = () => {
             <h1 className="font-inter text-[#ECECED] font-bold text-[40px]">
               Tracker
             </h1>
-            <p className="font-inter text-[#ECECED] text-[14px] font-normal">
+            <p className="font-inter text-[#ECECED] text-[14px] font-normal text-text-sm-semibold">
               All your applied jobs will appear here for you to track every
               step.
             </p>

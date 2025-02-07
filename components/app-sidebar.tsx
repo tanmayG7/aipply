@@ -13,6 +13,8 @@ import {
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const data = {
   navMain: [
@@ -49,6 +51,33 @@ const data = {
   ],
 };
 
+
+const NavLink = ({
+  href,
+  children,
+  className = "",
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  const pathname = usePathname();
+
+  return (
+    <Link href={href}>
+      <div
+        className={`text-white font-inter px-5 py-2 rounded-lg  ${
+          pathname === href
+            ? "bg-gradient-to-r from-[#8F63CC] to-[#01010B] border-l-[1px] text-text-md-medium rounded-sm"
+            : ""
+        } ${className}`}
+      >
+        {children}
+      </div>
+    </Link>
+  );
+};
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="floating" {...props} className="bg-background ">
@@ -77,7 +106,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarMenuButton>
               <div className="flex flex-row items-center gap-2">
                 <Progress value={40} />
-                <p className="font-inter text-[#CECFD2] font-medium text-[12px]">40%</p>
+                <p className="font-inter text-[#CECFD2] font-medium text-[12px]">
+                  40%
+                </p>
               </div>
               <Button
                 size="lg"
@@ -101,7 +132,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {data.navMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a
+                    <NavLink
                       href={item.url}
                       className={`font-medium text-text-md-semibold font-inter gap-3`}
                     >
@@ -110,10 +141,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         alt={item.title}
                         width={24}
                         height={24}
-                        className="text-[#94969C]"
                       />
                       {item.title}
-                    </a>
+                    </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
