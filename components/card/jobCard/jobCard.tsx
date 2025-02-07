@@ -118,7 +118,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               width={18}
               height={18}
             />
-            <span className="text-sm">Hide</span>
+            <span className="text-sm text-[#CECFD2]">Hide</span>
           </button>
           <button className="flex items-center gap-1 text-gray-400 hover:text-white">
             <Image
@@ -127,13 +127,13 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               width={18}
               height={18}
             />
-            <span className="text-sm">Report</span>
+            <span className="text-sm text-[#CECFD2]">Report</span>
           </button>
         </div>
 
         <div className="flex gap-4">
           <button className="flex items-center gap-1 border border-gray-600 rounded-md px-4 py-2 text-white hover:bg-gray-700 transition">
-            <span className="text-sm">Save</span>
+            <span className="text-sm ">Save</span>
             <Image
               src="/static/icons/bookmark.svg"
               alt="Save"

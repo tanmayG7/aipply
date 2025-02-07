@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 
 const Header: React.FC = () => {
@@ -40,16 +41,16 @@ const Header: React.FC = () => {
           </span>
           {dropdownOpen && (
             <div className="absolute flex flex-col z-20 top-24 bg-white text-black px-6 py-2 right-8 rounded-md ">
-              <a href="/profile" className="text-text-lg-regular font-inter">
+              <Link href="/complete-profile" className="text-text-lg-regular font-inter">
                 Profile
-              </a>
-              <a href="/settings" className="text-text-lg-regular font-inter">
+              </Link>
+              <Link href="/settings" className="text-text-lg-regular font-inter">
                 Settings
-              </a>
+              </Link>
               <div className="divider" />
-              <a href="/logout" className="text-text-lg-regular font-inter">
+              <Link href="/" className="text-text-lg-regular font-inter">
                 Logout
-              </a>
+              </Link>
             </div>
           )}
         </div>

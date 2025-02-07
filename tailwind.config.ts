@@ -60,7 +60,8 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-				blue: "#6033F5"
+        gray: "#1F242F",
+        blue: "#6033F5",
       },
       fontFamily: {
         inter: ["Inter"],
@@ -72,7 +73,7 @@ export default {
       },
     },
 
-		fontSize: {
+    fontSize: {
       "text-sm-semibold": [
         "14px",
         {
@@ -398,7 +399,7 @@ export default {
           fontWeight: "700",
         },
       ],
-		}
+    },
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;

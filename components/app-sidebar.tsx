@@ -51,7 +51,6 @@ const data = {
   ],
 };
 
-
 const NavLink = ({
   href,
   children,
@@ -110,19 +109,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   40%
                 </p>
               </div>
-              <Button
-                size="lg"
-                variant="secondary"
-                className="w-full bg-background border rounded-lg border-[#333741] text-white"
-              >
-                Complete Profile
-                <Image
-                  src="/static/icons/arrow-right.svg"
-                  alt="arrow right"
-                  width={24}
-                  height={24}
-                />
-              </Button>
+              <Link href="/complete-profile">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="w-full bg-background border rounded-lg border-[#333741] text-white"
+                >
+                  Complete Profile
+                  <Image
+                    src="/static/icons/arrow-right.svg"
+                    alt="arrow right"
+                    width={24}
+                    height={24}
+                  />
+                </Button>
+              </Link>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
