@@ -8,6 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const WorkExperience = () => {
   const [experience, setExperience] = useState({
@@ -75,13 +76,10 @@ const WorkExperience = () => {
           />
 
           <div className="flex items-center gap-2">
-            <input
-            type="checkbox"
-              name="current"
-              checked={experience.current}
-              onChange={handleChange}
+            <Checkbox
+              id="current"
             />
-            <Label>I currently work here</Label>
+            <Label htmlFor="current">I currently work here</Label>
           </div>
 
           <Label>Employment Type</Label>

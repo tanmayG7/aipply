@@ -10,14 +10,13 @@ import Skills from "./profileFormSections/skillsSection";
 const ProfileForm = () => {
 
   return (
-    <div className="px-6 py-6">
-         <AboutSection />
-         <SocialMediaLinks />
-         <WorkExperience />
-         <EducationSection />
-         <Skills />
-         <AchievementsSection />
-         
+    <div className="py-6">
+      <AboutSection />
+      <SocialMediaLinks />
+      <WorkExperience />
+      <EducationSection />
+      <Skills />
+      <AchievementsSection />
     </div>
   );
 };

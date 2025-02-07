@@ -34,7 +34,7 @@ const EducationSection = () => {
     <Card className="grid grid-cols-7 max-w-[828px] text-white py-6">
       <CardHeader className="col-span-2">
         <CardTitle>Education</CardTitle>
-        <CardDescription>List your educational background.</CardDescription>
+        <CardDescription>What schools have you studied at?</CardDescription>
       </CardHeader>
       <CardContent className="col-span-5">
         <div className="flex flex-col gap-4">
@@ -104,8 +104,12 @@ const EducationSection = () => {
           </div>
 
           <div className="flex gap-4">
-            <Button className="w-fit px-8 bg-transparent border border-gray">Save</Button>
-            <Button variant="secondary">Cancel</Button>
+            <Button className="w-fit px-8 bg-transparent border border-gray">
+              Save
+            </Button>
+            <Button className="w-fit px-8 bg-transparent border border-gray">
+              Cancel
+            </Button>
           </div>
         </div>
       </CardContent>

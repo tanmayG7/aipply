@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
+import { Checkbox } from "../ui/checkbox";
 
 const PreferenceForm = () => {
   const [preferences, setPreferences] = useState({
@@ -21,33 +22,25 @@ const PreferenceForm = () => {
     },
   });
 
-    const [locations, setLocations] = useState<string[]>([]);
-    const [locationInput, setLocationInput] = useState("");
+  const [locations, setLocations] = useState<string[]>([]);
+  const [locationInput, setLocationInput] = useState("");
 
-    const addLocation = () => {
-      if (locationInput && !locations.includes(locationInput)) {
-        setLocations([...locations, locationInput]);
-        setLocationInput("");
-      }
-    };
+  const addLocation = () => {
+    if (locationInput && !locations.includes(locationInput)) {
+      setLocations([...locations, locationInput]);
+      setLocationInput("");
+    }
+  };
 
-    const removeLocation = (location: string) => {
-      setLocations(locations.filter((s) => s !== location));
-    };
+  const removeLocation = (location: string) => {
+    setLocations(locations.filter((s) => s !== location));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setPreferences((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
-
-  const handleAdditionalTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setPreferences((prev) => ({
-      ...prev,
-      additionalTypes: { ...prev.additionalTypes, [name]: checked },
     }));
   };
 
@@ -87,32 +80,27 @@ const PreferenceForm = () => {
 
           <Label>Open for the following job types:</Label>
           <div className="flex flex-col gap-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox id="Contractor" />
+              <label
+                htmlFor="contractor"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Contractor
+              </label>
+            </div>
+
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="contractor"
-                checked={preferences.additionalTypes.contractor}
-                onChange={handleAdditionalTypeChange}
+              <Checkbox
+                id="intern"
               />
-              <Label>Contractor</Label>
+              <Label htmlFor="intern">Intern</Label>
             </div>
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="contractor"
-                checked={preferences.additionalTypes.intern}
-                onChange={handleAdditionalTypeChange}
+              <Checkbox
+                id="freelance"
               />
-              <Label>Intern</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="contractor"
-                checked={preferences.additionalTypes.freelance}
-                onChange={handleAdditionalTypeChange}
-              />
-              <Label>Freelance</Label>
+              <Label htmlFor="freelance">Freelance</Label>
             </div>
           </div>
 

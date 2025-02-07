@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Image from "next/image";
+import { Checkbox } from "./ui/checkbox";
 
 export function LoginForm({
   className,
@@ -102,8 +103,7 @@ export function LoginForm({
 
                 <div className="flex flex-row justify-between">
                   <div className="flex flex-row gap-2 ">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       id="remember"
                       className="border-[1px] bg-[#333741]"
                     />

@@ -22,12 +22,12 @@ const EditProfile: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 max-w-[828px]">
       <div className="flex flex-row justify-between">
         <p className="font-inter text-[28px] text-lg font-bold">
           Edit your AipPly profile
         </p>
-        <Button className="w-fit bg-transparent border  hover:bg-slate-800">
+        <Button className="w-fit bg-transparent border hover:bg-slate-800">
           <Image
             src={"/static/icons/add.svg"}
             width={20}
