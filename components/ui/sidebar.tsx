@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft, ChevronLeft, ChevronRight } from "lucide-react"
+import { PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -175,7 +175,7 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile, toggleSidebar } = useSidebar()
+    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
     if (collapsible === "none") {
       return (
@@ -254,7 +254,7 @@ const Sidebar = React.forwardRef<
             className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:shadow"
           >
             {children}
-            <button
+            {/* <button
               onClick={toggleSidebar}
               className="absolute bottom-4 right-4 p-2 bg-sidebar-accent rounded-full z-20"
             >
@@ -263,7 +263,7 @@ const Sidebar = React.forwardRef<
               ) : (
                 <ChevronRight className="text-background" />
               )}
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -284,7 +284,7 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn("h-7 w-7 border border-gray", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()

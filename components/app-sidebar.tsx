@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { Button } from "./ui/button";
@@ -87,6 +88,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     >
       <div className="bg-gradient-to-b from-[#020217] to-[#470b9a] text-[#CECFD2] h-screen rounded-2xl border-[#454545] border-[2px] ">
         <SidebarHeader className="border-b-[2px] border-[#1F242F]">
+          <SidebarTrigger />
           <div className="flex items-center justify-center py-6">
             <Image
               src={"/static/icons/aipplyLogo.svg"}
@@ -108,27 +110,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </div>
                 </a>
               </SidebarMenuButton>
-              <div className="flex flex-row items-center gap-2">
-                <Progress value={40} />
-                <p className="font-inter text-[#CECFD2] font-medium text-[12px]">
-                  40%
-                </p>
-              </div>
-              <Link href="/complete-profile">
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="w-full bg-background border rounded-lg border-[#333741] text-white"
-                >
-                  Complete Profile
-                  <Image
-                    src="/static/icons/arrow-right.svg"
-                    alt="arrow right"
-                    width={24}
-                    height={24}
-                  />
-                </Button>
-              </Link>
+
+              <SidebarMenuButton size="lg" asChild>
+                <div className="flex flex-row items-center gap-2">
+                  <Progress value={40} />
+                  <p className="font-inter text-[#CECFD2] font-medium text-[12px]">
+                    40%
+                  </p>
+                </div>
+              </SidebarMenuButton>
+
+              <SidebarMenuButton size="lg" asChild>
+                <Link href="/complete-profile">
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="w-full bg-background border rounded-lg border-[#333741] text-white"
+                  >
+                    Complete Profile
+                    <Image
+                      src="/static/icons/arrow-right.svg"
+                      alt="arrow right"
+                      width={24}
+                      height={24}
+                    />
+                  </Button>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
