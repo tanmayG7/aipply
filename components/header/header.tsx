@@ -11,10 +11,10 @@ const Header: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-row items-center justify-end gap-6 py-3 px-4 border border-[#454545] mt-6 rounded-xl mx-6 bg-[#020218]">
+    <div className="flex flex-row items-center justify-end gap-6 py-3 px-4 border border-[#454545] mt-6 rounded-xl mx-6 bg-[#020218] w-full">
       <button
         type="button"
-        className="w-fit text-white rounded-lg border border-[#454545] px-4 py-2 bg-[#161B26]"
+        className="hidden md:flex w-fit text-white rounded-lg border border-[#454545] px-4 py-2 bg-[#161B26]"
       >
         Actively looking for a job
       </button>
