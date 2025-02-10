@@ -25,7 +25,7 @@ const TestimonialsCard: React.FC<TestimonialProps> = ({
   return (
     <div className="h-screen w-full  p-8 text-white">
       <div
-        className="h-full flex flex-col justify-end rounded-2xl"
+        className="h-full flex flex-col justify-end rounded-2xl transition-x-[100%] duration-1000 ease-in-out"
         style={{
           backgroundImage: `url(${image})`,
           backgroundSize: "cover",

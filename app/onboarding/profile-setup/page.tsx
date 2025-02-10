@@ -36,19 +36,19 @@ export default function ProfileSetup() {
 
   return (
     <div className="h-screen flex items-center justify-center bg-[#020218]">
-      <div className="flex flex-col w-[40%] gap-[60px]">
-        <div className="flex gap-4 items-center justify-center ">
+      <div className="flex flex-col gap-[60px]">
+        <div className="flex gap-4 top-[80px] absolute left-1/2 transform -translate-x-1/2 items-center justify-center md:max-w-[520px] w-full">
           {[...Array(6)].map((_, index) => (
             <div
               key={index}
-              className={`w-[10%] p-[3px] ${
+              className={`w-[10%] p-[2px] ${
                 page - 1 > index ? "bg-[#5D29FF]" : "bg-white"
               }`}
             ></div>
           ))}
         </div>
-        <Card className="text-white flex flex-col gap-[100px]">
-          <CardHeader className="flex flex-col gap-10 text-center items-center">
+        <Card className="text-white flex flex-col md:gap-[80px] gap-10">
+          <CardHeader className="flex flex-col gap-10 text-center items-center md:min-w-[594px] w-full">
             <Image
               src={"/static/icons/aipplyLogo.svg"}
               alt="Aipply Logo"
@@ -65,11 +65,11 @@ export default function ProfileSetup() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="md:w-[80%] w-full m-auto">
             <form onSubmit={handleSubmit} className="flex flex-col gap-8">
               {page === 1 && (
                 <div className="grid gap-6">
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 md:gap-6 gap-2">
                     <div className="grid gap-2">
                       <Label htmlFor="firstName">First Name</Label>
                       <Input
@@ -134,6 +134,9 @@ export default function ProfileSetup() {
                       onChange={handleChange}
                       required
                     />
+                    <p className="text-text-sm-regular font-inter text-[#94969C]">
+                      Ex: Marketing Manager, Software Engineer, Sales Associate.
+                    </p>
                   </div>
                 </div>
               )}
@@ -150,6 +153,9 @@ export default function ProfileSetup() {
                       onChange={handleChange}
                       required
                     />
+                    <p className="text-text-sm-regular font-inter text-[#94969C]">
+                      Ex: Marketing Manager, Software Engineer, Sales Associate.
+                    </p>
                   </div>
                 </div>
               )}
@@ -166,6 +172,9 @@ export default function ProfileSetup() {
                       onChange={handleChange}
                       required
                     />
+                    <p className="text-text-sm-regular font-inter text-[#94969C]">
+                      Ex: 10LPA, 20LPA, 30LPA.
+                    </p>
                   </div>
                 </div>
               )}
@@ -182,6 +191,9 @@ export default function ProfileSetup() {
                       onChange={handleChange}
                       required
                     />
+                    <p className="text-text-sm-regular font-inter text-[#94969C]">
+                      Ex: 10LPA, 20LPA, 30LPA.
+                    </p>
                   </div>
                 </div>
               )}
@@ -193,7 +205,7 @@ export default function ProfileSetup() {
                       id="linkedinProfile"
                       name="linkedinProfile"
                       type="text"
-                      placeholder="Enter your LinkedIn Profile URL"
+                      placeholder="https://"
                       value={formData.linkedinProfile}
                       onChange={handleChange}
                       required

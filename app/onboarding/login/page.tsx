@@ -23,11 +23,11 @@ export default function LoginPage() {
 
   return (
     <div className="flex w-full h-full bg-[#020218]">
-      <div className="grid grid-cols-2 items-center justify-center w-full">
-        <div className="w-[60%] m-auto items-center justify-center">
+      <div className="grid grid-cols-1 md:grid-cols-2  items-center justify-center w-full">
+        <div className="md:w-[60%] w-fit m-auto items-center justify-center">
           <LoginForm />
         </div>
-        <div>
+        <div className="md:flex hidden">
           <TestimonialsCard
             image={currentTestimonial.image}
             comment={currentTestimonial.comment}
