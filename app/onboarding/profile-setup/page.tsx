@@ -62,13 +62,14 @@ export default function ProfileSetup() {
     }
   };
   const handleBack = () => setPage((prev) => prev - 1);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
-    router.push("/next-step");
+    // router.push("/next-step");
+    router.push("/profile-setup");
   };
 
   return (
@@ -119,7 +120,9 @@ export default function ProfileSetup() {
                         required
                         className={errors.firstName ? "border-red-500" : ""}
                       />
-                      {errors.firstName && <p className="text-red-500">First Name is required</p>}
+                      {errors.firstName && (
+                        <p className="text-red-500">First Name is required</p>
+                      )}
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="lastName">Last Name</Label>
@@ -133,7 +136,9 @@ export default function ProfileSetup() {
                         required
                         className={errors.lastName ? "border-red-500" : ""}
                       />
-                      {errors.lastName && <p className="text-red-500">Last Name is required</p>}
+                      {errors.lastName && (
+                        <p className="text-red-500">Last Name is required</p>
+                      )}
                     </div>
                   </div>
                   <div className="grid gap-2">
@@ -148,7 +153,9 @@ export default function ProfileSetup() {
                       required
                       className={errors.mobileNumber ? "border-red-500" : ""}
                     />
-                    {errors.mobileNumber && <p className="text-red-500">Mobile Number is required</p>}
+                    {errors.mobileNumber && (
+                      <p className="text-red-500">Mobile Number is required</p>
+                    )}
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
@@ -162,7 +169,9 @@ export default function ProfileSetup() {
                       required
                       className={errors.email ? "border-red-500" : ""}
                     />
-                    {errors.email && <p className="text-red-500">Email is required</p>}
+                    {errors.email && (
+                      <p className="text-red-500">Email is required</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -180,7 +189,11 @@ export default function ProfileSetup() {
                       required
                       className={errors.currentJobTitle ? "border-red-500" : ""}
                     />
-                    {errors.currentJobTitle && <p className="text-red-500">Current Job Title is required</p>}
+                    {errors.currentJobTitle && (
+                      <p className="text-red-500">
+                        Current Job Title is required
+                      </p>
+                    )}
                     <p className="text-text-sm-regular font-inter text-[#94969C]">
                       Ex: Marketing Manager, Software Engineer, Sales Associate.
                     </p>
@@ -191,17 +204,39 @@ export default function ProfileSetup() {
                 <div className="grid gap-6">
                   <div className="grid gap-2">
                     <Label htmlFor="aimingJobTitle">Aiming Job Title</Label>
-                    <Input
+                    <select
                       id="aimingJobTitle"
                       name="aimingJobTitle"
-                      type="text"
-                      placeholder="Enter the Job Title you are aiming for"
                       value={formData.aimingJobTitle}
                       onChange={handleChange}
                       required
-                      className={errors.aimingJobTitle ? "border-red-500" : ""}
-                    />
-                    {errors.aimingJobTitle && <p className="text-red-500">Aiming Job Title is required</p>}
+                      className={`p-3 text-text-sm-regular font-inter text-[#94969C] bg-gray ${
+                        errors.aimingJobTitle ? "border-red-500" : ""
+                      }`}
+                    >
+                      <option value="" disabled>
+                        Select your aiming job title
+                      </option>
+                      <option value="Content Writing">Content Writing</option>
+                      <option value="Data Analyst">Data Analyst</option>
+                      <option value="Data Engineer">Data Engineer</option>
+                      <option value="Digital Marketing">
+                        Digital Marketing
+                      </option>
+                      <option value="Information Technology">
+                        Information Technology
+                      </option>
+                      <option value="Operations">Operations</option>
+                      <option value="Social Media">Social Media</option>
+                      <option value="Software Developer">
+                        Software Developer
+                      </option>
+                    </select>
+                    {errors.aimingJobTitle && (
+                      <p className="text-red-500">
+                        Aiming Job Title is required
+                      </p>
+                    )}
                     <p className="text-text-sm-regular font-inter text-[#94969C]">
                       Ex: Marketing Manager, Software Engineer, Sales Associate.
                     </p>
@@ -222,7 +257,9 @@ export default function ProfileSetup() {
                       required
                       className={errors.currentCTC ? "border-red-500" : ""}
                     />
-                    {errors.currentCTC && <p className="text-red-500">Current CTC is required</p>}
+                    {errors.currentCTC && (
+                      <p className="text-red-500">Current CTC is required</p>
+                    )}
                     <p className="text-text-sm-regular font-inter text-[#94969C]">
                       Ex: 10LPA, 20LPA, 30LPA.
                     </p>
@@ -243,7 +280,9 @@ export default function ProfileSetup() {
                       required
                       className={errors.expectedCTC ? "border-red-500" : ""}
                     />
-                    {errors.expectedCTC && <p className="text-red-500">Expected CTC is required</p>}
+                    {errors.expectedCTC && (
+                      <p className="text-red-500">Expected CTC is required</p>
+                    )}
                     <p className="text-text-sm-regular font-inter text-[#94969C]">
                       Ex: 10LPA, 20LPA, 30LPA.
                     </p>
@@ -264,7 +303,11 @@ export default function ProfileSetup() {
                       required
                       className={errors.linkedinProfile ? "border-red-500" : ""}
                     />
-                    {errors.linkedinProfile && <p className="text-red-500">LinkedIn Profile is required</p>}
+                    {errors.linkedinProfile && (
+                      <p className="text-red-500">
+                        LinkedIn Profile is required
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

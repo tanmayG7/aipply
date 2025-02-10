@@ -19,22 +19,22 @@ export default function Page() {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const fetchedJobs: Job[] = await getJobsByTitle("Software Developer");
+      const fetchedJobs: Job[] = await getJobsByTitle("Social Media");
       setJobs(fetchedJobs);
+      setFilteredJobs(fetchedJobs); 
     };
 
     fetchJobs();
   }, []);
-
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilter(event.target.value);
   };
 
   const handleFilterClick = () => {
-    const filteredJobs = jobs.filter((job) =>
+    const filteredJob = jobs.filter((job) =>
       job.title.toLowerCase().includes(filter.toLowerCase())
     );
-    setFilteredJobs(filteredJobs);
+    setFilteredJobs(filteredJob);
   };
 
   const handleJobClick = (job: Job) => {
@@ -82,7 +82,7 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-4 cursor-pointer">
-            {jobs.map((job: Job) => (
+            {filteredJobs.map((job: Job) => (
               <div key={job.jobId} onClick={() => handleJobClick(job)}>
                 <JobCard job={job} />
               </div>
@@ -91,7 +91,7 @@ export default function Page() {
 
           {selectedJob && (
             <div
-              className={`fixed inset-0 bg-[#0C111D] bg-opacity-70 flex justify-end z-50 overflow-y-scroll transition-transform duration-1000 ease-in-out ${
+              className={`fixed hidden inset-0 bg-[#0C111D] bg-opacity-70  justify-end z-50 overflow-y-scroll transition-transform duration-1000 ease-in-out ${
                 isJobDescriptionVisible ? "translate-x-0" : "translate-x-full"
               }`}
             >

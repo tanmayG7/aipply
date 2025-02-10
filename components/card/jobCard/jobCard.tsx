@@ -8,6 +8,11 @@ interface JobCardProps {
   job: Job;
 }
 
+const truncateDescription = (description: string) => {
+  const words = description.split(" ");
+  return words.length > 15 ? words.slice(0, 20).join(" ") + "..." : description;
+};
+
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
   return (
     <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg w-full h-full">
@@ -41,7 +46,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               </div>
             </div>
             <div className="flex flex-row justify-between gap-6">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 max-w-[60%]">
                 <Image
                   src="/static/icons/location.svg"
                   alt="Location"
@@ -53,9 +58,9 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <span className="border border-gray-500 px-2 py-1 rounded-md text-white text-xs">
-              {job.description}
+          <div className="flex flex-wrap gap-2 max-w-full lg:max-w-[70%]">
+            <span className="px-2 py-1 rounded-md text-white text-xs">
+              {truncateDescription(job.description)}
             </span>
           </div>
         </div>
@@ -106,7 +111,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               height={16}
             />
           </button>
-          <Link href={job.jobUrl}>
+          <Link href={job.jobUrl ? job.jobUrl : "#"}>
             <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 rounded-md text-white hover:bg-blue-600 transition bg-blue">
               <span className="text-sm">Apply</span>
               <Image

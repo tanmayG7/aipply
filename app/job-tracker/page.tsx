@@ -29,14 +29,33 @@ const JobTrackerPage: React.FC = () => {
       <SidebarInset>
         <Header />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative bg-[#020218] text-white ">
-          <div className="gap-2">
-            <h1 className="font-inter text-[#ECECED] font-bold text-[40px]">
-              Tracker
-            </h1>
-            <p className="font-inter text-[#ECECED] text-[14px] font-normal text-text-sm-semibold">
-              All your applied jobs will appear here for you to track every
-              step.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-4">
+            <div className="gap-2">
+              <h1 className="font-inter text-[#ECECED] font-bold text-[40px]">
+                Tracker
+              </h1>
+              <p className="font-inter text-[#ECECED] text-[14px] font-normal text-text-sm-semibold">
+                All your applied jobs will appear here for you to track every
+                step.
+              </p>
+            </div>
+
+            <div className="flex flex-row gap-2 justify-start lg:justify-end">
+              <input
+                type="text"
+                className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
+                placeholder="Search jobs"
+              />
+              <button className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit">
+                <Image
+                  src="/static/icons/filter.svg"
+                  alt="Search"
+                  width={20}
+                  height={20}
+                />
+                Filter
+              </button>
+            </div>
           </div>
           <div className="flex flex-row gap-2">
             <button
