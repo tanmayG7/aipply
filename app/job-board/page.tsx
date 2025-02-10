@@ -60,21 +60,21 @@ export default function Page() {
       <SidebarInset>
         <Header />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
-          <div className="flex flex-row justify-between">
-            <h1 className="text-inter font-bold text-[40px] text-[#ECECED]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
+            <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
               Job Board
             </h1>
-            <div className="flex gap-2 ">
+            <div className="flex flex-row gap-2 justify-start lg:justify-end">
               <input
                 type="text"
-                className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md"
+                className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
                 value={filter}
                 onChange={handleFilterChange}
                 placeholder="Search jobs"
               />
               <button
                 onClick={handleFilterClick}
-                className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545]"
+                className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
               >
                 <Image
                   src="/static/icons/filter.svg"

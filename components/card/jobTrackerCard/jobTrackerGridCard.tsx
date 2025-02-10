@@ -21,14 +21,14 @@ const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
 }) => {
 
   return (
-    <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg">
-      <div className="flex flex-row justify-between items-start">
+    <div className="bg-[#0C111D] w-full p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg">
+      <div className="flex gap-4 flex-col-reverse justify-between items-start">
         <div className="flex flex-col gap-4">
-          <div className="flex flex-row gap-3 items-center">
-            <h1 className="font-inter font-semibold text-[24px] text-white">
+          <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
+            <h1 className="font-inter font-semibold text-[20px] lg:text-[24px] text-white">
               {jobTitle}
             </h1>
-            <div className="flex flex-row border border-gray-500 rounded-md px-2 items-center gap-1">
+            <div className="hidden lg:flex flex-row border border-gray-500 rounded-md px-2 gap-1">
               <Image
                 src={getWorkTypeImage(workType)}
                 alt="Dot"
@@ -37,10 +37,11 @@ const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
               />
               <span className="text-white text-sm">{workType}</span>
             </div>
+            
           </div>
 
-          <div className="flex flex-wrap gap-6 text-white text-sm">
-            <div className="flex flex-row gap-6">
+          <div className="grid grid-rows-2 gap-6 text-white text-sm ">
+            <div className="flex flex-col lg:flex-row justify-between gap-3 lg:gap-6">
               <div className="flex items-center gap-2">
                 <Image
                   src="/static/icons/briefcase.svg"
@@ -61,7 +62,7 @@ const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-row gap-6">
+            <div className="flex flex-col lg:flex-row justify-between gap-3 md:gap-6">
               <div className="flex items-center gap-2">
                 <Image
                   src="/static/icons/location.svg"
@@ -93,7 +94,7 @@ const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
             className="rounded-full"
           />
           <div className="flex flex-col">
-            <p className="text-white font-semibold">{companyName}</p>
+            <p className="text-white font-inter text-[14px] opacity-[70%] font-semibold">{companyName}</p>
           </div>
         </div>
       </div>

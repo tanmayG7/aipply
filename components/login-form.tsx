@@ -115,7 +115,7 @@ export function LoginForm({
                     href="#"
                     className="ml-auto text-text-sm-medium font-inter text-[#CECFD2] underline-offset-4"
                   >
-                    Forgot your password?
+                    Forgot password?
                   </a>
                 </div>
 
