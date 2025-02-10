@@ -45,7 +45,7 @@ const PreferenceForm = () => {
   };
 
   return (
-    <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white">
+    <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white border border-gray rounded-xl">
       <CardHeader className="col-span-2">
         <CardTitle>Preferences</CardTitle>
         <CardDescription>Set your job preferences.</CardDescription>

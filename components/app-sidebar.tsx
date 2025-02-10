@@ -79,7 +79,12 @@ const NavLink = ({
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar variant="floating" {...props} className="bg-background ">
+    <Sidebar
+      variant="floating"
+      collapsible={"icon"}
+      {...props}
+      className="bg-background z-40"
+    >
       <div className="bg-gradient-to-b from-[#020217] to-[#470b9a] text-[#CECFD2] h-screen rounded-2xl border-[#454545] border-[2px] ">
         <SidebarHeader className="border-b-[2px] border-[#1F242F]">
           <div className="flex items-center justify-center py-6">

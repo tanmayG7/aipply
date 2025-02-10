@@ -8,7 +8,7 @@ import {
 
 const AchievementsSection = () => {
   return (
-    <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white">
+    <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
         <CardTitle>Achievements</CardTitle>
         <CardDescription>

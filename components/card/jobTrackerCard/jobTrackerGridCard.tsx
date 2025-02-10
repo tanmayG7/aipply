@@ -22,13 +22,13 @@ const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
 
   return (
     <div className="bg-[#0C111D] w-full p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg">
-      <div className="flex gap-4 flex-col-reverse justify-between items-start">
+      <div className="flex gap-4 flex-col-reverse justify-between items-start h-full w-full">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
             <h1 className="font-inter font-semibold text-[20px] lg:text-[24px] text-white">
               {jobTitle}
             </h1>
-            <div className="hidden lg:flex flex-row border border-gray-500 rounded-md px-2 gap-1">
+            <div className="hidden xl:flex flex-row border border-gray-500 rounded-md px-2 gap-1">
               <Image
                 src={getWorkTypeImage(workType)}
                 alt="Dot"

@@ -32,7 +32,7 @@ const AboutSection = () => {
     }));
   };
   return (
-    <Card className="grid grid-cols-7 gap-[52px] max-w-[828px] py-6">
+    <Card className="grid grid-cols-7 gap-[52px] max-w-[828px] py-6 border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
         <CardTitle className="text-[16px] font-inter font-semibold text-white">
           About

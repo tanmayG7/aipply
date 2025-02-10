@@ -25,7 +25,7 @@ const Skills = () => {
   };
 
   return (
-    <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white">
+    <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
         <CardTitle>Skills</CardTitle>
         <CardDescription>Add your key skills.</CardDescription>
@@ -43,7 +43,7 @@ const Skills = () => {
               </div>
             ))}
           </div>
-          
+
           <Input
             value={skillInput}
             onChange={(e) => setSkillInput(e.target.value)}

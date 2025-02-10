@@ -21,10 +21,9 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
-
   return (
-    <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg">
-      <div className="flex flex-row justify-between items-start border-b-[1px] border-[#454545] pb-6">
+    <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg w-full h-full">
+      <div className="flex flex-col-reverse gap-4 lg:gap-0 lg:flex-row justify-between items-start border-b-[1px] border-[#454545] pb-6">
         <div className="flex flex-col gap-4">
           <div className="flex flex-row gap-3 items-center">
             <h1 className="font-inter font-semibold text-[24px] text-white">
@@ -41,42 +40,46 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-6 text-white text-sm">
-            <div className="flex items-center gap-2">
-              <Image
-                src="/static/icons/briefcase.svg"
-                alt="Experience"
-                width={20}
-                height={20}
-              />
-              <span>{job.experience}</span>
+          <div className="flex flex-col lg:flex-row gap-6 text-white text-sm">
+            <div className="flex flex-row justify-between gap-6">
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/static/icons/briefcase.svg"
+                  alt="Experience"
+                  width={20}
+                  height={20}
+                />
+                <span>{job.experience}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/static/icons/currencyRupee.svg"
+                  alt="Salary"
+                  width={20}
+                  height={20}
+                />
+                <span>{job.jobPackage}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Image
-                src="/static/icons/currencyRupee.svg"
-                alt="Salary"
-                width={20}
-                height={20}
-              />
-              <span>{job.jobPackage}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Image
-                src="/static/icons/location.svg"
-                alt="Location"
-                width={20}
-                height={20}
-              />
-              <span>{job.location}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Image
-                src="/static/icons/jobType.svg"
-                alt="Role Type"
-                width={20}
-                height={20}
-              />
-              <span>{job.roleType}</span>
+            <div className="flex flex-row justify-between gap-6">
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/static/icons/location.svg"
+                  alt="Location"
+                  width={20}
+                  height={20}
+                />
+                <span>{job.location}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/static/icons/jobType.svg"
+                  alt="Role Type"
+                  width={20}
+                  height={20}
+                />
+                <span>{job.roleType}</span>
+              </div>
             </div>
           </div>
 
@@ -109,7 +112,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
         </div>
       </div>
 
-      <div className="flex flex-row justify-between items-center">
+      <div className="flex flex-row justify-between items-center lg:items-center gap-6">
         <div className="flex gap-4">
           <button className="flex items-center gap-1 text-gray-400 hover:text-white">
             <Image

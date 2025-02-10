@@ -4,7 +4,7 @@ import { Input } from '../ui/input';
 
 const UploadCv = () => {
   return (
-    <Card className="grid grid-cols-8 max-w-[828px] py-6 text-white">
+    <Card className="grid grid-cols-8 max-w-[828px] py-6 text-white border border-gray rounded-xl">
       <CardHeader className="col-span-3">
         <CardTitle>Upload your resume or CV</CardTitle>
         <CardDescription>Upload most up-to-date resume.</CardDescription>

@@ -31,7 +31,7 @@ const EducationSection = () => {
   };
 
   return (
-    <Card className="grid grid-cols-7 max-w-[828px] text-white py-6">
+    <Card className="grid grid-cols-7 max-w-[828px] text-white py-6 border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
         <CardTitle>Education</CardTitle>
         <CardDescription>What schools have you studied at?</CardDescription>
