@@ -4,41 +4,35 @@ import JobCard from "@/components/card/jobCard/jobCard";
 import Header from "@/components/header/header";
 import JobDescription from "@/components/jobdescription/jobDescription";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { jobBoardData } from "@/lib/staticData";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
-
-type Job = {
-  id: string;
-  jobTitle: string;
-  companyName: string;
-  jobPackage: string;
-  workType: string;
-  experience: string;
-  location: string;
-  roleType: string;
-  skills: string[];
-  applyLink: string;
-  jobDescription: string;
-  keyResponsibilities: string[];
-  requiredSkillsExperienceQualifications: string[];
-  aboutCompany: string[];
-};
+import { useState, useEffect } from "react";
+import { getJobsByTitle } from "@/lib/mongo/mongo";
+import { Job } from "@/lib/types";
 
 export default function Page() {
   const [filter, setFilter] = useState("");
-  const [filteredJobs, setFilteredJobs] = useState(jobBoardData);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isJobDescriptionVisible, setIsJobDescriptionVisible] = useState(false);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const fetchedJobs: Job[] = await getJobsByTitle("Software Developer");
+      setJobs(fetchedJobs);
+    };
+
+    fetchJobs();
+  }, []);
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilter(event.target.value);
   };
 
   const handleFilterClick = () => {
-    const filteredJobs = jobBoardData.filter((job) =>
-      job.jobTitle.toLowerCase().includes(filter.toLowerCase())
+    const filteredJobs = jobs.filter((job) =>
+      job.title.toLowerCase().includes(filter.toLowerCase())
     );
     setFilteredJobs(filteredJobs);
   };
@@ -88,8 +82,8 @@ export default function Page() {
           </div>
 
           <div className="flex flex-col gap-4 cursor-pointer">
-            {filteredJobs.map((job) => (
-              <div key={job.id} onClick={() => handleJobClick(job)}>
+            {jobs.map((job: Job) => (
+              <div key={job.jobId} onClick={() => handleJobClick(job)}>
                 <JobCard job={job} />
               </div>
             ))}

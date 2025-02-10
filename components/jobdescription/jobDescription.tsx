@@ -1,21 +1,5 @@
+import { Job } from "@/lib/types";
 import React from "react";
-
-interface Job {
-  id: string;
-  jobTitle: string;
-  companyName: string;
-  jobPackage: string;
-  workType: string;
-  experience: string;
-  location: string;
-  roleType: string;
-  skills: string[];
-  applyLink: string;
-  jobDescription: string;
-  keyResponsibilities: string[];
-  requiredSkillsExperienceQualifications: string[];
-  aboutCompany: string[];
-}
 
 interface JobCardProps {
   job: Job;
@@ -33,21 +17,21 @@ const JobDescription: React.FC<JobCardProps> = ({ job, isVisible }) => {
             Job Description
           </h2>
           <p className="font-inter text-[16px] font-normal text-white opacity-[80%]">
-            {job.jobDescription}
+            {job.description}
           </p>
         </div>
-        <div className="flex flex-col gap-6">
+        {/* <div className="flex flex-col gap-6">
           <h4 className="font-inter text-[16px] text-white font-bold">
             Key Responsibilities
           </h4>
           <ul className="list-disc list-inside font-inter text-[16px] font-normal text-white opacity-[80%]">
-            {job.keyResponsibilities.map((responsibility, index) => (
+            {job..map((responsibility, index) => (
               <li key={index}>{responsibility}</li>
             ))}
           </ul>
-        </div>
+        </div> */}
 
-        <div className="flex flex-col gap-6">
+        {/* <div className="flex flex-col gap-6">
           <h4 className="font-inter text-[16px] text-white font-bold">
             Required Skills, Experience & Qualifications
           </h4>
@@ -58,9 +42,9 @@ const JobDescription: React.FC<JobCardProps> = ({ job, isVisible }) => {
               )
             )}
           </ul>
-        </div>
+        </div> */}
 
-        <div className="flex flex-col gap-6">
+        {/* <div className="flex flex-col gap-6">
           <h4 className="font-inter text-[16px] text-white font-bold">
             Key Skills
           </h4>
@@ -74,8 +58,8 @@ const JobDescription: React.FC<JobCardProps> = ({ job, isVisible }) => {
               </span>
             ))}
           </div>
-        </div>
-        <div className="flex flex-col gap-6">
+        </div> */}
+        {/* <div className="flex flex-col gap-6">
           <h4 className="font-inter text-[16px] text-white font-bold">
             About Company
           </h4>
@@ -84,7 +68,7 @@ const JobDescription: React.FC<JobCardProps> = ({ job, isVisible }) => {
               <li key={index}>{company}</li>
             ))}
           </ul>
-        </div>
+        </div> */}
       </div>
     </div>
   );

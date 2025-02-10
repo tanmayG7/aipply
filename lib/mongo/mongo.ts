@@ -1,3 +1,4 @@
+"use server";
 import { MongoClient, Db } from "mongodb";
 
 const MONGODB_URI = process.env.MONGODB_URI as string; // MongoDB Connection String
@@ -17,10 +18,11 @@ export const connectToMongoDB = async (): Promise<Db> => {
   if (cachedDb) {
     return cachedDb;
   }
+  
 
   const client = new MongoClient(MONGODB_URI);
   await client.connect();
-
+  console.log("Connected to MongoDB");
   cachedDb = client.db(MONGODB_DB);
 
   return cachedDb;
@@ -37,6 +39,11 @@ export const getJobsByPreferences = async (location: string, role: string) => {
   return await db.collection("jobs").find({ location, role }).limit(20).toArray();
 };
 
+export const getJobsByTitle = async (jobTitle: string, limit: number = 20) => {
+  const db = await connectToMongoDB();
+  const data = JSON.parse(JSON.stringify(await db.collection(`test-${jobTitle}`).find().limit(limit).toArray()))
+  return data
+};
 
 export const saveJobForUser = async (userId: string, jobId: string) => {
   const db = await connectToMongoDB();

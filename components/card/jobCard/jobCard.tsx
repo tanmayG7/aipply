@@ -1,20 +1,8 @@
-import { getWorkTypeImage } from "@/lib/staticData";
+"use client";
+import { Job } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-
-interface Job {
-  id: string;
-  jobTitle: string;
-  companyName: string;
-  jobPackage: string;
-  workType: string;
-  experience: string;
-  location: string;
-  roleType: string;
-  skills: string[];
-  applyLink: string;
-}
 
 interface JobCardProps {
   job: Job;
@@ -27,17 +15,8 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
         <div className="flex flex-col gap-4">
           <div className="flex flex-row gap-3 items-center">
             <h1 className="font-inter font-semibold text-[24px] text-white">
-              {job.jobTitle}
+              {job.title}
             </h1>
-            <div className="flex flex-row border border-gray-500 rounded-md px-2 items-center gap-1">
-              <Image
-                src={getWorkTypeImage(job.workType)}
-                alt="Dot"
-                width={8}
-                height={8}
-              />
-              <span className="text-white text-sm">{job.workType}</span>
-            </div>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-6 text-white text-sm">
@@ -58,7 +37,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
                   width={20}
                   height={20}
                 />
-                <span>{job.jobPackage}</span>
+                <span>{job.salary}</span>
               </div>
             </div>
             <div className="flex flex-row justify-between gap-6">
@@ -71,27 +50,13 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
                 />
                 <span>{job.location}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/static/icons/jobType.svg"
-                  alt="Role Type"
-                  width={20}
-                  height={20}
-                />
-                <span>{job.roleType}</span>
-              </div>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {job.skills.map((skill, index) => (
-              <span
-                key={index}
-                className="border border-gray-500 px-2 py-1 rounded-md text-white text-xs"
-              >
-                {skill}
-              </span>
-            ))}
+            <span className="border border-gray-500 px-2 py-1 rounded-md text-white text-xs">
+              {job.description}
+            </span>
           </div>
         </div>
 
@@ -104,10 +69,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             className="rounded-full"
           />
           <div className="flex flex-col">
-            <p className="text-white font-semibold">{job.companyName}</p>
-            {/* <Link href={job.applyLink} className="text-blue text-sm">
-              {job.applyLink}
-            </Link> */}
+            <p className="text-white font-semibold">{job.company}</p>
           </div>
         </div>
       </div>
@@ -144,7 +106,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               height={16}
             />
           </button>
-          <Link href={job.applyLink}>
+          <Link href={job.jobUrl}>
             <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 rounded-md text-white hover:bg-blue-600 transition bg-blue">
               <span className="text-sm">Apply</span>
               <Image
