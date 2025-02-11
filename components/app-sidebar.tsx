@@ -1,5 +1,7 @@
 import * as React from "react";
 import { UserRound } from "lucide-react";
+import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 
 import {
   Sidebar,
@@ -12,8 +14,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
-import { Button } from "./ui/button";
-import { Progress } from "./ui/progress";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -64,6 +64,27 @@ const NavLink = ({
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [userProfile, setUserProfile] = React.useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null>(null);
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const profile = await getUserProfile(user.uid);
+        setUserProfile({
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          email: profile.email,
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <Sidebar
       variant="floating"
@@ -84,42 +105,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
           <SidebarMenu>
             <SidebarMenuItem className="flex flex-col gap-4 pb-6">
-              <SidebarMenuButton size="lg" asChild>
-                <a href="#">
+              <SidebarMenuButton size="lg" asChild className="py-4">
+                <Link href="/complete-profile" className="flex flex-row">
                   <div className="flex rounded-full size-12 items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground">
                     <UserRound className="size-8" />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold">Gwen Stacy</span>
-                    <span className="">gwenstacy@gmail.com</span>
+                    <span className="font-semibold">
+                      {`${userProfile?.firstName} ${userProfile?.lastName}` ||
+                        "Loading..."}
+                    </span>
+                    <span className="">
+                      {userProfile?.email || "Loading..."}
+                    </span>
                   </div>
-                </a>
-              </SidebarMenuButton>
-
-              <SidebarMenuButton size="lg" asChild>
-                <div className="flex flex-row items-center gap-2">
-                  <Progress value={40} />
-                  <p className="font-inter text-[#CECFD2] font-medium text-[12px]">
-                    40%
-                  </p>
-                </div>
-              </SidebarMenuButton>
-
-              <SidebarMenuButton size="lg" asChild>
-                <Link href="/complete-profile">
-                  <Button
-                    size="lg"
-                    variant="secondary"
-                    className="w-full bg-background border rounded-lg border-[#333741] text-white hover:text-black"
-                  >
-                    Complete Profile
-                    <Image
-                      src="/static/icons/arrow-right.svg"
-                      alt="arrow right"
-                      width={24}
-                      height={24}
-                    />
-                  </Button>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -140,6 +139,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         alt={item.title}
                         width={24}
                         height={24}
+                        className="hover:text-black"
                       />
                       {item.title}
                     </NavLink>

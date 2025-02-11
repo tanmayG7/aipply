@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
       <AppSidebar />
       <SidebarInset className="flex flex-col gap-10">
         <Header />
-        <div className="flex flex-col gap-4 lg:flex-row justify-between max-w-[828px] mx-6">
+        {/* <div className="flex flex-col gap-4 lg:flex-row justify-between max-w-[828px] mx-6">
           <p className="text-white font-inter text-[14px] font-semibold">Last profile updated on: Feb 6, 2024</p>
           <div className="z-40 flex flex-row items-center gap-2 w-[80%] lg:w-[60%]">
             <Progress value={40} />
@@ -26,7 +26,7 @@ const HomePage: React.FC = () => {
               40%
             </p>
           </div>
-        </div>
+        </div> */}
         <div className="flex flex-1 flex-col gap-4 p-4 relative bg-[#020218] text-white">
           <EditProfile />
         </div>

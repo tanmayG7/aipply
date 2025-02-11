@@ -100,4 +100,17 @@ const saveUserProfile = async (userId: string, profileData: any) => {
   }
 };
 
-export { auth, firestore, storage, checkAuthToken, authenticateUser, saveUserProfile, provider };
+const getUserProfile = async (userId: string) => {
+  try {
+    const userDoc = await getDoc(doc(firestore, "users", userId));
+    if (userDoc.exists()) {
+      return userDoc.data();
+    } else {
+      throw new Error("User profile not found");
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export { auth, firestore, storage, checkAuthToken, authenticateUser, saveUserProfile, provider, getUserProfile };
