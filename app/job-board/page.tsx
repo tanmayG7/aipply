@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { getJobsByTitle } from "@/lib/mongo/mongo";
 import { Job } from "@/lib/types";
+import { getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 
 export default function Page() {
   const [filter, setFilter] = useState("");
@@ -19,13 +20,19 @@ export default function Page() {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const fetchedJobs: Job[] = await getJobsByTitle("Social Media");
-      setJobs(fetchedJobs);
-      setFilteredJobs(fetchedJobs); 
+      try {
+        const userProfile = await getUserProfile(); // Fetch user profile
+        const fetchedJobs: Job[] = await getJobsByTitle(userProfile.aimingJobTitle); // Use aimingJobTitle from user profile
+        setJobs(fetchedJobs);
+        setFilteredJobs(fetchedJobs);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+      }
     };
 
     fetchJobs();
   }, []);
+
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilter(event.target.value);
   };

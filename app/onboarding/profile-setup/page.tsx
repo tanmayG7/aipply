@@ -23,6 +23,9 @@ export default function ProfileSetup() {
     currentCTC: "",
     expectedCTC: "",
     linkedinProfile: "",
+    lastPreferenceChangedDate: "",
+    createdDate: "",
+    updatedDate: "",
   });
 
   useEffect(() => {
@@ -108,7 +111,14 @@ export default function ProfileSetup() {
       try {
         const user = auth.currentUser;
         if (user) {
-          await saveUserProfile(user.uid, formData);
+          const currentDate = new Date().toISOString();
+          const updatedFormData = {
+            ...formData,
+            lastPreferenceChangedDate: currentDate,
+            updatedDate: currentDate,
+            createdDate: formData.createdDate || currentDate,
+          };
+          await saveUserProfile(user.uid, updatedFormData);
           router.push("/home");
         }
       } catch (error: any) {

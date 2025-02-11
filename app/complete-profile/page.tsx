@@ -2,7 +2,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import EditProfile from "@/components/completeProfile/editProfile";
 import Header from "@/components/header/header";
-import { Progress } from "@/components/ui/progress";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import React from "react";
 

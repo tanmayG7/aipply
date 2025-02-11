@@ -100,8 +100,13 @@ const saveUserProfile = async (userId: string, profileData: any) => {
   }
 };
 
-const getUserProfile = async (userId: string) => {
+const getUserProfile = async (userId?: string) => {
   try {
+    if (!userId) {
+      const user = auth.currentUser;
+      if (!user) throw new Error("No user is currently signed in");
+      userId = user.uid;
+    }
     const userDoc = await getDoc(doc(firestore, "users", userId));
     if (userDoc.exists()) {
       return userDoc.data();
