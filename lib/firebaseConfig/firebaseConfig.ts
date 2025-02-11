@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -15,7 +16,61 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const
-firestore = getFirestore(app);
+const firestore = getFirestore(app);
 const storage = getStorage(app);
-export { auth, firestore, storage };
+
+const checkAuthToken = (navigate: (path: string) => void) => {
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userDoc = await getDoc(doc(firestore, "users", user.uid));
+      if (userDoc.exists()) {
+        navigate("/home");
+      } else {
+        navigate("/onboarding/profile-setup");
+      }
+    } else {
+      navigate("/onboarding/login");
+    }
+  });
+};
+
+const loginUser = async (email: string, password: string, navigate: (path: string) => void) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    const token = await user.getIdToken();
+    localStorage.setItem("firebaseToken", token);
+
+    const userDoc = await getDoc(doc(firestore, "users", user.uid));
+    if (userDoc.exists()) {
+      navigate("/home");
+    } else {
+      navigate("/onboarding/profile-setup");
+    }
+    return user;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+const registerUser = async (email: string, password: string) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    const token = await user.getIdToken();
+    localStorage.setItem("firebaseToken", token);
+    return user;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+const saveUserProfile = async (userId: string, profileData: any) => {
+  try {
+    await setDoc(doc(firestore, "users", userId), profileData);
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export { auth, firestore, storage, checkAuthToken, loginUser, registerUser, saveUserProfile };

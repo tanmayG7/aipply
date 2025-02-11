@@ -2,12 +2,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebaseConfig/firebaseConfig";
 
 const Header: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("firebaseToken");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
 
   return (
@@ -48,9 +60,9 @@ const Header: React.FC = () => {
                 Settings
               </Link>
               <div className="divider" />
-              <Link href="/" className="text-text-lg-regular font-inter">
+              <button onClick={handleLogout} className="text-text-lg-regular font-inter">
                 Logout
-              </Link>
+              </button>
             </div>
           )}
         </div>

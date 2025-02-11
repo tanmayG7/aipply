@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import { auth } from "@/lib/firebaseConfig/firebaseConfig";
 
 export default function ProfileSetup() {
   const [page, setPage] = useState(1);
@@ -20,7 +22,7 @@ export default function ProfileSetup() {
     expectedCTC: "",
     linkedinProfile: "",
   });
-  
+
   const [errors, setErrors] = useState({
     firstName: false,
     lastName: false,
@@ -32,6 +34,7 @@ export default function ProfileSetup() {
     expectedCTC: false,
     linkedinProfile: false,
   });
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const validatePage = () => {
@@ -62,14 +65,27 @@ export default function ProfileSetup() {
     }
   };
   const handleBack = () => setPage((prev) => prev - 1);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
-    // router.push("/next-step");
-    router.push("/profile-setup");
+    if (validatePage()) {
+      setLoading(true);
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          await saveUserProfile(user.uid, formData);
+          router.push("/home");
+        }
+      } catch (error) {
+        console.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -334,7 +350,9 @@ export default function ProfileSetup() {
                     />
                   </Button>
                 ) : (
-                  <Button type="submit">Submit</Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? "Submitting..." : "Submit"}
+                  </Button>
                 )}
               </div>
             </form>

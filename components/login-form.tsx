@@ -11,36 +11,28 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebaseConfig/firebaseConfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import Image from "next/image";
 import { Checkbox } from "./ui/checkbox";
 
+interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
+  onLogin: (email: string, password: string) => void;
+  loading: boolean;
+  error: string;
+}
+
 export function LoginForm({
   className,
+  onLogin,
+  loading,
+  error,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const router = useRouter();
-
-  const handleLogin = async (e: React.FormEvent) => {
+  
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const token = await userCredential.user.getIdToken();
-      localStorage.setItem("token", token);
-      router.push("/job-board");
-    } catch (error) {
-      console.log(error);
-      setError("Invalid email or password");
-    }
+    onLogin(email, password);
   };
 
   return (
@@ -120,8 +112,8 @@ export function LoginForm({
                 </div>
 
                 {error && <p className="text-red-500 text-sm">{error}</p>}
-                <Button type="submit" className="w-full">
-                  Sign in
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Signing in..." : "Sign in"}
                 </Button>
               </div>
             </div>
