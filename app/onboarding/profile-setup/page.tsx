@@ -27,7 +27,12 @@ export default function ProfileSetup() {
   useEffect(() => {
     const user = auth.currentUser;
     if (user) {
-      setFormData((prevData) => ({ ...prevData, email: user.email || "" }));
+      setFormData((prevData) => ({
+        ...prevData,
+        email: user.email || "",
+        firstName: user.displayName?.split(" ")[0] || "",
+        lastName: user.displayName?.split(" ")[1] || "",
+      }));
     }
   }, []);
 

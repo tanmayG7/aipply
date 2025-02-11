@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -19,6 +19,8 @@ const auth = getAuth(app);
 const firestore = getFirestore(app);
 const storage = getStorage(app);
 
+const provider = new GoogleAuthProvider();
+
 const checkAuthToken = (navigate: (path: string) => void) => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -34,36 +36,57 @@ const checkAuthToken = (navigate: (path: string) => void) => {
   });
 };
 
-const authenticateUser = async (email: string, password: string, navigate: (path: string) => void) => {
+const authenticateUser = async (
+  email: string,
+  password: string,
+  navigate: (path: string) => void,
+  isGoogleSignIn = false,
+  setError: (message: string) => void
+) => {
   try {
-    // Check if the email exists in Firestore
-    const usersRef = collection(firestore, "users");
-    const q = query(usersRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      // If email does not exist, create a new user
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    let userCredential;
+    if (isGoogleSignIn) {
+      userCredential = await signInWithPopup(auth, provider);
       const user = userCredential.user;
-      const token = await user.getIdToken();
-      localStorage.setItem("firebaseToken", token);
-      navigate("/onboarding/profile-setup");
-      return user;
-    } else {
-      // If email exists, sign in the user
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const token = await user.getIdToken();
-      localStorage.setItem("firebaseToken", token);
+      const usersRef = collection(firestore, "users");
+      const q = query(usersRef, where("email", "==", user.email));
+      const querySnapshot = await getDocs(q);
 
-      const userDoc = await getDoc(doc(firestore, "users", user.uid));
-      if (userDoc.exists()) {
-        navigate("/home");
-      } else {
-        navigate("/onboarding/profile-setup");
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        if (userDoc.id !== user.uid) {
+          setError("Please use email method with password to login.");
+          return;
+        }
       }
-      return user;
+    } else {
+      const usersRef = collection(firestore, "users");
+      const q = query(usersRef, where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        const userDoc = querySnapshot.docs[0];
+        if (userDoc.data().provider === "google") {
+          setError("Please use Google method to login.");
+          return;
+        }
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      }
     }
+
+    const user = userCredential.user;
+    const token = await user.getIdToken();
+    localStorage.setItem("firebaseToken", token);
+
+    const userDoc = await getDoc(doc(firestore, "users", user.uid));
+    if (userDoc.exists()) {
+      navigate("/home");
+    } else {
+      navigate("/onboarding/profile-setup");
+    }
+    return user;
   } catch (error: any) {
     throw new Error(error.message);
   }
@@ -77,4 +100,4 @@ const saveUserProfile = async (userId: string, profileData: any) => {
   }
 };
 
-export { auth, firestore, storage, checkAuthToken, authenticateUser, saveUserProfile };
+export { auth, firestore, storage, checkAuthToken, authenticateUser, saveUserProfile, provider };

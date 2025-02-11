@@ -33,13 +33,14 @@ export default function LoginPage() {
     try {
       await authenticateUser(email, password, (path: string) => {
         router.push(path);
-      });
+      }, false, setError);
     } catch (error: any) {
       setError(error.message);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex w-full h-full bg-[#020218]">
