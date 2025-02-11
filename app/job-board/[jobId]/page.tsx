@@ -3,6 +3,7 @@
 import JobCard from "@/components/card/jobCard/jobCard";
 import JobDescription from "@/components/jobdescription/jobDescription";
 import { jobBoardData } from "@/lib/staticData";
+import Head from "next/head";
 
 type Jobs = {
   id: string;
@@ -63,6 +64,10 @@ const JobBoardPage = async ({
 
   return (
     <>
+      <Head>
+        <title>{job.jobTitle} - Aipply Job Board</title>
+        <meta name="description" content={`Apply for ${job.jobTitle} at ${job.companyName} on Aipply.`} />
+      </Head>
       {job && (
         <div className=" flex flex-col gap-6 px-8 py-8">
           <div>

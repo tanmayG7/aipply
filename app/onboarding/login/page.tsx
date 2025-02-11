@@ -6,6 +6,7 @@ import { authenticateUser } from "@/lib/firebaseConfig/firebaseConfig";
 import { LoginForm } from "@/components/login-form";
 import TestimonialsCard from "@/components/testimonialsCard/testimonialsCard";
 import { testimonials } from "@/lib/staticData";
+import Head from "next/head";
 
 export default function LoginPage() {
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
@@ -43,23 +44,29 @@ export default function LoginPage() {
 
 
   return (
-    <div className="flex w-full h-full bg-[#020218]">
-      <div className="grid grid-cols-1 md:grid-cols-2 items-center justify-center w-full">
-        <div className="md:w-[60%] w-fit m-auto items-center justify-center">
-          <LoginForm onLogin={handleLogin} loading={loading} error={error} />
-        </div>
-        <div className="md:flex hidden">
-          <TestimonialsCard
-            image={currentTestimonial.image}
-            comment={currentTestimonial.comment}
-            name={currentTestimonial.name}
-            position={currentTestimonial.position}
-            stars={currentTestimonial.stars}
-            onLeftClick={handleLeftClick}
-            onRightClick={handleRightClick}
-          />
+    <>
+      <Head>
+        <title>Login - Aipply</title>
+        <meta name="description" content="Login to your Aipply account to start applying for jobs." />
+      </Head>
+      <div className="flex w-full h-full bg-[#020218]">
+        <div className="grid grid-cols-1 md:grid-cols-2 items-center justify-center w-full">
+          <div className="md:w-[60%] w-fit m-auto items-center justify-center">
+            <LoginForm onLogin={handleLogin} loading={loading} errorText={error} />
+          </div>
+          <div className="md:flex hidden">
+            <TestimonialsCard
+              image={currentTestimonial.image}
+              comment={currentTestimonial.comment}
+              name={currentTestimonial.name}
+              position={currentTestimonial.position}
+              stars={currentTestimonial.stars}
+              onLeftClick={handleLeftClick}
+              onRightClick={handleRightClick}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
