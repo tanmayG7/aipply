@@ -110,7 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Button
                     size="lg"
                     variant="secondary"
-                    className="w-full bg-background border rounded-lg border-[#333741] text-white"
+                    className="w-full bg-background border rounded-lg border-[#333741] text-white hover:text-black"
                   >
                     Complete Profile
                     <Image
