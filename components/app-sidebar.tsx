@@ -34,21 +34,6 @@ const data = {
       url: "/job-board",
       image: "/static/icons/layers-three.svg",
     },
-    {
-      title: "Reminder",
-      url: "/reminder",
-      image: "/static/icons/layers-three.svg",
-    },
-    {
-      title: "Chatbot",
-      url: "/chatbot",
-      image: "/static/icons/check-done.svg",
-    },
-    {
-      title: "Community",
-      url: "/community",
-      image: "/static/icons/community.svg",
-    },
   ],
 };
 
