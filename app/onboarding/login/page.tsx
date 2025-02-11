@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginUser } from "@/lib/firebaseConfig/firebaseConfig";
+import { authenticateUser } from "@/lib/firebaseConfig/firebaseConfig";
 import { LoginForm } from "@/components/login-form";
 import TestimonialsCard from "@/components/testimonialsCard/testimonialsCard";
 import { testimonials } from "@/lib/staticData";
@@ -31,7 +31,9 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      await loginUser(email, password, (path: string) => router.push(path));
+      await authenticateUser(email, password, (path: string) => {
+        router.push(path);
+      });
     } catch (error: any) {
       setError(error.message);
     } finally {

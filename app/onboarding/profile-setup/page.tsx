@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,13 @@ export default function ProfileSetup() {
     expectedCTC: "",
     linkedinProfile: "",
   });
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      setFormData((prevData) => ({ ...prevData, email: user.email || "" }));
+    }
+  }, []);
 
   const [errors, setErrors] = useState({
     firstName: false,
@@ -80,7 +88,7 @@ export default function ProfileSetup() {
           await saveUserProfile(user.uid, formData);
           router.push("/home");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error(error.message);
       } finally {
         setLoading(false);
@@ -183,6 +191,7 @@ export default function ProfileSetup() {
                       value={formData.email}
                       onChange={handleChange}
                       required
+                      readOnly
                       className={errors.email ? "border-red-500" : ""}
                     />
                     {errors.email && (
