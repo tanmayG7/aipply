@@ -3,23 +3,21 @@ import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { updateUserProfile, auth } from "@/lib/firebaseConfig/firebaseConfig";
+import {  auth, updateUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import Image from "next/image";
 
 const AboutSection = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    mobileNumber: "",
-    email: "",
-    currentJobTitle: "",
-    aimingJobTitle: "",
-    currentCTC: "",
-    expectedCTC: "",
-    linkedinProfile: "",
+    yourName: "",
+    uploadFile: "",
+    whereYouBased: "",
+    primaryRole: "",
+    experience: "",
+    role: "",
+    bio: "",
   });
 
-  const [isFieldDirty, setIsFieldDirty] = useState(false);
+  // const [isFieldDirty, setIsFieldDirty] = useState(false);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -33,13 +31,13 @@ const AboutSection = () => {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-    setIsFieldDirty(true);
+    // setIsFieldDirty(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +46,7 @@ const AboutSection = () => {
       const user = auth.currentUser;
       if (user) {
         await updateUserProfile(user.uid, formData);
-        setIsFieldDirty(false);
+        // setIsFieldDirty(false);
       }
     } catch (error: any) {
       console.error(error.message);
@@ -68,130 +66,83 @@ const AboutSection = () => {
       <CardContent className="col-span-5">
         <form onSubmit={handleSubmit} className="flex flex-col w-full gap-6">
           <div className="grid gap-2 text-white">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="yourName">Your Name</Label>
             <Input
-              id="firstName"
-              name="firstName"
+              id="yourName"
+              name="yourName"
               type="text"
               placeholder="Enter your First Name"
-              value={formData.firstName}
+              value={formData.yourName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="flex flex-row gap-2 text-white">
+            <Image
+              src="/static/images/profilePic.png"
+              alt="Profile"
+              width={56}
+              height={56}
+              className="rounded-full"
+            />
+            <Input
+              type="file"
+              name="uploadFile"
+              placeholder="Upload a new picture"
               onChange={handleChange}
               required
             />
           </div>
           <div className="grid gap-2 text-white">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="whereYouBased">Where You Based:</Label>
             <Input
-              id="lastName"
-              name="lastName"
               type="text"
-              placeholder="Enter your Last Name"
-              value={formData.lastName}
+              name="whereYouBased"
+              placeholder="Where You Based"
               onChange={handleChange}
               required
             />
           </div>
           <div className="grid gap-2 text-white">
-            <Label htmlFor="mobileNumber">Mobile Number</Label>
+            <Label htmlFor="primaryRole">Select Your Primary Role:</Label>
             <Input
-              id="mobileNumber"
-              name="mobileNumber"
               type="text"
-              placeholder="Enter your Mobile Number"
-              value={formData.mobileNumber}
+              name="primaryRole"
+              placeholder="Select Your Primary Role"
               onChange={handleChange}
               required
             />
           </div>
           <div className="grid gap-2 text-white">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="experience">Years of Experience:</Label>
             <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Enter your Email"
-              value={formData.email}
+              type="number"
+              name="experience"
+              placeholder="Years of Experience"
               onChange={handleChange}
               required
-              readOnly
             />
           </div>
           <div className="grid gap-2 text-white">
-            <Label htmlFor="currentJobTitle">Current Job Title</Label>
+            <Label htmlFor="role">Select Role as a Keyword:</Label>
             <Input
-              id="currentJobTitle"
-              name="currentJobTitle"
               type="text"
-              placeholder="Enter your Current Job Title"
-              value={formData.currentJobTitle}
+              name="role"
+              placeholder="Select Role as a Keyword:"
               onChange={handleChange}
               required
             />
           </div>
           <div className="grid gap-2 text-white">
-            <Label htmlFor="aimingJobTitle">Aiming Job Title</Label>
-            <select
-              id="aimingJobTitle"
-              name="aimingJobTitle"
-              value={formData.aimingJobTitle}
+            <Label htmlFor="bio">Your Bio:</Label>
+            <textarea
+              name="bio"
+              placeholder="Your Bio"
               onChange={handleChange}
               required
-              className="p-3 text-text-sm-regular font-inter text-[#94969C] bg-gray"
-            >
-              <option value="" disabled>
-                Select your aiming job title
-              </option>
-              <option value="Content Writing">Content Writing</option>
-              <option value="Data Analyst">Data Analyst</option>
-              <option value="Data Engineer">Data Engineer</option>
-              <option value="Digital Marketing">Digital Marketing</option>
-              <option value="Information Technology">Information Technology</option>
-              <option value="Operations">Operations</option>
-              <option value="Social Media">Social Media</option>
-              <option value="Software Developer">Software Developer</option>
-            </select>
-          </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="currentCTC">Current CTC</Label>
-            <Input
-              id="currentCTC"
-              name="currentCTC"
-              type="text"
-              placeholder="Enter your Current CTC"
-              value={formData.currentCTC}
-              onChange={handleChange}
-              required
+              className="bg-gray px-3 pt-3 pb-12 rounded-md"
             />
           </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="expectedCTC">Expected CTC</Label>
-            <Input
-              id="expectedCTC"
-              name="expectedCTC"
-              type="text"
-              placeholder="Enter your Expected CTC"
-              value={formData.expectedCTC}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
-            <Input
-              id="linkedinProfile"
-              name="linkedinProfile"
-              type="text"
-              placeholder="https://"
-              value={formData.linkedinProfile}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          {isFieldDirty && (
-            <Button type="submit" className="mt-4">
-              Save
-            </Button>
-          )}
         </form>
       </CardContent>
     </Card>

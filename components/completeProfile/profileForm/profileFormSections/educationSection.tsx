@@ -8,18 +8,54 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const EducationSection = () => {
+interface EducationSectionProps {
+  onAddEducation: (education: {
+    college: string;
+    graduationYear: string;
+    degree: string;
+    endDate: string;
+    description: string;
+    gpa: string;
+    maxGpa: string;
+  }) => void;
+  editingEducation: {
+    college: string;
+    graduationYear: string;
+    degree: string;
+    endDate: string;
+    description: string;
+    gpa: string;
+    maxGpa: string;
+  } | null;
+}
+
+const EducationSection: React.FC<EducationSectionProps> = ({
+  onAddEducation,
+  editingEducation,
+}) => {
   const [education, setEducation] = useState({
-    college: "",
-    graduationYear: "",
-    degree: "",
-    endDate: "",
-    description: "",
-    gpa: "",
-    maxGpa: "",
+    college: editingEducation?.college || "",
+    graduationYear: editingEducation?.graduationYear || "",
+    degree: editingEducation?.degree || "",
+    endDate: editingEducation?.endDate || "",
+    description: editingEducation?.description || "",
+    gpa: editingEducation?.gpa || "",
+    maxGpa: editingEducation?.maxGpa || "",
   });
+
+  useEffect(() => {
+    setEducation({
+      college: editingEducation?.college || "",
+      graduationYear: editingEducation?.graduationYear || "",
+      degree: editingEducation?.degree || "",
+      endDate: editingEducation?.endDate || "",
+      description: editingEducation?.description || "",
+      gpa: editingEducation?.gpa || "",
+      maxGpa: editingEducation?.maxGpa || "",
+    });
+  }, [editingEducation]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -28,6 +64,20 @@ const EducationSection = () => {
   ) => {
     const { name, value } = e.target;
     setEducation((prev) => ({ ...prev, [name]: value }));
+    
+  };
+
+  const handleSave = () => {
+    onAddEducation(education);
+    setEducation({
+      college: "",
+      graduationYear: "",
+      degree: "",
+      endDate: "",
+      description: "",
+      gpa: "",
+      maxGpa: "",
+    });
   };
 
   return (
@@ -51,6 +101,7 @@ const EducationSection = () => {
           <Input
             type="number"
             name="graduationYear"
+            placeholder="Enter Graduation Year"
             value={education.graduationYear}
             onChange={handleChange}
             required
@@ -104,7 +155,10 @@ const EducationSection = () => {
           </div>
 
           <div className="flex gap-4">
-            <Button className="w-fit px-8 bg-transparent border border-gray">
+            <Button
+              className="w-fit px-8 bg-transparent border border-gray"
+              onClick={handleSave}
+            >
               Save
             </Button>
             <Button className="w-fit px-8 bg-transparent border border-gray">
