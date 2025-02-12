@@ -16,7 +16,7 @@ const truncateDescription = (description: string) => {
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
   return (
     <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg w-full h-full">
-      <div className="flex flex-col-reverse gap-4 lg:gap-0 lg:flex-row justify-between items-start border-b-[1px] border-[#454545] pb-6">
+      <div className="flex flex-col-reverse gap-4 lg:gap-0 lg:flex-row justify-between items-start border-b-[1px] border-[#5C677E] pb-6">
         <div className="flex flex-col gap-4">
           <div className="flex flex-row gap-3 items-center">
             <h1 className="font-inter font-semibold text-[24px] text-white">

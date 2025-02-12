@@ -118,4 +118,19 @@ const getUserProfile = async (userId?: string) => {
   }
 };
 
-export { auth, firestore, storage, checkAuthToken, authenticateUser, saveUserProfile, provider, getUserProfile };
+const updateUserProfile = async (userId: string, profileData: any) => {
+  try {
+    const currentDate = new Date().toISOString();
+    const updatedProfileData = {
+      ...profileData,
+      lastPreferenceChangedDate: currentDate,
+      updatedDate: currentDate,
+      createdDate: profileData.createdDate || currentDate,
+    };
+    await setDoc(doc(firestore, "users", userId), updatedProfileData, { merge: true });
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export { auth, firestore, storage, checkAuthToken, authenticateUser, saveUserProfile, provider, getUserProfile, updateUserProfile };

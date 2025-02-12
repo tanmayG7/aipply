@@ -53,7 +53,7 @@ const NavLink = ({
       <div
         className={`text-white font-inter px-5 py-2 rounded-lg  ${
           pathname === href
-            ? "bg-gradient-to-r from-[#8F63CC] to-[#01010B] border-l-[1px] text-text-md-medium rounded-sm"
+            ? "bg-gradient-to-r from-[#8F63CC] from-30% to-[#01010B] text-text-md-medium rounded-sm"
             : ""
         } ${className}`}
       >
@@ -92,7 +92,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
       className="bg-background z-40"
     >
-      <div className="bg-gradient-to-b from-[#020217] to-[#470b9a] text-[#CECFD2] h-screen rounded-2xl border-[#454545] border-[2px] ">
+      <div className="bg-gradient-to-b from-[#020217] from-60% to-[#9164CF] text-[#CECFD2] h-screen rounded-2xl border-[#454545] border-[2px] ">
         <SidebarHeader className="border-b-[2px] border-[#1F242F]">
           <SidebarTrigger />
           <div className="flex items-center justify-center py-6">

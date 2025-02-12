@@ -1,10 +1,5 @@
 import React from "react";
 import AboutSection from "./profileFormSections/aboutSection";
-import SocialMediaLinks from "./profileFormSections/socialMediaLinks";
-import WorkExperience from "./profileFormSections/workExperience";
-import EducationSection from "./profileFormSections/educationSection";
-import AchievementsSection from "./profileFormSections/achievementsSection";
-import Skills from "./profileFormSections/skillsSection";
 
 
 const ProfileForm = () => {
@@ -12,11 +7,6 @@ const ProfileForm = () => {
   return (
     <div className="py-6 border border-gray rounded-xl">
       <AboutSection />
-      <SocialMediaLinks />
-      <WorkExperience />
-      <EducationSection />
-      <Skills />
-      <AchievementsSection />
     </div>
   );
 };
