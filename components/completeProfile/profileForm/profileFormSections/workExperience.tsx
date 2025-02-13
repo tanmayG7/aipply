@@ -13,39 +13,14 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import DateFormate from "@/components/dateFormateChange/dateFormateChange";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { WorkExperience } from "@/lib/types"; 
 
 interface WorkExperienceProps {
-  onAddExperience: (experience: {
-    company: string;
-    title: string;
-    startDate: string;
-    endDate: string;
-    current: boolean | string;
-    type: string;
-    description: string;
-  }) => void;
-  editingExperience?: {
-    company: string;
-    title: string;
-    startDate: string;
-    endDate: string;
-    current: boolean;
-    type: string;
-    description: string;
-  } | null;
-
-  workExperiences: {
-    company: string;
-    title: string;
-    startDate: string;
-    endDate: string;
-    current: boolean;
-    type: string;
-    description: string;
-  }[];
+  onAddExperience: (experience: WorkExperience) => void;
+  editingExperience?: WorkExperience | null;
+  workExperiences: WorkExperience[];
   onEditExperience: (index: number) => void;
   onDeleteExperience: (index: number) => void;
-  isEditing: boolean;
   dropdownOpenIndex: number | null;
   toggleDropdown: (index: number) => void;
 }
@@ -56,12 +31,11 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
   workExperiences,
   onEditExperience,
   onDeleteExperience,
-  // isEditing,
   dropdownOpenIndex,
   toggleDropdown,
 }) => {
   const dropdownRef = React.useRef<HTMLDivElement>(null);
-  const [experience, setExperience] = useState({
+  const [experience, setExperience] = useState<WorkExperience>({
     company: editingExperience?.company || "",
     title: editingExperience?.title || "",
     startDate: editingExperience?.startDate || "",
@@ -92,12 +66,19 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
     setExperience((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleCheckboxChange = () => {
+    setExperience((prev) => ({ ...prev, current: !prev.current }));
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
 
     const user = auth.currentUser;
-    if(user) {
-      saveUserProfile(user.uid, experience);
+    if (user) {
+      const userDetails = {
+        experience: [...workExperiences, experience],
+      };
+      saveUserProfile(user.uid, userDetails);
     }
     onAddExperience(experience);
     setExperience({
@@ -155,7 +136,6 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
                     </p>
                   </div>
                 </div>
-                {/* {isEditing && ( */}
                 <div
                   className="relative flex flex-col text-white items-start justify-start ml-4"
                   ref={dropdownRef}
@@ -184,7 +164,6 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
                     </div>
                   )}
                 </div>
-                {/* )} */}
               </div>
             ))}
           </div>
@@ -227,7 +206,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
             />
 
             <div className="flex items-center gap-2">
-              <Checkbox id="current" />
+              <Checkbox id="current" checked={experience.current} onCheckedChange={handleCheckboxChange} />
               <Label htmlFor="current">I currently work here</Label>
             </div>
 

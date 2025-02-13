@@ -10,54 +10,34 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig"; 
+import { Education } from "@/lib/types"; // Add this import
 
 interface EducationSectionProps {
-  educations: {
-    college: string;
-    graduationYear: string;
-    degree: string;
-    endDate: string;
-    description: string;
-    gpa: string;
-    maxGpa: string;
-  }[];
-  onAddEducation: (education: {
-    college: string;
-    graduationYear: string;
-    degree: string;
-    endDate: string;
-    description: string;
-    gpa: string;
-    maxGpa: string;
-  }) => void;
+  educations: Education[]; 
+  onAddEducation: (education: Education) => void;
   onEditEducation: (index: number) => void;
   onDeleteEducation: (index: number) => void;
   isEditing: boolean;
   dropdownOpenIndex: number | null;
   toggleDropdown: (index: number) => void;
-  editingEducation: {
-    college: string;
-    graduationYear: string;
-    degree: string;
-    endDate: string;
-    description: string;
-    gpa: string;
-    maxGpa: string;
-  } | null;
+  editingEducation: Education | null; 
+
 }
 
 const EducationSection: React.FC<EducationSectionProps> = ({
+  // isEditing,
   educations,
   onAddEducation,
   onEditEducation,
   onDeleteEducation,
-  // isEditing,
   dropdownOpenIndex,
   toggleDropdown,
   editingEducation,
 }) => {
-  const [education, setEducation] = useState({
+
+  console.log("userDetails", educations);
+  const [education, setEducation] = useState<Education>({
     college: editingEducation?.college || "",
     graduationYear: editingEducation?.graduationYear || "",
     degree: editingEducation?.degree || "",
@@ -92,7 +72,10 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     onAddEducation(education);
     const user = auth.currentUser;
     if (user) {
-      await saveUserProfile(user.uid, education);
+      const newEducation = {
+        education: [...educations, education],
+      };
+      await saveUserProfile(user.uid, newEducation);
     }
     setEducation({
       college: "",

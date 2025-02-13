@@ -3,6 +3,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { UserDetails } from "../types";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -109,7 +110,7 @@ const getUserProfile = async (userId?: string) => {
     }
     const userDoc = await getDoc(doc(firestore, "users", userId));
     if (userDoc.exists()) {
-      return userDoc.data();
+      return userDoc.data() as UserDetails;
     } else {
       throw new Error("User profile not found");
     }

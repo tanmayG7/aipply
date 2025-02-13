@@ -7,11 +7,11 @@ import {  auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-// interface AboutSectionProps {
-//   users: any;
-// }
+interface AboutSectionProps {
+  userDetails: any;
+}
 
-const AboutSection: React.FC = () => {
+const AboutSection: React.FC<AboutSectionProps> = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",

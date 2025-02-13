@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const SocialMediaLinks = () => {
-  const [formData, setFormData] = useState({
+  const [socialMediaLinks, setSocialMediaLinks] = useState({
     website: "",
     linkedin: "",
     github: "",
@@ -24,7 +24,7 @@ const SocialMediaLinks = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
+    setSocialMediaLinks((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -34,9 +34,12 @@ const SocialMediaLinks = () => {
     e.preventDefault();
     const user = auth.currentUser;
     if (user) {
-      await saveUserProfile(user.uid, formData);
+      const userDetails = {
+         socialMediaLinks,
+      }
+      await saveUserProfile(user.uid, userDetails);
     }
-    setFormData({
+    setSocialMediaLinks({
       website: "",
       linkedin: "",
       github: "",
