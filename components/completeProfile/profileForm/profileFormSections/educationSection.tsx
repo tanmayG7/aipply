@@ -35,7 +35,6 @@ interface EducationSectionProps {
   isEditing: boolean;
   dropdownOpenIndex: number | null;
   toggleDropdown: (index: number) => void;
-  educationsLength: number;
   editingEducation: {
     college: string;
     graduationYear: string;
@@ -55,7 +54,6 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   // isEditing,
   dropdownOpenIndex,
   toggleDropdown,
-  educationsLength,
   editingEducation,
 }) => {
   const [education, setEducation] = useState({
@@ -110,36 +108,45 @@ const EducationSection: React.FC<EducationSectionProps> = ({
           <CardDescription>What schools have you studied at?</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4 col-span-5">
-          <div>
+          <div className="flex flex-col gap-4">
             {educations.map((education, index) => (
-              <div
-                key={index}
-                className="flex flex-row py-4 px-4 border border-gray rounded-lg"
-              >
-                <div className="flex flex-col flex-grow">
-                  <div className="flex flex-row justify-between">
-                    <h2 className="text-display-xs-bold">
-                      {education.college}
-                    </h2>
-                    <div className="flex flex-col">
-                      <p className="text-text-md-bold ">
-                        {education.gpa} / {education.maxGpa}
-                      </p>
-                    </div>
+            <div
+              key={index}
+              className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"
+            >
+              <div className="flex flex-col flex-grow gap-4">
+                <div className="flex flex-row justify-between">
+                  <h2 className="text-display-xs-bold max-w-[380px]">
+                    {education.college}
+                  </h2>
+                  <div className="flex flex-col">
+                    <p className="text-text-md-bold ">
+                      GPA : {education.gpa} / {education.maxGpa}
+                      
+                    </p>
                   </div>
-                  <h3 className="text-text-xl-medium">
-                    {education.degree} - {education.graduationYear}
-                  </h3>
                 </div>
-                <div className="relative flex flex-col text-white items-start justify-start ml-4">
-                  <Image
-                    src="/static/icons/three-dot.svg"
-                    alt="More"
-                    width={24}
-                    height={24}
-                    onClick={() => toggleDropdown(index + educationsLength)}
-                  />
-                  {dropdownOpenIndex === index + educationsLength && (
+                <h3 className="text-text-xl-medium">
+                  {education.degree} - {education.graduationYear}
+                  
+                </h3>
+
+                <p className="text-text-md-regular opacity-70 max-w-[480px]">
+                  <span className="text-text-md-semibold">
+                    Description:
+                  </span>{" "}
+                  {education.description}
+                </p>
+              </div>
+              <div className="relative flex flex-col text-white items-start justify-start ml-4">
+                <Image
+                  src="/static/icons/three-dot.svg"
+                  alt="More"
+                  width={24}
+                  height={24}
+                  onClick={() => toggleDropdown(index)}
+                />
+                {dropdownOpenIndex === index && (
                     <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
                       <p
                         onClick={() => onEditEducation(index)}
@@ -155,8 +162,8 @@ const EducationSection: React.FC<EducationSectionProps> = ({
                       </p>
                     </div>
                   )}
-                </div>
               </div>
+            </div>
             ))}
           </div>
           <div className="flex flex-col gap-4">

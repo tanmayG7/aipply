@@ -5,9 +5,6 @@ import AchievementsSection from "./profileFormSections/achievementsSection";
 import SocialMediaLinks from "./profileFormSections/socialMediaLinks";
 import Skills from "./profileFormSections/skillsSection";
 import WorkExperience from "./profileFormSections/workExperience";
-import Image from "next/image";
-// import { Button } from "@/components/ui/button";
-// import Link from "next/link";
 
 interface ProfileFormProps {
   isEditing: boolean;
@@ -125,7 +122,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
     <div className="py-6 border border-gray rounded-xl">
       <AboutSection />
       <SocialMediaLinks />
-      {workExperiences.map((experience, index) => (
+      {/* {workExperiences.map((experience, index) => (
         <div
           key={index}
           className="flex flex-row py-4 px-4 border border-gray rounded-lg mt-4 mx-4"
@@ -142,7 +139,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
             </div>
             <h3 className="text-text-xl-medium">{experience.type}</h3>
             <p className="text-text-md-bold">{experience.title}</p>
-          
           </div>
           {isEditing && (
             <div
@@ -175,9 +171,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
             </div>
           )}
         </div>
-      ))}
+      ))} */}
       {/* {isEditing && ( */}
       <WorkExperience
+        workExperiences={workExperiences}
+        onEditExperience={handleEditExperience}
+        onDeleteExperience={handleDeleteExperience}
+        isEditing={isEditing}
+        dropdownOpenIndex={dropdownOpenIndex}
+        toggleDropdown={toggleDropdown}
         onAddExperience={(experience) =>
           handleAddExperience({
             ...experience,
@@ -200,8 +202,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
         isEditing={isEditing}
         dropdownOpenIndex={dropdownOpenIndex}
         toggleDropdown={toggleDropdown}
-        educationsLength={educations.length}
-        editingEducation={editingIndex !== null ? educations[editingIndex] : null}
+        editingEducation={
+          editingIndex !== null ? educations[editingIndex] : null
+        }
       />
       <Skills />
       <AchievementsSection />

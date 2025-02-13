@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import DateFormate from "@/components/dateFormateChange/dateFormateChange";
 
 interface WorkExperienceProps {
   onAddExperience: (experience: {
@@ -30,13 +31,35 @@ interface WorkExperienceProps {
     current: boolean;
     type: string;
     description: string;
-  };
+  } | null;
+
+  workExperiences: {
+    company: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    current: boolean;
+    type: string;
+    description: string;
+  }[];
+  onEditExperience: (index: number) => void;
+  onDeleteExperience: (index: number) => void;
+  isEditing: boolean;
+  dropdownOpenIndex: number | null;
+  toggleDropdown: (index: number) => void;
 }
 
 const WorkExperience: React.FC<WorkExperienceProps> = ({
   onAddExperience,
   editingExperience,
+  workExperiences,
+  onEditExperience,
+  onDeleteExperience,
+  // isEditing,
+  dropdownOpenIndex,
+  toggleDropdown,
 }) => {
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
   const [experience, setExperience] = useState({
     company: editingExperience?.company || "",
     title: editingExperience?.title || "",
@@ -90,25 +113,43 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
           <CardDescription>Add your past job roles.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4 col-span-5">
-          {/* {workExperiences.map((experience, index) => (
-            <div
-              key={index}
-              className="flex flex-row py-4 px-4 border border-gray rounded-lg mt-4 mx-4"
-            >
-              <div className="flex flex-col flex-grow">
-                <div className="flex flex-row justify-between">
-                  <h2 className="text-display-xs-bold">{experience.company}</h2>
-                  <div className="flex flex-col">
-                    <p className="text-text-md-bold">
-                      {experience.startDate} -{" "}
-                      {experience.current ? "Present" : experience.endDate}
+          <div className="flex flex-col gap-4">
+            {workExperiences.map((experience, index) => (
+              <div
+                key={index}
+                className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"
+              >
+                <div className="flex flex-col flex-grow gap-3">
+                  <div className="flex flex-row justify-between">
+                    <h2 className="text-display-xs-bold">
+                      {experience.company}
+                    </h2>
+
+                    <div className="flex flex-col">
+                      <p className="text-text-md-bold">
+                        <DateFormate date={experience.startDate} /> -{" "}
+                        <DateFormate
+                          date={
+                            experience.current ? "Present" : experience.endDate
+                          }
+                        />
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center justify-between">
+                    <p className="text-text-md-bold">{experience.title}</p>
+                    <h3 className="text-text-xl-medium">{experience.type}</h3>
+                  </div>
+
+                  <div>
+                    <p className="text-text-md-regular opacity-70 max-w-[480px]">
+                      <span className="text-text-sm-semibold">
+                        Description: {experience.description}
+                      </span>
                     </p>
                   </div>
                 </div>
-                <h3 className="text-text-xl-medium">{experience.type}</h3>
-                <p className="text-text-md-bold">{experience.title}</p>
-              </div>
-              {isEditing && (
+                {/* {isEditing && ( */}
                 <div
                   className="relative flex flex-col text-white items-start justify-start ml-4"
                   ref={dropdownRef}
@@ -123,13 +164,13 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
                   {dropdownOpenIndex === index && (
                     <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
                       <p
-                        onClick={() => handleEditExperience(index)}
+                        onClick={() => onEditExperience(index)}
                         className="text-text-lg-regular font-inter cursor-pointer"
                       >
                         Edit
                       </p>
                       <p
-                        onClick={() => handleDeleteExperience(index)}
+                        onClick={() => onDeleteExperience(index)}
                         className="text-text-lg-regular font-inter cursor-pointer"
                       >
                         Delete
@@ -137,9 +178,10 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          ))} */}
+                {/* )} */}
+              </div>
+            ))}
+          </div>
           <div className="flex flex-col gap-4">
             <Label>Company</Label>
             <Input
