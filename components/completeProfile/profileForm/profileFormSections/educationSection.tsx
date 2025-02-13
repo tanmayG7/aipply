@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 
 interface EducationSectionProps {
   educations: {
@@ -87,8 +88,12 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     setEducation((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async() => {
     onAddEducation(education);
+    const user = auth.currentUser;
+    if (user) {
+      await saveUserProfile(user.uid, education);
+    }
     setEducation({
       college: "",
       graduationYear: "",
@@ -110,43 +115,39 @@ const EducationSection: React.FC<EducationSectionProps> = ({
         <CardContent className="flex flex-col gap-4 col-span-5">
           <div className="flex flex-col gap-4">
             {educations.map((education, index) => (
-            <div
-              key={index}
-              className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"
-            >
-              <div className="flex flex-col flex-grow gap-4">
-                <div className="flex flex-row justify-between">
-                  <h2 className="text-display-xs-bold max-w-[380px]">
-                    {education.college}
-                  </h2>
-                  <div className="flex flex-col">
-                    <p className="text-text-md-bold ">
-                      GPA : {education.gpa} / {education.maxGpa}
-                      
-                    </p>
+              <div
+                key={index}
+                className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"
+              >
+                <div className="flex flex-col flex-grow gap-4">
+                  <div className="flex flex-row justify-between">
+                    <h2 className="text-display-xs-bold max-w-[380px]">
+                      {education.college}
+                    </h2>
+                    <div className="flex flex-col">
+                      <p className="text-text-md-bold ">
+                        GPA : {education.gpa} / {education.maxGpa}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <h3 className="text-text-xl-medium">
-                  {education.degree} - {education.graduationYear}
-                  
-                </h3>
+                  <h3 className="text-text-xl-medium">
+                    {education.degree} - {education.graduationYear}
+                  </h3>
 
-                <p className="text-text-md-regular opacity-70 max-w-[480px]">
-                  <span className="text-text-md-semibold">
-                    Description:
-                  </span>{" "}
-                  {education.description}
-                </p>
-              </div>
-              <div className="relative flex flex-col text-white items-start justify-start ml-4">
-                <Image
-                  src="/static/icons/three-dot.svg"
-                  alt="More"
-                  width={24}
-                  height={24}
-                  onClick={() => toggleDropdown(index)}
-                />
-                {dropdownOpenIndex === index && (
+                  <p className="text-text-md-regular opacity-70 max-w-[480px]">
+                    <span className="text-text-md-semibold">Description:</span>{" "}
+                    {education.description}
+                  </p>
+                </div>
+                <div className="relative flex flex-col text-white items-start justify-start ml-4">
+                  <Image
+                    src="/static/icons/three-dot.svg"
+                    alt="More"
+                    width={24}
+                    height={24}
+                    onClick={() => toggleDropdown(index)}
+                  />
+                  {dropdownOpenIndex === index && (
                     <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
                       <p
                         onClick={() => onEditEducation(index)}
@@ -162,8 +163,8 @@ const EducationSection: React.FC<EducationSectionProps> = ({
                       </p>
                     </div>
                   )}
+                </div>
               </div>
-            </div>
             ))}
           </div>
           <div className="flex flex-col gap-4">

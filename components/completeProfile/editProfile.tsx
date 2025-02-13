@@ -4,14 +4,26 @@ import UploadCv from "./uploadCv";
 import PreferenceForm from "./preferenceForm";
 import { Button } from "../ui/button";
 import Image from "next/image";
+import { auth, getUserDetails, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 
 const EditProfile: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
+  // const [userDetails, setUserDetails] = useState<any>(null);
 
-  const handleEditClick = () => {
+  const handleEditClick = async () => {
     if (isEditing) {
-      // Save logic here
+      const user = auth.currentUser;
+      if (user) {
+        const userDetails = await getUserDetails(user.uid);
+        await saveUserProfile(user.uid, userDetails);
+      }
+    } else {
+      const user = auth.currentUser;
+      if (user) {
+        // const details = await getUserDetails(user.uid);
+        // setUserDetails(details);
+      }
     }
     setIsEditing(!isEditing);
   };
@@ -19,9 +31,9 @@ const EditProfile: React.FC = () => {
   const renderSection = () => {
     switch (selectedSection) {
       case "profile":
-        return <ProfileForm isEditing={isEditing} />;
+        return <ProfileForm isEditing={isEditing}  />;
       case "resume":
-        return <UploadCv isEditing={isEditing} />;
+        return <UploadCv isEditing={isEditing}  />;
       case "preferences":
         return <PreferenceForm isEditing={isEditing} />;
       default:

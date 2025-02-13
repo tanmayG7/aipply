@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import DateFormate from "@/components/dateFormateChange/dateFormateChange";
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 
 interface WorkExperienceProps {
   onAddExperience: (experience: {
@@ -93,6 +94,11 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const user = auth.currentUser;
+    if(user) {
+      saveUserProfile(user.uid, experience);
+    }
     onAddExperience(experience);
     setExperience({
       company: "",
@@ -117,7 +123,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
             {workExperiences.map((experience, index) => (
               <div
                 key={index}
-                className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"
+                className="flex flex-row py-4 px-4 border border-gray rounded-lg"
               >
                 <div className="flex flex-col flex-grow gap-3">
                   <div className="flex flex-row justify-between">

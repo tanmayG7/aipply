@@ -5,9 +5,13 @@ import AchievementsSection from "./profileFormSections/achievementsSection";
 import SocialMediaLinks from "./profileFormSections/socialMediaLinks";
 import Skills from "./profileFormSections/skillsSection";
 import WorkExperience from "./profileFormSections/workExperience";
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface ProfileFormProps {
   isEditing: boolean;
+  // userDetails: any;
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
@@ -118,62 +122,25 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
     setDropdownOpenIndex(dropdownOpenIndex === index ? null : index);
   };
 
+  const handleSaveProfile = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const userDetails = {
+        educations,
+        workExperiences,
+      };
+      await saveUserProfile(user.uid, userDetails);
+    }
+  };
+
   return (
     <div className="py-6 border border-gray rounded-xl">
       <AboutSection />
       <SocialMediaLinks />
-      {/* {workExperiences.map((experience, index) => (
-        <div
-          key={index}
-          className="flex flex-row py-4 px-4 border border-gray rounded-lg mt-4 mx-4"
-        >
-          <div className="flex flex-col flex-grow">
-            <div className="flex flex-row justify-between">
-              <h2 className="text-display-xs-bold">{experience.company}</h2>
-              <div className="flex flex-col">
-                <p className="text-text-md-bold">
-                  {experience.startDate} -{" "}
-                  {experience.current ? "Present" : experience.endDate}
-                </p>
-              </div>
-            </div>
-            <h3 className="text-text-xl-medium">{experience.type}</h3>
-            <p className="text-text-md-bold">{experience.title}</p>
-          </div>
-          {isEditing && (
-            <div
-              className="relative flex flex-col text-white items-start justify-start ml-4"
-              ref={dropdownRef}
-            >
-              <Image
-                src="/static/icons/three-dot.svg"
-                alt="More"
-                width={24}
-                height={24}
-                onClick={() => toggleDropdown(index)}
-              />
-              {dropdownOpenIndex === index && (
-                <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
-                  <p
-                    onClick={() => handleEditExperience(index)}
-                    className="text-text-lg-regular font-inter cursor-pointer"
-                  >
-                    Edit
-                  </p>
-                  <p
-                    onClick={() => handleDeleteExperience(index)}
-                    className="text-text-lg-regular font-inter cursor-pointer"
-                  >
-                    Delete
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      ))} */}
+
       {/* {isEditing && ( */}
       <WorkExperience
+        // users={userDetails}
         workExperiences={workExperiences}
         onEditExperience={handleEditExperience}
         onDeleteExperience={handleDeleteExperience}
@@ -195,6 +162,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
       />
       {/* )} */}
       <EducationSection
+        // users={userDetails}
         educations={educations}
         onAddEducation={handleAddEducation}
         onEditEducation={handleEditEducation}
@@ -208,6 +176,18 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
       />
       <Skills />
       <AchievementsSection />
+      <Button
+        className="w-fit px-8 bg-transparent border border-gray"
+        onClick={handleSaveProfile}
+      >
+        <Image
+          src={"/static/icons/add.svg"}
+          width={20}
+          height={20}
+          alt="update"
+        />
+        Save
+      </Button>
     </div>
   );
 };

@@ -3,12 +3,18 @@ import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {  auth, updateUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import {  auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
-const AboutSection = () => {
+// interface AboutSectionProps {
+//   users: any;
+// }
+
+const AboutSection: React.FC = () => {
   const [formData, setFormData] = useState({
-    yourName: "",
+    firstName: "",
+    lastName: "",
     uploadFile: "",
     whereYouBased: "",
     primaryRole: "",
@@ -31,7 +37,11 @@ const AboutSection = () => {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -40,17 +50,30 @@ const AboutSection = () => {
     // setIsFieldDirty(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const user = auth.currentUser;
       if (user) {
-        await updateUserProfile(user.uid, formData);
+        // await updateUserProfile(user.uid, formData);
+        await saveUserProfile(user.uid, formData);
+        setFormData({
+          firstName: "",
+          lastName: "",
+          uploadFile: "",
+          whereYouBased: "",
+          primaryRole: "",
+          experience: "",
+          role: "",
+          bio: "",
+        });
+
         // setIsFieldDirty(false);
       }
     } catch (error: any) {
       console.error(error.message);
     }
+    
   };
 
   return (
@@ -64,15 +87,27 @@ const AboutSection = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="col-span-5">
-        <form onSubmit={handleSubmit} className="flex flex-col w-full gap-6">
+        <form className="flex flex-col w-full gap-6">
           <div className="grid gap-2 text-white">
-            <Label htmlFor="yourName">Your Name</Label>
+            <Label htmlFor="firstName">First Name</Label>
             <Input
-              id="yourName"
-              name="yourName"
+              id="firstName"
+              name="firstName"
               type="text"
               placeholder="Enter your First Name"
-              value={formData.yourName}
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="grid gap-2 text-white">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input
+              id="lastName"
+              name="lastName"
+              type="text"
+              placeholder="Enter your Last Name"
+              value={formData.lastName}
               onChange={handleChange}
               required
             />
@@ -142,6 +177,14 @@ const AboutSection = () => {
               required
               className="bg-gray px-3 pt-3 pb-12 rounded-md"
             />
+          </div>
+          <div className="flex gap-4">
+            <Button
+              className="w-fit px-8 text-white bg-transparent border border-gray"
+              onClick={handleSave}
+            >
+              Save
+            </Button>
           </div>
         </form>
       </CardContent>

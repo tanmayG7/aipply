@@ -94,7 +94,7 @@ const authenticateUser = async (
 
 const saveUserProfile = async (userId: string, profileData: any) => {
   try {
-    await setDoc(doc(firestore, "users", userId), profileData);
+    await setDoc(doc(firestore, "users", userId), profileData, { merge: true });
   } catch (error: any) {
     throw new Error(error.message);
   }
@@ -133,4 +133,28 @@ const updateUserProfile = async (userId: string, profileData: any) => {
   }
 };
 
-export { auth, firestore, storage, checkAuthToken, authenticateUser, saveUserProfile, provider, getUserProfile, updateUserProfile };
+const getUserDetails = async (userId: string) => {
+  try {
+    const userDoc = await getDoc(doc(firestore, "userDetails", userId));
+    if (userDoc.exists()) {
+      return userDoc.data();
+    } else {
+      throw new Error("User details not found");
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export { 
+  auth, 
+  firestore, 
+  storage, 
+  checkAuthToken, 
+  authenticateUser, 
+  saveUserProfile, 
+  provider, 
+  getUserProfile, 
+  updateUserProfile, 
+  getUserDetails 
+};

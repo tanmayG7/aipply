@@ -10,12 +10,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 
 interface PreferenceFormProps {
   isEditing: boolean;
 }
 
-const PreferenceForm:React.FC<PreferenceFormProps> = ({ isEditing }) => {
+const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
   const [preferences, setPreferences] = useState({
     jobSearchStatus: false,
     jobType: "fulltime",
@@ -46,6 +47,17 @@ const PreferenceForm:React.FC<PreferenceFormProps> = ({ isEditing }) => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleSavePreferences = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const userDetails = {
+        preferences,
+        locations,
+      };
+      await saveUserProfile(user.uid, userDetails);
+    }
   };
 
   return (
@@ -93,7 +105,7 @@ const PreferenceForm:React.FC<PreferenceFormProps> = ({ isEditing }) => {
           <Label>Open for the following job types:</Label>
           <div className="flex flex-col gap-2">
             <div className="flex items-center space-x-2">
-              <Checkbox id="Contractor" checked={preferences.additionalTypes.contractor} disabled={!isEditing} />
+              <Checkbox id="contractor" checked={preferences.additionalTypes.contractor} disabled={!isEditing} />
               <label
                 htmlFor="contractor"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -153,6 +165,14 @@ const PreferenceForm:React.FC<PreferenceFormProps> = ({ isEditing }) => {
               <option value="fulltime">Yes</option>
               <option value="parttime">No</option>
             </select>
+          )}
+          {isEditing && (
+            <Button
+              onClick={handleSavePreferences}
+              className="w-fit px-8 bg-transparent border border-gray hover:bg-gray-700"
+            >
+              Save Preferences
+            </Button>
           )}
         </div>
       </CardContent>
