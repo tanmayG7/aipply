@@ -11,7 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 
-const PreferenceForm = () => {
+interface PreferenceFormProps {
+  isEditing: boolean;
+}
+
+const PreferenceForm:React.FC<PreferenceFormProps> = ({ isEditing }) => {
   const [preferences, setPreferences] = useState({
     jobSearchStatus: false,
     jobType: "fulltime",
@@ -53,35 +57,43 @@ const PreferenceForm = () => {
       <CardContent className="col-span-5">
         <div className="flex flex-col gap-4">
           <Label>Where are you in job search?</Label>
-          <Button
-            onClick={() =>
-              setPreferences((prev) => ({
-                ...prev,
-                jobSearchStatus: !prev.jobSearchStatus,
-              }))
-            }
-            className="w-fit px-8 bg-transparent bg-gray hover:bg-gray-600"
-          >
-            {preferences.jobSearchStatus
-              ? "Actively looking for a job"
-              : "Not actively looking"}
-          </Button>
+          {isEditing ? (
+            <Button
+              onClick={() =>
+                setPreferences((prev) => ({
+                  ...prev,
+                  jobSearchStatus: !prev.jobSearchStatus,
+                }))
+              }
+              className="w-fit px-8 bg-transparent bg-gray hover:bg-gray-600"
+            >
+              {preferences.jobSearchStatus
+                ? "Actively looking for a job"
+                : "Not actively looking"}
+            </Button>
+          ) : (
+            <p>{preferences.jobSearchStatus ? "Actively looking for a job" : "Not actively looking"}</p>
+          )}
 
           <Label>What type of job are you interested in?*</Label>
-          <select
-            name="jobType"
-            value={preferences.jobType}
-            onChange={handleChange}
-            className="bg-gray px-3 py-2 rounded-md"
-          >
-            <option value="fulltime">Full-time</option>
-            <option value="parttime">Part-time</option>
-          </select>
+          {isEditing ? (
+            <select
+              name="jobType"
+              value={preferences.jobType}
+              onChange={handleChange}
+              className="bg-gray px-3 py-2 rounded-md"
+            >
+              <option value="fulltime">Full-time</option>
+              <option value="parttime">Part-time</option>
+            </select>
+          ) : (
+            <p>{preferences.jobType === "fulltime" ? "Full-time" : "Part-time"}</p>
+          )}
 
           <Label>Open for the following job types:</Label>
           <div className="flex flex-col gap-2">
             <div className="flex items-center space-x-2">
-              <Checkbox id="Contractor" />
+              <Checkbox id="Contractor" checked={preferences.additionalTypes.contractor} disabled={!isEditing} />
               <label
                 htmlFor="contractor"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -91,15 +103,11 @@ const PreferenceForm = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="intern"
-              />
+              <Checkbox id="intern" checked={preferences.additionalTypes.intern} disabled={!isEditing} />
               <Label htmlFor="intern">Intern</Label>
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="freelance"
-              />
+              <Checkbox id="freelance" checked={preferences.additionalTypes.freelance} disabled={!isEditing} />
               <Label htmlFor="freelance">Freelance</Label>
             </div>
           </div>
@@ -113,35 +121,39 @@ const PreferenceForm = () => {
                   className="bg-gray-700 px-3 py-1 rounded-full flex items-center gap-2"
                 >
                   {location}
-                  <button onClick={() => removeLocation(location)}>✕</button>
+                  {isEditing && <button onClick={() => removeLocation(location)}>✕</button>}
                 </div>
               ))}
             </div>
 
-            <Input
-              value={locationInput}
-              onChange={(e) => setLocationInput(e.target.value)}
-              placeholder="Enter preferred Locations"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  addLocation();
-                }
-              }}
-            />
+            {isEditing && (
+              <Input
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                placeholder="Enter preferred Locations"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    addLocation();
+                  }
+                }}
+              />
+            )}
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" name="remotely" />
+            <input type="checkbox" name="remotely" checked={preferences.jobType === "fulltime"} disabled={!isEditing} />
             <Label>open to working remotely</Label>
           </div>
-          <select
-            name="jobType"
-            value={preferences.jobType}
-            onChange={handleChange}
-            className="bg-gray px-3 py-2 rounded-md"
-          >
-            <option value="fulltime">Yes</option>
-            <option value="parttime">No</option>
-          </select>
+          {isEditing && (
+            <select
+              name="jobType"
+              value={preferences.jobType}
+              onChange={handleChange}
+              className="bg-gray px-3 py-2 rounded-md"
+            >
+              <option value="fulltime">Yes</option>
+              <option value="parttime">No</option>
+            </select>
+          )}
         </div>
       </CardContent>
     </Card>

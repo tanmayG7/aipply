@@ -7,15 +7,23 @@ import Image from "next/image";
 
 const EditProfile: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState("profile");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleEditClick = () => {
+    if (isEditing) {
+      // Save logic here
+    }
+    setIsEditing(!isEditing);
+  };
 
   const renderSection = () => {
     switch (selectedSection) {
       case "profile":
-        return <ProfileForm />;
+        return <ProfileForm isEditing={isEditing} />;
       case "resume":
-        return <UploadCv />;
+        return <UploadCv isEditing={isEditing} />;
       case "preferences":
-        return <PreferenceForm />;
+        return <PreferenceForm isEditing={isEditing} />;
       default:
         return null;
     }
@@ -27,14 +35,17 @@ const EditProfile: React.FC = () => {
         <p className="font-inter text-[28px] text-lg font-bold">
           Edit your AipPly profile
         </p>
-        <Button className="w-fit bg-transparent border hover:bg-slate-800">
+        <Button
+          className="w-fit bg-transparent border hover:bg-slate-800"
+          onClick={handleEditClick}
+        >
           <Image
-            src={"/static/icons/add.svg"}
+            src={isEditing ? "/static/icons/bookmark.svg" : "/static/icons/add.svg"}
             width={20}
             height={20}
-            alt="update"
+            alt={isEditing ? "save" : "update"}
           />
-          Update now
+          {isEditing ? "Save" : "Update now"}
         </Button>
       </div>
       <div className="grid grid-cols-3 gap-3 max-w-[525px] border-b-[1px] border-[#454545] ">

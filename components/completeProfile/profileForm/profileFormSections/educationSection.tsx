@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,9 +10,17 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
 
 interface EducationSectionProps {
+  educations: {
+    college: string;
+    graduationYear: string;
+    degree: string;
+    endDate: string;
+    description: string;
+    gpa: string;
+    maxGpa: string;
+  }[];
   onAddEducation: (education: {
     college: string;
     graduationYear: string;
@@ -20,6 +30,12 @@ interface EducationSectionProps {
     gpa: string;
     maxGpa: string;
   }) => void;
+  onEditEducation: (index: number) => void;
+  onDeleteEducation: (index: number) => void;
+  isEditing: boolean;
+  dropdownOpenIndex: number | null;
+  toggleDropdown: (index: number) => void;
+  educationsLength: number;
   editingEducation: {
     college: string;
     graduationYear: string;
@@ -32,7 +48,14 @@ interface EducationSectionProps {
 }
 
 const EducationSection: React.FC<EducationSectionProps> = ({
+  educations,
   onAddEducation,
+  onEditEducation,
+  onDeleteEducation,
+  // isEditing,
+  dropdownOpenIndex,
+  toggleDropdown,
+  educationsLength,
   editingEducation,
 }) => {
   const [education, setEducation] = useState({
@@ -64,7 +87,6 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   ) => {
     const { name, value } = e.target;
     setEducation((prev) => ({ ...prev, [name]: value }));
-    
   };
 
   const handleSave = () => {
@@ -81,93 +103,150 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   };
 
   return (
-    <Card className="grid grid-cols-7 max-w-[828px] text-white py-6 border-b border-gray rounded-none">
-      <CardHeader className="col-span-2">
-        <CardTitle>Education</CardTitle>
-        <CardDescription>What schools have you studied at?</CardDescription>
-      </CardHeader>
-      <CardContent className="col-span-5">
-        <div className="flex flex-col gap-4">
-          <Label>College/University</Label>
-          <Input
-            name="college"
-            value={education.college}
-            onChange={handleChange}
-            placeholder="Enter College/University Name"
-            required
-          />
-
-          <Label>Graduation Year</Label>
-          <Input
-            type="number"
-            name="graduationYear"
-            placeholder="Enter Graduation Year"
-            value={education.graduationYear}
-            onChange={handleChange}
-            required
-          />
-
-          <Label>Degree/Major</Label>
-          <Input
-            name="degree"
-            value={education.degree}
-            onChange={handleChange}
-            placeholder="Enter Degree/Major"
-            required
-          />
-
-          <Label>End Date</Label>
-          <Input
-            type="date"
-            name="endDate"
-            value={education.endDate}
-            onChange={handleChange}
-            required
-          />
-
-          <Label>Description</Label>
-          <textarea
-            name="description"
-            value={education.description}
-            onChange={handleChange}
-            className="bg-gray px-3 pt-3 pb-12 rounded-md"
-            placeholder="Describe your education..."
-          />
-
-          <Label>GPA</Label>
-          <div className="flex gap-2">
+    <>
+      <Card className="grid grid-cols-7 max-w-[828px] text-white py-6 border-b border-gray rounded-none">
+        <CardHeader className="col-span-2">
+          <CardTitle>Education</CardTitle>
+          <CardDescription>What schools have you studied at?</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4 col-span-5">
+          <div>
+            {educations.map((education, index) => (
+              <div
+                key={index}
+                className="flex flex-row py-4 px-4 border border-gray rounded-lg"
+              >
+                <div className="flex flex-col flex-grow">
+                  <div className="flex flex-row justify-between">
+                    <h2 className="text-display-xs-bold">
+                      {education.college}
+                    </h2>
+                    <div className="flex flex-col">
+                      <p className="text-text-md-bold ">
+                        {education.gpa} / {education.maxGpa}
+                      </p>
+                    </div>
+                  </div>
+                  <h3 className="text-text-xl-medium">
+                    {education.degree} - {education.graduationYear}
+                  </h3>
+                </div>
+                <div className="relative flex flex-col text-white items-start justify-start ml-4">
+                  <Image
+                    src="/static/icons/three-dot.svg"
+                    alt="More"
+                    width={24}
+                    height={24}
+                    onClick={() => toggleDropdown(index + educationsLength)}
+                  />
+                  {dropdownOpenIndex === index + educationsLength && (
+                    <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
+                      <p
+                        onClick={() => onEditEducation(index)}
+                        className="text-text-lg-regular font-inter cursor-pointer"
+                      >
+                        Edit
+                      </p>
+                      <p
+                        onClick={() => onDeleteEducation(index)}
+                        className="text-text-lg-regular font-inter cursor-pointer"
+                      >
+                        Delete
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col gap-4">
+            <Label>College/University</Label>
             <Input
-              type="number"
-              name="gpa"
-              value={education.gpa}
+              name="college"
+              value={education.college}
               onChange={handleChange}
-              placeholder="GPA"
+              placeholder="Enter College/University Name"
               required
             />
+
+            <Label>Graduation Year</Label>
             <Input
               type="number"
-              name="maxGpa"
-              value={education.maxGpa}
+              name="graduationYear"
+              placeholder="Enter Graduation Year"
+              value={education.graduationYear}
               onChange={handleChange}
-              placeholder="Max GPA"
               required
             />
-          </div>
 
-          <div className="flex gap-4">
-            <Button
-              className="w-fit px-8 bg-transparent border border-gray"
-              onClick={handleSave}
-            >
-              Save
-            </Button>
-            <Button className="w-fit px-8 bg-transparent border border-gray">
-              Cancel
-            </Button>
+            <Label>Degree/Major</Label>
+            <Input
+              name="degree"
+              value={education.degree}
+              onChange={handleChange}
+              placeholder="Enter Degree/Major"
+              required
+            />
+
+            <Label>End Date</Label>
+            <Input
+              type="date"
+              name="endDate"
+              value={education.endDate}
+              onChange={handleChange}
+              required
+            />
+
+            <Label>Description</Label>
+            <textarea
+              name="description"
+              value={education.description}
+              onChange={handleChange}
+              className="bg-gray px-3 pt-3 pb-12 rounded-md"
+              placeholder="Describe your education..."
+            />
+
+            <Label>GPA</Label>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                name="gpa"
+                value={education.gpa}
+                onChange={handleChange}
+                placeholder="GPA"
+                required
+              />
+              <Input
+                type="number"
+                name="maxGpa"
+                value={education.maxGpa}
+                onChange={handleChange}
+                placeholder="Max GPA"
+                required
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <Button
+                className="w-fit px-8 bg-transparent border border-gray"
+                onClick={handleSave}
+              >
+                <Image
+                  src={"/static/icons/add.svg"}
+                  width={20}
+                  height={20}
+                  alt="update"
+                />
+                Save
+              </Button>
+              <Button className="w-fit px-8 bg-transparent border border-gray">
+                Cancel
+              </Button>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

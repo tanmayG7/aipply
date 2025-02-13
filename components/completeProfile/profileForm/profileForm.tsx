@@ -4,10 +4,16 @@ import EducationSection from "./profileFormSections/educationSection";
 import AchievementsSection from "./profileFormSections/achievementsSection";
 import SocialMediaLinks from "./profileFormSections/socialMediaLinks";
 import Skills from "./profileFormSections/skillsSection";
+import WorkExperience from "./profileFormSections/workExperience";
+import Image from "next/image";
 // import { Button } from "@/components/ui/button";
 // import Link from "next/link";
 
-const ProfileForm = () => {
+interface ProfileFormProps {
+  isEditing: boolean;
+}
+
+const ProfileForm: React.FC<ProfileFormProps> = ({ isEditing }) => {
   const [educations, setEducations] = useState<
     {
       college: string;
@@ -49,13 +55,59 @@ const ProfileForm = () => {
     setEducations(educations.filter((_, i) => i !== index));
   };
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [workExperiences, setWorkExperiences] = useState<
+    {
+      company: string;
+      title: string;
+      startDate: string;
+      endDate: string;
+      current: boolean;
+      type: string;
+      description: string;
+    }[]
+  >([]);
+  const [editingWorkIndex, setEditingWorkIndex] = useState<number | null>(null);
+
+  const handleAddExperience = (experience: {
+    company: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    current: boolean;
+    type: string;
+    description: string;
+  }) => {
+    if (editingWorkIndex !== null) {
+      const updatedExperiences = workExperiences.map((exp, index) =>
+        index === editingWorkIndex ? experience : exp
+      );
+      setWorkExperiences(updatedExperiences);
+      setEditingWorkIndex(null);
+    } else {
+      setWorkExperiences([...workExperiences, experience]);
+    }
+  };
+
+  const handleEditExperience = (index: number) => {
+    setEditingWorkIndex(index);
+  };
+
+  const handleDeleteExperience = (index: number) => {
+    setWorkExperiences(workExperiences.filter((_, i) => i !== index));
+  };
+
+  const [dropdownOpenIndex, setDropdownOpenIndex] = useState<number | null>(
+    null
+  );
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpenIndex(null);
       }
     };
 
@@ -65,59 +117,91 @@ const ProfileForm = () => {
     };
   }, []);
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+  const toggleDropdown = (index: number) => {
+    setDropdownOpenIndex(dropdownOpenIndex === index ? null : index);
   };
 
   return (
     <div className="py-6 border border-gray rounded-xl">
       <AboutSection />
       <SocialMediaLinks />
-      {educations.map((education, index) => (
+      {workExperiences.map((experience, index) => (
         <div
           key={index}
-          className="flex flex-row py-4 px-4 border border-gray bg-blue rounded-lg mt-4 mx-4"
+          className="flex flex-row py-4 px-4 border border-gray rounded-lg mt-4 mx-4"
         >
           <div className="flex flex-col flex-grow">
             <div className="flex flex-row justify-between">
-              <h2 className="text-display-xs-bold">{education.college}</h2>
+              <h2 className="text-display-xs-bold">{experience.company}</h2>
               <div className="flex flex-col">
                 <p className="text-text-md-bold">
-                  {education.gpa} / {education.maxGpa}
+                  {experience.startDate} -{" "}
+                  {experience.current ? "Present" : experience.endDate}
                 </p>
-                <p className="text-text-md-bold">{education.graduationYear}</p>
               </div>
             </div>
-            <h3 className="text-text-xl-medium">{education.degree}</h3>
+            <h3 className="text-text-xl-medium">{experience.type}</h3>
+            <p className="text-text-md-bold">{experience.title}</p>
+          
           </div>
-          <div className="relative flex flex-col text-white items-start justify-start ml-4" ref={dropdownRef}>
-            <span className="cursor-pointer text-[28px]" onClick={toggleDropdown}>
-              :
-            </span>
-            {dropdownOpen && (
-              <div className="absolute flex flex-col z-60 top-0 bg-white text-black px-6 py-2 right-0 rounded-md">
-                <p
-                  onClick={() => handleEditEducation(index)}
-                  className="text-text-lg-regular font-inter"
-                >
-                  Edit
-                </p>
-                <p
-                  onClick={() => handleDeleteEducation(index)}
-                  className="text-text-lg-regular font-inter"
-                >
-                  Delete
-                </p>
-              </div>
-            )}
-          </div>
+          {isEditing && (
+            <div
+              className="relative flex flex-col text-white items-start justify-start ml-4"
+              ref={dropdownRef}
+            >
+              <Image
+                src="/static/icons/three-dot.svg"
+                alt="More"
+                width={24}
+                height={24}
+                onClick={() => toggleDropdown(index)}
+              />
+              {dropdownOpenIndex === index && (
+                <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
+                  <p
+                    onClick={() => handleEditExperience(index)}
+                    className="text-text-lg-regular font-inter cursor-pointer"
+                  >
+                    Edit
+                  </p>
+                  <p
+                    onClick={() => handleDeleteExperience(index)}
+                    className="text-text-lg-regular font-inter cursor-pointer"
+                  >
+                    Delete
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       ))}
-      <EducationSection
-        onAddEducation={handleAddEducation}
-        editingEducation={
-          editingIndex !== null ? educations[editingIndex] : null
+      {/* {isEditing && ( */}
+      <WorkExperience
+        onAddExperience={(experience) =>
+          handleAddExperience({
+            ...experience,
+            current:
+              experience.current === "true" || experience.current === true,
+          })
         }
+        editingExperience={
+          editingWorkIndex !== null
+            ? workExperiences[editingWorkIndex]
+            : undefined
+        }
+      />
+      {/* )} */}
+      <EducationSection
+        educations={educations}
+        onAddEducation={handleAddEducation}
+        onEditEducation={handleEditEducation}
+        onDeleteEducation={handleDeleteEducation}
+        isEditing={isEditing}
+        dropdownOpenIndex={dropdownOpenIndex}
+        toggleDropdown={toggleDropdown}
+        educationsLength={educations.length}
+        editingEducation={editingIndex !== null ? educations[editingIndex] : null}
       />
       <Skills />
       <AchievementsSection />
