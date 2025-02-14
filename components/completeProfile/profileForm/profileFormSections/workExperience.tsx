@@ -13,7 +13,17 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import DateFormate from "@/components/dateFormateChange/dateFormateChange";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
-import { WorkExperience } from "@/lib/types"; 
+
+interface WorkExperience {
+  company: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  type: string;
+  description: string;
+  location: string;
+}
 
 interface WorkExperienceProps {
   onAddExperience: (experience: WorkExperience) => void;
@@ -43,6 +53,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
     current: editingExperience?.current || false,
     type: editingExperience?.type || "",
     description: editingExperience?.description || "",
+    location: editingExperience?.location || "",
   });
 
   useEffect(() => {
@@ -54,6 +65,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
       current: editingExperience?.current || false,
       type: editingExperience?.type || "",
       description: editingExperience?.description || "",
+      location: editingExperience?.location || "",
     });
   }, [editingExperience]);
 
@@ -89,6 +101,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
       current: false,
       type: "fulltime",
       description: "",
+      location: "",
     });
   };
 
@@ -104,7 +117,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
             {workExperiences.map((experience, index) => (
               <div
                 key={index}
-                className="flex flex-row py-4 px-4 border border-gray rounded-lg"
+                className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"
               >
                 <div className="flex flex-col flex-grow gap-3">
                   <div className="flex flex-row justify-between">
@@ -206,7 +219,11 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
             />
 
             <div className="flex items-center gap-2">
-              <Checkbox id="current" checked={experience.current} onCheckedChange={handleCheckboxChange} />
+              <Checkbox
+                id="current"
+                checked={experience.current}
+                onCheckedChange={handleCheckboxChange}
+              />
               <Label htmlFor="current">I currently work here</Label>
             </div>
 

@@ -4,9 +4,9 @@ import EducationSection from "./profileFormSections/educationSection";
 import AchievementsSection from "./profileFormSections/achievementsSection";
 import SocialMediaLinks from "./profileFormSections/socialMediaLinks";
 import Skills from "./profileFormSections/skillsSection";
-import WorkExperience from "./profileFormSections/workExperience";
 import { auth, getUserDetails } from "@/lib/firebaseConfig/firebaseConfig";
 import { Education, UserDetails } from "@/lib/types";
+import WorkExperience from "./profileFormSections/workExperience";
 // import { UserDetails } from "@/lib/types";
 
 interface ProfileFormProps {
@@ -25,6 +25,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   useEffect(() => {
     if (userDetails) {
       setEducations(userDetails.education);
+      setWorkExperiences(userDetails.experience);
     }
   }, [userDetails]);
 
@@ -59,17 +60,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     }
   };
 
-  const [workExperiences, setWorkExperiences] = useState<
-    {
-      company: string;
-      title: string;
-      startDate: string;
-      endDate: string;
-      current: boolean;
-      type: string;
-      description: string;
-    }[]
-  >([]);
+  const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>();
   const [editingWorkIndex, setEditingWorkIndex] = useState<number | null>(null);
 
   const handleAddExperience = (experience: {
@@ -80,15 +71,16 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     current: boolean;
     type: string;
     description: string;
+    location: string;
   }) => {
     if (editingWorkIndex !== null) {
-      const updatedExperiences = workExperiences.map((exp, index) =>
+      const updatedExperiences = (workExperiences || []).map((exp, index) =>
         index === editingWorkIndex ? experience : exp
       );
       setWorkExperiences(updatedExperiences);
       setEditingWorkIndex(null);
     } else {
-      setWorkExperiences([...workExperiences, experience]);
+      setWorkExperiences([...(workExperiences || []), experience]);
     }
   };
 
@@ -97,7 +89,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   };
 
   const handleDeleteExperience = (index: number) => {
-    setWorkExperiences(workExperiences.filter((_, i) => i !== index));
+    setWorkExperiences((workExperiences || []).filter((_, i) => i !== index));
   };
 
   const [dropdownOpenIndex, setDropdownOpenIndex] = useState<number | null>(
@@ -147,7 +139,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       <AboutSection userDetails={userDetails} />
       <SocialMediaLinks />
       <WorkExperience
-        workExperiences={workExperiences}
+        workExperiences={workExperiences || []}
         onEditExperience={handleEditExperience}
         onDeleteExperience={handleDeleteExperience}
         dropdownOpenIndex={dropdownOpenIndex}
@@ -155,7 +147,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         onAddExperience={handleAddExperience}
         editingExperience={
           editingWorkIndex !== null
-            ? workExperiences[editingWorkIndex]
+            ? (workExperiences ?? [])[editingWorkIndex]
             : undefined
         }
       />
