@@ -33,6 +33,7 @@ interface WorkExperienceProps {
   onDeleteExperience: (index: number) => void;
   dropdownOpenIndex: number | null;
   toggleDropdown: (index: number) => void;
+  isEditing: boolean; // Add this prop
 }
 
 const WorkExperience: React.FC<WorkExperienceProps> = ({
@@ -43,6 +44,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
   onDeleteExperience,
   dropdownOpenIndex,
   toggleDropdown,
+  isEditing, // Destructure this prop
 }) => {
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const [experience, setExperience] = useState<WorkExperience>({
@@ -180,91 +182,94 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
               </div>
             ))}
           </div>
-          <div className="flex flex-col gap-4">
-            <Label>Company</Label>
-            <Input
-              name="company"
-              value={experience.company}
-              onChange={handleChange}
-              placeholder="Enter Company Name"
-              required
-            />
+          {isEditing && (
+            <>
+              <div className="flex flex-col gap-4">
+                <Label>Company</Label>
+                <Input
+                  name="company"
+                  value={experience.company}
+                  onChange={handleChange}
+                  placeholder="Enter Company Name"
+                  required
+                />
 
-            <Label>Title</Label>
-            <Input
-              name="title"
-              value={experience.title}
-              onChange={handleChange}
-              placeholder="Enter Job Title"
-              required
-            />
+                <Label>Title</Label>
+                <Input
+                  name="title"
+                  value={experience.title}
+                  onChange={handleChange}
+                  placeholder="Enter Job Title"
+                  required
+                />
 
-            <Label>Start Date</Label>
-            <Input
-              type="date"
-              name="startDate"
-              value={experience.startDate}
-              onChange={handleChange}
-              required
-            />
+                <Label>Start Date</Label>
+                <Input
+                  type="date"
+                  name="startDate"
+                  value={experience.startDate}
+                  onChange={handleChange}
+                  required
+                />
 
-            <Label>End Date</Label>
-            <Input
-              type="date"
-              name="endDate"
-              value={experience.endDate}
-              onChange={handleChange}
-              disabled={experience.current}
-              required={!experience.current}
-            />
+                <Label>End Date</Label>
+                <Input
+                  type="date"
+                  name="endDate"
+                  value={experience.endDate}
+                  onChange={handleChange}
+                  disabled={experience.current}
+                  required={!experience.current}
+                />
 
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="current"
-                checked={experience.current}
-                onCheckedChange={handleCheckboxChange}
-              />
-              <Label htmlFor="current">I currently work here</Label>
-            </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="current"
+                    checked={experience.current}
+                    onCheckedChange={handleCheckboxChange}
+                  />
+                  <Label htmlFor="current">I currently work here</Label>
+                </div>
 
-            <Label>Employment Type</Label>
-            <select
-              name="type"
-              value={experience.type}
-              onChange={handleChange}
-              className="bg-gray px-3 py-2 rounded-md"
-            >
-              <option value="fulltime">Full-time</option>
-              <option value="parttime">Part-time</option>
-            </select>
+                <Label>Employment Type</Label>
+                <select
+                  name="type"
+                  value={experience.type}
+                  onChange={handleChange}
+                  className="bg-gray px-3 py-2 rounded-md"
+                >
+                  <option value="fulltime">Full-time</option>
+                  <option value="parttime">Part-time</option>
+                </select>
 
-            <Label>Description</Label>
-            <textarea
-              name="description"
-              value={experience.description}
-              onChange={handleChange}
-              className="bg-gray px-3 pt-3 pb-12 rounded-md"
-              placeholder="Describe your work experience..."
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <Button
-              className="w-fit px-8 bg-transparent border border-gray"
-              onClick={handleSave}
-            >
-              <Image
-                src={"/static/icons/add.svg"}
-                width={20}
-                height={20}
-                alt="update"
-              />
-              Save
-            </Button>
-            <Button className="w-fit px-8 bg-transparent border border-gray">
-              Cancel
-            </Button>
-          </div>
+                <Label>Description</Label>
+                <textarea
+                  name="description"
+                  value={experience.description}
+                  onChange={handleChange}
+                  className="bg-gray px-3 pt-3 pb-12 rounded-md"
+                  placeholder="Describe your work experience..."
+                />
+              </div>
+              <div className="flex gap-4">
+                <Button
+                  className="w-fit px-8 bg-transparent border border-gray"
+                  onClick={handleSave}
+                >
+                  <Image
+                    src={"/static/icons/add.svg"}
+                    width={20}
+                    height={20}
+                    alt="update"
+                  />
+                  Save
+                </Button>
+                <Button className="w-fit px-8 bg-transparent border border-gray">
+                  Cancel
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </form>

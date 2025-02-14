@@ -1,17 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {  auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { UserDetails } from "@/lib/types";
 
 interface AboutSectionProps {
-  userDetails: any;
+  userDetails: UserDetails;
+  isEditing: boolean;
 }
 
-const AboutSection: React.FC<AboutSectionProps> = () => {
+const AboutSection: React.FC<AboutSectionProps> = ({ isEditing }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -73,7 +81,6 @@ const AboutSection: React.FC<AboutSectionProps> = () => {
     } catch (error: any) {
       console.error(error.message);
     }
-    
   };
 
   return (
@@ -87,106 +94,108 @@ const AboutSection: React.FC<AboutSectionProps> = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="col-span-5">
-        <form className="flex flex-col w-full gap-6">
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              name="firstName"
-              type="text"
-              placeholder="Enter your First Name"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              name="lastName"
-              type="text"
-              placeholder="Enter your Last Name"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="flex flex-row gap-2 text-white">
-            <Image
-              src="/static/images/profilePic.png"
-              alt="Profile"
-              width={56}
-              height={56}
-              className="rounded-full"
-            />
-            <Input
-              type="file"
-              name="uploadFile"
-              placeholder="Upload a new picture"
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="whereYouBased">Where You Based:</Label>
-            <Input
-              type="text"
-              name="whereYouBased"
-              placeholder="Where You Based"
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="primaryRole">Select Your Primary Role:</Label>
-            <Input
-              type="text"
-              name="primaryRole"
-              placeholder="Select Your Primary Role"
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="experience">Years of Experience:</Label>
-            <Input
-              type="number"
-              name="experience"
-              placeholder="Years of Experience"
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="role">Select Role as a Keyword:</Label>
-            <Input
-              type="text"
-              name="role"
-              placeholder="Select Role as a Keyword:"
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="grid gap-2 text-white">
-            <Label htmlFor="bio">Your Bio:</Label>
-            <textarea
-              name="bio"
-              placeholder="Your Bio"
-              onChange={handleChange}
-              required
-              className="bg-gray px-3 pt-3 pb-12 rounded-md"
-            />
-          </div>
-          <div className="flex gap-4">
-            <Button
-              className="w-fit px-8 text-white bg-transparent border border-gray"
-              onClick={handleSave}
-            >
-              Save
-            </Button>
-          </div>
-        </form>
+        {isEditing && (
+          <form className="flex flex-col w-full gap-6">
+            <div className="grid gap-2 text-white">
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                id="firstName"
+                name="firstName"
+                type="text"
+                placeholder="Enter your First Name"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="grid gap-2 text-white">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                id="lastName"
+                name="lastName"
+                type="text"
+                placeholder="Enter your Last Name"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="flex flex-row gap-2 text-white">
+              <Image
+                src="/static/images/profilePic.png"
+                alt="Profile"
+                width={56}
+                height={56}
+                className="rounded-full"
+              />
+              <Input
+                type="file"
+                name="uploadFile"
+                placeholder="Upload a new picture"
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="grid gap-2 text-white">
+              <Label htmlFor="whereYouBased">Where You Based:</Label>
+              <Input
+                type="text"
+                name="whereYouBased"
+                placeholder="Where You Based"
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="grid gap-2 text-white">
+              <Label htmlFor="primaryRole">Select Your Primary Role:</Label>
+              <Input
+                type="text"
+                name="primaryRole"
+                placeholder="Select Your Primary Role"
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="grid gap-2 text-white">
+              <Label htmlFor="experience">Years of Experience:</Label>
+              <Input
+                type="number"
+                name="experience"
+                placeholder="Years of Experience"
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="grid gap-2 text-white">
+              <Label htmlFor="role">Select Role as a Keyword:</Label>
+              <Input
+                type="text"
+                name="role"
+                placeholder="Select Role as a Keyword:"
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="grid gap-2 text-white">
+              <Label htmlFor="bio">Your Bio:</Label>
+              <textarea
+                name="bio"
+                placeholder="Your Bio"
+                onChange={handleChange}
+                required
+                className="bg-gray px-3 pt-3 pb-12 rounded-md"
+              />
+            </div>
+            <div className="flex gap-4">
+              <Button
+                className="w-fit px-8 text-white bg-transparent border border-gray"
+                onClick={handleSave}
+              >
+                Save
+              </Button>
+            </div>
+          </form>
+        )}
       </CardContent>
     </Card>
   );

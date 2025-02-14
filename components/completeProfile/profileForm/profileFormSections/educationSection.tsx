@@ -10,23 +10,22 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig"; 
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Education } from "@/lib/types"; // Add this import
 
 interface EducationSectionProps {
-  educations: Education[]; 
+  educations: Education[];
   onAddEducation: (education: Education) => void;
   onEditEducation: (index: number) => void;
   onDeleteEducation: (index: number) => void;
   isEditing: boolean;
   dropdownOpenIndex: number | null;
   toggleDropdown: (index: number) => void;
-  editingEducation: Education | null; 
-
+  editingEducation: Education | null;
 }
 
 const EducationSection: React.FC<EducationSectionProps> = ({
-  // isEditing,
+  isEditing,
   educations,
   onAddEducation,
   onEditEducation,
@@ -35,7 +34,6 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   toggleDropdown,
   editingEducation,
 }) => {
-
   console.log("userDetails", educations);
   const [education, setEducation] = useState<Education>({
     college: editingEducation?.college || "",
@@ -68,7 +66,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     setEducation((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async() => {
+  const handleSave = async () => {
     onAddEducation(education);
     const user = auth.currentUser;
     if (user) {
@@ -150,91 +148,93 @@ const EducationSection: React.FC<EducationSectionProps> = ({
               </div>
             ))}
           </div>
-          <div className="flex flex-col gap-4">
-            <Label>College/University</Label>
-            <Input
-              name="college"
-              value={education.college}
-              onChange={handleChange}
-              placeholder="Enter College/University Name"
-              required
-            />
-
-            <Label>Graduation Year</Label>
-            <Input
-              type="number"
-              name="graduationYear"
-              placeholder="Enter Graduation Year"
-              value={education.graduationYear}
-              onChange={handleChange}
-              required
-            />
-
-            <Label>Degree/Major</Label>
-            <Input
-              name="degree"
-              value={education.degree}
-              onChange={handleChange}
-              placeholder="Enter Degree/Major"
-              required
-            />
-
-            <Label>End Date</Label>
-            <Input
-              type="date"
-              name="endDate"
-              value={education.endDate}
-              onChange={handleChange}
-              required
-            />
-
-            <Label>Description</Label>
-            <textarea
-              name="description"
-              value={education.description}
-              onChange={handleChange}
-              className="bg-gray px-3 pt-3 pb-12 rounded-md"
-              placeholder="Describe your education..."
-            />
-
-            <Label>GPA</Label>
-            <div className="flex gap-2">
+          {isEditing && (
+            <div className="flex flex-col gap-4">
+              <Label>College/University</Label>
               <Input
-                type="number"
-                name="gpa"
-                value={education.gpa}
+                name="college"
+                value={education.college}
                 onChange={handleChange}
-                placeholder="GPA"
+                placeholder="Enter College/University Name"
                 required
               />
+
+              <Label>Graduation Year</Label>
               <Input
                 type="number"
-                name="maxGpa"
-                value={education.maxGpa}
+                name="graduationYear"
+                placeholder="Enter Graduation Year"
+                value={education.graduationYear}
                 onChange={handleChange}
-                placeholder="Max GPA"
                 required
               />
-            </div>
 
-            <div className="flex gap-4">
-              <Button
-                className="w-fit px-8 bg-transparent border border-gray"
-                onClick={handleSave}
-              >
-                <Image
-                  src={"/static/icons/add.svg"}
-                  width={20}
-                  height={20}
-                  alt="update"
+              <Label>Degree/Major</Label>
+              <Input
+                name="degree"
+                value={education.degree}
+                onChange={handleChange}
+                placeholder="Enter Degree/Major"
+                required
+              />
+
+              <Label>End Date</Label>
+              <Input
+                type="date"
+                name="endDate"
+                value={education.endDate}
+                onChange={handleChange}
+                required
+              />
+
+              <Label>Description</Label>
+              <textarea
+                name="description"
+                value={education.description}
+                onChange={handleChange}
+                className="bg-gray px-3 pt-3 pb-12 rounded-md"
+                placeholder="Describe your education..."
+              />
+
+              <Label>GPA</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  name="gpa"
+                  value={education.gpa}
+                  onChange={handleChange}
+                  placeholder="GPA"
+                  required
                 />
-                Save
-              </Button>
-              <Button className="w-fit px-8 bg-transparent border border-gray">
-                Cancel
-              </Button>
+                <Input
+                  type="number"
+                  name="maxGpa"
+                  value={education.maxGpa}
+                  onChange={handleChange}
+                  placeholder="Max GPA"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <Button
+                  className="w-fit px-8 bg-transparent border border-gray"
+                  onClick={handleSave}
+                >
+                  <Image
+                    src={"/static/icons/add.svg"}
+                    width={20}
+                    height={20}
+                    alt="update"
+                  />
+                  Save
+                </Button>
+                <Button className="w-fit px-8 bg-transparent border border-gray">
+                  Cancel
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </>

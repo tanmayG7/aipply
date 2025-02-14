@@ -136,8 +136,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
   return (
     <div className="py-6 border border-gray rounded-xl">
-      <AboutSection userDetails={userDetails} />
-      <SocialMediaLinks />
+      <AboutSection userDetails={userDetails} isEditing={isEditing} />
+      <SocialMediaLinks isEditing={isEditing}/>
       <WorkExperience
         workExperiences={workExperiences || []}
         onEditExperience={handleEditExperience}
@@ -150,6 +150,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             ? (workExperiences ?? [])[editingWorkIndex]
             : undefined
         }
+        isEditing={isEditing} 
       />
 
       <EducationSection

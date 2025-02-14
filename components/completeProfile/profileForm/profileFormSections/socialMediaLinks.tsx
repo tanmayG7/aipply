@@ -8,13 +8,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React, { useState } from "react";
-import {
-  auth,
-  saveUserProfile,
-} from "@/lib/firebaseConfig/firebaseConfig";
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Button } from "@/components/ui/button";
 
-const SocialMediaLinks = () => {
+interface SocialMediaLinksProps {
+  isEditing: boolean;
+}
+
+const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({ isEditing }) => {
   const [socialMediaLinks, setSocialMediaLinks] = useState({
     website: "",
     linkedin: "",
@@ -35,8 +36,8 @@ const SocialMediaLinks = () => {
     const user = auth.currentUser;
     if (user) {
       const userDetails = {
-         socialMediaLinks,
-      }
+        socialMediaLinks,
+      };
       await saveUserProfile(user.uid, userDetails);
     }
     setSocialMediaLinks({
@@ -58,6 +59,8 @@ const SocialMediaLinks = () => {
             Where can people find you online?
           </CardDescription>
         </CardHeader>
+        {
+        isEditing && (
         <CardContent className="flex flex-col gap-4 col-span-5">
           <div className="flex flex-col w-full gap-6">
             <div className="grid gap-2 text-white">
@@ -113,6 +116,7 @@ const SocialMediaLinks = () => {
             </Button>
           </div>
         </CardContent>
+        )}
       </Card>
     </form>
   );
