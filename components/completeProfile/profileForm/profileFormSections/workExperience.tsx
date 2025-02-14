@@ -104,7 +104,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
 
   return (
     <form>
-      <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white border-b border-gray rounded-none">
+      <Card className="grid grid-cols-7 max-w-[828px] py-10 text-white border-b border-gray rounded-none">
         <CardHeader className="col-span-2">
           <CardTitle>Work Experience</CardTitle>
           <CardDescription>Add your past job roles.</CardDescription>

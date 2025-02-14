@@ -94,7 +94,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
 
   return (
     <>
-      <Card className="grid grid-cols-7 max-w-[828px] text-white py-6 border-b border-gray rounded-none">
+      <Card className="grid grid-cols-7 max-w-[828px] text-white py-10 border-b border-gray rounded-none">
         <CardHeader className="col-span-2">
           <CardTitle>Education</CardTitle>
           <CardDescription>What schools have you studied at?</CardDescription>

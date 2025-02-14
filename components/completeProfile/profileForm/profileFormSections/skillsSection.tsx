@@ -50,7 +50,7 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
   };
 
   return (
-    <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white border-b border-gray rounded-none">
+    <Card className="grid grid-cols-7 max-w-[828px] py-10 text-white border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
         <CardTitle>Skills</CardTitle>
         <CardDescription>Add your key skills.</CardDescription>
@@ -63,7 +63,7 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
               {skills.map((skill) => (
                 <div
                   key={skill}
-                  className="bg-gray-700 px-3 py-1 rounded-full flex items-center gap-2"
+                  className="border-[1px] border-slate-700 px-4 py-2 rounded flex items-center gap-2"
                 >
                   {skill}
                   <button onClick={() => removeSkill(skill)}>✕</button>
@@ -98,7 +98,7 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
             {skills.map((skill) => (
               <div
                 key={skill}
-                className="bg-gray-700 px-3 py-1 rounded-full flex items-center gap-2"
+                className="bg-gray-700 flex items-center gap-2 border-[1px] border-slate-600 px-4 py-2 rounded"
               >
                 {skill}
               </div>
