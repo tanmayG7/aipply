@@ -71,7 +71,9 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       ? educations.map((edu) => (edu === editingEducation ? education : edu))
       : [...educations, education];
 
-    onAddEducation(education);
+    if (!editingEducation) {
+      onAddEducation(education);
+    }
     const user = auth.currentUser;
     if (user) {
       const newEducation = {

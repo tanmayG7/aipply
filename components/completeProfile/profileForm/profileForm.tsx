@@ -4,7 +4,11 @@ import EducationSection from "./profileFormSections/educationSection";
 import AchievementsSection from "./profileFormSections/achievementsSection";
 import SocialMediaLinks from "./profileFormSections/socialMediaLinks";
 import Skills from "./profileFormSections/skillsSection";
-import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import {
+  auth,
+  getUserProfile,
+  saveUserProfile,
+} from "@/lib/firebaseConfig/firebaseConfig";
 import { Education, Experience, UserDetails } from "@/lib/types";
 import WorkExperience from "./profileFormSections/workExperience";
 // import { UserDetails } from "@/lib/types";
@@ -45,9 +49,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     setEditingIndex(index);
   };
 
-  const handleDeleteEducation = (index: number) => {
+  const handleDeleteEducation = async (index: number) => {
     if (educations) {
-      setEducations(educations.filter((_, i) => i !== index));
+      const updatedEducations = educations.filter((_, i) => i !== index);
+      setEducations(updatedEducations);
+      const user = auth.currentUser;
+      if (user) {
+        await saveUserProfile(user.uid, { education: updatedEducations });
+      }
     }
   };
 
@@ -71,7 +80,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   };
 
   const handleDeleteExperience = (index: number) => {
-    setWorkExperiences((workExperiences || []).filter((_, i) => i !== index));
+    if (workExperiences) {
+      const updatedExperiences = workExperiences.filter((_, i) => i !== index);
+      setWorkExperiences(updatedExperiences);
+      const user = auth.currentUser;
+      if(user){
+        saveUserProfile(user.uid, { experience: updatedExperiences });
+      }
+    }
   };
 
   const [dropdownOpenIndex, setDropdownOpenIndex] = useState<number | null>(
@@ -114,7 +130,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     }
   }, [isEditing]);
 
-  if(!educations) return null;
+  if (!educations) return null;
 
   return (
     <div className="py-6 border border-gray rounded-xl">

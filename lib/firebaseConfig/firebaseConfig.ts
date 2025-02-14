@@ -157,5 +157,5 @@ export {
   provider, 
   getUserProfile, 
   updateUserProfile, 
-  getUserDetails 
+  getUserDetails,
 };

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { auth, saveUserProfile, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { UserDetails } from "@/lib/types";
 
 interface SkillsProps {
@@ -17,7 +17,7 @@ interface SkillsProps {
 }
 
 const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
-  const [skills, setSkills] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>(userDetails.skills);
   const [skillInput, setSkillInput] = useState("");
 
   const addSkill = () => {
@@ -27,8 +27,16 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
     }
   };
 
-  const removeSkill = (skill: string) => {
+  const removeSkill = async (skill: string) => {
     setSkills(skills.filter((s) => s !== skill));
+    const user = auth.currentUser;
+    if (user) {
+      const userDetails = await getUserProfile(user.uid);
+      const updatedSkills = userDetails.skills.filter((s: string) => s !== skill);
+      await saveUserProfile(user.uid, { skills: updatedSkills });
+    }
+
+
   };
 
   const handleSave = async () => {
@@ -63,18 +71,6 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
               ))}
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {userDetails.skills.map((skill) => (
-                <div
-                  key={skill}
-                  className="bg-gray-700 px-3 py-1 rounded-full flex items-center gap-2"
-                >
-                  {skill}
-                  <button onClick={() => removeSkill(skill)}>✕</button>
-                </div>
-              ))}
-            </div>
-
             <Input
               value={skillInput}
               onChange={(e) => setSkillInput(e.target.value)}
@@ -99,7 +95,7 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
       ) : (
         <CardContent className="col-span-5">
           <div className="flex flex-wrap gap-2">
-            {userDetails.skills.map((skill) => (
+            {skills.map((skill) => (
               <div
                 key={skill}
                 className="bg-gray-700 px-3 py-1 rounded-full flex items-center gap-2"

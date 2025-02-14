@@ -21,8 +21,8 @@ export default function Page() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const userProfile = await getUserProfile(); // Fetch user profile
-        const fetchedJobs: Job[] = await getJobsByTitle(userProfile.aimingJobTitle); // Use aimingJobTitle from user profile
+        const userProfile = await getUserProfile(); 
+        const fetchedJobs: Job[] = await getJobsByTitle(userProfile.primaryRole); 
         setJobs(fetchedJobs);
         setFilteredJobs(fetchedJobs);
       } catch (error) {
