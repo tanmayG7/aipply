@@ -67,11 +67,15 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   };
 
   const handleSave = async () => {
+    const updatedEducations = editingEducation
+      ? educations.map((edu) => (edu === editingEducation ? education : edu))
+      : [...educations, education];
+
     onAddEducation(education);
     const user = auth.currentUser;
     if (user) {
       const newEducation = {
-        education: [...educations, education],
+        education: updatedEducations,
       };
       await saveUserProfile(user.uid, newEducation);
     }
@@ -120,31 +124,33 @@ const EducationSection: React.FC<EducationSectionProps> = ({
                     {education.description}
                   </p>
                 </div>
-                <div className="relative flex flex-col text-white items-start justify-start ml-4">
-                  <Image
-                    src="/static/icons/three-dot.svg"
-                    alt="More"
-                    width={24}
-                    height={24}
-                    onClick={() => toggleDropdown(index)}
-                  />
-                  {dropdownOpenIndex === index && (
-                    <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
-                      <p
-                        onClick={() => onEditEducation(index)}
-                        className="text-text-lg-regular font-inter cursor-pointer"
-                      >
-                        Edit
-                      </p>
-                      <p
-                        onClick={() => onDeleteEducation(index)}
-                        className="text-text-lg-regular font-inter cursor-pointer"
-                      >
-                        Delete
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {isEditing && (
+                  <div className="relative flex flex-col text-white items-start justify-start ml-4">
+                    <Image
+                      src="/static/icons/three-dot.svg"
+                      alt="More"
+                      width={24}
+                      height={24}
+                      onClick={() => toggleDropdown(index)}
+                    />
+                    {dropdownOpenIndex === index && (
+                      <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
+                        <p
+                          onClick={() => onEditEducation(index)}
+                          className="text-text-lg-regular font-inter cursor-pointer"
+                        >
+                          Edit
+                        </p>
+                        <p
+                          onClick={() => onDeleteEducation(index)}
+                          className="text-text-lg-regular font-inter cursor-pointer"
+                        >
+                          Delete
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

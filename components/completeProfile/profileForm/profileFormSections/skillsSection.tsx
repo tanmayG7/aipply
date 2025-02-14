@@ -63,6 +63,18 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
               ))}
             </div>
 
+            <div className="flex flex-wrap gap-2">
+              {userDetails.skills.map((skill) => (
+                <div
+                  key={skill}
+                  className="bg-gray-700 px-3 py-1 rounded-full flex items-center gap-2"
+                >
+                  {skill}
+                  <button onClick={() => removeSkill(skill)}>✕</button>
+                </div>
+              ))}
+            </div>
+
             <Input
               value={skillInput}
               onChange={(e) => setSkillInput(e.target.value)}

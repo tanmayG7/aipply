@@ -29,21 +29,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     }
   }, [userDetails]);
 
-  const handleAddEducation = (education: {
-    college: string;
-    graduationYear: string;
-    degree: string;
-    endDate: string;
-    description: string;
-    gpa: string;
-    maxGpa: string;
-  }) => {
+  const handleAddEducation = (education: Education) => {
     if (editingIndex !== null) {
       const updatedEducations = (educations || []).map((edu, index) =>
         index === editingIndex ? education : edu
       );
       setEducations(updatedEducations);
-
       setEditingIndex(null);
     } else {
       setEducations([...(educations || []), education]);
@@ -63,15 +54,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   const [workExperiences, setWorkExperiences] = useState<Experience[]>();
   const [editingWorkIndex, setEditingWorkIndex] = useState<number | null>(null);
 
-  const handleAddExperience = (experience: {
-    company: string;
-    title: string;
-    startDate: string;
-    endDate: string;
-    current: boolean;
-    type: string;
-    description: string;
-  }) => {
+  const handleAddExperience = (experience: Experience) => {
     if (editingWorkIndex !== null) {
       const updatedExperiences = (workExperiences || []).map((exp, index) =>
         index === editingWorkIndex ? experience : exp

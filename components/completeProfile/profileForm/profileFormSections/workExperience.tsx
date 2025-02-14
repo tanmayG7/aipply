@@ -78,11 +78,18 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
 
     const user = auth.currentUser;
     if (user) {
+      const updatedExperiences = editingExperience
+        ? workExperiences.map((exp) =>
+            exp === editingExperience ? experience : exp
+          )
+        : [...workExperiences, experience];
+
       const userDetails = {
-        experience: [...workExperiences, experience],
+        experience: updatedExperiences,
       };
       saveUserProfile(user.uid, userDetails);
     }
+
     onAddExperience(experience);
     setExperience({
       company: "",
@@ -104,71 +111,75 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
         </CardHeader>
         <CardContent className="flex flex-col gap-4 col-span-5">
           <div className="flex flex-col gap-4">
-            {workExperiences.length && workExperiences.map((experience, index) => (
-              <div
-                key={index}
-                className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"
-              >
-                <div className="flex flex-col flex-grow gap-3">
-                  <div className="flex flex-row justify-between">
-                    <h2 className="text-display-xs-bold">
-                      {experience.company}
-                    </h2>
+            {workExperiences.length &&
+              workExperiences.map((experience, index) => (
+                <div
+                  key={index}
+                  className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"
+                >
+                  <div className="flex flex-col flex-grow gap-3">
+                    <div className="flex flex-row justify-between">
+                      <h2 className="text-display-xs-bold">
+                        {experience.company}
+                      </h2>
 
-                    <div className="flex flex-col">
-                      <p className="text-text-md-bold">
-                        <DateFormate date={experience.startDate} /> -{" "}
-                        {experience.current ? (
-                          "Present"
-                        ) : (
-                          <DateFormate date={experience.endDate} />
-                        )}
+                      <div className="flex flex-col">
+                        <p className="text-text-md-bold">
+                          <DateFormate date={experience.startDate} /> -{" "}
+                          {experience.current ? (
+                            "Present"
+                          ) : (
+                            <DateFormate date={experience.endDate} />
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-row items-center justify-between">
+                      <p className="text-text-md-bold">{experience.title}</p>
+                      <h3 className="text-text-xl-medium">{experience.type}</h3>
+                    </div>
+
+                    <div>
+                      <p className="text-text-md-regular opacity-70 max-w-[480px]">
+                        <span className="text-text-sm-semibold">
+                          Description: {experience.description}
+                        </span>
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-row items-center justify-between">
-                    <p className="text-text-md-bold">{experience.title}</p>
-                    <h3 className="text-text-xl-medium">{experience.type}</h3>
-                  </div>
+                  {isEditing && (
+                    <div
+                      className="relative flex flex-col text-white items-start justify-start ml-4"
+                      ref={dropdownRef}
+                    >
+                      <Image
+                        src="/static/icons/three-dot.svg"
+                        alt="More"
+                        width={24}
+                        height={24}
+                        onClick={() => toggleDropdown(index)}
+                      />
 
-                  <div>
-                    <p className="text-text-md-regular opacity-70 max-w-[480px]">
-                      <span className="text-text-sm-semibold">
-                        Description: {experience.description}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="relative flex flex-col text-white items-start justify-start ml-4"
-                  ref={dropdownRef}
-                >
-                  <Image
-                    src="/static/icons/three-dot.svg"
-                    alt="More"
-                    width={24}
-                    height={24}
-                    onClick={() => toggleDropdown(index)}
-                  />
-                  {dropdownOpenIndex === index && (
-                    <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
-                      <p
-                        onClick={() => onEditExperience(index)}
-                        className="text-text-lg-regular font-inter cursor-pointer"
-                      >
-                        Edit
-                      </p>
-                      <p
-                        onClick={() => onDeleteExperience(index)}
-                        className="text-text-lg-regular font-inter cursor-pointer"
-                      >
-                        Delete
-                      </p>
+                      {dropdownOpenIndex === index && (
+                        <div className="absolute flex flex-col z-60 top-12 bg-white text-black px-6 py-2 right-0 rounded-md">
+                          <p
+                            onClick={() => onEditExperience(index)}
+                            className="text-text-lg-regular font-inter cursor-pointer"
+                          >
+                            Edit
+                          </p>
+                          <p
+                            onClick={() => onDeleteExperience(index)}
+                            className="text-text-lg-regular font-inter cursor-pointer"
+                          >
+                            Delete
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
           {isEditing && (
             <>
