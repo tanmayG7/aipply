@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import ProfileForm from "./profileForm/profileForm";
 import UploadCv from "./uploadCv";
@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { auth, getUserProfile, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { UserDetails } from "@/lib/types";
+import { onAuthStateChanged } from "firebase/auth";
 
 const EditProfile: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState("profile");
@@ -25,6 +26,20 @@ const EditProfile: React.FC = () => {
     }
     setIsEditing(!isEditing);
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const fetchUserDetails = async () => {
+          const details: UserDetails = await getUserProfile(user.uid);
+          setUserDetails(details);
+        };
+        fetchUserDetails();
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleCancel = () => {
     setIsEditing(false);
