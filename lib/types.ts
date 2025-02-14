@@ -30,7 +30,6 @@ export interface Experience {
     current: boolean;
     type: string;
     description: string;
-    location: string;
 }
 
 export interface UserDetails {

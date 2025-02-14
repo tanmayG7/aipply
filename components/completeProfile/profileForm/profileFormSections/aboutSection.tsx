@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -21,39 +21,27 @@ interface AboutSectionProps {
 
 const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    uploadFile: "",
-    whereYouBased: "",
-    primaryRole: "",
-    workexperience: "",
-    role: "",
-    bio: "",
+    firstName: userDetails.firstName || "",
+    lastName: userDetails.lastName || "",
+    uploadFile: userDetails.uploadFile || "",
+    whereYouBased:  userDetails.whereYouBased || "",
+    primaryRole: userDetails.primaryRole || "",
+    workexperience: userDetails.workexperience || "",
+    role: userDetails.role || "",
+    bio: userDetails.bio || "",
   });
 
-  useEffect(() => {
-    const user = auth.currentUser;
-    if (user) {
-      setFormData((prevData) => ({
-        ...prevData,
-        email: user.email || "",
-        firstName: user.displayName?.split(" ")[0] || "",
-        lastName: user.displayName?.split(" ")[1] || "",
-      }));
-    }
-    if (isEditing && userDetails) {
-      setFormData({
-        firstName: userDetails.firstName || "",
-        lastName: userDetails.lastName || "",
-        uploadFile: "",
-        whereYouBased: userDetails.whereYouBased || "",
-        primaryRole: userDetails.primaryRole || "",
-        workexperience: userDetails.workexperience || "",
-        role: userDetails.role || "",
-        bio: userDetails.bio || "",
-      });
-    }
-  }, [isEditing, userDetails]);
+  // useEffect(() => {
+  //   const user = auth.currentUser;
+  //   if (user) {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       email: user.email || "",
+  //       firstName: user.displayName?.split(" ")[0] || "",
+  //       lastName: user.displayName?.split(" ")[1] || "",
+  //     }));
+  //   }
+  // }, []);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -148,6 +136,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
               <Input
                 type="text"
                 name="whereYouBased"
+                value={formData.whereYouBased}
                 placeholder="Where You Based"
                 onChange={handleChange}
                 required
@@ -158,6 +147,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
               <Input
                 type="text"
                 name="primaryRole"
+                value={formData.primaryRole}
                 placeholder="Select Your Primary Role"
                 onChange={handleChange}
                 required
@@ -168,6 +158,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
               <Input
                 type="number"
                 name="workexperience"
+                value={formData.workexperience}
                 placeholder="Years of Experience"
                 onChange={handleChange}
                 required
@@ -178,6 +169,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
               <Input
                 type="text"
                 name="role"
+                value={formData.role}
                 placeholder="Select Role as a Keyword:"
                 onChange={handleChange}
                 required
@@ -187,6 +179,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
               <Label htmlFor="bio">Your Bio:</Label>
               <textarea
                 name="bio"
+                value={formData.bio}
                 placeholder="Your Bio"
                 onChange={handleChange}
                 required

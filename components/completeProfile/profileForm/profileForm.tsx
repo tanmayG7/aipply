@@ -4,7 +4,7 @@ import EducationSection from "./profileFormSections/educationSection";
 import AchievementsSection from "./profileFormSections/achievementsSection";
 import SocialMediaLinks from "./profileFormSections/socialMediaLinks";
 import Skills from "./profileFormSections/skillsSection";
-import { auth, getUserDetails } from "@/lib/firebaseConfig/firebaseConfig";
+import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Education, Experience, UserDetails } from "@/lib/types";
 import WorkExperience from "./profileFormSections/workExperience";
 // import { UserDetails } from "@/lib/types";
@@ -71,7 +71,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     current: boolean;
     type: string;
     description: string;
-    location: string;
   }) => {
     if (editingWorkIndex !== null) {
       const updatedExperiences = (workExperiences || []).map((exp, index) =>
@@ -121,7 +120,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     const fetchUserDetails = async () => {
       const user = auth.currentUser;
       if (user) {
-        const userDetails = await getUserDetails(user.uid);
+        const userDetails = await getUserProfile(user.uid);
         setEducations(userDetails.education || []);
         setWorkExperiences(userDetails.experience || []);
       }

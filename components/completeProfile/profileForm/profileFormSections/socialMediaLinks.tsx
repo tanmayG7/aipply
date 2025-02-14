@@ -22,10 +22,10 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   userDetails,
 }) => {
   const [socialMediaLinks, setSocialMediaLinks] = useState({
-    website: "",
-    linkedin: "",
-    github: "",
-    twitter: "",
+    website: userDetails.socialMediaLinks.website || "",
+    linkedin: userDetails.socialMediaLinks.linkedin || "",
+    github: userDetails.socialMediaLinks.github || "",
+    twitter: userDetails.socialMediaLinks.twitter || "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +72,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
                 <Input
                   type="url"
                   name="website"
+                  value={socialMediaLinks.website}
                   placeholder="Enter your website URL"
                   onChange={handleChange}
                   required
@@ -83,6 +84,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
                 <Input
                   type="url"
                   name="linkedin"
+                  value={socialMediaLinks.linkedin}
                   placeholder="Enter your LinkedIn profile URL"
                   onChange={handleChange}
                   required
@@ -94,6 +96,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
                 <Input
                   type="url"
                   name="github"
+                  value={socialMediaLinks.github}
                   placeholder="Enter your GitHub profile URL"
                   onChange={handleChange}
                   required
@@ -105,6 +108,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
                 <Input
                   type="url"
                   name="twitter"
+                  value={socialMediaLinks.twitter}
                   placeholder="Enter your Twitter/X profile URL"
                   onChange={handleChange}
                   required

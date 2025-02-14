@@ -46,7 +46,6 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
     current: editingExperience?.current || false,
     type: editingExperience?.type || "",
     description: editingExperience?.description || "",
-    location: editingExperience?.location || "",
   });
 
   useEffect(() => {
@@ -58,7 +57,6 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
       current: editingExperience?.current || false,
       type: editingExperience?.type || "",
       description: editingExperience?.description || "",
-      location: editingExperience?.location || "",
     });
   }, [editingExperience]);
 
@@ -94,7 +92,6 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
       current: false,
       type: "fulltime",
       description: "",
-      location: "",
     });
   };
 
@@ -121,11 +118,11 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
                     <div className="flex flex-col">
                       <p className="text-text-md-bold">
                         <DateFormate date={experience.startDate} /> -{" "}
-                        <DateFormate
-                          date={
-                            experience.current ? "Present" : experience.endDate
-                          }
-                        />
+                        {experience.current ? (
+                          "Present"
+                        ) : (
+                          <DateFormate date={experience.endDate} />
+                        )}
                       </p>
                     </div>
                   </div>

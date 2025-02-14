@@ -8,22 +8,28 @@ import {
 } from "@/components/ui/card";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { UserDetails } from "@/lib/types";
+import { useState } from "react";
 
 interface AchievementsSectionProps {
   userDetails: UserDetails;
   isEditing: boolean;
 }
 
-const handleSave = () => {
-  const user = auth.currentUser;
-  if (user) {
-    const achievements = (document.getElementById("achievementsTextarea") as HTMLTextAreaElement).value;
-    saveUserProfile(user.uid, { achievements });
-    alert("Achievements saved successfully!");
-  }
-}
+const AchievementsSection: React.FC<AchievementsSectionProps> = ({
+  userDetails,
+  isEditing,
+}) => {
+  const [achievements, setAchievements] = useState<string>(
+    userDetails.achievements || ""
+  );
 
-const AchievementsSection:React.FC<AchievementsSectionProps> = ({userDetails, isEditing}) => {
+  const handleSave = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      await saveUserProfile(user.uid, { achievements });
+    }
+  };
+
   return (
     <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
@@ -33,25 +39,27 @@ const AchievementsSection:React.FC<AchievementsSectionProps> = ({userDetails, is
         </CardDescription>
       </CardHeader>
       {isEditing ? (
-      <CardContent className="col-span-5">
-        <textarea
-          id="achievementsTextarea"
-          className="bg-gray px-3 pt-3 pb-12 rounded-md w-full"
-          placeholder="Describe your achievements..."
-        />
+        <CardContent className="flex flex-col gap-6 col-span-5">
+          <textarea
+            id="achievementsTextarea"
+            className="bg-gray px-3 pt-3 pb-12 rounded-md w-full"
+            placeholder="Describe your achievements..."
+            value={achievements}
+            onChange={(e) => setAchievements(e.target.value)}
+          />
 
-        <div className="flex gap-4">
-          <Button
-            className="w-fit px-8 text-white bg-transparent border border-gray"
-            onClick={handleSave}
-          >
-            Save
-          </Button>
-        </div>
-      </CardContent>
+          <div className="flex gap-4">
+            <Button
+              className="w-fit px-8 text-white bg-transparent border border-gray"
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+          </div>
+        </CardContent>
       ) : (
         <>
-           <CardContent className="col-span-5">
+          <CardContent className="col-span-5">
             <p>{userDetails.achievements}</p>
           </CardContent>
         </>

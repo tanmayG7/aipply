@@ -39,7 +39,7 @@ const EditProfile: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isEditing]);
 
   const handleCancel = () => {
     setIsEditing(false);
