@@ -13,22 +13,13 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import DateFormate from "@/components/dateFormateChange/dateFormateChange";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { Experience } from "@/lib/types";
 
-interface WorkExperience {
-  company: string;
-  title: string;
-  startDate: string;
-  endDate: string;
-  current: boolean;
-  type: string;
-  description: string;
-  location: string;
-}
 
 interface WorkExperienceProps {
-  onAddExperience: (experience: WorkExperience) => void;
-  editingExperience?: WorkExperience | null;
-  workExperiences: WorkExperience[];
+  onAddExperience: (experience: Experience) => void;
+  editingExperience?: Experience | null;
+  workExperiences: Experience[];
   onEditExperience: (index: number) => void;
   onDeleteExperience: (index: number) => void;
   dropdownOpenIndex: number | null;
@@ -47,7 +38,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
   isEditing, // Destructure this prop
 }) => {
   const dropdownRef = React.useRef<HTMLDivElement>(null);
-  const [experience, setExperience] = useState<WorkExperience>({
+  const [experience, setExperience] = useState<Experience>({
     company: editingExperience?.company || "",
     title: editingExperience?.title || "",
     startDate: editingExperience?.startDate || "",
@@ -116,7 +107,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
         </CardHeader>
         <CardContent className="flex flex-col gap-4 col-span-5">
           <div className="flex flex-col gap-4">
-            {workExperiences.map((experience, index) => (
+            {workExperiences.length && workExperiences.map((experience, index) => (
               <div
                 key={index}
                 className="flex flex-row py-4 px-4 border border-[#371b7e] rounded-lg"

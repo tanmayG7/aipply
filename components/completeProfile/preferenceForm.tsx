@@ -10,13 +10,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
-import { auth, saveUserProfile, getUserDetails } from "@/lib/firebaseConfig/firebaseConfig";
+import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { UserDetails } from "@/lib/types";
 
 interface PreferenceFormProps {
   isEditing: boolean;
+  userDetails: UserDetails;
 }
 
-const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
+const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing, userDetails }) => {
   const [preferences, setPreferences] = useState({
     jobSearchStatus: false,
     jobType: "fulltime",
@@ -32,18 +34,14 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
 
   useEffect(() => {
     const fetchUserPreferences = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const userDetails = await getUserDetails(user.uid);
         setPreferences(userDetails.preferences || {});
         setLocations(userDetails.locations || []);
-      }
     };
 
     if (isEditing) {
       fetchUserPreferences();
     }
-  }, [isEditing]);
+  }, [isEditing, userDetails.locations, userDetails.preferences]);
 
   const addLocation = () => {
     if (locationInput && !locations.includes(locationInput)) {
@@ -85,7 +83,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
       <CardContent className="col-span-5">
         <div className="flex flex-col gap-4">
           <Label>Where are you in job search?</Label>
-          {/* {isEditing ? ( */}
+          {isEditing ? (
           <Button
             onClick={() =>
               setPreferences((prev) => ({
@@ -99,12 +97,12 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
               ? "Actively looking for a job"
               : "Not actively looking"}
           </Button>
-          {/* ) : (
+         ) : (
             <p>{preferences.jobSearchStatus ? "Actively looking for a job" : "Not actively looking"}</p>
-          )} */}
+          )} 
 
           <Label>What type of job are you interested in?*</Label>
-          {/* {isEditing ? ( */}
+          {isEditing ? (
           <select
             name="jobType"
             value={preferences.jobType}
@@ -114,16 +112,15 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
             <option value="fulltime">Full-time</option>
             <option value="parttime">Part-time</option>
           </select>
-          {/* // ) : (
-          //   <p>{preferences.jobType === "fulltime" ? "Full-time" : "Part-time"}</p>
-          // )} */}
-
+           ) : (
+            <p>{preferences.jobType === "fulltime" ? "Full-time" : "Part-time"}</p>
+           )}
           <Label>Open for the following job types:</Label>
           <div className="flex flex-col gap-2">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="contractor"
-                // checked={preferences.additionalTypes.contractor}
+                checked={preferences.additionalTypes.contractor}
               />
               <label
                 htmlFor="contractor"
@@ -136,14 +133,14 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
             <div className="flex items-center gap-2">
               <Checkbox
                 id="intern"
-                // checked={preferences.additionalTypes.intern}
+                checked={preferences.additionalTypes.intern}
               />
               <Label htmlFor="intern">Intern</Label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
                 id="freelance"
-                // checked={preferences.additionalTypes.freelance}
+                checked={preferences.additionalTypes.freelance}
               />
               <Label htmlFor="freelance">Freelance</Label>
             </div>
@@ -158,14 +155,14 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
                   className="bg-gray-700 px-3 py-1 rounded-full flex items-center gap-2"
                 >
                   {location}
-                  {/* {isEditing && ( */}
+                  {isEditing && (
                     <button onClick={() => removeLocation(location)}>✕</button>
-                  {/* )} */}
+                 )} 
                 </div>
               ))}
             </div>
 
-            {/* {isEditing && ( */}
+            {isEditing && (
             <Input
               value={locationInput}
               onChange={(e) => setLocationInput(e.target.value)}
@@ -176,18 +173,18 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
                 }
               }}
             />
-            {/* )} */}
+           )} 
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
               <Checkbox
                 id="opentoremote"
-                // checked={preferences.jobType === "fulltime"}
+                checked={preferences.jobType === "fulltime"}
               />
               <Label htmlFor="opentoremote">open to working remotely</Label>
             </div>
           </div>
-          {/* {isEditing && ( */}
+          {isEditing && (
           <select
             name="jobType"
             value={preferences.jobType}
@@ -197,15 +194,15 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({ isEditing }) => {
             <option value="fulltime">Yes</option>
             <option value="parttime">No</option>
           </select>
-          {/* )} */}
-          {/* {isEditing && ( */}
+          )}
+          {isEditing && ( 
           <Button
             onClick={handleSavePreferences}
             className="w-fit px-8 bg-transparent border border-gray hover:bg-gray-700"
           >
             Save Preferences
           </Button>
-          {/* // )} */}
+        )} 
         </div>
       </CardContent>
     </Card>

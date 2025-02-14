@@ -19,19 +19,17 @@ interface AboutSectionProps {
   isEditing: boolean;
 }
 
-const AboutSection: React.FC<AboutSectionProps> = ({ isEditing }) => {
+const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     uploadFile: "",
     whereYouBased: "",
     primaryRole: "",
-    experience: "",
+    workexperience: "",
     role: "",
     bio: "",
   });
-
-  // const [isFieldDirty, setIsFieldDirty] = useState(false);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -43,7 +41,19 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing }) => {
         lastName: user.displayName?.split(" ")[1] || "",
       }));
     }
-  }, []);
+    if (isEditing && userDetails) {
+      setFormData({
+        firstName: userDetails.firstName || "",
+        lastName: userDetails.lastName || "",
+        uploadFile: "",
+        whereYouBased: userDetails.whereYouBased || "",
+        primaryRole: userDetails.primaryRole || "",
+        workexperience: userDetails.workexperience || "",
+        role: userDetails.role || "",
+        bio: userDetails.bio || "",
+      });
+    }
+  }, [isEditing, userDetails]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -55,15 +65,14 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing }) => {
       ...prevData,
       [name]: value,
     }));
-    // setIsFieldDirty(true);
   };
+
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const user = auth.currentUser;
       if (user) {
-        // await updateUserProfile(user.uid, formData);
         await saveUserProfile(user.uid, formData);
         setFormData({
           firstName: "",
@@ -71,12 +80,10 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing }) => {
           uploadFile: "",
           whereYouBased: "",
           primaryRole: "",
-          experience: "",
+          workexperience: "",
           role: "",
           bio: "",
         });
-
-        // setIsFieldDirty(false);
       }
     } catch (error: any) {
       console.error(error.message);
@@ -94,7 +101,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing }) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="col-span-5">
-        {isEditing && (
+        {isEditing ? (
           <form className="flex flex-col w-full gap-6">
             <div className="grid gap-2 text-white">
               <Label htmlFor="firstName">First Name</Label>
@@ -160,7 +167,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing }) => {
               <Label htmlFor="experience">Years of Experience:</Label>
               <Input
                 type="number"
-                name="experience"
+                name="workexperience"
                 placeholder="Years of Experience"
                 onChange={handleChange}
                 required
@@ -195,6 +202,25 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing }) => {
               </Button>
             </div>
           </form>
+        ) : (
+          <CardContent className="flex flex-col gap-4">
+            <h1 className="text-white text-text-lg-regular">
+              <span>Name:</span> {userDetails.firstName} {userDetails.lastName}
+            </h1>
+            <h1 className="text-white">
+              <span>Address:</span> {userDetails.whereYouBased}
+            </h1>
+            <h1 className="text-white">
+              <span>Primary Role: </span>
+              {userDetails.primaryRole}
+            </h1>
+            <h1 className="text-white"><span>Experience: </span>{userDetails.workexperience} year</h1>
+            <h1 className="text-white">Role: {userDetails.role}</h1>
+            <h1 className="text-white">
+              <span>Bio: </span>
+              {userDetails.bio}
+            </h1>
+          </CardContent>
         )}
       </CardContent>
     </Card>

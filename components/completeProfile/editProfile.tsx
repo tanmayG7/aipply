@@ -19,11 +19,16 @@ const EditProfile: React.FC = () => {
       const details: UserDetails = await getUserProfile(user.uid);
       setUserDetails(details);
       if (isEditing) {
+        
         await saveUserProfile(user.uid, details);
       }
     }
     setIsEditing(!isEditing);
   };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  }
 
   const renderSection = () => {
     switch (selectedSection) {
@@ -32,7 +37,7 @@ const EditProfile: React.FC = () => {
       case "resume":
         return <UploadCv isEditing={isEditing} />;
       case "preferences":
-        return <PreferenceForm isEditing={isEditing} />;
+        return <PreferenceForm isEditing={isEditing} userDetails={userDetails} />;
       default:
         return null;
     }
@@ -44,18 +49,30 @@ const EditProfile: React.FC = () => {
         <p className="font-inter text-[28px] text-lg font-bold">
           Edit your AipPly profile
         </p>
-        <Button
-          className="w-fit bg-transparent border hover:bg-slate-800"
-          onClick={handleEditClick}
-        >
-          <Image
-            src={isEditing ? "/static/icons/bookmark.svg" : "/static/icons/add.svg"}
-            width={20}
-            height={20}
-            alt={isEditing ? "save" : "update"}
-          />
-          {isEditing ? "Save" : "Update now"}
-        </Button>
+        <div className="flex flex-row gap-4">
+          <Button
+            className="w-fit bg-transparent border hover:bg-slate-800"
+            onClick={handleEditClick}
+          >
+            <Image
+              src={
+                isEditing
+                  ? "/static/icons/bookmark.svg"
+                  : "/static/icons/add.svg"
+              }
+              width={20}
+              height={20}
+              alt={isEditing ? "save" : "update"}
+            />
+            {isEditing ? "Save" : "Update now"}
+          </Button>
+          <Button
+            className="w-fit bg-transparent border hover:bg-slate-800"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
       <div className="grid grid-cols-3 gap-3 max-w-[525px] border-b-[1px] border-[#454545] ">
         <button

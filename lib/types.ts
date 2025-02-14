@@ -22,7 +22,7 @@ export interface Education {
     maxGpa: string;
 }
 
-export interface WorkExperience {
+export interface Experience {
     company: string;
     title: string;
     startDate: string;
@@ -45,7 +45,8 @@ export interface UserDetails {
         };
     };
     achievements: string;
-    experience: WorkExperience[];
+    experience: Experience[];
+    workexperience: string;
     uploadFile: string;
     role: string;
     current: boolean;

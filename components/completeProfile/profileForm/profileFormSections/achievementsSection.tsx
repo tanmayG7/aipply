@@ -7,6 +7,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { UserDetails } from "@/lib/types";
+
+interface AchievementsSectionProps {
+  userDetails: UserDetails;
+  isEditing: boolean;
+}
 
 const handleSave = () => {
   const user = auth.currentUser;
@@ -17,7 +23,7 @@ const handleSave = () => {
   }
 }
 
-const AchievementsSection = () => {
+const AchievementsSection:React.FC<AchievementsSectionProps> = ({userDetails, isEditing}) => {
   return (
     <Card className="grid grid-cols-7 max-w-[828px] py-6 text-white border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
@@ -26,6 +32,7 @@ const AchievementsSection = () => {
           Sharing more details about yourself will help you srand out more.
         </CardDescription>
       </CardHeader>
+      {isEditing ? (
       <CardContent className="col-span-5">
         <textarea
           id="achievementsTextarea"
@@ -42,6 +49,13 @@ const AchievementsSection = () => {
           </Button>
         </div>
       </CardContent>
+      ) : (
+        <>
+           <CardContent className="col-span-5">
+            <p>{userDetails.achievements}</p>
+          </CardContent>
+        </>
+      )}
     </Card>
   );
 };

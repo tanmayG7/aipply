@@ -5,7 +5,7 @@ import AchievementsSection from "./profileFormSections/achievementsSection";
 import SocialMediaLinks from "./profileFormSections/socialMediaLinks";
 import Skills from "./profileFormSections/skillsSection";
 import { auth, getUserDetails } from "@/lib/firebaseConfig/firebaseConfig";
-import { Education, UserDetails } from "@/lib/types";
+import { Education, Experience, UserDetails } from "@/lib/types";
 import WorkExperience from "./profileFormSections/workExperience";
 // import { UserDetails } from "@/lib/types";
 
@@ -60,7 +60,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     }
   };
 
-  const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>();
+  const [workExperiences, setWorkExperiences] = useState<Experience[]>();
   const [editingWorkIndex, setEditingWorkIndex] = useState<number | null>(null);
 
   const handleAddExperience = (experience: {
@@ -137,7 +137,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   return (
     <div className="py-6 border border-gray rounded-xl">
       <AboutSection userDetails={userDetails} isEditing={isEditing} />
-      <SocialMediaLinks isEditing={isEditing}/>
+      <SocialMediaLinks isEditing={isEditing} userDetails={userDetails} />
       <WorkExperience
         workExperiences={workExperiences || []}
         onEditExperience={handleEditExperience}
@@ -150,7 +150,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             ? (workExperiences ?? [])[editingWorkIndex]
             : undefined
         }
-        isEditing={isEditing} 
+        isEditing={isEditing}
       />
 
       <EducationSection
@@ -165,8 +165,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
           editingIndex !== null ? educations[editingIndex] : null
         }
       />
-      <Skills />
-      <AchievementsSection />
+      <Skills isEditing={isEditing} userDetails={userDetails} />
+      <AchievementsSection isEditing={isEditing} userDetails={userDetails} />
     </div>
   );
 };
