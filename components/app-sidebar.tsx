@@ -1,7 +1,7 @@
 import * as React from "react";
-import { UserRound } from "lucide-react";
+import { LogOut, UserRound } from "lucide-react";
 import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 import {
   Sidebar,
@@ -16,6 +16,16 @@ import {
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+
+const handleLogout = async () => {
+  try {
+    await signOut(auth);
+    localStorage.removeItem("firebaseToken");
+    window.location.href = "/";
+  } catch (error) {
+    console.error("Error logging out:", error);
+  }
+};
 
 const data = {
   navMain: [
@@ -124,9 +134,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="">
           <SidebarGroup>
-            <SidebarMenu className="gap-3 text-[#CECFD2]">
+            <SidebarMenu className="gap-3  text-[#CECFD2]">
               {data.navMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -148,6 +158,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ))}
             </SidebarMenu>
           </SidebarGroup>
+          <SidebarMenu className="flex absolute bottom-6 w-[90%] rounded py-2 hover:bg-white hover:text-black text-[#CECFD2]">
+            <button
+              onClick={handleLogout}
+              className="px-6 cursor-pointer flex flex-row gap-3 font-medium text-text-md-semibold font-inter"
+            >
+              <LogOut className="size-6" />
+              Logout
+            </button>
+          </SidebarMenu>
         </SidebarContent>
       </div>
     </Sidebar>
