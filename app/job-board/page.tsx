@@ -1,7 +1,6 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import JobCard from "@/components/card/jobCard/jobCard";
-import Header from "@/components/header/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -128,7 +127,6 @@ export default function Page() {
     >
       <AppSidebar />
       <SidebarInset>
-        <Header />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
             <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">

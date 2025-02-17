@@ -1,7 +1,6 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import JobTrackerGridCard from "@/components/card/jobTrackerCard/jobTrackerGridCard";
-import Header from "@/components/header/header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { jobBoardData } from "@/lib/staticData";
 import Image from "next/image";
@@ -93,7 +92,6 @@ const JobTrackerPage: React.FC = () => {
     >
       <AppSidebar />
       <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden">
-        <Header />
         <div className="flex flex-1 flex-col gap-4 pl-6 pr-14 pt-4 relative text-white">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-4">
             <div className="gap-2">

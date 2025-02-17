@@ -1,7 +1,6 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import ReminderCard from "@/components/card/reminderCard/reminderCard";
-import Header from "@/components/header/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import React from "react";
 
@@ -16,7 +15,6 @@ const ReminderPage: React.FC = () => {
     >
       <AppSidebar />
       <SidebarInset>
-        <Header />
         <div className="flex flex-1 flex-col p-4 relative bg-[#020218] text-white gap-8 px-6">
           <div className="flex flex-col gap-3">
             <h1 className="font-inter text-[#ECECED] text-[40px] font-bold ">

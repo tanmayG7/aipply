@@ -69,7 +69,7 @@ const NavLink = ({
   const pathname = usePathname();
 
   return (
-    <Link href={href}>
+    <Link target="_blank" href={href} rel="noopener noreferrer">
       <div
         className={`text-white font-inter px-5 py-2 rounded-lg  ${
           pathname === href

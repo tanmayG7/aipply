@@ -2,7 +2,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import DashboardCard from "@/components/card/DashboardCard/DashboardCard";
 import { DashboardChart } from "@/components/charts/pieCharts";
-import Header from "@/components/header/header";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Image from "next/image";
@@ -52,7 +51,6 @@ const HomePage: React.FC = () => {
       >
         <AppSidebar />
         <SidebarInset>
-          <Header />
           <div className="flex flex-1 flex-col gap-4 p-4 relative bg-[#020218] text-white">
             <div className="flex flex-col gap-6">
               <div className="gap-3">
