@@ -5,7 +5,7 @@ import Header from "@/components/header/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import React from "react";
 
-const HomePage: React.FC = () => {
+const ReminderPage: React.FC = () => {
   return (
     <SidebarProvider
       style={
@@ -44,4 +44,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage;
+export default ReminderPage;

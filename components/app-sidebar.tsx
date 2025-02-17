@@ -48,7 +48,12 @@ const data = {
       title: "Reminder",
       url: "/reminder",
       image: "/static/icons/layers-three.svg",
-    }
+    },
+    {
+      title: "Community",
+      url: "https://chat.whatsapp.com/your-whatsapp-community-link",
+      image: "/static/icons/community.svg",
+    },
   ],
 };
 
@@ -166,7 +171,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu className="flex absolute bottom-6 w-[90%] rounded py-2 hover:bg-white hover:text-black text-[#CECFD2]">
             <button
               onClick={handleLogout}
-              className="px-6 cursor-pointer flex flex-row gap-3 font-medium text-text-md-semibold font-inter"
+              className="px-6 cursor-pointer flex flex-row gap-3 text-text-md-semibold font-inter"
             >
               <LogOut className="size-6" />
               Logout

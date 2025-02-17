@@ -66,7 +66,7 @@ const ReminderCard = () => {
           ))}
           
           {changeButtonStatus && (
-            <div className="flex flex-row gap-4 items-center">
+            <div className="flex flex-row gap-10 items-center">
               <Button
                 className="flex flex-col w-[275px] h-[44px] cursor-pointer text-text-md-semibold font-inter text-white border-[1px] border-[#E3D9FB] bg-gradient-to-b from-[#6033F5] to-[#A061F1] hover:bg-[#7e46cc]"
                 onClick={handleInterviewStatus}
