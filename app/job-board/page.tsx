@@ -13,6 +13,8 @@ import {
   getHiddenJobs,
   setHideJob,
   setAppliedJob,
+  updateDashboardOnJobApplied,
+  getAppliedJobs,
 } from "@/lib/firebaseConfig/firebaseConfig";
 import Loader from "@/components/loader/loader";
 
@@ -93,12 +95,21 @@ export default function Page() {
     }
   };
 
-  const handleAppliedJob = async (jobId: string) => {
+  const handleAppliedJob = async (jobId: string, job: Job) => {
     setLoading(true);
     try {
       const userId = auth.currentUser?.uid;
       if (userId) {
-        setAppliedJob(userId, jobId);
+        const appliedJobs = await getAppliedJobs(userId);
+        if (!appliedJobs.includes(jobId)) {
+          await updateDashboardOnJobApplied(
+            userId,
+            job.salary,
+            job.location,
+            job.experience
+          );
+          await setAppliedJob(userId, jobId);
+        }
       }
     } catch (error) {
       console.error("Error applying for job:", error);
@@ -157,7 +168,7 @@ export default function Page() {
                 <JobCard
                   job={job}
                   handleHideJob={() => handleHideJob(job.jobId)}
-                  handleAppliedJob={() => handleAppliedJob(job.jobId)}
+                  handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
                 />
               </div>
             ))}
