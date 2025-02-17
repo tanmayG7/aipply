@@ -1,14 +1,8 @@
-"use client";
 import { Job } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { getRelativeTime } from "@/utils/dateUtils";
-import { auth, hiddenJob } from "@/lib/firebaseConfig/firebaseConfig";
-
-interface JobCardProps {
-  job: Job;
-}
 
 const stripHtmlTags = (html: string) => {
   const div = document.createElement("div");
@@ -16,25 +10,13 @@ const stripHtmlTags = (html: string) => {
   return div.textContent || div.innerText || "";
 };
 
-const JobCard: React.FC<JobCardProps> = ({ job }) => {
-  const [isHidden, setIsHidden] = useState(false);
-
-  useEffect(() => {
-    const checkIfHidden = async () => {
-      try {
-        const userId = auth.currentUser?.uid;
-        if (userId) {
-          const hidden = await hiddenJob(userId, job.jobId);
-          setIsHidden(hidden);
-        }
-      } catch (error) {
-        console.error("Error checking if job is hidden:", error);
-      }
-    };
-
-    checkIfHidden();
-  }, [job.jobId]);
-
+const JobCard = ({
+  job,
+  handleHideJob,
+}: {
+  job: Job;
+  handleHideJob: () => Promise<void>;
+}) => {
   const jobPlatformMap: { [key: string]: string } = {
     Naukri: "/static/images/naukriLogo.png",
     Shine: "/static/images/shineLogo.png",
@@ -42,24 +24,11 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
     TimesJob: "/static/images/timesJobLogo.png",
   };
 
-  const handleHideJob = async () => {
-    try {
-      const userId = auth.currentUser?.uid;
-      if (userId) {
-        await hiddenJob(userId, job.jobId);
-        setIsHidden(true);
-      }
-    } catch (error) {
-      console.error("Error hiding job:", error);
-    }
-  };
-
-  if (isHidden) {
-    return null;
-  }
-
   return (
-    <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-[10px] border border-image-[linear-gradient(to bottom, white 10%, #5C677E)] border-image-slice-[1] w-full">
+    <div
+      key={job.jobId}
+      className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-[10px] border border-image-[linear-gradient(to bottom, white 10%, #5C677E)] border-image-slice-[1] w-full"
+    >
       <div className="flex flex-col border-b-[1px] border-[#5C677E] pb-6 gap-4">
         <div className="grid grid-cols-1 gap-4 lg:gap-0 lg:grid-cols-5 justify-between items-start">
           <div className="flex flex-col gap-4 col-span-4">

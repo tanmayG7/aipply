@@ -4,7 +4,7 @@ import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWith
 import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { Job, UserDetails } from "../types";
-import { getJobsByTitle, getJobsByIds } from "@/lib/mongo/mongo";
+import { getJobsByIds, getFilteredJobsByTitle } from "@/lib/mongo/mongo";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -150,7 +150,7 @@ const getUserDetails = async (userId: string) => {
   }
 };
 
-const hiddenJob = async (userId: string, jobId: string) => {
+const setHideJob = async (userId: string, jobId: string) => {
   try {
     const currentDate = new Date().toISOString();
     const hiddenJobsDoc = await getDoc(doc(firestore, "hiddenJobs", userId));
@@ -182,25 +182,34 @@ const hiddenJob = async (userId: string, jobId: string) => {
 const saveCurrentJobs = async (userId: string, jobIds: string[]) => {
   try {
     const currentDate = new Date().toISOString();
-    const hiddenJobsDoc = await getDoc(doc(firestore, "hiddenJobs", userId));
-    const hiddenJobs = hiddenJobsDoc.exists() ? hiddenJobsDoc.data().jobs : [];
-    const filteredJobIds = jobIds.filter((jobId) => !hiddenJobs.includes(jobId));
 
     await setDoc(doc(firestore, "currentJobs", userId), {
-      jobs: filteredJobIds,
+      jobs: jobIds,
       lastFetchedDate: currentDate,
-    }, { merge: true });
-
-    const archivedJobs = await getArchivedJobs(userId);
-    const newArchivedJobs = [...archivedJobs, ...filteredJobIds];
-    await setDoc(doc(firestore, "archiveJobs", userId), {
-      jobs: newArchivedJobs,
-      updatedAt: currentDate,
     }, { merge: true });
   } catch (error: any) {
     throw new Error(error.message);
   }
 };
+
+const saveArchivedJobs = async (userId: string, jobIds: string[]) => {
+  try {
+    const currentDate = new Date().toISOString();
+
+    const archivedJobs = await getArchivedJobs(userId) ?? [];
+    const newArchivedJobs = new Set([...archivedJobs, ...jobIds]);
+    const newArchivedJobsArray = Array.from(newArchivedJobs);
+    
+    await setDoc(doc(firestore, "archiveJobs", userId), {
+      jobs: newArchivedJobsArray,
+      updatedAt: currentDate,
+    }, { merge: true });
+  } catch (error: any) {
+    console.log(error);
+    
+    throw new Error(error.message);
+  }
+}
 
 const getCurrentJobs = async (userId: string) => {
   try {
@@ -228,6 +237,19 @@ const getArchivedJobs = async (userId: string) => {
   }
 };
 
+const getHiddenJobs = async (userId: string) => {
+  try {
+    const hiddenJobsDoc = await getDoc(doc(firestore, "hiddenJobs", userId));
+    if (hiddenJobsDoc.exists()) {
+      return hiddenJobsDoc.data().jobs || [];
+    } else {
+      return [];
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+}
+
 const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
   try {
     const currentJobsData = await getCurrentJobs(userId);
@@ -238,32 +260,48 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
       currentJobsData.lastFetchedDate.split("T")[0] === currentDate
     ) {
       const jobIds = currentJobsData.jobs;
-      return await getJobsByIds(jobIds);
+      return await getJobsByIds(jobIds, userProfile.primaryRole);
     } else {
       const archivedJobs = await getArchivedJobs(userId);
-      const hiddenJobsDoc = await getDoc(doc(firestore, "hiddenJobs", userId));
-      const hiddenJobs = hiddenJobsDoc.exists() ? hiddenJobsDoc.data().jobs : [];
+      const hiddenJobs = await getHiddenJobs(userId);
       const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
 
-      let newJobs: Job[] = [];
-      let fetchedJobs: Job[] = [];
-      let page = 0;
-      const limit = 20;
+      const fetchedJobs: Job[] = (await getFilteredJobsByTitle(userProfile.primaryRole, excludedJobs)) as Job[];
 
-      do {
-        fetchedJobs = (await getJobsByTitle(userProfile.primaryRole, limit, page)) as Job[];
-        newJobs = fetchedJobs.filter(job => !excludedJobs.has(job.jobId));
-        page++;
-      } while (newJobs.length === 0 && fetchedJobs.length === limit);
-
-      const jobIds = newJobs.map(job => job.jobId);
+      const jobIds = fetchedJobs.map(job => job.jobId);
       await saveCurrentJobs(userId, jobIds);
-      return newJobs;
+      await saveArchivedJobs(userId, jobIds);
+      return fetchedJobs;
     }
   } catch (error: any) {
     throw new Error("Error fetching updated jobs: " + error.message);
   }
 };
+
+const getDashboardData = async(userId: string) => {
+  try {
+    const dashboardData = await getDoc(doc(firestore, "dashboardData", userId));
+    if (dashboardData.exists()) {
+      return dashboardData.data() || [];
+    } else {
+      return [];
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+}
+
+const updateDashboarData = async(userId: string, data: any) => {
+  try {
+    const currentDate = new Date().toISOString();
+    await setDoc(doc(firestore, "dashboardData", userId), {
+      ...data,
+      updatedAt: currentDate,
+    }, { merge: true });
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+}
 
 export { 
   auth, 
@@ -280,5 +318,8 @@ export {
   getCurrentJobs,
   getArchivedJobs,
   getUpdatedJobs,
-  hiddenJob 
+  getHiddenJobs,
+  setHideJob,
+  getDashboardData,
+  updateDashboarData
 };

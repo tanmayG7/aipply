@@ -2,9 +2,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import JobCard from "@/components/card/jobCard/jobCard";
 import Header from "@/components/header/header";
-import JobDescription from "@/components/jobdescription/jobDescription";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { XIcon } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Job, UserDetails } from "@/lib/types";
@@ -12,14 +10,31 @@ import {
   getUserProfile,
   getUpdatedJobs,
   auth,
+  getHiddenJobs,
+  setHideJob,
 } from "@/lib/firebaseConfig/firebaseConfig";
 
 export default function Page() {
   const [filter, setFilter] = useState("");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [isJobDescriptionVisible, setIsJobDescriptionVisible] = useState(false);
+  const [hiddenJobs, setHiddenJobs] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchHiddenJobs = async () => {
+      try {
+        const userId = auth.currentUser?.uid;
+        if (userId) {
+          const hideJobs = await getHiddenJobs(userId);
+          setHiddenJobs(hideJobs);
+        }
+      } catch (error) {
+        console.error("Error fetching hidden jobs:", error);
+      }
+    };
+
+    fetchHiddenJobs();
+  }, []);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -29,7 +44,10 @@ export default function Page() {
         if (userId) {
           const updatedJobs = await getUpdatedJobs(userId, userProfile);
           setJobs(updatedJobs);
-          setFilteredJobs(updatedJobs);
+          const filterJobs = updatedJobs.filter(
+            (job) => !hiddenJobs.includes(job.jobId)
+          );
+          setFilteredJobs(filterJobs);
         } else {
           console.error("User ID is undefined");
         }
@@ -39,7 +57,7 @@ export default function Page() {
     };
 
     fetchJobs();
-  }, []);
+  }, [hiddenJobs]);
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilter(event.target.value);
@@ -52,9 +70,16 @@ export default function Page() {
     setFilteredJobs(filteredJob);
   };
 
-  const handleJobClick = (job: Job) => {
-    setSelectedJob(job);
-    setIsJobDescriptionVisible(true);
+  const handleHideJob = async (jobId: string) => {
+    try {
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        await setHideJob(userId, jobId);
+        setHiddenJobs([...hiddenJobs, jobId]);
+      }
+    } catch (error) {
+      console.error("Error hiding job:", error);
+    }
   };
 
   return (
@@ -98,40 +123,14 @@ export default function Page() {
 
           <div className="flex flex-col gap-4 cursor-pointer">
             {filteredJobs.map((job: Job) => (
-              <div key={job.jobId} onClick={() => handleJobClick(job)}>
-                <JobCard job={job} />
+              <div key={job.jobId}>
+                <JobCard
+                  job={job}
+                  handleHideJob={() => handleHideJob(job.jobId)}
+                />
               </div>
             ))}
           </div>
-
-          {selectedJob && (
-            <div
-              className={`fixed hidden inset-0 bg-[#0C111D] bg-opacity-70  justify-end z-50 overflow-y-scroll transition-transform duration-1000 ease-in-out ${
-                isJobDescriptionVisible ? "translate-x-0" : "translate-x-full"
-              }`}
-            >
-              <div className="w-[960px] p-8 border-l border-white border-opacity-[60%] rounded-l-2xl h-fit bg-[#0C111D]">
-                <div className="flex flex-col gap-6">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-inter font-semibold text-white text-[18px]">
-                      Job Description
-                    </h4>
-                    <button
-                      onClick={() => {
-                        setIsJobDescriptionVisible(false);
-                        setSelectedJob(null);
-                      }}
-                      className="text-white"
-                    >
-                      <XIcon className="h-8 w-8" />
-                    </button>
-                  </div>
-                  <JobCard job={selectedJob} />
-                  <JobDescription job={selectedJob} isVisible={true} />
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </SidebarInset>
     </SidebarProvider>

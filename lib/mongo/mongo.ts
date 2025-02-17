@@ -50,10 +50,30 @@ export const getJobsByTitle = async (jobTitle: string, limit: number = 20, page:
   }));
 };
 
-export const getJobsByIds = async (jobIds: string[]) => {
+export const getFilteredJobsByTitle = async (jobTitle: string, excludedJobs: Set<string>) => {
+  const db = await connectToMongoDB();
+
+  // Convert Set to an array for MongoDB query
+  const excludedArray = Array.from(excludedJobs).map(id => new ObjectId(id));
+
+  const data = JSON.parse(JSON.stringify(
+    await db.collection(`test-${jobTitle}`)
+      .find({ _id: { $nin: excludedArray as ObjectId[] } }) // Exclude jobs present in the set
+      .limit(20)
+      .toArray()
+  ));
+
+  return data.map((job: any) => ({
+    ...job,
+    jobId: job._id
+  }));
+};
+
+
+export const getJobsByIds = async (jobIds: string[], jobTitle: string) => {
   const db = await connectToMongoDB();
   const objectIds = jobIds.map(id => new ObjectId(id));
-  const jobs = await db.collection("jobs").find({ _id: { $in: objectIds } }).toArray();
+  const jobs = await db.collection(`test-${jobTitle}`).find({ _id: { $in: objectIds } }).toArray();
   return jobs.map(job => ({
     jobId: job._id.toString(),
     title: job.title,
