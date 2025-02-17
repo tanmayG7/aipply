@@ -12,7 +12,7 @@ const ReminderPage: React.FC = () => {
         {
           "--sidebar-width": "19rem",
         } as React.CSSProperties
-      }
+      } 
     >
       <AppSidebar />
       <SidebarInset>

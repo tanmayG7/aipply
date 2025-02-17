@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
@@ -6,10 +6,23 @@ const ReminderCard = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [status, setStatus] = useState("interview");
   const [changeButtonStatus, setChangeButtonStatus] = useState(false);  
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuVisible(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuRef]);
 
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
-  };
+  }; 
 
   const changeStatus = () => {
     setMenuVisible(false);
@@ -93,14 +106,14 @@ const ReminderCard = () => {
             />
           </button>
           {menuVisible && (
-            <div className="absolute right-0 mt-3 w-36 bg-[#050513] text-black shadow-lg z-10 border-[1px] border-[#333232]">
+            <div ref={menuRef} className="absolute right-0 mt-3 w-36 bg-[#050513] text-black shadow-lg z-10 border-[1px] border-[#333232]">
               <button
-                className="block px-4 py-2 text-sm text-gray-700 w-36 text-white text-start hover:bg-white hover:text-black rounded"
+                className="block px-4 py-2 text-text-md-regular w-36 text-white text-start hover:bg-white hover:text-black rounded"
                 onClick={changeStatus}
               >
                 Change Status
               </button>
-              <button className="block px-4 py-2 text-sm text-gray-700 w-36 text-white text-start hover:bg-white hover:text-black rounded">
+              <button className="block px-4 py-2 text-text-md-regular w-36 text-white text-start hover:bg-white hover:text-black rounded">
                 Delete
               </button>
             </div>

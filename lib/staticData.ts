@@ -37,7 +37,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "applied",
+    status: "archieved",
   },
   {
     id: "2",
@@ -77,7 +77,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "interviewing",
+    status: "applied",
   },
   {
     id: "3",
@@ -157,7 +157,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "interviewing",
+    status: "followUpRequired",
   },
   {
     id: "5",
@@ -237,7 +237,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "applied",
+    status: "archieved",
   },
   {
     id: "7",
@@ -357,7 +357,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "applied",
+    status: "noReply",
   },
   {
     id: "10",
@@ -397,7 +397,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "offer",
+    status: "archieved",
   },
   {
     id: "11",
@@ -437,7 +437,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "offer",
+    status: "followUpRequired",
   },
 
   {
@@ -478,7 +478,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "offer",
+    status: "noReply",
   },
 
   {
@@ -519,7 +519,7 @@ export const jobBoardData = [
       "Over 2,000 of the world’s leading corporations, including 50% of the Fortune 500 and 30% of the world’s central banks, trust ION solutions to manage their cash, in-house banking, commodity supply chain, trading and risk.",
       "Over 800 of the world’s leading banks and broker-dealers use our electronic trading platforms to operate the world’s financial market infrastructure.",
     ],
-    status: "offer",
+    status: "followUpRequired",
   },
 ];
 
