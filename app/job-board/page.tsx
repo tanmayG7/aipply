@@ -7,9 +7,12 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { getJobsByTitle } from "@/lib/mongo/mongo";
-import { Job } from "@/lib/types";
-import { getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { Job, UserDetails } from "@/lib/types";
+import {
+  getUserProfile,
+  getUpdatedJobs,
+  auth,
+} from "@/lib/firebaseConfig/firebaseConfig";
 
 export default function Page() {
   const [filter, setFilter] = useState("");
@@ -21,10 +24,15 @@ export default function Page() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const userProfile = await getUserProfile(); 
-        const fetchedJobs: Job[] = await getJobsByTitle(userProfile.primaryRole); 
-        setJobs(fetchedJobs);
-        setFilteredJobs(fetchedJobs);
+        const userProfile = (await getUserProfile()) as UserDetails;
+        const userId = auth.currentUser?.uid;
+        if (userId) {
+          const updatedJobs = await getUpdatedJobs(userId, userProfile);
+          setJobs(updatedJobs);
+          setFilteredJobs(updatedJobs);
+        } else {
+          console.error("User ID is undefined");
+        }
       } catch (error) {
         console.error("Error fetching jobs:", error);
       }

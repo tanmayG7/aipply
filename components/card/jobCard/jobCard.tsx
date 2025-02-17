@@ -2,86 +2,135 @@
 import { Job } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getRelativeTime } from "@/utils/dateUtils";
+import { auth, hiddenJob } from "@/lib/firebaseConfig/firebaseConfig";
 
 interface JobCardProps {
   job: Job;
 }
 
-const truncateDescription = (description: string) => {
-  const words = description.split(" ");
-  return words.length > 15 ? words.slice(0, 20).join(" ") + "..." : description;
+const stripHtmlTags = (html: string) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
 };
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    const checkIfHidden = async () => {
+      try {
+        const userId = auth.currentUser?.uid;
+        if (userId) {
+          const hidden = await hiddenJob(userId, job.jobId);
+          setIsHidden(hidden);
+        }
+      } catch (error) {
+        console.error("Error checking if job is hidden:", error);
+      }
+    };
+
+    checkIfHidden();
+  }, [job.jobId]);
+
+  const jobPlatformMap: { [key: string]: string } = {
+    Naukri: "/static/images/naukriLogo.png",
+    Shine: "/static/images/shineLogo.png",
+    Hirist: "/static/images/hiristLogo.webp",
+    TimesJob: "/static/images/timesJobLogo.png",
+  };
+
+  const handleHideJob = async () => {
+    try {
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        await hiddenJob(userId, job.jobId);
+        setIsHidden(true);
+      }
+    } catch (error) {
+      console.error("Error hiding job:", error);
+    }
+  };
+
+  if (isHidden) {
+    return null;
+  }
+
   return (
-    <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-lg border-[2px] border-white border-opacity-20 shadow-lg w-full h-full">
-      <div className="flex flex-col-reverse gap-4 lg:gap-0 lg:flex-row justify-between items-start border-b-[1px] border-[#5C677E] pb-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-row gap-3 items-center">
-            <h1 className="font-inter font-semibold text-[24px] text-white">
-              {job.title}
-            </h1>
-          </div>
+    <div className="bg-[#0C111D] p-6 mb-4 flex flex-col gap-6 rounded-[10px] border border-image-[linear-gradient(to bottom, white 10%, #5C677E)] border-image-slice-[1] w-full">
+      <div className="flex flex-col border-b-[1px] border-[#5C677E] pb-6 gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:gap-0 lg:grid-cols-5 justify-between items-start">
+          <div className="flex flex-col gap-4 col-span-4">
+            <div className="flex flex-row gap-3 items-center">
+              <h1 className="font-inter font-semibold text-[24px] text-white">
+                {job.title}
+              </h1>
+            </div>
 
-          <div className="flex flex-col lg:flex-row gap-6 text-white text-sm">
-            <div className="flex flex-row justify-between gap-6">
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/static/icons/briefcase.svg"
-                  alt="Experience"
-                  width={20}
-                  height={20}
-                />
-                <span>{job.experience}</span>
+            <div className="flex flex-col lg:flex-row gap-6 text-white text-sm">
+              <div className="flex flex-row justify-between gap-6">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/static/icons/briefcase.svg"
+                    alt="Experience"
+                    width={20}
+                    height={20}
+                  />
+                  <span>{job.experience}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/static/icons/currencyRupee.svg"
+                    alt="Salary"
+                    width={20}
+                    height={20}
+                  />
+                  <span>{job.salary}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/static/icons/currencyRupee.svg"
-                  alt="Salary"
-                  width={20}
-                  height={20}
-                />
-                <span>{job.salary}</span>
+              <div className="flex flex-row justify-between gap-6">
+                <div className="flex items-center gap-2 max-w-[60%]">
+                  <Image
+                    src="/static/icons/location.svg"
+                    alt="Location"
+                    width={20}
+                    height={20}
+                  />
+                  <span>{job.location}</span>
+                </div>
               </div>
             </div>
-            <div className="flex flex-row justify-between gap-6">
-              <div className="flex items-center gap-2 max-w-[60%]">
-                <Image
-                  src="/static/icons/location.svg"
-                  alt="Location"
-                  width={20}
-                  height={20}
-                />
-                <span>{job.location}</span>
-              </div>
-            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 max-w-full lg:max-w-[70%]">
-            <span className="px-2 py-1 rounded-md text-white text-xs">
-              {truncateDescription(job.description)}
-            </span>
+          <div className="flex flex-row items-center justify-center gap-3 col-span-1">
+            <Image
+              src="/static/jobBoardImages/catalogLogo.jpeg"
+              alt="Company Logo"
+              width={40}
+              height={40}
+              className="rounded-full"
+            />
+            <div className="flex flex-col">
+              <p className="text-white font-semibold">{job.company}</p>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-row items-center justify-center gap-3">
-          <Image
-            src="/static/jobBoardImages/catalogLogo.jpeg"
-            alt="Company Logo"
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
-          <div className="flex flex-col">
-            <p className="text-white font-semibold">{job.company}</p>
-          </div>
+        <div className="flex flex-wrap gap-2 max-w-full lg:max-w-[70%]">
+          <span className="py-1 rounded-md text-white text-xs text-justify">
+            {stripHtmlTags(job.description)}
+          </span>
         </div>
       </div>
 
       <div className="flex flex-row justify-between items-center lg:items-center gap-6">
         <div className="flex gap-4">
-          <button className="flex items-center gap-1 text-gray-400 hover:text-white">
+          <button
+            className="flex items-center gap-1 text-gray-400 hover:text-white"
+            onClick={handleHideJob}
+          >
             <Image
               src="/static/icons/hide.svg"
               alt="Hide"
@@ -90,38 +139,35 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             />
             <span className="text-sm text-[#CECFD2]">Hide</span>
           </button>
-          <button className="flex items-center gap-1 text-gray-400 hover:text-white">
-            <Image
-              src="/static/icons/reportFlag.svg"
-              alt="Report"
-              width={18}
-              height={18}
-            />
-            <span className="text-sm text-[#CECFD2]">Report</span>
-          </button>
         </div>
 
-        <div className="flex gap-4">
-          <button className="flex items-center gap-1 border border-gray-600 rounded-md px-4 py-2 text-white hover:bg-gray-700 transition">
-            <span className="text-sm ">Save</span>
-            <Image
-              src="/static/icons/bookmark.svg"
-              alt="Save"
-              width={16}
-              height={16}
-            />
-          </button>
-          <Link href={job.jobUrl ? job.jobUrl : "#"}>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 rounded-md text-white hover:bg-blue-600 transition bg-blue">
-              <span className="text-sm">Apply</span>
+        <div className="flex flex-row gap-4 items-center">
+          <div>
+            <div className="text-text-sm-semibold text-[#7E8895]">
+              {getRelativeTime(job.postedDate)}
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <div className="relative w-[55px] h-[16px] overflow-hidden">
               <Image
-                src="/static/icons/arrowIcon.svg"
-                alt="Apply"
-                width={16}
-                height={16}
+                src={jobPlatformMap[job.platform]}
+                alt="Platform Logo"
+                fill
+                className="object-contain"
               />
-            </button>
-          </Link>
+            </div>
+            <Link href={job.jobUrl ? job.jobUrl : "#"}>
+              <button className="border w-[125px] border-white flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 rounded-md text-white hover:bg-blue-600 transition bg-gradient-to-b from-blue from-60% to-[#A061F1]">
+                <span className="text-text-sm-semibold">AiPply</span>
+                <Image
+                  src="/static/icons/arrowIcon.svg"
+                  alt="Apply"
+                  width={16}
+                  height={16}
+                />
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

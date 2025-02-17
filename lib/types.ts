@@ -33,6 +33,7 @@ export interface Experience {
 }
 
 export interface UserDetails {
+    userId: string,
     primaryRole: string;
     preferences: {
         jobSearchStatus: boolean;
