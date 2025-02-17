@@ -2,9 +2,11 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import JobTrackerGridCard from "@/components/card/jobTrackerCard/jobTrackerGridCard";
 import Header from "@/components/header/header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { jobBoardData } from "@/lib/staticData";
-// import type { Job } from "@/lib/types";
+import Image from "next/image";
+import React, { useRef, useState, useEffect } from "react";
+import { useDraggable } from "react-use-draggable-scroll";
 
 interface Job {
   id: string;
@@ -23,11 +25,8 @@ interface Job {
   aboutCompany: string[];
   status: string;
 }
-import Image from "next/image";
-import React, { useState } from "react";
 
 const JobTrackerPage: React.FC = () => {
-  // const [view, setView] = useState<"grid" | "table">("grid");
   const [appliedJobs, setAppliedJobs] = useState(
     jobBoardData.filter((job) => job.status === "applied")
   );
@@ -42,7 +41,6 @@ const JobTrackerPage: React.FC = () => {
   );
 
   const onStatusChange = (job: Job, newStatus: string) => {
-    // Remove job from current status list
     setAppliedJobs(appliedJobs.filter((j) => j.id !== job.id));
     setArchivedJobs(archivedJobs.filter((j) => j.id !== job.id));
     setFollowUpRequiredJobs(
@@ -50,7 +48,6 @@ const JobTrackerPage: React.FC = () => {
     );
     setNoReplyJobs(noReplyJobs.filter((j) => j.id !== job.id));
 
-    // Add job to new status list
     switch (newStatus) {
       case "applied":
         setAppliedJobs([...appliedJobs, job]);
@@ -67,6 +64,25 @@ const JobTrackerPage: React.FC = () => {
     }
   };
 
+  const ref = useRef<HTMLDivElement>(
+    null
+  ) as React.MutableRefObject<HTMLInputElement>;
+  const { events } = useDraggable(ref);
+
+  const [columnHeight, setColumnHeight] = useState(800);
+
+  useEffect(() => {
+    const updateColumnHeight = () => {
+      const newHeight = window.innerHeight - 230; // Adjust 200 as needed
+      setColumnHeight(newHeight);
+    };
+
+    updateColumnHeight();
+    window.addEventListener("resize", updateColumnHeight);
+
+    return () => window.removeEventListener("resize", updateColumnHeight);
+  }, []);
+
   return (
     <SidebarProvider
       style={
@@ -76,10 +92,10 @@ const JobTrackerPage: React.FC = () => {
       }
     >
       <AppSidebar />
-      <SidebarInset>
+      <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden">
         <Header />
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative bg-[#020218] text-white">
-          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-4 overflow-x-auto">
+        <div className="flex flex-1 flex-col gap-4 pl-6 pr-14 pt-4 relative text-white">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-4">
             <div className="gap-2">
               <h1 className="font-inter text-[#ECECED] font-bold text-[40px]">
                 Tracker
@@ -107,233 +123,68 @@ const JobTrackerPage: React.FC = () => {
               </button>
             </div>
           </div>
-          {/* <div className="flex flex-row gap-2 w-full">
-             <button
-              className="flex flex-row bg-[#161B26] px-3 py-2 rounded-sm gap-2"
-              onClick={() => setView("grid")}
-            >
-              {" "}
-              <Image
-                src={"/static/icons/gridView.svg"}
-                width={24}
-                height={24}
-                alt="grid view icon"
-              />
-              Grid View
-            </button> 
-             <button
-              onClick={() => setView("table")}
-              className="flex flex-row bg-[#161B26] px-3 py-2 rounded-sm gap-2"
-            >
-              Table View{" "}
-              <Image
-                src={"/static/icons/tableView.svg"}
-                width={24}
-                height={24}
-                alt="grid view icon"
-              />
-            </button> 
-          </div> */}
-          <div className={`flex flex-row gap-6`}>
-            
-            <section className="flex flex-col gap-6">
-              <div className="flex flex-row items-center gap-3">
-                <Image
-                  src="/static/icons/interviewing.svg"
-                  alt="Archived"
-                  width={24}
-                  height={24}
-                />
-                <h2 className="text-text-md-semibold font-inter text-[#ECECED]">
-                  Archived <span className="pl-1">({archivedJobs.length})</span>
-                </h2>
-              </div>
-              <div
-                className={`h-[1px] bg-gradient-to-r from-[#282835] to-[#FFFFFF]`}
-              ></div>
-              {/* {view === "grid" ? ( */}
-              <div className="grid-view flex flex-row flex-wrap gap-4">
-                {archivedJobs.map((job) => (
-                  <JobTrackerGridCard
-                    key={job.id}
-                    {...job}
-                    onStatusChange={(newStatus) =>
-                      onStatusChange(job, newStatus)
-                    }
-                  />
-                ))}
-              </div>
-              {/* ) : view === "table" ? (
-                <div className="flex flex-col flex-wrap">
-                  <table className="w-full">
-                    <thead className="bg-[#0C111D]">
-                      <tr className="text-text-xs-medium text-[#94969C]">
-                        <th className="text-start py-3 px-6">Company name</th>
-                        <th className="text-start py-3 px-6">Job Title</th>
-                        <th className="text-start py-3 px-6">Type</th>
-                        <th className="text-start py-3 px-6">Mode</th>
-                        <th className="text-start py-3 px-6">Location</th>
-                        <th className="text-start py-3 px-6">Salary</th>
-                      </tr>
-                    </thead>
-                    {archivedJobs.map((job) => (
-                      <JobTrackerTableCard key={job.id} {...job} />
-                    ))}
-                  </table>
-                </div>
-              ) : null} */}
-            </section>
+        </div>
 
-            <section className="flex flex-col gap-6">
-              <div className="flex flex-row items-center gap-3">
-                <Image
-                  src="/static/icons/offers.svg"
-                  alt="No Reply"
-                  width={24}
-                  height={24}
-                />
-                <h2 className="text-text-md-semibold font-inter text-[#ECECED]">
-                  No Reply <span className="pl-1">({noReplyJobs.length})</span>
-                </h2>
-              </div>
-              <div
-                className={`h-[1px]  bg-gradient-to-r from-[#282835] to-[#FFFFFF]`}
-              ></div>
-              {/* {view === "grid" ? ( */}
-              <div className="grid-view flex flex-row flex-wrap gap-4">
-                {noReplyJobs.map((job) => (
-                  <JobTrackerGridCard
-                    key={job.id}
-                    {...job}
-                    onStatusChange={(newStatus) =>
-                      onStatusChange(job, newStatus)
-                    }
-                  />
-                ))}
-              </div>
-              {/* ) : view === "table" ? (
-                <div className="flex flex-col flex-wrap">
-                  <table className="w-full">
-                    <thead className="bg-[#0C111D]">
-                      <tr className="text-text-xs-medium text-[#94969C]">
-                        <th className="text-start py-3 px-6">Company name</th>
-                        <th className="text-start py-3 px-6">Job Title</th>
-                        <th className="text-start py-3 px-6">Type</th>
-                        <th className="text-start py-3 px-6">Mode</th>
-                        <th className="text-start py-3 px-6">Location</th>
-                        <th className="text-start py-3 px-6">Salary</th>
-                      </tr>
-                    </thead>
-                    {noReplyJobs.map((job) => (
-                      <JobTrackerTableCard key={job.id} {...job} />
-                    ))}
-                  </table>
-                </div>
-              ) : null} */}
-            </section>
-
-            <section className="flex flex-col gap-6">
-              <div className="flex flex-row items-center gap-3">
-                <Image
-                  src="/static/icons/applied.svg"
-                  alt="Applied"
-                  width={24}
-                  height={24}
-                />
-                <h2 className="text-text-md-semibold font-inter text-[#ECECED]">
-                  Recently Applied{" "}
-                  <span className="pl-1">({appliedJobs.length})</span>
-                </h2>
-              </div>
-              <div
-                className={`h-[1px]  bg-gradient-to-r from-[#282835] to-[#FFFFFF]`}
-              ></div>
-              <div>
-                {/* {view === "grid" ? ( */}
-                <div className="grid-view flex flex-row flex-wrap gap-4">
-                  {appliedJobs.map((job) => (
-                    <JobTrackerGridCard
-                      key={job.id}
-                      {...job}
-                      onStatusChange={(newStatus) =>
-                        onStatusChange(job, newStatus)
-                      }
-                    />
-                  ))}
-                </div>
-                {/* ) : view === "table" ? (
-                  <div className="flex flex-col flex-wrap">
-                    <table className="w-full">
-                      <thead className="bg-[#0C111D]">
-                        <tr className="text-text-xs-medium text-[#94969C]">
-                          <th className="text-start py-3 px-6">Company name</th>
-                          <th className="text-start py-3 px-6">Job Title</th>
-                          <th className="text-start py-3 px-6">Type</th>
-                          <th className="text-start py-3 px-6">Mode</th>
-                          <th className="text-start py-3 px-6">Location</th>
-                          <th className="text-start py-3 px-6">Salary</th>
-                        </tr>
-                      </thead>
-                      {appliedJobs.map((job) => (
-                        <JobTrackerTableCard key={job.id} {...job} />
-                      ))}
-                    </table>
+        <div
+          {...events}
+          ref={ref} // add reference and events to the wrapping div
+          className="flex h-full m-4 overflow-x-scroll scrollbar-hide"
+        >
+          <div className="flex flex-nowrap gap-6">
+            {[
+              {
+                title: "Archived",
+                jobs: archivedJobs,
+                icon: "/static/icons/interviewing.svg",
+              },
+              {
+                title: "No Reply",
+                jobs: noReplyJobs,
+                icon: "/static/icons/offers.svg",
+              },
+              {
+                title: "Recently Applied",
+                jobs: appliedJobs,
+                icon: "/static/icons/applied.svg",
+              },
+              {
+                title: "Follow Up Required",
+                jobs: followUpRequiredJobs,
+                icon: "/static/icons/briefcase.svg",
+              },
+            ]
+              .filter(({ jobs }) => jobs.length > 0) // Filter out columns with no jobs
+              .map(({ title, jobs, icon }) => (
+                <section
+                  key={title}
+                  className="flex flex-col p-3 rounded-lg"
+                  style={{ height: `${columnHeight}px` }}
+                >
+                  <div className="flex items-center gap-3 border-b border-[#454545] pb-2">
+                    <Image src={icon} alt={title} width={24} height={24} />
+                    <h2 className="text-[#ECECED] text-text-md-semibold ">
+                      {title} ({jobs.length})
+                    </h2>
                   </div>
-                ) : null} */}
-              </div>
-            </section>
 
-            <section className="flex flex-col gap-6">
-              <div className="flex flex-row items-center gap-3">
-                <Image
-                  src="/static/icons/briefcase.svg"
-                  alt="Follow Up Required"
-                  width={24}
-                  height={24}
-                />
-                <h2 className="text-text-md-semibold font-inter text-[#ECECED]">
-                  Follow Up Required{" "}
-                  <span className="pl-1">({followUpRequiredJobs.length})</span>
-                </h2>
-              </div>
-              <div
-                className={`h-[1px]  bg-gradient-to-r from-[#282835] to-[#FFFFFF]`}
-              ></div>
-              {/* {view === "grid" ? ( */}
-              <div className="grid-view flex flex-row flex-wrap gap-4">
-                {followUpRequiredJobs.map((job) => (
-                  <JobTrackerGridCard
-                    key={job.id}
-                    {...job}
-                    onStatusChange={(newStatus) =>
-                      onStatusChange(job, newStatus)
-                    }
-                  />
-                ))}
-              </div>
-              {/* ) : view === "table" ? (
-                <div className="flex flex-col flex-wrap">
-                  <table className="w-full">
-                    <thead className="bg-[#0C111D]">
-                      <tr className="text-text-xs-medium text-[#94969C]">
-                        <th className="text-start py-3 px-6">Company name</th>
-                        <th className="text-start py-3 px-6">Job Title</th>
-                        <th className="text-start py-3 px-6">Type</th>
-                        <th className="text-start py-3 px-6">Mode</th>
-                        <th className="text-start py-3 px-6">Location</th>
-                        <th className="text-start py-3 px-6">Salary</th>
-                      </tr>
-                    </thead>
-                    {followUpRequiredJobs.map((job) => (
-                      <JobTrackerTableCard key={job.id} {...job} />
-                    ))}
-                  </table>
-                </div>
-              ) : null} */}
-            </section>
+                  <div className="overflow-y-auto scrollbar-hide mt-4">
+                    <div className=" space-y-4">
+                      {jobs.map((job) => (
+                        <JobTrackerGridCard
+                          key={job.id}
+                          {...job}
+                          onStatusChange={(newStatus) =>
+                            onStatusChange(job, newStatus)
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              ))}
           </div>
         </div>
-      </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 };
