@@ -291,7 +291,40 @@ const getDashboardData = async(userId: string) => {
   }
 }
 
-const updateDashboarData = async(userId: string, data: any) => {
+const setAppliedJob = async(userId: string, jobId: string) => {
+  try {
+    const currentDate = new Date().toISOString();
+    const appliedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    const appliedJobs = appliedJobsDoc.exists() ? appliedJobsDoc.data().appliedJobs : [];
+    if (!appliedJobs.includes(jobId)) {
+      appliedJobs.push(jobId);
+    }
+
+    await setDoc(doc(firestore, "appliedJobs", userId), {
+      appliedJobs: appliedJobs,
+      updatedAt: currentDate,
+    }, { merge: true });
+    
+    
+  } catch (error: any) {
+    throw new Error("Error applying job: " + error.message);
+  }
+}
+
+const getAppliedJobs = async(userId: string) => {
+  try {
+    const archivedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    if(archivedJobsDoc.exists()) {
+      return archivedJobsDoc.data().appliedJobs || [];
+    } else {
+      return [];
+    }
+  } catch (error: any) {
+    throw new Error("Error fetching applied jobs: " + error.message);
+  }
+}
+
+const updateDashboardData = async(userId: string, data: any) => {
   try {
     const currentDate = new Date().toISOString();
     await setDoc(doc(firestore, "dashboardData", userId), {
@@ -321,5 +354,7 @@ export {
   getHiddenJobs,
   setHideJob,
   getDashboardData,
-  updateDashboarData
+  updateDashboardData,
+  setAppliedJob,
+  getAppliedJobs,
 };

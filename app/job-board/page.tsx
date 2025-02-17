@@ -12,13 +12,16 @@ import {
   auth,
   getHiddenJobs,
   setHideJob,
+  setAppliedJob,
 } from "@/lib/firebaseConfig/firebaseConfig";
+import Loader from "@/components/loader/loader";
 
 export default function Page() {
   const [filter, setFilter] = useState("");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [hiddenJobs, setHiddenJobs] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchHiddenJobs = async () => {
@@ -38,6 +41,7 @@ export default function Page() {
 
   useEffect(() => {
     const fetchJobs = async () => {
+      setLoading(true);
       try {
         const userProfile = (await getUserProfile()) as UserDetails;
         const userId = auth.currentUser?.uid;
@@ -53,6 +57,8 @@ export default function Page() {
         }
       } catch (error) {
         console.error("Error fetching jobs:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -64,13 +70,16 @@ export default function Page() {
   };
 
   const handleFilterClick = () => {
+    setLoading(true);
     const filteredJob = jobs.filter((job) =>
       job.title.toLowerCase().includes(filter.toLowerCase())
     );
     setFilteredJobs(filteredJob);
+    setLoading(false);
   };
 
   const handleHideJob = async (jobId: string) => {
+    setLoading(true);
     try {
       const userId = auth.currentUser?.uid;
       if (userId) {
@@ -79,6 +88,22 @@ export default function Page() {
       }
     } catch (error) {
       console.error("Error hiding job:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAppliedJob = async (jobId: string) => {
+    setLoading(true);
+    try {
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        setAppliedJob(userId, jobId);
+      }
+    } catch (error) {
+      console.error("Error applying for job:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,7 +121,9 @@ export default function Page() {
         <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
             <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
-              Job Board
+              {filteredJobs.length > 0
+                ? `Job Board (${filteredJobs.length})`
+                : "Job Board"}
             </h1>
             <div className="flex flex-row gap-2 justify-start lg:justify-end">
               <input
@@ -120,6 +147,9 @@ export default function Page() {
               </button>
             </div>
           </div>
+          {loading && (
+            <Loader message="Best things takes time! Fetching jobs for your profile..." />
+          )}
 
           <div className="flex flex-col gap-4 cursor-pointer">
             {filteredJobs.map((job: Job) => (
@@ -127,6 +157,7 @@ export default function Page() {
                 <JobCard
                   job={job}
                   handleHideJob={() => handleHideJob(job.jobId)}
+                  handleAppliedJob={() => handleAppliedJob(job.jobId)}
                 />
               </div>
             ))}

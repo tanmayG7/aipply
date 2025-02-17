@@ -13,9 +13,11 @@ const stripHtmlTags = (html: string) => {
 const JobCard = ({
   job,
   handleHideJob,
+  handleAppliedJob,
 }: {
   job: Job;
   handleHideJob: () => Promise<void>;
+  handleAppliedJob: () => Promise<void>;
 }) => {
   const jobPlatformMap: { [key: string]: string } = {
     Naukri: "/static/images/naukriLogo.png",
@@ -125,7 +127,12 @@ const JobCard = ({
                 className="object-contain"
               />
             </div>
-            <Link href={job.jobUrl ? job.jobUrl : "#"}>
+            <Link
+              rel="noopener noreferrer"
+              target="_blank"
+              href={job.jobUrl}
+              onClick={handleAppliedJob}
+            >
               <button className="border w-[125px] border-white flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 rounded-md text-white hover:bg-blue-600 transition bg-gradient-to-b from-blue from-60% to-[#A061F1]">
                 <span className="text-text-sm-semibold">AiPply</span>
                 <Image
