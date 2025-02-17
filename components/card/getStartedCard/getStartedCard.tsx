@@ -47,7 +47,7 @@ const GetStartedCard = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 border-[1px] bg-[#0C111D] border-[#1F242F] px-6 py-6">
+    <div className="flex flex-col gap-6 border-[1px] bg-[#0C111D] border-[#1F242F] px-6 py-6 rounded-xl">
       <div className="flex flex-col gap-4">
         <h2 className="text-text-sm-bold font-inter text-white">
           Getting Started

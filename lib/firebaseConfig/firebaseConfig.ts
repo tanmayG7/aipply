@@ -3,7 +3,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { Job, UserDetails } from "../types";
+import { Job, UserDetails, DashboardData } from "../types";
 import { getJobsByIds, getFilteredJobsByTitle } from "@/lib/mongo/mongo";
 import { mapSalaryToRange, mapExperienceToRange } from "../utils";
 
@@ -282,19 +282,21 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
   }
 };
 
-const getDashboardData = async (userId: string) => {
+const getDashboardData = async (userId: string): Promise<DashboardData> => {
   try {
     const dashboardDataDoc = await getDoc(doc(firestore, "dashboardData", userId));
     if (dashboardDataDoc.exists()) {
-      return dashboardDataDoc.data();
+      return dashboardDataDoc.data() as DashboardData;
     } else {
       return {
-        totalJobsShown: 0,
-        jobsApplied: 0,
-        averagePackage: 0,
         averageExperience: 0,
+        averagePackage: 0,
+        experienceAppliedTo: {},
+        jobsApplied: 0,
         location: {},
         packageAppliedTo: {},
+        totalJobsShown: 0,
+        updatedAt: new Date().toISOString(),
       };
     }
   } catch (error: any) {

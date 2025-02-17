@@ -67,3 +67,20 @@ export interface UserDetails {
     firstName: string;
     lastName: string;
 }
+
+export interface DashboardData {
+  averageExperience: number;
+  averagePackage: number;
+  experienceAppliedTo: {
+    [key: string]: number;
+  };
+  jobsApplied: number;
+  location: {
+    [key: string]: number;
+  };
+  packageAppliedTo: {
+    [key: string]: number;
+  };
+  totalJobsShown: number;
+  updatedAt: string;
+}

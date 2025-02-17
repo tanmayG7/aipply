@@ -1,23 +1,47 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import DashboardCard from "@/components/card/DashboardCard/DashboardCard";
-import { DashboardLineChart } from "@/components/charts/lineChart";
 import { DashboardChart } from "@/components/charts/pieCharts";
 import Header from "@/components/header/header";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { DashboardData } from "@/lib/staticData";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
+import { auth, getDashboardData } from "@/lib/firebaseConfig/firebaseConfig";
+import { DashboardData } from "@/lib/types";
+import { DashboardBarChart } from "@/components/charts/barChart";
 
 const HomePage: React.FC = () => {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const userId = auth.currentUser?.uid;
+        if (userId) {
+          const data = await getDashboardData(userId);
+          setDashboardData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   return (
     <>
       <Head>
         <title>Home - Aipply</title>
-        <meta name="description" content="Welcome to Aipply. Find your dream job today." />
+        <meta
+          name="description"
+          content="Welcome to Aipply. Find your dream job today."
+        />
       </Head>
       <SidebarProvider
         style={
@@ -43,18 +67,41 @@ const HomePage: React.FC = () => {
                 <GetStartedCard />
               </div>
               <div className="grid grid-cols-4 gap-4">
-                {DashboardData.map((data) => (
-                  <DashboardCard
-                    key={data.id}
-                    id={data.id}
-                    title={data.title}
-                    totalNumber={data.totalNumber.toString()}
-                  />
-                ))}
+                {dashboardData && (
+                  <>
+                    <DashboardCard
+                      id="2"
+                      title="Total Jobs Shown"
+                      totalNumber={dashboardData.totalJobsShown.toString()}
+                    />
+                    <DashboardCard
+                      id="3"
+                      title="Jobs Applied"
+                      totalNumber={dashboardData.jobsApplied.toString()}
+                    />
+                    <DashboardCard
+                      id="1"
+                      title="Avg. Experience (Years)"
+                      totalNumber={dashboardData.averageExperience.toString()}
+                    />
+
+                    <DashboardCard
+                      id="4"
+                      title="Avg. Package (LPA)"
+                      totalNumber={dashboardData.averagePackage.toFixed(1)}
+                    />
+                  </>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-8 py-10">
-                <DashboardChart />
-                <DashboardLineChart />
+                {dashboardData && (
+                  <DashboardBarChart locationData={dashboardData.location} />
+                )}
+                {dashboardData && (
+                  <DashboardChart
+                    packageAppliedTo={dashboardData.packageAppliedTo}
+                  />
+                )}
               </div>
 
               <div>
