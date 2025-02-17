@@ -620,3 +620,13 @@ export const DashboardData = [
     totalNumber: 4,
   },
 ];
+
+export const getReminderCardsByStatus = (status: string) => {
+  return jobBoardData.filter(job => job.status === status).map(job => ({
+    id: job.id,
+    jobTitle: job.jobTitle,
+    companyName: job.companyName,
+    location: job.location,
+    status: job.status,
+  }));
+};
