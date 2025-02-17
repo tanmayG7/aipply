@@ -10,6 +10,7 @@ import { DashboardData } from "@/lib/staticData";
 import Image from "next/image";
 import React from "react";
 import Head from "next/head";
+import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
 
 const HomePage: React.FC = () => {
   return (
@@ -37,6 +38,9 @@ const HomePage: React.FC = () => {
                 <p className="font-inter text-[#F5F5F6] text-text-sm-semibold">
                   Today we have curated 20 jobs for you.
                 </p>
+              </div>
+              <div className="w-[50%]">
+                <GetStartedCard />
               </div>
               <div className="grid grid-cols-4 gap-4">
                 {DashboardData.map((data) => (
