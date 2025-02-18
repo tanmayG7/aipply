@@ -98,101 +98,98 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-row justify-between items-center gap-4">
-            <div className="flex flex-row gap-4 items-center">
-              <Checkbox
-              disabled={true}
-                checked={checkedFields.profile}
-                onCheckedChange={() => handleCheckboxChange("profile")}
+            <Link href="/complete-profile" className="flex flex-row justify-between items-center w-full">
+              <div className="flex flex-row gap-4 items-center">
+                <Checkbox
+                  disabled={true}
+                  checked={checkedFields.profile}
+                  onCheckedChange={() => handleCheckboxChange("profile")}
+                />
+                <span className="hover:text-green-600">Update your profile</span>
+              </div>
+              <Image
+                src={"/static/icons/arrow-right.svg"}
+                width={20}
+                height={20}
+                alt="arrow"
               />
-              <Link href="/complete-profile" className="hover:text-green-600">
-                Update your profile
-              </Link>
-            </div>
-            <Image
-              src={"/static/icons/arrow-right.svg"}
-              width={20}
-              height={20}
-              alt="arrow"
-            />
+            </Link>
           </div>
 
           <div className="flex flex-row justify-between items-center gap-4">
-            <div className="flex flex-row gap-4 items-center">
-              <Checkbox
-              disabled={true}
-                checked={checkedFields.cv}
-                onCheckedChange={() => handleCheckboxChange("cv")}
+            <Link href="/complete-profile" className="flex flex-row justify-between items-center w-full">
+              <div className="flex flex-row gap-4 items-center">
+                <Checkbox
+                  disabled={true}
+                  checked={checkedFields.cv}
+                  onCheckedChange={() => handleCheckboxChange("cv")}
+                />
+                <span className="hover:text-green-600">Upload an ATS Friendly CV</span>
+              </div>
+              <Image
+                src={"/static/icons/arrow-right.svg"}
+                width={20}
+                height={20}
+                alt="arrow"
               />
-              <Link href="/complete-profile" className="hover:text-green-600">
-                Upload an ATS Friendly CV
-              </Link>
-            </div>
-            <Image
-              src={"/static/icons/arrow-right.svg"}
-              width={20}
-              height={20}
-              alt="arrow"
-            />
+            </Link>
           </div>
 
           <div className="flex flex-row justify-between items-center gap-4">
-            <div className="flex flex-row gap-4 items-center">
-              <Checkbox
-              disabled={true}
-                checked={checkedFields.coverLetter}
-                onCheckedChange={() => handleCheckboxChange("coverLetter")}
+            <Link href="/complete-profile" className="flex flex-row justify-between items-center w-full">
+              <div className="flex flex-row gap-4 items-center">
+                <Checkbox
+                  disabled={true}
+                  checked={checkedFields.coverLetter}
+                  onCheckedChange={() => handleCheckboxChange("coverLetter")}
+                />
+                <span className="hover:text-green-600">Upload your cover letter</span>
+              </div>
+              <Image
+                src={"/static/icons/arrow-right.svg"}
+                width={20}
+                height={20}
+                alt="arrow"
               />
-              <Link href="/complete-profile" className="hover:text-green-600">
-                <p>Upload your cover letter</p>
-              </Link>
-            </div>
-            <Image
-              src={"/static/icons/arrow-right.svg"}
-              width={20}
-              height={20}
-              alt="arrow"
-            />
+            </Link>
           </div>
 
           <div className="flex flex-row justify-between items-center gap-4">
-            <div className="flex flex-row gap-4 items-center">
-              <Checkbox
-                disabled={true}
-                checked={checkedFields.firstJob}
-                onCheckedChange={() => handleCheckboxChange("firstJob")}
+            <Link href="/job-board" className="flex flex-row justify-between items-center w-full">
+              <div className="flex flex-row gap-4 items-center">
+                <Checkbox
+                  disabled={true}
+                  checked={checkedFields.firstJob}
+                  onCheckedChange={() => handleCheckboxChange("firstJob")}
+                />
+                <span className="hover:text-green-600">Apply your first job</span>
+              </div>
+              <Image
+                src={"/static/icons/arrow-right.svg"}
+                width={20}
+                height={20}
+                alt="arrow"
               />
-              <Link href="/job-board" className="hover:text-green-600">
-                Apply your first job
-              </Link>
-            </div>
-            <Image
-              src={"/static/icons/arrow-right.svg"}
-              width={20}
-              height={20}
-              alt="arrow"
-            />
+            </Link>
           </div>
 
           <div className="flex flex-row justify-between items-center gap-4">
-            <div className="flex flex-row gap-4 items-center">
-              <Checkbox
-              disabled={true}
-                checked={checkedFields.community}
-                onCheckedChange={() => handleCheckboxChange("community")}
+            <Link href="https://chat.whatsapp.com/your-whatsapp-community-link" className="flex flex-row justify-between items-center w-full">
+              <div className="flex flex-row gap-4 items-center">
+                <Checkbox
+                  disabled={true}
+                  checked={checkedFields.community}
+                  onCheckedChange={() => handleCheckboxChange("community")}
+                />
+                <span className="hover:text-green-600">Join community</span>
+              </div>
+              <Image
+                src={"/static/icons/arrow-right.svg"}
+                width={20}
+                height={20}
+                alt="arrow"
               />
-              <Link
-                href="https://chat.whatsapp.com/your-whatsapp-community-link"
-                className="hover:text-green-600"
-              >
-                Join community
-              </Link>
-            </div>
-            <Image
-              src={"/static/icons/arrow-right.svg"}
-              width={20}
-              height={20}
-              alt="arrow"
-            />
+            </Link>
           </div>
         </div>
       </div>
