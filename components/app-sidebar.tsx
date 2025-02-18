@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LogOut, UserRound } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
@@ -38,7 +38,8 @@ const handleCommunityJoin = async () => {
       community: true,
     });
   }
-  window.location.href = "https://chat.whatsapp.com/your-whatsapp-community-link";
+  window.location.href =
+    "https://chat.whatsapp.com/your-whatsapp-community-link";
 };
 
 const data = {
@@ -106,16 +107,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     firstName: string;
     lastName: string;
     email: string;
+    profileImage: string;
   } | null>(null);
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const profile = await getUserProfile(user.uid);
+
         setUserProfile({
           firstName: profile.firstName || "",
           lastName: profile.lastName || "",
           email: profile.email || "",
+          profileImage: profile.uploadFile || "",
         });
       }
     });
@@ -146,7 +150,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuButton size="lg" asChild className="py-4">
                 <Link href="/complete-profile" className="flex flex-row">
                   <div className="flex rounded-full size-12 items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground">
-                    <UserRound className="size-8" />
+                    {/* <UserRound className="size-8" /> */}
+                    <Image
+                      src={userProfile?.profileImage || ""}
+                      alt="User Image"
+                      width={48}
+                      height={48}
+                      className="rounded-full"
+                    />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
                     <span className="font-semibold">

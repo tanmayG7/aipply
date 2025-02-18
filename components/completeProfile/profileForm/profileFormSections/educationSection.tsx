@@ -34,7 +34,6 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   toggleDropdown,
   editingEducation,
 }) => {
-  console.log("userDetails", educations);
   const [education, setEducation] = useState<Education>({
     college: editingEducation?.college || "",
     graduationYear: editingEducation?.graduationYear || "",

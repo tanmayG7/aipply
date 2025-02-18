@@ -22,7 +22,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   isEditing,
   userDetails,
 }) => {
-  console.log(userDetails);
   const [educations, setEducations] = useState<Education[]>();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 

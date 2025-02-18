@@ -60,7 +60,6 @@ const AboutSection: React.FC<AboutSectionProps> = ({
         );
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
-        console.log("downloadURL", downloadURL);
         setFormData((prevData) => ({
           ...prevData,
           uploadFile: downloadURL,
