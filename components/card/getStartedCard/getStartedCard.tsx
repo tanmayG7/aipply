@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { firestore, auth } from "@/lib/firebaseConfig/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import Image from "next/image";
+import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
 
 const GetStartedCard = () => {
   const [checkedFields, setCheckedFields] = useState({
@@ -46,6 +48,12 @@ const GetStartedCard = () => {
     }));
   };
 
+  const calculateProgress = () => {
+    const totalFields = Object.keys(checkedFields).length;
+    const checkedCount = Object.values(checkedFields).filter(Boolean).length;
+    return (checkedCount / totalFields) * 100;
+  };
+
   return (
     <div className="flex flex-col gap-6 border-[1px] bg-[#0C111D] border-[#1F242F] px-6 py-6 rounded-xl">
       <div className="flex flex-col gap-4">
@@ -58,36 +66,27 @@ const GetStartedCard = () => {
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="flex flex-row h-[16px] gap-1">
-          {Object.keys(checkedFields).map((field, index) => (
-            <div
-              key={index}
-              style={{
-                flex: 1,
-                backgroundColor: checkedFields[field as Field]
-                  ? "green"
-                  : "#e0e0e0",
-                height: "100%",
-                borderRadius:
-                  index === 0
-                    ? "5px 0 0 5px"
-                    : index === 4
-                    ? "0 5px 5px 0"
-                    : "0",
-              }}
-            ></div>
-          ))}
+        <div className="relative w-[full] h-[16px] bg-[#e0e0e0] rounded-full">
+          <div
+            className="absolute top-0 left-0 h-full bg-green-500 rounded-full"
+            style={{ width: `${calculateProgress()}%` }}
+          ></div>
+          {/* <p className="absolute right-4">{calculateProgress()}%</p> */}
         </div>
         <div className="flex flex-col gap-6">
-          <div className="flex flex-row justify-between">
-            <li className={"flex flex-row text-text-md-semibold gap-4"}>
-              <input
-                type="checkbox"
+          <div className="flex flex-row justify-between items-center gap-4">
+            <div className="flex flex-row gap-4 items-center">
+              <Checkbox
                 checked={checkedFields.profile}
-                onChange={() => handleCheckboxChange("profile")}
+                onCheckedChange={() => handleCheckboxChange("profile")}
               />
-              Update your profile
-            </li>
+              <Link
+                href="/complete-profile"
+                className="hover:text-green-600"
+              >
+                Update your profile
+              </Link>
+            </div>
             <Image
               src={"/static/icons/arrow-right.svg"}
               width={20}
@@ -96,15 +95,19 @@ const GetStartedCard = () => {
             />
           </div>
 
-          <div className="flex flex-row justify-between">
-            <li className={"flex flex-row text-text-md-semibold gap-4"}>
-              <input
-                type="checkbox"
+          <div className="flex flex-row justify-between items-center gap-4">
+            <div className="flex flex-row gap-4 items-center">
+              <Checkbox
                 checked={checkedFields.cv}
-                onChange={() => handleCheckboxChange("cv")}
+                onCheckedChange={() => handleCheckboxChange("cv")}
               />
-              Upload an ATS Friendly CV
-            </li>
+              <Link
+                href="/complete-profile"
+                className="hover:text-green-600"
+              >
+                Upload an ATS Friendly CV
+              </Link>
+            </div>
             <Image
               src={"/static/icons/arrow-right.svg"}
               width={20}
@@ -113,15 +116,19 @@ const GetStartedCard = () => {
             />
           </div>
 
-          <div className="flex flex-row justify-between">
-            <li className={"flex flex-row text-text-md-semibold gap-4"}>
-              <input
-                type="checkbox"
+          <div className="flex flex-row justify-between items-center gap-4">
+            <div className="flex flex-row gap-4 items-center">
+              <Checkbox
                 checked={checkedFields.coverLetter}
-                onChange={() => handleCheckboxChange("coverLetter")}
+                onCheckedChange={() => handleCheckboxChange("coverLetter")}
               />
-              Upload your cover letter
-            </li>
+              <Link
+                href="/complete-profile"
+                className="hover:text-green-600"
+              >
+                <p>Upload your cover letter</p>
+              </Link>
+            </div>
             <Image
               src={"/static/icons/arrow-right.svg"}
               width={20}
@@ -130,15 +137,19 @@ const GetStartedCard = () => {
             />
           </div>
 
-          <div className="flex flex-row justify-between">
-            <li className={"flex flex-row text-text-md-semibold gap-4"}>
-              <input
-                type="checkbox"
+          <div className="flex flex-row justify-between items-center gap-4">
+            <div className="flex flex-row gap-4 items-center">
+              <Checkbox
                 checked={checkedFields.firstJob}
-                onChange={() => handleCheckboxChange("firstJob")}
+                onCheckedChange={() => handleCheckboxChange("firstJob")}
               />
-              Apply your first job
-            </li>
+              <Link
+                href="/job-board"
+                className="hover:text-green-600"
+              >
+                Apply your first job
+              </Link>
+            </div>
             <Image
               src={"/static/icons/arrow-right.svg"}
               width={20}
@@ -147,15 +158,19 @@ const GetStartedCard = () => {
             />
           </div>
 
-          <div className="flex flex-row justify-between">
-            <li className={"flex flex-row text-text-md-semibold gap-4"}>
-              <input
-                type="checkbox"
+          <div className="flex flex-row justify-between items-center gap-4">
+            <div className="flex flex-row gap-4 items-center">
+              <Checkbox
                 checked={checkedFields.community}
-                onChange={() => handleCheckboxChange("community")}
+                onCheckedChange={() => handleCheckboxChange("community")}
               />
-              Join community
-            </li>
+              <Link
+                href="https://chat.whatsapp.com/your-whatsapp-community-link"
+                className="hover:text-green-600"
+              >
+                Join community
+              </Link>
+            </div>
             <Image
               src={"/static/icons/arrow-right.svg"}
               width={20}
