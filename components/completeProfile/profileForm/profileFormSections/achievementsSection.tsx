@@ -31,7 +31,7 @@ const AchievementsSection: React.FC<AchievementsSectionProps> = ({
   };
 
   return (
-    <Card className="grid grid-cols-7 max-w-[828px] py-10 text-white border-b border-gray rounded-none">
+    <Card className="grid grid-cols-7 max-w-[100%] py-10 text-white border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
         <CardTitle>Achievements</CardTitle>
         <CardDescription>

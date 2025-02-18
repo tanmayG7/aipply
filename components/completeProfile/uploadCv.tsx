@@ -92,12 +92,12 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
 
   return (
     <>
-      <Card className="grid grid-cols-8 max-w-[828px] py-6 text-white border border-gray rounded-xl">
+      <Card className="grid grid-cols-5 max-w-[100%] py-6 text-white border border-gray rounded-xl">
         <CardHeader className="col-span-3">
           <CardTitle>Upload your resume or CV</CardTitle>
           <CardDescription>Upload most up-to-date resume.</CardDescription>
         </CardHeader>
-        <CardContent className="col-span-5">
+        <CardContent className="col-span-2">
           {isEditing ? (
             <>
               <Input
@@ -127,7 +127,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
         </CardContent>
       </Card>
 
-      <Card className="grid grid-cols-8 max-w-[828px] py-6 text-white border border-gray rounded-xl">
+      <Card className="grid grid-cols-8 max-w-[100%] py-6 text-white border border-gray rounded-xl">
         <CardHeader className="col-span-3">
           <CardTitle>Cover Latter</CardTitle>
           <CardDescription>Upload most up-to-date resume.</CardDescription>

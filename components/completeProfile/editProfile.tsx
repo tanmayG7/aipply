@@ -59,7 +59,7 @@ const EditProfile: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-[828px]">
+    <div className="flex flex-col gap-6 max-w-[75%]">
       <div className="flex flex-row justify-between">
         <p className="font-inter text-[28px] text-lg font-bold">
           Edit your AipPly profile
@@ -89,7 +89,7 @@ const EditProfile: React.FC = () => {
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3 max-w-[525px] border-b-[1px] border-[#454545] ">
+      <div className="grid grid-cols-3 gap-3 max-w-[100%] border-b-[1px] border-[#454545] ">
         <button
           onClick={() => setSelectedSection("profile")}
           className={`text-text-sm-semibold pb-4 ${

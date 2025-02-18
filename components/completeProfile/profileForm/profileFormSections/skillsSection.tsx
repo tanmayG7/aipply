@@ -17,7 +17,7 @@ interface SkillsProps {
 }
 
 const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
-  const [skills, setSkills] = useState<string[]>(userDetails.skills);
+  const [skills, setSkills] = useState<string[]>(userDetails.skills || []);
   const [skillInput, setSkillInput] = useState("");
 
   const addSkill = () => {
@@ -32,7 +32,7 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
     const user = auth.currentUser;
     if (user) {
       const userDetails = await getUserProfile(user.uid);
-      const updatedSkills = userDetails.skills.filter((s: string) => s !== skill);
+      const updatedSkills = (userDetails.skills ?? []).filter((s: string) => s !== skill);
       await saveUserProfile(user.uid, { skills: updatedSkills });
     }
 
@@ -50,7 +50,7 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
   };
 
   return (
-    <Card className="grid grid-cols-7 max-w-[828px] py-10 text-white border-b border-gray rounded-none">
+    <Card className="grid grid-cols-7 max-w-[100%] py-10 text-white border-b border-gray rounded-none">
       <CardHeader className="col-span-2">
         <CardTitle>Skills</CardTitle>
         <CardDescription>Add your key skills.</CardDescription>
