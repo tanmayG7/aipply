@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import Image from "next/image";
-import { Checkbox } from "./ui/checkbox";
 import { authenticateUser } from "@/lib/firebaseConfig/firebaseConfig";
 import { useRouter } from "next/navigation";
 
@@ -115,15 +114,6 @@ export function LoginForm({
                 </div>
 
                 <div className="flex flex-row justify-between">
-                  <div className="flex flex-row gap-2 ">
-                    <Checkbox
-                      id="remember"
-                      className="border-[1px] bg-[#333741]"
-                    />
-                    <p className="text-text-sm-medium font-inter text-[#CECFD2]">
-                      Remember for 30 days
-                    </p>
-                  </div>
                   <a
                     href="#"
                     className="ml-auto text-text-sm-medium font-inter text-[#CECFD2] underline-offset-4"
