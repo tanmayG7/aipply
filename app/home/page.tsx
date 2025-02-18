@@ -18,22 +18,24 @@ const HomePage: React.FC = () => {
   );
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const userId = auth.currentUser?.uid;
-        if (userId) {
-          const data = await getDashboardData(userId);
-          setDashboardData(data);
-        }
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchDashboardData(user.uid);
       }
-    };
+    });
 
-    fetchDashboardData();
+    return () => unsubscribe();
   }, []);
 
-  
+  const fetchDashboardData = async (uid: string) => {
+    try {
+      const data = await getDashboardData(uid);
+      setDashboardData(data);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
+  };
+
   return (
     <>
       <Head>

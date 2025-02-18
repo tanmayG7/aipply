@@ -22,30 +22,36 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const userDoc = await getDoc(doc(firestore, "users", user.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setCheckedFields({
-            profile:
-              !!userData.education &&
-              !!userData.experience &&
-              !!userData.skills &&
-              !!userData.achievements,
-            cv: !!userData.cv,
-            coverLetter: !!userData.coverLetter,
-            firstJob: appliedJoblength > 0 || !!userData.firstJob,
-            community: !!userData.community,
-          });
-        }
-      }
-      setLoading(false);
-    };
 
-    fetchUserData();
+  const fetchUserData = async (uid: string) => {
+    const userDoc = await getDoc(doc(firestore, "users", uid));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      setCheckedFields({
+        profile:
+          !!userData.education &&
+          !!userData.experience &&
+          !!userData.skills &&
+          !!userData.achievements,
+        cv: !!userData.cv,
+        coverLetter: !!userData.coverLetter,
+        firstJob: appliedJoblength > 0 || !!userData.firstJob,
+        community: !!userData.community,
+      });
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchUserData(user.uid);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
   }, [appliedJoblength]);
 
   type Field = "profile" | "cv" | "coverLetter" | "firstJob" | "community";
