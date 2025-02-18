@@ -177,14 +177,15 @@ export default function Page() {
       const userId = auth.currentUser?.uid;
       if (userId) {
         const appliedJobs = await getAppliedJobs(userId);
-        if (!appliedJobs.includes(jobId)) {
+        if (!appliedJobs.some((appliedJob: Job) => appliedJob.jobId === jobId)) {
+          const appliedDate: string = new Date().toISOString();
           await updateDashboardOnJobApplied(
             userId,
             job.salary,
             job.location,
             job.experience
           );
-          await setAppliedJob(userId, jobId);
+          await setAppliedJob(userId, jobId, appliedDate);
         }
       }
     } catch (error) {

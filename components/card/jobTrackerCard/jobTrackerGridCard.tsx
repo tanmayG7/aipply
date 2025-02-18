@@ -3,16 +3,18 @@ import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 
 interface JobTrackerGridCardProps {
+  jobId: string;
   companyName: string;
   jobTitle: string;
   jobPackage: string;
   workType: string;
   experience: string;
   location: string;
-  onStatusChange: (newStatus: string) => void;
+  onStatusChange: (jobId: string, newStatus: string) => void;
 }
 
 const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
+  jobId,
   companyName,
   jobTitle,
   jobPackage,
@@ -126,17 +128,32 @@ const JobTrackerGridCard: React.FC<JobTrackerGridCardProps> = ({
               className="cursor-pointer"
             />
             {menuVisible && (
-              <div ref={menuRef} className="absolute rounded right-0 mt-3 w-44 bg-[#050513] text-black shadow-lg z-10 border-[1px] border-[#333232]">
-                <button onClick={() => onStatusChange("archived")} className="block px-4 py-2 text-text-md-regular w-full text-white text-start hover:bg-white hover:text-black rounded">
+              <div
+                ref={menuRef}
+                className="absolute rounded right-0 mt-3 w-44 bg-[#050513] text-black shadow-lg z-10 border-[1px] border-[#333232]"
+              >
+                <button
+                  onClick={() => onStatusChange(jobId, "archived")}
+                  className="block px-4 py-2 text-text-md-regular w-full text-white text-start hover:bg-white hover:text-black rounded"
+                >
                   Archive
                 </button>
-                <button onClick={() => onStatusChange("applied")} className="block px-4 py-2 text-text-md-regular w-full text-white text-start hover:bg-white hover:text-black rounded">
+                <button
+                  onClick={() => onStatusChange(jobId, "recentlyApplied")}
+                  className="block px-4 py-2 text-text-md-regular w-full text-white text-start hover:bg-white hover:text-black rounded"
+                >
                   Recently Applied
                 </button>
-                <button onClick={() => onStatusChange("followUpRequired")} className="block px-4 py-2 text-text-md-regular w-full text-white text-start hover:bg-white hover:text-black rounded">
+                <button
+                  onClick={() => onStatusChange(jobId, "followUpRequired")}
+                  className="block px-4 py-2 text-text-md-regular w-full text-white text-start hover:bg-white hover:text-black rounded"
+                >
                   Follow up required
                 </button>
-                <button onClick={() => onStatusChange("noReply")} className="block px-4 py-2 text-text-md-regular w-full text-white text-start hover:bg-white hover:text-black rounded">
+                <button
+                  onClick={() => onStatusChange(jobId, "noReply")}
+                  className="block px-4 py-2 text-text-md-regular w-full text-white text-start hover:bg-white hover:text-black rounded"
+                >
                   No Reply
                 </button>
               </div>

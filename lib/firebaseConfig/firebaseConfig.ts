@@ -304,21 +304,54 @@ const getDashboardData = async (userId: string): Promise<DashboardData> => {
   }
 };
 
-const setAppliedJob = async (userId: string, jobId: string) => {
+const setAppliedJob = async (userId: string, jobId: string, appliedDate: string, status: string = "recentlyApplied") => {
   try {
-    const currentDate = new Date().toISOString();
     const appliedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
     const appliedJobs = appliedJobsDoc.exists() ? appliedJobsDoc.data().appliedJobs : [];
-    if (!appliedJobs.includes(jobId)) {
-      appliedJobs.push(jobId);
+    if (!appliedJobs.some((job: { jobId: string }) => job.jobId === jobId)) {
+      appliedJobs.push({ jobId, appliedDate, status });
     }
 
     await setDoc(doc(firestore, "appliedJobs", userId), {
       appliedJobs: appliedJobs,
-      updatedAt: currentDate,
+      updatedAt: new Date().toISOString(),
     }, { merge: true });
   } catch (error: any) {
     throw new Error("Error applying job: " + error.message);
+  }
+};
+
+const updateJobStatus = async (userId: string, jobId: string, newStatus: string) => {
+  try {
+    const jobTrackerDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    if (jobTrackerDoc.exists()) {
+      const jobTrackerData = jobTrackerDoc.data();
+      let jobToUpdate;
+
+      // Find and remove the job from its current status array
+      for (const status in jobTrackerData) {
+        const jobIndex = jobTrackerData[status].findIndex((job: { jobId: string }) => job.jobId === jobId);
+        if (jobIndex !== -1) {
+          jobToUpdate = jobTrackerData[status][jobIndex];
+          jobTrackerData[status].splice(jobIndex, 1);
+          break;
+        }
+      }
+
+      if (jobToUpdate) {
+        // Update the job's status and add it to the new status array
+        jobToUpdate.status = newStatus;
+        if (!jobTrackerData[newStatus]) {
+          jobTrackerData[newStatus] = [];
+        }
+        jobTrackerData[newStatus].push(jobToUpdate);
+
+        // Save the updated job tracker data
+        await setDoc(doc(firestore, "appliedJobs", userId), jobTrackerData, { merge: true });
+      }
+    }
+  } catch (error: any) {
+    throw new Error("Error updating job status: " + error.message);
   }
 };
 
@@ -428,6 +461,19 @@ const updateDashboardData = async (userId: string, data: any) => {
   }
 };
 
+const getJobTrackerData = async (userId: string) => {
+  try {
+    const jobTrackerDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    if (jobTrackerDoc.exists()) {
+      return jobTrackerDoc.data();
+    } else {
+      throw new Error("Job tracker data not found");
+    }
+  } catch (error: any) {
+    throw new Error("Error fetching job tracker data: " + error.message);
+  }
+};
+
 export { 
   auth, 
   firestore, 
@@ -450,4 +496,6 @@ export {
   setAppliedJob,
   getAppliedJobs,
   updateDashboardOnJobApplied,
+  updateJobStatus,
+  getJobTrackerData,
 };

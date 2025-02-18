@@ -2,10 +2,14 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import JobTrackerGridCard from "@/components/card/jobTrackerCard/jobTrackerGridCard";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { jobBoardData } from "@/lib/staticData";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import { useDraggable } from "react-use-draggable-scroll";
+import {
+  auth,
+  getJobTrackerData,
+  updateJobStatus,
+} from "@/lib/firebaseConfig/firebaseConfig";
 
 interface Job {
   id: string;
@@ -26,39 +30,59 @@ interface Job {
 }
 
 const JobTrackerPage: React.FC = () => {
-  const [appliedJobs, setAppliedJobs] = useState(
-    jobBoardData.filter((job) => job.status === "applied")
-  );
-  const [archivedJobs, setArchivedJobs] = useState(
-    jobBoardData.filter((job) => job.status === "archieved")
-  );
-  const [followUpRequiredJobs, setFollowUpRequiredJobs] = useState(
-    jobBoardData.filter((job) => job.status === "followUpRequired")
-  );
-  const [noReplyJobs, setNoReplyJobs] = useState(
-    jobBoardData.filter((job) => job.status === "noReply")
-  );
+  const [appliedJobs, setAppliedJobs] = useState<Job[]>([]);
+  const [archivedJobs, setArchivedJobs] = useState<Job[]>([]);
+  const [followUpRequiredJobs, setFollowUpRequiredJobs] = useState<Job[]>([]);
+  const [noReplyJobs, setNoReplyJobs] = useState<Job[]>([]);
+  const [userId, setUserId] = useState<string>("");
 
-  const onStatusChange = (job: Job, newStatus: string) => {
-    setAppliedJobs(appliedJobs.filter((j) => j.id !== job.id));
-    setArchivedJobs(archivedJobs.filter((j) => j.id !== job.id));
-    setFollowUpRequiredJobs(
-      followUpRequiredJobs.filter((j) => j.id !== job.id)
-    );
-    setNoReplyJobs(noReplyJobs.filter((j) => j.id !== job.id));
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        setUserId(userId);
+        const jobTrackerData = await getJobTrackerData(userId);
+        setAppliedJobs(jobTrackerData.appliedJobs);
+        setArchivedJobs(jobTrackerData.archivedJobs);
+        setFollowUpRequiredJobs(jobTrackerData.followUpRequiredJobs);
+        setNoReplyJobs(jobTrackerData.noReplyJobs);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  const onStatusChange = async (jobId: string, newStatus: string) => {
+    await updateJobStatus(userId, jobId, newStatus);
+    setAppliedJobs(appliedJobs.filter((j) => j.id !== jobId));
+    setArchivedJobs(archivedJobs.filter((j) => j.id !== jobId));
+    setFollowUpRequiredJobs(followUpRequiredJobs.filter((j) => j.id !== jobId));
+    setNoReplyJobs(noReplyJobs.filter((j) => j.id !== jobId));
+
+    const foundJob = appliedJobs.find((j) => j.id === jobId) ||
+      archivedJobs.find((j) => j.id === jobId) ||
+      followUpRequiredJobs.find((j) => j.id === jobId) ||
+      noReplyJobs.find((j) => j.id === jobId);
+
+    if (!foundJob) return;
+
+    const updatedJob: Job = {
+      ...foundJob,
+      status: newStatus,
+    };
 
     switch (newStatus) {
-      case "applied":
-        setAppliedJobs([...appliedJobs, job]);
+      case "recentlyApplied":
+        setAppliedJobs([...appliedJobs, updatedJob]);
         break;
       case "archived":
-        setArchivedJobs([...archivedJobs, job]);
+        setArchivedJobs([...archivedJobs, updatedJob]);
         break;
       case "followUpRequired":
-        setFollowUpRequiredJobs([...followUpRequiredJobs, job]);
+        setFollowUpRequiredJobs([...followUpRequiredJobs, updatedJob]);
         break;
       case "noReply":
-        setNoReplyJobs([...noReplyJobs, job]);
+        setNoReplyJobs([...noReplyJobs, updatedJob]);
         break;
     }
   };
@@ -151,7 +175,7 @@ const JobTrackerPage: React.FC = () => {
                 icon: "/static/icons/briefcase.svg",
               },
             ]
-              .filter(({ jobs }) => jobs.length > 0) // Filter out columns with no jobs
+              .filter(({ jobs }) => jobs?.length > 0) // Filter out columns with no jobs
               .map(({ title, jobs, icon }) => (
                 <section
                   key={title}
@@ -170,10 +194,9 @@ const JobTrackerPage: React.FC = () => {
                       {jobs.map((job) => (
                         <JobTrackerGridCard
                           key={job.id}
+                          jobId={job.id}
                           {...job}
-                          onStatusChange={(newStatus) =>
-                            onStatusChange(job, newStatus)
-                          }
+                          onStatusChange={onStatusChange}
                         />
                       ))}
                     </div>
