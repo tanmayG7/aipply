@@ -33,39 +33,40 @@ export interface Experience {
 }
 
 export interface UserDetails {
-    userId: string,
-    primaryRole: string;
-    preferences: {
-        jobSearchStatus: boolean;
-        jobType: string;
-        additionalTypes: {
-            contractor: boolean;
-            intern: boolean;
-            freelance: boolean;
+    userId?: string;
+    primaryRole?: string;
+    coverLetter?: string;
+    preferences?: {
+        jobSearchStatus?: boolean;
+        jobType?: string;
+        additionalTypes?: {
+            contractor?: boolean;
+            intern?: boolean;
+            freelance?: boolean;
         };
     };
-    achievements: string;
-    experience: Experience[];
-    workexperience: string;
-    uploadFile: string;
-    role: string;
-    current: boolean;
-    cv: string;
-    bio: string;
-    email: string;
-    socialMediaLinks: {
-        github: string;
-        linkedin: string;
-        website: string;
-        twitter: string;
+    achievements?: string;
+    experience?: Experience[];
+    workexperience?: string;
+    uploadFile?: string;
+    role?: string;
+    current?: boolean;
+    cv?: string;
+    bio?: string;
+    email?: string;
+    socialMediaLinks?: {
+        github?: string;
+        linkedin?: string;
+        website?: string;
+        twitter?: string;
     };
-    skills: string[];
-    education: Education[];
-    whereYouBased: string;
-    locations: string[];
-    endDate: string;
-    firstName: string;
-    lastName: string;
+    skills?: string[];
+    education?: Education[];
+    whereYouBased?: string;
+    locations?: string[];
+    endDate?: string;
+    firstName?: string;
+    lastName?: string;
 }
 
 export interface DashboardData {

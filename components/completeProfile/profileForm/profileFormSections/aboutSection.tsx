@@ -13,6 +13,7 @@ import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { UserDetails } from "@/lib/types";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface AboutSectionProps {
   userDetails: UserDetails;
@@ -23,7 +24,6 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
   const [formData, setFormData] = useState({
     firstName: userDetails.firstName || "",
     lastName: userDetails.lastName || "",
-    uploadFile: userDetails.uploadFile || "",
     whereYouBased:  userDetails.whereYouBased || "",
     primaryRole: userDetails.primaryRole || "",
     workexperience: userDetails.workexperience || "",
@@ -31,17 +31,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
     bio: userDetails.bio || "",
   });
 
-  // useEffect(() => {
-  //   const user = auth.currentUser;
-  //   if (user) {
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       email: user.email || "",
-  //       firstName: user.displayName?.split(" ")[0] || "",
-  //       lastName: user.displayName?.split(" ")[1] || "",
-  //     }));
-  //   }
-  // }, []);
+  const [profilePic, setProfilePic] = useState(userDetails.uploadFile || "");
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -55,6 +45,27 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
     }));
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const user = auth.currentUser;
+      if (user) {
+        const storage = getStorage();
+        const storageRef = ref(
+          storage,
+          `profilePictures/${user.uid}/${file.name}`
+        );
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+        console.log("downloadURL", downloadURL);
+        setFormData((prevData) => ({
+          ...prevData,
+          uploadFile: downloadURL,
+        }));
+        setProfilePic(downloadURL);
+      }
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +76,6 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
         setFormData({
           firstName: "",
           lastName: "",
-          uploadFile: "",
           whereYouBased: "",
           primaryRole: "",
           workexperience: "",
@@ -117,7 +127,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
             </div>
             <div className="flex flex-row gap-2 text-white">
               <Image
-                src="/static/images/profilePic.png"
+                src={profilePic || "/static/images/profilePic.png"}
                 alt="Profile"
                 width={56}
                 height={56}
@@ -127,7 +137,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
                 type="file"
                 name="uploadFile"
                 placeholder="Upload a new picture"
-                onChange={handleChange}
+                onChange={handleFileChange}
                 required
               />
             </div>
@@ -197,6 +207,13 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
           </form>
         ) : (
           <CardContent className="flex flex-col gap-4">
+            <Image
+              src={profilePic || "/static/images/profilePic.png"}
+              alt="Profile"
+              width={56}
+              height={56}
+              className="rounded-full"
+            />
             <h1 className="text-white text-text-lg-regular">
               <span>Name:</span> {userDetails.firstName} {userDetails.lastName}
             </h1>
