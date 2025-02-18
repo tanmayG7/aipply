@@ -43,48 +43,26 @@ const JobTrackerPage: React.FC = () => {
         setUserId(userId);
         const jobTrackerData = await getJobTrackerData(userId);
         setAppliedJobs(jobTrackerData.appliedJobs);
-        setArchivedJobs(jobTrackerData.archivedJobs);
-        setFollowUpRequiredJobs(jobTrackerData.followUpRequiredJobs);
-        setNoReplyJobs(jobTrackerData.noReplyJobs);
+        setArchivedJobs(jobTrackerData.personalArchive);
+        setFollowUpRequiredJobs(jobTrackerData.followUp);
+        setNoReplyJobs(jobTrackerData.noReply);
       }
     };
 
     fetchJobs();
   }, []);
 
-  const onStatusChange = async (jobId: string, newStatus: string) => {
-    await updateJobStatus(userId, jobId, newStatus);
-    setAppliedJobs(appliedJobs.filter((j) => j.id !== jobId));
-    setArchivedJobs(archivedJobs.filter((j) => j.id !== jobId));
-    setFollowUpRequiredJobs(followUpRequiredJobs.filter((j) => j.id !== jobId));
-    setNoReplyJobs(noReplyJobs.filter((j) => j.id !== jobId));
-
-    const foundJob = appliedJobs.find((j) => j.id === jobId) ||
-      archivedJobs.find((j) => j.id === jobId) ||
-      followUpRequiredJobs.find((j) => j.id === jobId) ||
-      noReplyJobs.find((j) => j.id === jobId);
-
-    if (!foundJob) return;
-
-    const updatedJob: Job = {
-      ...foundJob,
-      status: newStatus,
-    };
-
-    switch (newStatus) {
-      case "recentlyApplied":
-        setAppliedJobs([...appliedJobs, updatedJob]);
-        break;
-      case "archived":
-        setArchivedJobs([...archivedJobs, updatedJob]);
-        break;
-      case "followUpRequired":
-        setFollowUpRequiredJobs([...followUpRequiredJobs, updatedJob]);
-        break;
-      case "noReply":
-        setNoReplyJobs([...noReplyJobs, updatedJob]);
-        break;
-    }
+  const onStatusChange = async (
+    jobId: string,
+    newStatus: string,
+    currentStatus: string
+  ) => {
+    await updateJobStatus(userId, jobId, newStatus, currentStatus);
+    const jobTrackerData = await getJobTrackerData(userId);
+    setAppliedJobs(jobTrackerData.appliedJobs);
+    setArchivedJobs(jobTrackerData.personalArchive);
+    setFollowUpRequiredJobs(jobTrackerData.followUp);
+    setNoReplyJobs(jobTrackerData.noReply);
   };
 
   const ref = useRef<HTMLDivElement>(
@@ -155,28 +133,32 @@ const JobTrackerPage: React.FC = () => {
           <div className="flex flex-nowrap gap-6">
             {[
               {
+                columnId: "personalArchive",
                 title: "Archived",
                 jobs: archivedJobs,
                 icon: "/static/icons/interviewing.svg",
               },
               {
+                columnId: "noReply",
                 title: "No Reply",
                 jobs: noReplyJobs,
                 icon: "/static/icons/offers.svg",
               },
               {
+                columnId: "appliedJobs",
                 title: "Recently Applied",
                 jobs: appliedJobs,
                 icon: "/static/icons/applied.svg",
               },
               {
+                columnId: "followUp",
                 title: "Follow Up Required",
                 jobs: followUpRequiredJobs,
                 icon: "/static/icons/briefcase.svg",
               },
             ]
               .filter(({ jobs }) => jobs?.length > 0) // Filter out columns with no jobs
-              .map(({ title, jobs, icon }) => (
+              .map(({ title, jobs, icon, columnId }) => (
                 <section
                   key={title}
                   className="flex flex-col p-3 rounded-lg"
@@ -197,6 +179,7 @@ const JobTrackerPage: React.FC = () => {
                           jobId={job.id}
                           {...job}
                           onStatusChange={onStatusChange}
+                          currentStatus={columnId}
                         />
                       ))}
                     </div>
