@@ -50,7 +50,7 @@ const EditProfile: React.FC = () => {
       case "profile":
         return <ProfileForm isEditing={isEditing} userDetails={userDetails} />;
       case "resume":
-        return <UploadCv isEditing={isEditing} />;
+        return <UploadCv isEditing={isEditing} userDetails={userDetails}/>;
       case "preferences":
         return <PreferenceForm isEditing={isEditing} userDetails={userDetails} />;
       default:

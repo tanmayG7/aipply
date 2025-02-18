@@ -136,14 +136,16 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                 height={56}
                 className="rounded-full"
               />
-              <Input
-                type="file"
-                name="uploadFile"
-                placeholder="Upload a new picture"
-                onChange={handleFileChange}
-                required
-                className="text-white bg-slate-600"
-              />
+              <div>
+                <Input
+                  type="file"
+                  name="uploadFile"
+                  placeholder="Upload a new picture"
+                  onChange={handleFileChange}
+                  required
+                  className="text-white bg-gray py-4 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-gray hover:file:bg-violet-100"
+                />
+              </div>
             </div>
             <div className="grid gap-2 text-white">
               <Label htmlFor="whereYouBased">Where You Based:</Label>
@@ -219,26 +221,71 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                 height={64}
                 className="rounded-full"
               />
-              <h1 className="text-white text-text-xl-regular">
-                {userDetails.firstName} {userDetails.lastName}
-              </h1>
+              <div className="flex flex-col">
+                <h1 className="text-white text-text-lg-semibold">
+                  {userDetails.firstName} {userDetails.lastName}
+                </h1>
+                <p className="text-slate-300 text-text-md-medium">
+                  {userDetails.email}
+                </p>
+              </div>
             </div>
-            <h1 className="text-white">
-              <span>Address:</span> {userDetails.whereYouBased}
-            </h1>
-            <h1 className="text-white">
-              <span>Primary Role: </span>
-              {userDetails.primaryRole}
-            </h1>
-            <h1 className="text-white">
-              <span>Experience: </span>
-              {userDetails.workexperience} year
-            </h1>
-            <h1 className="text-white">Role: {userDetails.role}</h1>
-            <h1 className="text-white">
-              <span>Bio: </span>
-              {userDetails.bio}
-            </h1>
+
+            <div className="grid grid-cols-1 gap-6 ">
+              <div className="grid grid-cols-2 justify-between text-white">
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-slate-500 text-text-lg-bold">
+                    First Name
+                  </h1>
+                  <h1 className="text-text-lg-regular">{userDetails.firstName}</h1>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-slate-500 text-text-lg-bold">
+                    Last Name
+                  </h1>
+                  <h1 className="text-text-lg-regular">{userDetails.lastName}</h1>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 justify-between text-white">
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-slate-500 text-text-lg-bold">
+                    Primary Role:
+                  </h1>
+                  <h1 className="text-text-lg-regular">
+                    {userDetails.primaryRole}
+                  </h1>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-slate-500 text-text-lg-bold">
+                    Work Experience
+                  </h1>
+                  <h1 className="text-text-lg-regular">
+                    {userDetails.workexperience}
+                  </h1>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 justify-between text-white">
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-slate-500 text-text-lg-bold">Role</h1>
+                  <h1 className="text-text-lg-regular">{userDetails.role}</h1>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-slate-500 text-text-lg-bold">Location</h1>
+                  <h1 className="text-text-lg-regular">
+                    {userDetails.whereYouBased}
+                  </h1>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 justify-between text-white">
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-slate-500 text-text-lg-bold">Bio</h1>
+                  <h1 className="text-text-lg-regular opacity-70">{userDetails.bio}</h1>
+                </div>
+              </div>
+            </div>
           </CardContent>
         )}
       </CardContent>
