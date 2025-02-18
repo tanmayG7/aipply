@@ -20,11 +20,14 @@ interface AboutSectionProps {
   isEditing: boolean;
 }
 
-const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) => {
+const AboutSection: React.FC<AboutSectionProps> = ({
+  isEditing,
+  userDetails,
+}) => {
   const [formData, setFormData] = useState({
     firstName: userDetails.firstName || "",
     lastName: userDetails.lastName || "",
-    whereYouBased:  userDetails.whereYouBased || "",
+    whereYouBased: userDetails.whereYouBased || "",
     primaryRole: userDetails.primaryRole || "",
     workexperience: userDetails.workexperience || "",
     role: userDetails.role || "",
@@ -139,6 +142,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
                 placeholder="Upload a new picture"
                 onChange={handleFileChange}
                 required
+                className="text-white bg-slate-600"
               />
             </div>
             <div className="grid gap-2 text-white">
@@ -207,16 +211,18 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
           </form>
         ) : (
           <CardContent className="flex flex-col gap-4">
-            <Image
-              src={profilePic || "/static/images/profilePic.png"}
-              alt="Profile"
-              width={56}
-              height={56}
-              className="rounded-full"
-            />
-            <h1 className="text-white text-text-lg-regular">
-              <span>Name:</span> {userDetails.firstName} {userDetails.lastName}
-            </h1>
+            <div className="flex flex-row gap-4 items-center">
+              <Image
+                src={profilePic || "/static/images/profilePic.png"}
+                alt="Profile"
+                width={64}
+                height={64}
+                className="rounded-full"
+              />
+              <h1 className="text-white text-text-xl-regular">
+                {userDetails.firstName} {userDetails.lastName}
+              </h1>
+            </div>
             <h1 className="text-white">
               <span>Address:</span> {userDetails.whereYouBased}
             </h1>
@@ -224,7 +230,10 @@ const AboutSection: React.FC<AboutSectionProps> = ({ isEditing, userDetails }) =
               <span>Primary Role: </span>
               {userDetails.primaryRole}
             </h1>
-            <h1 className="text-white"><span>Experience: </span>{userDetails.workexperience} year</h1>
+            <h1 className="text-white">
+              <span>Experience: </span>
+              {userDetails.workexperience} year
+            </h1>
             <h1 className="text-white">Role: {userDetails.role}</h1>
             <h1 className="text-white">
               <span>Bio: </span>

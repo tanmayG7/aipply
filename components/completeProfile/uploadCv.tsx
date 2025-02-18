@@ -84,7 +84,7 @@ const UploadCv:React.FC<UploadCvProps> = () => {
               type="file"
               id="uploadFile"
               name="uploadFile"
-              className="bg-gray px-3 pt-3 pb-12 rounded-md w-full items-center justify-center"
+              className="bg-slate-600 text-white px-3 pt-3 pb-12 rounded-md w-full items-center justify-center"
               onChange={handleUploadCv}
             />
             <Button onClick={handleSaveCvButtonClick} className="mt-4" disabled={loading}>

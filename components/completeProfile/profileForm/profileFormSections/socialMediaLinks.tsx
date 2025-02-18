@@ -22,10 +22,10 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   userDetails,
 }) => {
   const [socialMediaLinks, setSocialMediaLinks] = useState({
-    website: userDetails.socialMediaLinks.website || "",
-    linkedin: userDetails.socialMediaLinks.linkedin || "",
-    github: userDetails.socialMediaLinks.github || "",
-    twitter: userDetails.socialMediaLinks.twitter || "",
+    website: userDetails.socialMediaLinks?.website || "",
+    linkedin: userDetails.socialMediaLinks?.linkedin || "",
+    github: userDetails.socialMediaLinks?.github || "",
+    twitter: userDetails.socialMediaLinks?.twitter || "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,19 +129,19 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
             <div className="flex flex-col gap-4 ">
               <h1 className="text-white opacity-80 px-6 py-2 text-text-lg-bold rounded-md">
                 Github: 
-                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks.github}</span>
+                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks?.github}</span>
               </h1>
               <h1 className="text-white opacity-80 px-6 py-2 text-text-lg-bold rounded-md">
                 Linkedin:
-                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks.linkedin}</span>
+                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks?.linkedin}</span>
               </h1>
               <h1 className="text-white opacity-80  px-6 py-2 text-text-lg-bold rounded-md">
                 Twitter:
-                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks.twitter}</span>
+                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks?.twitter}</span>
               </h1>
               <h1 className="text-white opacity-80  px-6 py-2 text-text-lg-bold rounded-md">
                 Website:
-                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks.website}</span>
+                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks?.website}</span>
               </h1>
             </div>
           </CardContent>
