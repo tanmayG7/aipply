@@ -72,7 +72,7 @@ const JobTrackerPage: React.FC = () => {
 
   useEffect(() => {
     const updateColumnHeight = () => {
-      const newHeight = window.innerHeight - 230; // Adjust 200 as needed
+      const newHeight = window.innerHeight - 140; // Adjust 200 as needed
       setColumnHeight(newHeight);
     };
 
