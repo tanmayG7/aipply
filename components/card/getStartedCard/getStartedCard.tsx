@@ -52,7 +52,7 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
     });
 
     return () => unsubscribe();
-  }, [appliedJoblength]);
+  });
 
   type Field = "profile" | "cv" | "coverLetter" | "firstJob" | "community";
 
