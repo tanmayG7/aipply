@@ -2,6 +2,7 @@ import * as React from "react";
 import { LogOut, UserRound } from "lucide-react";
 import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, updateDoc, getFirestore } from "firebase/firestore";
 
 import {
   Sidebar,
@@ -25,6 +26,19 @@ const handleLogout = async () => {
   } catch (error) {
     console.error("Error logging out:", error);
   }
+};
+
+const firestore = getFirestore();
+
+const handleCommunityJoin = async () => {
+  const user = auth.currentUser;
+  if (user) {
+    const userDocRef = doc(firestore, "users", user.uid);
+    await updateDoc(userDocRef, {
+      community: true,
+    });
+  }
+  window.location.href = "https://chat.whatsapp.com/your-whatsapp-community-link";
 };
 
 const data = {
@@ -51,8 +65,9 @@ const data = {
     },
     {
       title: "Community",
-      url: "https://chat.whatsapp.com/your-whatsapp-community-link",
+      url: "#",
       image: "/static/icons/community.svg",
+      onClick: handleCommunityJoin,
     },
   ],
 };
@@ -61,10 +76,12 @@ const NavLink = ({
   href,
   children,
   className = "",
+  onClick,
 }: {
   href: string;
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }) => {
   const pathname = usePathname();
 
@@ -76,6 +93,7 @@ const NavLink = ({
             ? "bg-gradient-to-r from-[#8F63CC] from-30% to-[#01010B] text-text-md-medium rounded-sm"
             : ""
         } ${className}`}
+        onClick={onClick}
       >
         {children}
       </div>
@@ -95,9 +113,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       if (user) {
         const profile = await getUserProfile(user.uid);
         setUserProfile({
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-          email: profile.email,
+          firstName: profile.firstName || "",
+          lastName: profile.lastName || "",
+          email: profile.email || "",
         });
       }
     });
@@ -153,6 +171,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <NavLink
                       href={item.url}
                       className={`font-medium text-text-md-semibold font-inter gap-3`}
+                      onClick={item.onClick}
                     >
                       <Image
                         src={item.image}

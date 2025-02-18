@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { firestore, auth } from "@/lib/firebaseConfig/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 
-const GetStartedCard = () => {
+interface GetStartedCardProps {
+  appliedJoblength: number;
+}
+
+const GetStartedCard: React.FC<GetStartedCardProps> = ({
+  appliedJoblength,
+}) => {
   const [checkedFields, setCheckedFields] = useState({
     profile: false,
     cv: false,
@@ -13,6 +19,8 @@ const GetStartedCard = () => {
     firstJob: false,
     community: false,
   });
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -24,20 +32,21 @@ const GetStartedCard = () => {
           setCheckedFields({
             profile:
               !!userData.education &&
-              !!userData.workExperience &&
+              !!userData.experience &&
               !!userData.skills &&
               !!userData.achievements,
             cv: !!userData.cv,
             coverLetter: !!userData.coverLetter,
-            firstJob: !!userData.firstJob,
+            firstJob: appliedJoblength > 0 || !!userData.firstJob,
             community: !!userData.community,
           });
         }
       }
+      setLoading(false);
     };
 
     fetchUserData();
-  }, []);
+  }, [appliedJoblength]);
 
   type Field = "profile" | "cv" | "coverLetter" | "firstJob" | "community";
 
@@ -46,6 +55,16 @@ const GetStartedCard = () => {
       ...prev,
       [field]: !prev[field],
     }));
+
+    if (field === "community") {
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(firestore, "users", user.uid);
+        updateDoc(userDocRef, {
+          community: !checkedFields.community,
+        });
+      }
+    }
   };
 
   const calculateProgress = () => {
@@ -53,6 +72,10 @@ const GetStartedCard = () => {
     const checkedCount = Object.values(checkedFields).filter(Boolean).length;
     return (checkedCount / totalFields) * 100;
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col gap-6 border-[1px] bg-[#0C111D] border-[#1F242F] px-6 py-6 rounded-xl">
@@ -77,13 +100,11 @@ const GetStartedCard = () => {
           <div className="flex flex-row justify-between items-center gap-4">
             <div className="flex flex-row gap-4 items-center">
               <Checkbox
+              disabled={true}
                 checked={checkedFields.profile}
                 onCheckedChange={() => handleCheckboxChange("profile")}
               />
-              <Link
-                href="/complete-profile"
-                className="hover:text-green-600"
-              >
+              <Link href="/complete-profile" className="hover:text-green-600">
                 Update your profile
               </Link>
             </div>
@@ -98,13 +119,11 @@ const GetStartedCard = () => {
           <div className="flex flex-row justify-between items-center gap-4">
             <div className="flex flex-row gap-4 items-center">
               <Checkbox
+              disabled={true}
                 checked={checkedFields.cv}
                 onCheckedChange={() => handleCheckboxChange("cv")}
               />
-              <Link
-                href="/complete-profile"
-                className="hover:text-green-600"
-              >
+              <Link href="/complete-profile" className="hover:text-green-600">
                 Upload an ATS Friendly CV
               </Link>
             </div>
@@ -119,13 +138,11 @@ const GetStartedCard = () => {
           <div className="flex flex-row justify-between items-center gap-4">
             <div className="flex flex-row gap-4 items-center">
               <Checkbox
+              disabled={true}
                 checked={checkedFields.coverLetter}
                 onCheckedChange={() => handleCheckboxChange("coverLetter")}
               />
-              <Link
-                href="/complete-profile"
-                className="hover:text-green-600"
-              >
+              <Link href="/complete-profile" className="hover:text-green-600">
                 <p>Upload your cover letter</p>
               </Link>
             </div>
@@ -140,13 +157,11 @@ const GetStartedCard = () => {
           <div className="flex flex-row justify-between items-center gap-4">
             <div className="flex flex-row gap-4 items-center">
               <Checkbox
+                disabled={true}
                 checked={checkedFields.firstJob}
                 onCheckedChange={() => handleCheckboxChange("firstJob")}
               />
-              <Link
-                href="/job-board"
-                className="hover:text-green-600"
-              >
+              <Link href="/job-board" className="hover:text-green-600">
                 Apply your first job
               </Link>
             </div>
@@ -161,6 +176,7 @@ const GetStartedCard = () => {
           <div className="flex flex-row justify-between items-center gap-4">
             <div className="flex flex-row gap-4 items-center">
               <Checkbox
+              disabled={true}
                 checked={checkedFields.community}
                 onCheckedChange={() => handleCheckboxChange("community")}
               />

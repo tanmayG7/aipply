@@ -33,6 +33,7 @@ const HomePage: React.FC = () => {
     fetchDashboardData();
   }, []);
 
+  
   return (
     <>
       <Head>
@@ -62,7 +63,7 @@ const HomePage: React.FC = () => {
                 </p>
               </div>
               <div className="w-[50%]">
-                <GetStartedCard />
+                <GetStartedCard appliedJoblength={dashboardData?.jobsApplied ? parseInt(dashboardData.jobsApplied.toString()) : 0}/>
               </div>
               <div className="grid grid-cols-4 gap-4">
                 {dashboardData && (
