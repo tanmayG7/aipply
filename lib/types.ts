@@ -44,6 +44,7 @@ export interface UserDetails {
             intern?: boolean;
             freelance?: boolean;
         };
+        openToRemote?: boolean;
     };
     achievements?: string;
     experience?: Experience[];

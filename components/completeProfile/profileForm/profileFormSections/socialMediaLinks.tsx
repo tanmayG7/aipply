@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Button } from "@/components/ui/button";
 import { UserDetails } from "@/lib/types";
+import { LucideGithub, LucideLinkedin, LucideTwitter, LucideGlobe } from "lucide-react";
 
 interface SocialMediaLinksProps {
   isEditing: boolean;
@@ -125,24 +126,38 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
             </div>
           </CardContent>
         ) : (
-          <CardContent>
+          <CardContent className="flex col-span-5">
             <div className="flex flex-col gap-4 ">
-              <h1 className="text-white opacity-80 px-6 py-2 text-text-lg-bold rounded-md">
-                Github: 
-                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks?.github}</span>
-              </h1>
-              <h1 className="text-white opacity-80 px-6 py-2 text-text-lg-bold rounded-md">
-                Linkedin:
-                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks?.linkedin}</span>
-              </h1>
-              <h1 className="text-white opacity-80  px-6 py-2 text-text-lg-bold rounded-md">
-                Twitter:
-                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks?.twitter}</span>
-              </h1>
-              <h1 className="text-white opacity-80  px-6 py-2 text-text-lg-bold rounded-md">
-                Website:
-                <span className="px-2 text-text-lg-regular">{userDetails.socialMediaLinks?.website}</span>
-              </h1>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-row gap-2">
+                  <LucideGithub className="text-white" />
+                  <h1 className="text-slate-500 text-text-xl-bold">Github:</h1>
+                  <h1 className="text-text-lg-regular text-white cursor-pointer hover:opacity-70">
+                    {userDetails.socialMediaLinks?.github}
+                  </h1>
+                </div>
+                <div className="flex flex-row gap-3">
+                  <LucideLinkedin className="text-white" />
+                  <h1 className="text-slate-500 text-text-lg-bold">Linkedin:</h1>
+                  <h1 className="text-text-lg-regular text-white cursor-pointer hover:opacity-70">
+                    {userDetails.socialMediaLinks?.linkedin}
+                  </h1>
+                </div>
+                <div className="flex flex-row gap-3">
+                  <LucideTwitter className="text-white" />
+                  <h1 className="text-slate-500 text-text-lg-bold">Twitter:</h1>
+                  <h1 className="text-text-lg-regular text-white cursor-pointer hover:opacity-70">
+                    {userDetails.socialMediaLinks?.twitter}
+                  </h1>
+                </div>
+                <div className="flex flex-row gap-3">
+                  <LucideGlobe className="text-white" />
+                  <h1 className="text-slate-500 text-text-lg-bold">Website:</h1>
+                  <h1 className="text-text-lg-regular text-white cursor-pointer hover:opacity-70">
+                    {userDetails.socialMediaLinks?.website}
+                  </h1>
+                </div>
+              </div>
             </div>
           </CardContent>
         )}

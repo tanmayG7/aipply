@@ -98,7 +98,7 @@ const Skills: React.FC<SkillsProps> = ({ isEditing, userDetails }) => {
             {skills.map((skill) => (
               <div
                 key={skill}
-                className="bg-gray-700 flex items-center gap-2 border-[1px] border-slate-600 px-4 py-2 rounded"
+                className="bg-gray-700 flex items-center gap-2 border-[1px] border-[#371b7e] px-4 py-2 rounded"
               >
                 {skill}
               </div>

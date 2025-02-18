@@ -14,6 +14,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { UserDetails } from "@/lib/types";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Upload } from "lucide-react";
 
 interface AboutSectionProps {
   userDetails: UserDetails;
@@ -35,6 +36,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   });
 
   const [profilePic, setProfilePic] = useState(userDetails.uploadFile || "");
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -51,6 +53,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setFileName(file.name);
       const user = auth.currentUser;
       if (user) {
         const storage = getStorage();
@@ -127,7 +130,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                 required
               />
             </div>
-            <div className="flex flex-row gap-2 text-white">
+            <div className="flex flex-row gap-6 text-white">
               <Image
                 src={profilePic || "/static/images/profilePic.png"}
                 alt="Profile"
@@ -135,15 +138,24 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                 height={56}
                 className="rounded-full"
               />
-              <div>
+              <div className="flex flex-row gap-4 items-center">
                 <Input
+                  id="uploadFile"
                   type="file"
                   name="uploadFile"
                   placeholder="Upload a new picture"
                   onChange={handleFileChange}
                   required
+                  style={{ display: "none" }}
                   className="text-white bg-gray py-4 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-gray hover:file:bg-violet-100"
                 />
+                <label
+                  htmlFor="uploadFile"
+                  className="flex items-center border-[#606060] cursor-pointer border w-fit px-8 py-4 rounded"
+                >
+                  <Upload className="mr-2" /> Upload profile picture
+                </label>
+                {fileName && <p className="mt-2">{fileName}</p>}
               </div>
             </div>
             <div className="grid gap-2 text-white">
@@ -211,7 +223,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
             </div>
           </form>
         ) : (
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-col gap-4 ">
             <div className="flex flex-row gap-4 items-center">
               <Image
                 src={profilePic || "/static/images/profilePic.png"}
@@ -236,13 +248,17 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                   <h1 className="text-slate-500 text-text-lg-bold">
                     First Name
                   </h1>
-                  <h1 className="text-text-lg-regular">{userDetails.firstName}</h1>
+                  <h1 className="text-text-lg-regular">
+                    {userDetails.firstName}
+                  </h1>
                 </div>
                 <div className="flex flex-col gap-1">
                   <h1 className="text-slate-500 text-text-lg-bold">
                     Last Name
                   </h1>
-                  <h1 className="text-text-lg-regular">{userDetails.lastName}</h1>
+                  <h1 className="text-text-lg-regular">
+                    {userDetails.lastName}
+                  </h1>
                 </div>
               </div>
 
@@ -279,9 +295,11 @@ const AboutSection: React.FC<AboutSectionProps> = ({
               </div>
 
               <div className="grid grid-cols-1 justify-between text-white">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-4">
                   <h1 className="text-slate-500 text-text-lg-bold">Bio</h1>
-                  <h1 className="text-text-lg-regular opacity-70">{userDetails.bio}</h1>
+                  <h1 className="text-text-lg-regular opacity-70 border border-[#371b7e] px-4 py-4 rounded">
+                    {userDetails.bio}
+                  </h1>
                 </div>
               </div>
             </div>
