@@ -82,9 +82,10 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
       [type]:
         type === "openToRemote"
           ? !prev.openToRemote
-          : !prev.additionalTypes[
-              type as keyof typeof preferences.additionalTypes
-            ],
+          : {
+              ...prev.additionalTypes,
+              [type]: !prev.additionalTypes[type as keyof typeof preferences.additionalTypes],
+            },
     }));
   };
 
@@ -182,9 +183,13 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
                       ]
                     }
                     onCheckedChange={() =>
-                      handleCheckboxChange(
-                        type as keyof typeof preferences.additionalTypes
-                      )
+                      setPreferences((prev) => ({
+                        ...prev,
+                        additionalTypes: {
+                          ...prev.additionalTypes,
+                          [type]: !prev.additionalTypes[type as keyof typeof preferences.additionalTypes],
+                        },
+                      }))
                     }
                   />
                 ) : (
