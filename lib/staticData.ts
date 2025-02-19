@@ -750,3 +750,24 @@ export const getReminderCardsByStatus = (status: string) => {
     status: job.status,
   }));
 };
+
+export const salaryRanges = [
+  { label: "As per Industry Standards", range: [0, Infinity] },
+  { label: "0-3 LPA", range: [0, 300000] },
+  { label: "3-6 LPA", range: [300001, 600000] },
+  { label: "6-9 LPA", range: [600001, 900000] },
+];
+
+export const experienceOptions = [
+  { label: "0 - 3 Years", range: [0, 3] },
+  { label: "3 - 6 Years", range: [3, 6] },
+  { label: "6 - 9 Years", range: [6, 9] },
+  { label: "9 - 15 Years", range: [9, 15] },
+];
+
+export const jobTypes = [
+  { label: "Full-time", value: "fulltime" },
+  { label: "Part-time", value: "parttime" },
+  { label: "Internship", value: "internship" },
+  { label: "Freelance", value: "freelance" },
+];

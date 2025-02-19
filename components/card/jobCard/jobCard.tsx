@@ -1,7 +1,7 @@
 import { Job } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { getRelativeTime } from "@/utils/dateUtils";
 
 const stripHtmlTags = (html: string) => {
@@ -19,12 +19,24 @@ const JobCard = ({
   handleHideJob: () => Promise<void>;
   handleAppliedJob: () => Promise<void>;
 }) => {
+  const [showPopup, setShowPopup] = useState(false);
+
+  const confirmHideJob = async () => {
+    setShowPopup(false);
+    await handleHideJob();
+  };
+
   const jobPlatformMap: { [key: string]: string } = {
     Naukri: "/static/images/naukriLogo.png",
     Shine: "/static/images/shineLogo.png",
     Hirist: "/static/images/hiristLogo.webp",
     TimesJob: "/static/images/timesJobLogo.png",
   };
+
+  // Convert job.platform to match the keys in jobPlatformMap
+  const platformKey = Object.keys(jobPlatformMap).find(
+    (key) => key.toLowerCase() === job.platform.toLowerCase()
+  );
 
   return (
     <div
@@ -100,7 +112,7 @@ const JobCard = ({
         <div className="flex gap-4">
           <button
             className="flex items-center gap-1 text-gray-400 hover:text-white"
-            onClick={handleHideJob}
+            onClick={() => setShowPopup(true)}
           >
             <Image
               src="/static/icons/hide.svg"
@@ -111,7 +123,29 @@ const JobCard = ({
             <span className="text-sm text-[#CECFD2]">Hide</span>
           </button>
         </div>
-
+        {showPopup && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
+            <div className="bg-blue p-10 rounded-md gap-6 flex flex-col">
+              <p className="text-text-xl-regular text-white">
+                Are you sure you want to hide this job?
+              </p>
+              <div className="flex gap-4">
+                <button
+                  className="bg-white text-gray w-full py-2 rounded-md text-text-xl-regular"
+                  onClick={confirmHideJob}
+                >
+                  Yes
+                </button>
+                <button
+                  className="bg-white text-black w-full py-2 rounded-md text-text-xl-regular"
+                  onClick={() => setShowPopup(false)}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="flex flex-row gap-4 items-center">
           <div>
             <div className="text-text-sm-semibold text-[#7E8895]">
@@ -121,7 +155,7 @@ const JobCard = ({
           <div className="flex flex-col items-center gap-2">
             <div className="relative w-[55px] h-[16px] overflow-hidden">
               <Image
-                src={jobPlatformMap[job.platform]}
+                src={platformKey ? jobPlatformMap[platformKey] : "/static/images/defaultLogo.png"}
                 alt="Platform Logo"
                 fill
                 className="object-contain"
