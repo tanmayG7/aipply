@@ -10,6 +10,7 @@ export interface Job {
     jobUrl: string;
     platform: string;
     postedDate: string;
+    type?:string
 }
 
 export interface Education {
