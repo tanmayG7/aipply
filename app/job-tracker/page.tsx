@@ -10,6 +10,7 @@ import {
   getJobTrackerData,
   updateJobStatus,
 } from "@/lib/firebaseConfig/firebaseConfig";
+import { getJobsByIds } from "@/lib/mongo/mongo";
 
 interface Job {
   id: string;
@@ -42,10 +43,33 @@ const JobTrackerPage: React.FC = () => {
       if (userId) {
         setUserId(userId);
         const jobTrackerData = await getJobTrackerData(userId);
-        setAppliedJobs(jobTrackerData.appliedJobs);
-        setArchivedJobs(jobTrackerData.personalArchive);
-        setFollowUpRequiredJobs(jobTrackerData.followUp);
-        setNoReplyJobs(jobTrackerData.noReply);
+        const jobIds = [
+          ...jobTrackerData.appliedJobs.map((job) => job.id),
+          ...jobTrackerData.personalArchive.map((job) => job.id),
+          ...jobTrackerData.followUp.map((job) => job.id),
+          ...jobTrackerData.noReply.map((job) => job.id),
+        ];
+        const jobs = await getJobsByIds(jobIds);
+        setAppliedJobs(
+          jobs.filter((job) =>
+            jobTrackerData.appliedJobs.some((j) => j.id === job.jobId)
+          )
+        );
+        setArchivedJobs(
+          jobs.filter((job) =>
+            jobTrackerData.personalArchive.some((j) => j.id === job.jobId)
+          )
+        );
+        setFollowUpRequiredJobs(
+          jobs.filter((job) =>
+            jobTrackerData.followUp.some((j) => j.id === job.jobId)
+          )
+        );
+        setNoReplyJobs(
+          jobs.filter((job) =>
+            jobTrackerData.noReply.some((j) => j.id === job.jobId)
+          )
+        );
       }
     };
 

@@ -70,10 +70,10 @@ export const getFilteredJobsByTitle = async (jobTitle: string, excludedJobs: Set
 };
 
 
-export const getJobsByIds = async (jobIds: string[], jobTitle: string) => {
+export const getJobsByIds = async (jobIds: string[]) => {
   const db = await connectToMongoDB();
   const objectIds = jobIds.map(id => new ObjectId(id));
-  const jobs = await db.collection(`test-${jobTitle}`).find({ _id: { $in: objectIds } }).toArray();
+  const jobs = await db.collection("jobs").find({ _id: { $in: objectIds } }).toArray();
   return jobs.map(job => ({
     jobId: job._id.toString(),
     title: job.title,
