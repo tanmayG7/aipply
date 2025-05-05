@@ -163,7 +163,7 @@ export const getJobsByIds = async (
     .find({ id: { $in: jobIds } })
     .toArray();
 
-
+  jobs = Array.from(new Map(jobs.map(job => [job.id, job])).values());
   const filterJobs = (jobs: any[], filterFn: (job: any) => boolean) => 
     jobs.filter(filterFn);
 
