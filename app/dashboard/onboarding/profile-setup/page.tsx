@@ -95,8 +95,9 @@ export default function ProfileSetup() {
         !formData.expectedCTC || !ctcRegex.test(formData.expectedCTC);
     } else if (page === 6) {
       newErrors.linkedinProfile =
-        !formData.linkedinProfile ||
-        !linkedinRegex.test(formData.linkedinProfile);
+        !formData.linkedinProfile 
+        // ||
+        // !linkedinRegex.test(formData.linkedinProfile);
     }
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error);

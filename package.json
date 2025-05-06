@@ -34,6 +34,8 @@
     "react-redux": "^9.2.0",
     "react-use-draggable-scroll": "^0.4.7",
     "recharts": "^2.15.1",
+    "sweetalert2": "^11.21.0",
+    "sweetalert2-react-content": "^5.1.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7"
   },

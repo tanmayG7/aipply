@@ -104,6 +104,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
   if (!isEditing && workExperiences.length === 0) {
     return null;
   }
+  console.log(workExperiences,"work");
 
   return (
     <form>
@@ -114,7 +115,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
         </CardHeader>
         <CardContent className="flex flex-col gap-4 col-span-5">
           <div className="flex flex-col gap-4">
-            {workExperiences.length &&
+            {workExperiences.length > 0 &&
               workExperiences.map((experience, index) => (
                 <div
                   key={index}

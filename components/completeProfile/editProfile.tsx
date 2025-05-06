@@ -47,7 +47,7 @@ const EditProfile: React.FC = () => {
   }, [isEditing]);
 
   const handleCancel = () => {
-    setIsEditing(false);
+    setIsEditing(preState => !preState);
   };
 
   const renderSection = () => {
@@ -70,20 +70,15 @@ const EditProfile: React.FC = () => {
       <div className="flex flex-row justify-between">
         <p className="font-inter text-[28px] text-lg font-bold">Profile</p>
         <div className="flex flex-row gap-4">
-          <Button
-            className="w-fit bg-transparent border hover:bg-slate-800 px-4"
-            onClick={handleEditClick}
-          >
-            {isEditing ? "Save" : "Update"}
-          </Button>
-          {isEditing && (
+  
+       
             <Button
               className="w-fit bg-transparent border hover:bg-slate-800"
               onClick={handleCancel}
             >
-              Cancel
+               {isEditing ? "Cancel" : "Update"}
             </Button>
-          )}
+          
         </div>
       </div>
       <div className="grid grid-cols-3 gap-3 max-w-[100%] border-b-[1px] border-[#454545] ">

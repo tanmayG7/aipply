@@ -320,7 +320,6 @@ const getHiddenJobs = async (userId: string) => {
 const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
   try {
     const currentJobsData = await getCurrentJobs(userId);
-    console.log(currentJobsData,"currentJobsData1")
     const currentDate = new Date().toISOString().split("T")[0];
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found");
@@ -337,9 +336,9 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
         jobIds,
         userProfile.jobTitle,
         userProfile.expectedCTC,
-        userProfile.workexperience,
-        
+        userProfile.workexperience,   
       );
+
 
       // Sanitize jobs before returning
       return jobs.map((job) => ({
@@ -354,7 +353,8 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
 
       const fetchedJobs: any= (await getFilteredJobsByTitle(
         userProfile.jobTitle,
-        excludedJobs
+        excludedJobs,
+        userProfile
       )) as any;
 
       console.log(fetchedJobs,"fetchedJobs");
@@ -613,6 +613,7 @@ const updateDashboardData = async (userId: string, data: any) => {
 const getJobTrackerData = async (userId: string) => {
   try {
     const jobTrackerDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    console.log(jobTrackerDoc.data(),"job");
     if (jobTrackerDoc.exists()) {
       const data = jobTrackerDoc.data();
       return {

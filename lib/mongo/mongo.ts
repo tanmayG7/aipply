@@ -73,16 +73,19 @@ export const getJobsByTitle = async (
 
 export const getFilteredJobsByTitle = async (
   jobTitle: string,
-  excludedJobs: Set<string>
+  excludedJobs: Set<string>,
+  userProfile:any
 ) => {
+
+  
  
   const db = await connectToMongoDB();
 
 
   // Convert Set to an array for MongoDB query
   const excludedArray = Array.from(excludedJobs);
-  
 
+  
   // Fetch random job IDs from jobMap collection using aggregation
   const jobMap = await db
     .collection("jobMap")
@@ -95,14 +98,26 @@ export const getFilteredJobsByTitle = async (
     ])
     .toArray();
 
-    console.log(jobMap,jobTitle,db,"jobMap");
 
-    
 
-   
-
+  
   if (jobMap.length === 0) {
+    const results = await db.collection('jobs')
+    .find({ tags: { $in: userProfile.skills } }) // Match array values
+    .limit(20) // Limit number of documents returned
+    .toArray();
+
+    if(results.length > 0){
+
+    return results.map((job: any) => ({
+      ...job,
+      id: job._id.toString(),
+      jobId: job.id,
+    }));
+  }
+  else {
     return [];
+  }
   }
 
   const jobIds = jobMap[0].jobIds;
@@ -164,6 +179,8 @@ export const getJobsByIds = async (
     .toArray();
 
   jobs = Array.from(new Map(jobs.map(job => [job.id, job])).values());
+ 
+
   const filterJobs = (jobs: any[], filterFn: (job: any) => boolean) => 
     jobs.filter(filterFn);
 

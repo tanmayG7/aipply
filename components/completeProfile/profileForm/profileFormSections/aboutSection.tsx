@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -26,6 +26,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   isEditing,
   userDetails,
 }) => {
+  console.log(userDetails,"formData");
   const [formData, setFormData] = useState({
     firstName: userDetails.firstName || "",
     lastName: userDetails.lastName || "",
@@ -40,6 +41,21 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   const [profilePic, setProfilePic] = useState(userDetails.uploadFile || "");
   const [fileName, setFileName] = useState<string | null>(null);
   const [jobRoleSearch, setJobRoleSearch] = useState("");
+
+  useEffect(() => {
+
+    setFormData({
+    firstName: userDetails.firstName || "",
+    lastName: userDetails.lastName || "",
+    whereYouBased: userDetails.whereYouBased || "",
+    jobTitle: userDetails.jobTitle || "",
+    workexperience: userDetails.workexperience || "",
+    role: userDetails.role || "",
+    bio: userDetails.bio || "",
+    showDropdown: false,
+  })
+
+  },[userDetails])
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -81,16 +97,16 @@ const AboutSection: React.FC<AboutSectionProps> = ({
       const user = auth.currentUser;
       if (user) {
         await saveUserProfile(user.uid, formData);
-        setFormData({
-          firstName: "",
-          lastName: "",
-          whereYouBased: "",
-          jobTitle: "",
-          workexperience: "",
-          role: "",
-          bio: "",
-          showDropdown: false,
-        });
+        // setFormData({
+        //   firstName: "",
+        //   lastName: "",
+        //   whereYouBased: "",
+        //   jobTitle: "",
+        //   workexperience: "",
+        //   role: "",
+        //   bio: "",
+        //   showDropdown: false,
+        // });
       }
     } catch (error: any) {
       console.error(error.message);
@@ -204,7 +220,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                 type="text"
                 name="jobTitle"
                 value={formData.jobTitle}
-                placeholder="Select Your Primary Role"
+                placeholder={formData.jobTitle}
                 onChange={(e) => {
                   handleChange(e);
                   setJobRoleSearch(e.target.value); 
@@ -243,7 +259,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
             <div className="grid gap-2 text-white">
               <Label htmlFor="experience">Years of Experience:</Label>
               <Input
-                type="number"
+                type="text"
                 name="workexperience"
                 value={formData.workexperience}
                 placeholder="Years of Experience"
@@ -345,7 +361,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                       Work Experience
                     </h1>
                     <h1 className="text-text-lg-regular">
-                      {userDetails.workexperience}
+                      {userDetails.workexperience !== "" ? userDetails.workexperience : ""}
                     </h1>
                   </div>
                 )}

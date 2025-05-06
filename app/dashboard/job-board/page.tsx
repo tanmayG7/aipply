@@ -19,8 +19,11 @@ import {
 import FilterCard from "@/components/card/filterCard/filterCard";
 import { mergeSalaryRanges } from "@/lib/utils";
 import { ShimmerJobCard } from "@/components/loaders/loader";
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 export default function Page() {
+  const MySwal = withReactContent(Swal);
   const [filter, setFilter] = useState("");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
@@ -106,7 +109,15 @@ export default function Page() {
       const userId = auth.currentUser?.uid;
       if (userId) {
         const appliedJobs = await getAppliedJobs(userId);
-        if (
+        MySwal.fire({
+          title: "Do you applied for the Job?",
+          showDenyButton: true,
+          confirmButtonText: "Yes",
+          denyButtonText: `No`
+        }).then( async (result) => {
+          /* Read more about isConfirmed, isDenied below */
+          if (result.isConfirmed) {
+                    if (
           !appliedJobs.some((appliedJob: Job) => appliedJob.jobId === jobId)
         ) {
           const appliedDate: string = new Date().toISOString();
@@ -119,6 +130,12 @@ export default function Page() {
           );
           await setAppliedJob(userId, jobId, appliedDate);
         }
+            Swal.fire("Job Saved!", "", "success");
+          } else if (result.isDenied) {
+            Swal.fire("Try any other Job", "", "info");
+          }
+        })
+
       }
     } catch (error) {
       console.error("Error applying for job:", error);

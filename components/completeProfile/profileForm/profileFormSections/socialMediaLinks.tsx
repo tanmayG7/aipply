@@ -61,7 +61,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
 
   return (
     <form>
-      <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-10 border-b border-gray rounded-none">
+      <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-10 border-b border-gray rounded-none" style={{display:"flex",flexWrap:"wrap"}}>
         <CardHeader className="col-span-2">
           <CardTitle className="text-[16px] font-inter font-semibold text-white">
             Social Profiles
