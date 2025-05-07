@@ -21,17 +21,13 @@ export const connectToMongoDB = async (): Promise<Db> => {
     return cachedDb;
   }
 
-  try{
+
   const client = new MongoClient(MONGODB_URI);
   await client.connect();
   console.log('Db connected');
   cachedDb = client.db(MONGODB_DB);
 
-  return cachedDb;
-  } catch(err){
-    console.log(err);
-  }
-
+  return cachedDb;  
 };
 
 export const getJobs = async (limit: number = 20) => {

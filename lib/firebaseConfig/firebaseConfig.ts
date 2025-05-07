@@ -361,12 +361,12 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
 
 
       console.log(fetchedJobs,"currentJobsData6")
-      const sanitizedJobs = fetchedJobs.map((job) => ({
+      const sanitizedJobs = fetchedJobs.map((job:any) => ({
         ...job,
         _id: job._id?.toString(), // Convert _id to a string
       }));
 
-      const jobIds = sanitizedJobs.map((job) => job.jobId);
+      const jobIds = sanitizedJobs.map((job:any) => job.jobId);
       await saveCurrentJobs(userId, jobIds);
       await saveArchivedJobs(userId, jobIds);
       const dashboardData = await getDashboardData(userId);
