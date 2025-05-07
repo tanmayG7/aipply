@@ -75,7 +75,7 @@ export default function ProfileSetup() {
     const newErrors = { ...errors };
     const phoneNumberRegex = /^\+91-\d{10}$/;
     const ctcRegex = /^\d+LPA$/;
-    const linkedinRegex = /^https:\/\/[a-z]{2,3}\.linkedin\.com\/.*$/;
+    // const linkedinRegex = /^https:\/\/[a-z]{2,3}\.linkedin\.com\/.*$/;
 
     if (page === 1) {
       newErrors.firstName = !formData.firstName;
