@@ -44,7 +44,7 @@ export default function Page() {
         const updatedJobs = await getUpdatedJobs(userId, userProfile);
         setJobs(updatedJobs);
         const filterJobs = updatedJobs.filter(
-          (job) => !hiddenJobs.includes(job.jobId)
+          (job:any) => !hiddenJobs.includes(job.jobId)
         );
 
         setFilteredJobs(filterJobs); 
