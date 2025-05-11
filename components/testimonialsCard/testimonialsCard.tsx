@@ -33,19 +33,19 @@ const TestimonialsCard: React.FC<TestimonialProps> = ({
         }}
       >
         <div className="bg-white bg-opacity-[30%] p-5 rounded-b-2xl flex flex-col gap-8 backdrop-blur-lg">
-          <p className="text-display-sm-semibold font-inter text-white">
+          <p className="text-display-sm-semibold font-inter text-white" style={{fontSize:"15px",lineHeight:'20px'}}>
             {comment}
           </p>
           <div className="flex flex-col justify-between gap-3">
             <div className="flex flex-row justify-between ">
               <div className="flex flex-row gap-4 items-center">
-                <h2 className="text-display-md-semibold font-inter">{name}</h2>
+                <h2 className="text-display-md-semibold font-inter" style={{fontSize:'16px',lineHeight:'0px'}}>{name}</h2>
                 <Link href="https://www.linkedin.com/">
                   <Image
                     src="/static/icons/linkedIn.svg"
                     alt="Quote"
-                    width={24}
-                    height={24}
+                    width={18}
+                    height={18}
                   />
                 </Link>
               </div>
@@ -53,30 +53,32 @@ const TestimonialsCard: React.FC<TestimonialProps> = ({
               {"☆".repeat(5 - stars)}
             </div>
             <div className="flex flex-row justify-between">
-              <h4 className="text-text-lg-semibold font-inter text-white">
+              <h4 className="text-text-lg-semibold font-inter text-white" style={{fontSize:'16px',lineHeight:'0px'}}>
                 {position}
               </h4>
               <div className="flex gap-8 ">
                 <button
                   onClick={onLeftClick}
                   className="rounded-full border p-4"
+                  style={{padding:'5px'}}
                 >
                   <Image
                     src="/static/icons/arrow-left.svg"
                     alt="Left arrow"
-                    width={24}
-                    height={24}
+                    width={12}
+                    height={12}
                   />
                 </button>
                 <button
                   onClick={onRightClick}
                   className="rounded-full border p-4"
+                  style={{padding:'5px'}}
                 >
                   <Image
                     src="/static/icons/arrow-right.svg"
                     alt="Left arrow"
-                    width={24}
-                    height={24}
+                    width={12}
+                    height={12}
                   />
                 </button>
               </div>

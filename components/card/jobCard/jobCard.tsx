@@ -1,33 +1,26 @@
 "use client";
-import { Job,UserDetails } from "@/lib/types";
+import { Job } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { getRelativeTime } from "@/utils/dateUtils";
-
 import {
   determineJobLocation,
   determineJobType,
   mergeSalaryRanges,
 } from "@/lib/utils";
 
-const JobCard =  ({
+const JobCard = ({
   job,
   handleHideJob,
   handleAppliedJob,
-  userProfile
 }: {
   job: Job;
   handleHideJob: () => Promise<void>;
   handleAppliedJob: () => Promise<void>;
-  userProfile: UserDetails
 }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [imageError, setImageError] = useState(false);
-
-
-
-
 
   const confirmHideJob = async () => {
     setShowPopup(false);
@@ -149,15 +142,12 @@ const JobCard =  ({
           </div>
         </div>
 
-    
-
         {jobTags.length > 0 && (
           <div className="flex flex-wrap gap-2 max-w-full">
             {job.platform.toLowerCase() !== "hirist" &&
               jobTags.map((tag, index) => (
                 <span
                   key={index}
-                  style={{background: userProfile.skills?.includes(tag)? 'green': 'none'}}
                   className="py-1 px-2 rounded-md bg-gray-700 text-white text-text-sm-medium font-inter border border-[#1F242F] border-gray-500"
                 >
                   {tag}

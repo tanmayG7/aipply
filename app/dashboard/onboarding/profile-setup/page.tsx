@@ -75,6 +75,7 @@ export default function ProfileSetup() {
     const newErrors = { ...errors };
     const phoneNumberRegex = /^\+91-\d{10}$/;
     const ctcRegex = /^\d+LPA$/;
+    
     if (page === 1) {
       newErrors.firstName = !formData.firstName;
       newErrors.lastName = !formData.lastName;

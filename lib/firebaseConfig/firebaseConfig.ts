@@ -14,7 +14,7 @@ import {
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { UserDetails, DashboardData } from "../types";
-import { getJobsByIds, getFilteredJobsByTitle,getJobByTitleandSkills } from "@/lib/mongo/mongo";
+import { getJobsByIds, getFilteredJobsByTitle } from "@/lib/mongo/mongo";
 import { mapSalaryToRange, mapExperienceToRange } from "../utils";
 
 const firebaseConfig = {
@@ -171,7 +171,6 @@ const getUserProfile = async (userId?: string) => {
   }
 };
 
-
 const updateUserProfile = async (userId: string, profileData: any) => {
   try {
     const currentDate = new Date().toISOString();
@@ -292,22 +291,6 @@ const getCurrentJobs = async (userId: string) => {
   }
 };
 
-const getCurrentJobsByJobTitle = async (userId: string,userProfile:UserDetails) => {
-  try {
-    const currentJobsDoc = await getJobByTitleandSkills(userProfile);
-    console.log(currentJobsDoc);
-    return currentJobsDoc;
-
-    // if (currentJobsDoc?.exists()) {
-    //   return currentJobsDoc.data();
-    // } else {
-    //   return null;
-    // }
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
-};
-
 const getArchivedJobs = async (userId: string) => {
   try {
     const archivedJobsDoc = await getDoc(doc(firestore, "archiveJobs", userId));
@@ -336,17 +319,11 @@ const getHiddenJobs = async (userId: string) => {
 
 const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
   try {
-    const currentJobsData = await getCurrentJobsByJobTitle(userId,userProfile);
+    const currentJobsData = await getCurrentJobs(userId);
     const currentDate = new Date().toISOString().split("T")[0];
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found");
     }
-   
-         return currentJobsData.map((job:any) => ({
-        ...job,
-        _id: job._id?.toString(), // Convert _id to a string
-      }));
-    
 
     if (
       currentJobsData &&
@@ -372,7 +349,7 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
       const archivedJobs = await getArchivedJobs(userId);
       const hiddenJobs = await getHiddenJobs(userId);
       const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
-     
+      console.log(archivedJobs,hiddenJobs,excludedJobs,userProfile.jobTitle,"currentJobsData2");
 
       const fetchedJobs: any= (await getFilteredJobsByTitle(
         userProfile.jobTitle,
@@ -380,7 +357,10 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
         userProfile
       )) as any;
 
+      console.log(fetchedJobs,"fetchedJobs");
 
+
+      console.log(fetchedJobs,"currentJobsData6")
       const sanitizedJobs = fetchedJobs.map((job:any) => ({
         ...job,
         _id: job._id?.toString(), // Convert _id to a string
