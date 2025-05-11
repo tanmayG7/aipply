@@ -46,14 +46,6 @@ export const getJobsByPreferences = async (location: string, role: string) => {
     .toArray();
 };
 
-function getType(value:any) {
-  if (value === null) return 'null';
-  if (Array.isArray(value)) return 'array';
-  if (value instanceof Date) return 'date';
-  if (value?.constructor?.name === 'ObjectId') return 'ObjectId'; // for Mongo
-  return typeof value;
-}
-
 
 
 export const getJobByTitleandSkills = async(userProfile:UserDetails) => {
