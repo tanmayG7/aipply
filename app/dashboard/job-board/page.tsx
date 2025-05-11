@@ -21,12 +21,14 @@ import { mergeSalaryRanges } from "@/lib/utils";
 import { ShimmerJobCard } from "@/components/loaders/loader";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { User } from "firebase/auth";
 
 export default function Page() {
   const MySwal = withReactContent(Swal);
   const [filter, setFilter] = useState("");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
+  const [userProfileValue,setUserProfileValue] = useState<any>([]);
   const [hiddenJobs, setHiddenJobs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilterCard, setShowFilterCard] = useState(false);
@@ -40,8 +42,11 @@ export default function Page() {
     try {
       const userProfile = (await getUserProfile()) as UserDetails;
       const userId = auth.currentUser?.uid;
+      setUserProfileValue(userProfile);
+      console.log(userProfile,"userProfile");
       if (userId) {
         const updatedJobs = await getUpdatedJobs(userId, userProfile);
+        console.log(updatedJobs,"updatedJobs");
         setJobs(updatedJobs);
         const filterJobs = updatedJobs.filter(
           (job:any) => !hiddenJobs.includes(job.jobId)
@@ -212,6 +217,7 @@ export default function Page() {
                 <div key={job.jobId}>
                   <JobCard
                     job={job}
+                    userProfile={userProfileValue}
                     handleHideJob={() => handleHideJob(job.jobId)}
                     handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
                   />
