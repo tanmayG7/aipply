@@ -21,7 +21,6 @@ import { mergeSalaryRanges } from "@/lib/utils";
 import { ShimmerJobCard } from "@/components/loaders/loader";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import { User } from "firebase/auth";
 
 export default function Page() {
   const MySwal = withReactContent(Swal);

@@ -13,7 +13,7 @@ import {
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { Job, UserDetails, DashboardData } from "../types";
+import { UserDetails, DashboardData } from "../types";
 import { getJobsByIds, getFilteredJobsByTitle,getJobByTitleandSkills } from "@/lib/mongo/mongo";
 import { mapSalaryToRange, mapExperienceToRange } from "../utils";
 
