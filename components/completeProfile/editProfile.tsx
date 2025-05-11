@@ -19,17 +19,17 @@ const EditProfile: React.FC = () => {
     {} as UserDetails
   );
 
-  // const handleEditClick = async () => {
-  //   const user = auth.currentUser;
-  //   if (user) {
-  //     const details: UserDetails = await getUserProfile(user.uid);
-  //     setUserDetails(details);
-  //     if (isEditing) {
-  //       await saveUserProfile(user.uid, details);
-  //     }
-  //   }
-  //   setIsEditing(!isEditing);
-  // };
+  const handleEditClick = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const details: UserDetails = await getUserProfile(user.uid);
+      setUserDetails(details);
+      if (isEditing) {
+        await saveUserProfile(user.uid, details);
+      }
+    }
+    setIsEditing(!isEditing);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

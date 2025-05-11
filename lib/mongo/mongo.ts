@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { MongoClient, Db, WithId } from "mongodb";
-import { Job } from "../types";
+import { Job, UserDetails } from "../types";
+import { Types } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI as string; // MongoDB Connection String
 const MONGODB_DB = process.env.MONGODB_DB as string; // Database Name
@@ -27,7 +28,9 @@ export const connectToMongoDB = async (): Promise<Db> => {
   console.log('Db connected');
   cachedDb = client.db(MONGODB_DB);
 
-  return cachedDb;  
+  return cachedDb;
+
+
 };
 
 export const getJobs = async (limit: number = 20) => {
@@ -43,6 +46,28 @@ export const getJobsByPreferences = async (location: string, role: string) => {
     .limit(20)
     .toArray();
 };
+
+function getType(value:any) {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) return 'array';
+  if (value instanceof Date) return 'date';
+  if (value?.constructor?.name === 'ObjectId') return 'ObjectId'; // for Mongo
+  return typeof value;
+}
+
+
+
+export const getJobByTitleandSkills = async(userProfile:UserDetails) => {
+  const db = await connectToMongoDB();
+    const results = await db.collection('jobs')
+    .find({ tags: { $in: userProfile.skills } }) // Match array values
+    .limit(20) // Limit number of documents returned
+    .toArray();
+
+  
+    return  JSON.parse(JSON.stringify(results));
+}
+
 
 export const getJobsByTitle = async (
   jobTitle: string,
@@ -64,11 +89,12 @@ export const getJobsByTitle = async (
     ...job,
     id: job._id.toString(),
     jobId: job.id,
+    postedDate: job.postedDate?.toISOString?.(),
   }));
 };
 
 export const getFilteredJobsByTitle = async (
-  jobTitle: string,
+  jobTitle: any,
   excludedJobs: Set<string>,
   userProfile:any
 ) => {
