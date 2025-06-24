@@ -5,11 +5,11 @@ import React from "react";
 
 const testimonialsData = [
   {
-    name: "Caitlyn King",
-    designation: "Head of Design, Layers",
+    name: "Sabya Sachi Mishra",
+    designation: "Data Scientist",
     review:
-      "Bet decisions, 200+ application with a single click in a single day! WOW!",
-    image: "/static/images/testimialImg.png",
+      "Best decisions, 200+ application with a single click in a single day! WOW!",
+    image: "/static/images/testimonialsabya.png",
   },
   {
     name: "Caitlyn King",
