@@ -12,17 +12,17 @@ const testimonialsData = [
     image: "/static/images/testimonialsabya.png",
   },
   {
-    name: "Caitlyn King",
-    designation: "Head of Design, Layers",
+    name: "Kunal Gupta",
+    designation: "Sales Manager, InfoEdge",
     review:
       "Really helps automate the daily task of job search on multiple platforms.",
-    image: "/static/images/testimialImg.png",
+    image: "/static/images/testimonialkunal.png",
   },
   {
-    name: "Caitlyn King",
-    designation: "Head of Design, Layers",
+    name: "Kartikeya Madnani",
+    designation: "Sales Development Representative, CultureX",
     review: "Have been a boon for me, found my next job within 2 weeks!",
-    image: "/static/images/testimialImg.png",
+    image: "/static/images/testimonialkartikeya.png",
   },
 ];
 
