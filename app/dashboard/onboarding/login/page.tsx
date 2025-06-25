@@ -80,6 +80,7 @@ export default function LoginPage() {
               name={currentTestimonial.name}
               position={currentTestimonial.position}
               stars={currentTestimonial.stars}
+              linkedinProfileUrl={currentTestimonial.linkedinProfileUrl}
               onLeftClick={handleLeftClick}
               onRightClick={handleRightClick}
             />
