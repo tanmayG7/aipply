@@ -647,7 +647,7 @@ export const testimonials = [
   {
     image: "/static/images/testimonialsabya2.png",
     comment:
-      "“AipPly.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!”",
+      "“AiPply.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!”",
     name: "Sabya Sachi Mishra",
     position: "Data Scientist, BEACON Consulting",
     stars: 5,
@@ -655,7 +655,7 @@ export const testimonials = [
   {
     image: "/static/images/testimonialkartikeya2.png",
     comment:
-      "“AipPly.io made my job search effortless! The automated matches and tracking saved me hours. Took away my stress and manual effort. The tool is trustworthy and gives actual trackable results. Highly recommend!”",
+      "“AiPply.io took away my stress and manual effort. The tool is trustworthy and gives actual trackable results.”",
     name: "Kartikeya Madnani",
     position: "Sales Development Representative, CultureX",
     stars: 5,
@@ -663,7 +663,7 @@ export const testimonials = [
   {
     image: "/static/images/testimonialkunal2.png",
     comment:
-      "“AipPly.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!”",
+      "“Not only I landed a great company, but also in my choice of location and range. Thanks a ton!”",
     name: "Kunal Gupta",
     position: "Sales Manager, InfoEdge",
     stars: 5,
