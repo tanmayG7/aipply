@@ -19,6 +19,7 @@ const TestimonialsCard: React.FC<TestimonialProps> = ({
   name,
   position,
   stars,
+  linkedinProfileUrl,
   onLeftClick,
   onRightClick,
 }) => {
@@ -40,7 +41,7 @@ const TestimonialsCard: React.FC<TestimonialProps> = ({
             <div className="flex flex-row justify-between ">
               <div className="flex flex-row gap-4 items-center">
                 <h2 className="text-display-md-semibold font-inter" style={{fontSize:'16px',lineHeight:'0px'}}>{name}</h2>
-                <Link href="https://www.linkedin.com/">
+                <Link href={linkedinProfileUrl}>
                   <Image
                     src="/static/icons/linkedIn.svg"
                     alt="Quote"
