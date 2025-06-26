@@ -1,7 +1,7 @@
 tsx// app/resources/page.tsx
 import React from 'react';
 
-const ResourcesPage = () => {
+const Resources = () => {
   return (
     <div>
       <h1>Resources</h1>
@@ -11,4 +11,4 @@ const ResourcesPage = () => {
   );
 };
 
-export default ResourcesPage;
+export default Resources;
