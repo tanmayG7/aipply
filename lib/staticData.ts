@@ -783,7 +783,7 @@ export const jobTypes = [
 export const features = [
   {
     name: "Custom Job Listings",
-    redirectUrl: "/features/job-listings",
+    redirectUrl: "/resources",
   },
   {
     name: "Auto Job Application",
