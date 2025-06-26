@@ -225,13 +225,19 @@ const LinkedInOptimization = () => {
 
       <ResponsivePageContainer>
         <div className="pt-[176px]">
-          <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-[7%] rounded-[30px] p-8 text-center">
-            <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4">
-              🔥 Key Takeaway
-            </h2>
-            <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
-              Your LinkedIn profile alone won't land you a job – networking, branding, and engagement are crucial to standing out. Start building your presence today!
-            </p>
+          <div className="relative border border-white border-opacity-[7%] rounded-[30px] p-8 text-center overflow-hidden">
+            {/* Background gradient layer */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#20CEB6]/10 to-[#2E2ADC]/10 rounded-[30px] -z-10"></div>
+            
+            {/* Content layer */}
+            <div className="relative z-10">
+              <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4">
+                🔥 Key Takeaway
+              </h2>
+              <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
+                Your LinkedIn profile alone won't land you a job – networking, branding, and engagement are crucial to standing out. Start building your presence today!
+              </p>
+            </div>
           </div>
         </div>
       </ResponsivePageContainer>
