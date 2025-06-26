@@ -170,10 +170,8 @@ const AidaStep = ({ letter, title, description }: { letter: string, title: strin
 
 const LinkedInOptimization = () => {
   return (
-    <div>
       <div className="pt-7">
         <Header />
-      </div>
 
       <div className="pt-[51px] relative">
         <div className="absolute w-full h-[600px] top-0 left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-30 blur-[200px] backdrop-blur-[300px] rounded-full z-0"></div>
