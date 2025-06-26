@@ -651,7 +651,7 @@ export const testimonials = [
     name: "Sabya Sachi Mishra",
     position: "Data Scientist, BEACON Consulting",
     stars: 5,
-    link: "https://www.linkedin.com/in/ssm93"
+    linkedinProfileUrl: "https://www.linkedin.com/in/ssm93"
   },
   {
     image: "/static/images/testimonialkartikeya2.png",
@@ -660,7 +660,7 @@ export const testimonials = [
     name: "Kartikeya Madnani",
     position: "Sales Development Representative, CultureX",
     stars: 5,
-    link: "https://www.linkedin.com/in/kartikeya8"
+    linkedinProfileUrl: "https://www.linkedin.com/in/kartikeya8"
   },
   {
     image: "/static/images/testimonialkunal2.png",
@@ -669,7 +669,7 @@ export const testimonials = [
     name: "Kunal Gupta",
     position: "Sales Manager, InfoEdge",
     stars: 5,
-    link: "https://www.linkedin.com/in/kunalg26"
+    linkedinProfileUrl: "https://www.linkedin.com/in/kunalg26"
   },
 ];
 
