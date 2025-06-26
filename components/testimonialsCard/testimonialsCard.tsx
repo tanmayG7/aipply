@@ -11,6 +11,7 @@ interface TestimonialProps {
   stars: number;
   onLeftClick: () => void;
   onRightClick: () => void;
+  linkedinProfileUrl: string;
 }
 
 const TestimonialsCard: React.FC<TestimonialProps> = ({
