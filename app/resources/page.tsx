@@ -8,153 +8,87 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const webinarHighlights = [
+const linkedInTipsData = [
   {
-    icon: "💼",
-    title: "Your LinkedIn profile is your digital CV",
-    description: "Optimize your banner, headline, about section, and featured projects to clearly communicate your value."
+    imageUrl: "/static/linkedInIcons/profile.svg",
+    title: "Professional Profile Photo",
+    description: "Use a high-quality, professional headshot with a clean background and genuine smile"
   },
   {
-    icon: "📝",
-    title: "Use the AIDA framework",
-    description: "Apply Attention, Interest, Desire, Action in your About section to make it engaging and recruiter-friendly."
+    imageUrl: "/static/linkedInIcons/headline.svg",
+    title: "Compelling Headline",
+    description: "Craft a headline that goes beyond job title - showcase your value proposition"
   },
   {
-    icon: "🔍",
-    title: "SEO matters!",
-    description: "Optimize your LinkedIn profile with relevant keywords to rank higher in searches and attract the right opportunities."
+    imageUrl: "/static/linkedInIcons/summary.svg",
+    title: "Strategic Summary",
+    description: "Write a compelling summary that tells your professional story and highlights achievements"
   },
   {
-    icon: "🎓",
-    title: "Freshers should build their presence",
-    description: "Share college projects, extracurriculars, and post consistently to gain visibility."
+    imageUrl: "/static/linkedInIcons/experience.svg",
+    title: "Detailed Experience",
+    description: "Use bullet points, quantify achievements, and include relevant keywords"
   },
   {
-    icon: "🤝",
-    title: "Networking is key!",
-    description: "Connecting with decision-makers, messaging recruiters, and engaging with professionals increases your chances of getting hired."
+    imageUrl: "/static/linkedInIcons/skills.svg",
+    title: "Skills & Endorsements",
+    description: "List relevant skills and seek endorsements from colleagues and connections"
   },
   {
-    icon: "🚫",
-    title: "Easy Apply alone won't work",
-    description: "Direct outreach and referrals make a significant difference in standing out."
-  },
-  {
-    icon: "⚡",
-    title: "Personal branding is long-term",
-    description: "Start today, stay consistent, and expect results in 4-5 months."
-  },
-  {
-    icon: "📢",
-    title: "Content matters!",
-    description: "The LinkedIn algorithm favors visual content like videos and images, boosting engagement and reach."
+    imageUrl: "/static/linkedInIcons/network.svg",
+    title: "Build Your Network",
+    description: "Connect with industry professionals, colleagues, and thought leaders"
   }
 ];
 
-const linkedinTools = [
+const profileOptimizationSteps = [
   {
-    name: "ChatGPT",
-    purpose: "Content Ideas",
-    description: "Generate engaging LinkedIn post ideas and captions"
+    step: "01",
+    title: "Optimize Your Profile Photo",
+    description: "Upload a professional headshot that represents your industry and personality"
   },
   {
-    name: "Expandi",
-    purpose: "Networking Automation", 
-    description: "Automate connection requests and follow-up messages"
+    step: "02", 
+    title: "Craft Your Headline",
+    description: "Write a compelling headline that includes keywords and your value proposition"
   },
   {
-    name: "AuthoredUp",
-    purpose: "Content Creation",
-    description: "Create professional LinkedIn posts with templates"
+    step: "03",
+    title: "Write Your About Section",
+    description: "Tell your professional story with achievements, skills, and career goals"
   },
   {
-    name: "Kleo",
-    purpose: "Inspiration",
-    description: "Find trending content and engagement strategies"
+    step: "04",
+    title: "Update Your Experience",
+    description: "Add detailed job descriptions with quantified achievements and key accomplishments"
+  },
+  {
+    step: "05",
+    title: "Showcase Your Skills",
+    description: "List relevant skills and seek endorsements from your professional network"
   }
 ];
 
-const aidaSteps = [
+const keywordCategories = [
   {
-    letter: "A",
-    title: "Attention",
-    description: "Start with a compelling hook that grabs the reader's attention immediately"
+    category: "Technical Skills",
+    keywords: ["JavaScript", "Python", "React", "Node.js", "SQL", "AWS", "Machine Learning", "Data Analysis"]
   },
   {
-    letter: "I", 
-    title: "Interest",
-    description: "Share your unique story and what makes you different from others"
+    category: "Soft Skills", 
+    keywords: ["Leadership", "Communication", "Problem Solving", "Team Management", "Strategic Planning", "Project Management"]
   },
   {
-    letter: "D",
-    title: "Desire",
-    description: "Highlight your achievements and the value you bring to organizations"
-  },
-  {
-    letter: "A",
-    title: "Action",
-    description: "End with a clear call-to-action for recruiters to connect with you"
+    category: "Industry Terms",
+    keywords: ["Digital Transformation", "Agile", "DevOps", "Customer Experience", "Business Intelligence", "Growth Hacking"]
   }
 ];
 
-const profileOptimizationSections = [
-  {
-    title: "Banner Optimization",
-    points: [
-      "Use a professional background that reflects your industry",
-      "Include your value proposition or key skills",
-      "Ensure text is readable on mobile devices"
-    ]
-  },
-  {
-    title: "Headline Strategy",
-    points: [
-      "Go beyond just your job title",
-      "Include relevant keywords for your target role", 
-      "Show your unique value proposition"
-    ]
-  },
-  {
-    title: "About Section",
-    points: [
-      "Use the AIDA framework structure",
-      "Include relevant keywords naturally",
-      "Tell your professional story compellingly"
-    ]
-  },
-  {
-    title: "Featured Projects",
-    points: [
-      "Showcase your best work with visuals",
-      "Include project outcomes and metrics",
-      "Link to external portfolios or case studies"
-    ]
-  }
-];
-
-const HighlightCard = ({ icon, title, description }: { icon: string, title: string, description: string }) => {
+const ProfileOptimizationStep = ({ step, title, description }: { step: string, title: string, description: string }) => {
   return (
-    <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-6 h-full">
-      <div className="flex items-start gap-4">
-        <span className="text-2xl">{icon}</span>
-        <div className="flex flex-col gap-2">
-          <h3 className="font-manrope text-[18px] font-semibold text-[#F5F5F6]">
-            {title}
-          </h3>
-          <p className="font-manrope text-[14px] text-[#B0B0B0] leading-[150%]">
-            {description}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const AidaStep = ({ letter, title, description }: { letter: string, title: string, description: string }) => {
-  return (
-    <div className="flex gap-4 items-start">
-      <div className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white w-12 h-12 rounded-full flex items-center justify-center font-manrope font-bold text-lg flex-shrink-0">
-        {letter}
+    <div className="flex gap-6 items-start">
+      <div className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white w-12 h-12 rounded-full flex items-center justify-center font-manrope font-bold text-sm flex-shrink-0">
+        {step}
       </div>
       <div className="flex flex-col gap-2">
         <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6]">
@@ -175,114 +109,45 @@ const LinkedInOptimization = () => {
         <Header />
       </div>
 
-      <div className="pt-[51px] relative">
-        <div className="absolute w-full h-[600px] top-0 left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-30 blur-[200px] backdrop-blur-[300px] rounded-full z-0"></div>
-        <div className="relative z-10">
-          <HeroSection
+      <div className="pt-[51px]">
+        <div className="absolute w-full h-[1022px] top-[134px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-50 blur-[300px] backdrop-blur-[400px] rounded-full"></div>
+        <HeroSection
           image="/static/images/linkedin-optimization.jpeg"
-          title="LinkedIn Optimization Resource"
-          subtitle="Transform your LinkedIn profile into a powerful career tool. Your profile is your digital CV - make it count!"
+          title="Master LinkedIn Optimization"
+          subtitle="Transform your LinkedIn profile into a powerful career tool that attracts recruiters and opportunities."
           button={
-            <div className="flex flex-col custom-md:flex-row gap-4">
-              <Link href="https://your-webinar-recording-link.com" target="_blank">
-                <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
-                  📹 Watch Webinar
-                </button>
-              </Link>
-              <Link href="/dashboard/linkedin-analyzer">
-                <button className="flex border-2 border-white border-opacity-20 text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px] hover:bg-white hover:bg-opacity-10 transition-all">
-                  Analyze Profile
-                </button>
-              </Link>
-            </div>
+            <Link href="/dashboard/linkedin-analyzer">
+              <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
+                Analyze My Profile
+              </button>
+            </Link>
           }
         />
       </div>
 
       <ResponsivePageContainer>
-        <div className="pt-[103px] relative z-20">
-          <div className="text-center mb-12">
-            <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-              📌 Webinar Highlights
-            </h1>
-            <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
-              Key insights from our LinkedIn optimization webinar to help you build a standout professional presence.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-6">
-            {webinarHighlights.map((highlight, index) => (
-              <HighlightCard
-                key={index}
-                icon={highlight.icon}
-                title={highlight.title}
-                description={highlight.description}
+        <div className="pt-[103px] z-50">
+          <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-10 customlg:gap-[140px] items-center">
+            <div className="relative w-full h-[500px] border border-white border-opacity-[7%] bg-[#111111] bg-opacity-10 rounded-[10px] overflow-hidden">
+              <Image
+                src="/static/images/linkedin-profile-example.png"
+                alt="LinkedIn Profile Example"
+                fill={true}
+                className="object-cover p-8"
               />
-            ))}
-          </div>
-        </div>
-      </ResponsivePageContainer>
-
-      <ResponsivePageContainer>
-        <div className="pt-[176px]">
-          <div className="relative border border-white border-opacity-[7%] rounded-[30px] p-8 text-center overflow-hidden">
-            {/* Background gradient layer */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#20CEB6]/10 to-[#2E2ADC]/10 rounded-[30px] -z-10"></div>
-            
-            {/* Content layer */}
-            <div className="relative z-10">
-              <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4">
-                🔥 Key Takeaway
-              </h2>
-              <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
-                Your LinkedIn profile alone won't land you a job – networking, branding, and engagement are crucial to standing out. Start building your presence today!
-              </p>
             </div>
-          </div>
-        </div>
-      </ResponsivePageContainer>
-
-      <ResponsivePageContainer>
-        <div className="pt-[176px] flex flex-col gap-[76px]">
-          <div className="text-center">
-            <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-              📖 AIDA Framework for About Section
-            </h1>
-            <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
-              Structure your About section using the proven AIDA framework to make it engaging and recruiter-friendly.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-8 custom-lg:gap-16">
-            <div className="flex flex-col gap-8">
-              {aidaSteps.map((step, index) => (
-                <AidaStep
-                  key={index}
-                  letter={step.letter}
-                  title={step.title}
-                  description={step.description}
-                />
-              ))}
-            </div>
-            <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8">
-              <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6">
-                📝 Profile Optimization Template
-              </h3>
-              <div className="space-y-6">
-                {profileOptimizationSections.map((section, index) => (
-                  <div key={index}>
-                    <h4 className="font-manrope text-[18px] font-semibold text-[#20CEB6] mb-3">
-                      {section.title}
-                    </h4>
-                    <ul className="space-y-2">
-                      {section.points.map((point, pointIndex) => (
-                        <li key={pointIndex} className="font-manrope text-[14px] text-[#B0B0B0] leading-[150%] flex items-start gap-2">
-                          <span className="text-[#20CEB6] mt-1">•</span>
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+            <div className="flex flex-col gap-10 relative">
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold">
+                5 Steps to LinkedIn Success
+              </h1>
+              <div className="flex flex-col gap-6">
+                {profileOptimizationSteps.map((step, index) => (
+                  <ProfileOptimizationStep
+                    key={index}
+                    step={step.step}
+                    title={step.title}
+                    description={step.description}
+                  />
                 ))}
               </div>
             </div>
@@ -291,28 +156,63 @@ const LinkedInOptimization = () => {
       </ResponsivePageContainer>
 
       <ResponsivePageContainer>
+        <div className="pt-[176px] flex flex-col gap-[76px] items-center">
+          <h1 className="font-manrope text-[36px] leading-[44px] text-center text-[#F5F5F6]">
+            LinkedIn Optimization Essentials
+          </h1>
+          <div className="grid grid-cols-1 custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-12 custom-lg:gap-[80px]">
+            {linkedInTipsData.map((tip, index) => (
+              <div
+                key={index}
+                className="flex flex-col gap-5 w-[280px] items-center text-center"
+              >
+                <div className="bg-[#111111] p-[38px] rounded-[40px] w-fit flex">
+                  <Image
+                    src={tip.imageUrl}
+                    alt={tip.title}
+                    width={64}
+                    height={64}
+                  />
+                </div>
+                <h3 className="font-manrope text-[20px] text-white font-[700]">
+                  {tip.title}
+                </h3>
+                <p className="font-manrope text-[16px] text-[#B0B0B0] leading-[140%]">
+                  {tip.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </ResponsivePageContainer>
+
+      <ResponsivePageContainer>
         <div className="pt-[176px] flex flex-col gap-[76px]">
           <div className="text-center">
             <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-              🛠 LinkedIn Optimization Tools
+              Strategic Keyword Usage
             </h1>
             <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
-              Leverage these powerful tools to optimize your LinkedIn presence and maximize your networking efforts.
+              Optimize your profile with industry-relevant keywords to improve discoverability by recruiters and hiring managers.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 custom-md:grid-cols-2 custom-lg:grid-cols-4 gap-6">
-            {linkedinTools.map((tool, index) => (
-              <div key={index} className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-6 text-center">
-                <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
-                  {tool.name}
+          <div className="grid grid-cols-1 custom-md:grid-cols-3 gap-8">
+            {keywordCategories.map((category, index) => (
+              <div key={index} className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8">
+                <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6">
+                  {category.category}
                 </h3>
-                <p className="font-manrope text-[14px] text-[#20CEB6] font-semibold mb-3">
-                  {tool.purpose}
-                </p>
-                <p className="font-manrope text-[12px] text-[#B0B0B0] leading-[150%]">
-                  {tool.description}
-                </p>
+                <div className="flex flex-wrap gap-2">
+                  {category.keywords.map((keyword, keywordIndex) => (
+                    <span
+                      key={keywordIndex}
+                      className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white px-3 py-1 rounded-full text-sm font-manrope"
+                    >
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -323,33 +223,58 @@ const LinkedInOptimization = () => {
         <div className="pt-[176px] flex flex-col gap-[50px]">
           <div className="text-center">
             <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-              📚 Further Reading & Resources
+              Profile Checklist
             </h1>
+            <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
+              Use this comprehensive checklist to ensure your LinkedIn profile is fully optimized for maximum visibility.
+            </p>
           </div>
 
-          <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8 max-w-[600px] mx-auto w-full text-center">
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
-                  📖 Recommended Reading
-                </h3>
-                <p className="font-manrope text-[16px] text-[#20CEB6]">
-                  'SEO for LinkedIn Optimization' by Neil Patel
-                </p>
+          <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8 max-w-[800px] mx-auto w-full">
+            <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Professional profile photo</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Compelling headline with keywords</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Detailed About section</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Complete work experience</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Education section filled</span>
+                </div>
               </div>
-              
-              <div className="border-t border-white border-opacity-10 pt-6">
-                <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4">
-                  👇 Join Our Community
-                </h3>
-                <p className="font-manrope text-[14px] text-[#B0B0B0] mb-4">
-                  Get daily tips and connect with other job seekers
-                </p>
-                <Link href="http://www.tinyurl.com/AiPplyJobCommunity" target="_blank">
-                  <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all">
-                    💬 Join WhatsApp Community
-                  </button>
-                </Link>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Skills section optimized</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Recommendations requested</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Custom LinkedIn URL</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Contact information updated</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-[#20CEB6] rounded bg-[#20CEB6]"></div>
+                  <span className="font-manrope text-[16px] text-[#F5F5F6]">Regular content posting</span>
+                </div>
               </div>
             </div>
           </div>
