@@ -42,7 +42,7 @@ const TestimonialsCard: React.FC<TestimonialProps> = ({
             <div className="flex flex-row justify-between ">
               <div className="flex flex-row gap-4 items-center">
                 <h2 className="text-display-md-semibold font-inter" style={{fontSize:'16px',lineHeight:'0px'}}>{name}</h2>
-                <Link href={linkedinProfileUrl}>
+                <Link href={linkedinProfileUrl} target="_blank">
                   <Image
                     src="/static/icons/linkedIn.svg"
                     alt="Quote"
