@@ -170,192 +170,203 @@ const AidaStep = ({ letter, title, description }: { letter: string, title: strin
 
 const LinkedInOptimization = () => {
   return (
-    <div>
-      <div className="pt-7">
-        <Header />
+    <div className="relative min-h-screen">
+      {/* Fixed backdrop - positioned properly to avoid overlapping */}
+      <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
+        <div className="absolute w-[800px] h-[800px] top-[200px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-30 blur-[200px] rounded-full"></div>
       </div>
 
-      <div className="pt-[51px]">
-        <div className="absolute w-full h-[1022px] top-[134px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-50 blur-[300px] backdrop-blur-[400px] rounded-full"></div>
-        <HeroSection
-          image="/static/images/linkedin-optimization.jpeg"
-          title="LinkedIn Optimization Resource"
-          subtitle="Transform your LinkedIn profile into a powerful career tool. Your profile is your digital CV - make it count!"
-          button={
-            <div className="flex flex-col custom-md:flex-row gap-4">
-              <Link href="https://your-webinar-recording-link.com" target="_blank">
-                <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
-                  📹 Watch Webinar
-                </button>
-              </Link>
-              <Link href="/dashboard/linkedin-analyzer">
-                <button className="flex border-2 border-white border-opacity-20 text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px] hover:bg-white hover:bg-opacity-10 transition-all">
-                  Analyze Profile
-                </button>
-              </Link>
-            </div>
-          }
-        />
-      </div>
-
-      <ResponsivePageContainer>
-        <div className="pt-[103px] z-50">
-          <div className="text-center mb-12">
-            <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-              📌 Webinar Highlights
-            </h1>
-            <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
-              Key insights from our LinkedIn optimization webinar to help you build a standout professional presence.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-6">
-            {webinarHighlights.map((highlight, index) => (
-              <HighlightCard
-                key={index}
-                icon={highlight.icon}
-                title={highlight.title}
-                description={highlight.description}
-              />
-            ))}
-          </div>
+      {/* Main content with proper z-index */}
+      <div className="relative z-10">
+        <div className="pt-7">
+          <Header />
         </div>
-      </ResponsivePageContainer>
 
-      <ResponsivePageContainer>
-        <div className="pt-[176px]">
-          <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-[7%] rounded-[30px] p-8 text-center">
-            <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4">
-              🔥 Key Takeaway
-            </h2>
-            <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
-              Your LinkedIn profile alone won't land you a job – networking, branding, and engagement are crucial to standing out. Start building your presence today!
-            </p>
-          </div>
-        </div>
-      </ResponsivePageContainer>
-
-      <ResponsivePageContainer>
-        <div className="pt-[176px] flex flex-col gap-[76px]">
-          <div className="text-center">
-            <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-              📖 AIDA Framework for About Section
-            </h1>
-            <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
-              Structure your About section using the proven AIDA framework to make it engaging and recruiter-friendly.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-8 custom-lg:gap-16">
-            <div className="flex flex-col gap-8">
-              {aidaSteps.map((step, index) => (
-                <AidaStep
-                  key={index}
-                  letter={step.letter}
-                  title={step.title}
-                  description={step.description}
-                />
-              ))}
-            </div>
-            <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8">
-              <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6">
-                📝 Profile Optimization Template
-              </h3>
-              <div className="space-y-6">
-                {profileOptimizationSections.map((section, index) => (
-                  <div key={index}>
-                    <h4 className="font-manrope text-[18px] font-semibold text-[#20CEB6] mb-3">
-                      {section.title}
-                    </h4>
-                    <ul className="space-y-2">
-                      {section.points.map((point, pointIndex) => (
-                        <li key={pointIndex} className="font-manrope text-[14px] text-[#B0B0B0] leading-[150%] flex items-start gap-2">
-                          <span className="text-[#20CEB6] mt-1">•</span>
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </ResponsivePageContainer>
-
-      <ResponsivePageContainer>
-        <div className="pt-[176px] flex flex-col gap-[76px]">
-          <div className="text-center">
-            <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-              🛠 LinkedIn Optimization Tools
-            </h1>
-            <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
-              Leverage these powerful tools to optimize your LinkedIn presence and maximize your networking efforts.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 custom-md:grid-cols-2 custom-lg:grid-cols-4 gap-6">
-            {linkedinTools.map((tool, index) => (
-              <div key={index} className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-6 text-center">
-                <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
-                  {tool.name}
-                </h3>
-                <p className="font-manrope text-[14px] text-[#20CEB6] font-semibold mb-3">
-                  {tool.purpose}
-                </p>
-                <p className="font-manrope text-[12px] text-[#B0B0B0] leading-[150%]">
-                  {tool.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </ResponsivePageContainer>
-
-      <ResponsivePageContainer>
-        <div className="pt-[176px] flex flex-col gap-[50px]">
-          <div className="text-center">
-            <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-              📚 Further Reading & Resources
-            </h1>
-          </div>
-
-          <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8 max-w-[600px] mx-auto w-full text-center">
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
-                  📖 Recommended Reading
-                </h3>
-                <p className="font-manrope text-[16px] text-[#20CEB6]">
-                  'SEO for LinkedIn Optimization' by Neil Patel
-                </p>
-              </div>
-              
-              <div className="border-t border-white border-opacity-10 pt-6">
-                <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4">
-                  👇 Join Our Community
-                </h3>
-                <p className="font-manrope text-[14px] text-[#B0B0B0] mb-4">
-                  Get daily tips and connect with other job seekers
-                </p>
-                <Link href="http://www.tinyurl.com/AiPplyJobCommunity" target="_blank">
-                  <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all">
-                    💬 Join WhatsApp Community
+        <div className="pt-[51px] relative">
+          <HeroSection
+            image="/static/images/linkedin-optimization.jpeg"
+            title="LinkedIn Optimization Resource"
+            subtitle="Transform your LinkedIn profile into a powerful career tool. Your profile is your digital CV - make it count!"
+            button={
+              <div className="flex flex-col custom-md:flex-row gap-4">
+                <Link href="https://your-webinar-recording-link.com" target="_blank">
+                  <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
+                    📹 Watch Webinar
+                  </button>
+                </Link>
+                <Link href="/dashboard/linkedin-analyzer">
+                  <button className="flex border-2 border-white border-opacity-20 text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px] hover:bg-white hover:bg-opacity-10 transition-all">
+                    Analyze Profile
                   </button>
                 </Link>
               </div>
+            }
+          />
+        </div>
+
+        <ResponsivePageContainer>
+          <div className="pt-[103px] relative z-20">
+            <div className="text-center mb-12">
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
+                📌 Webinar Highlights
+              </h1>
+              <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
+                Key insights from our LinkedIn optimization webinar to help you build a standout professional presence.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-6">
+              {webinarHighlights.map((highlight, index) => (
+                <HighlightCard
+                  key={index}
+                  icon={highlight.icon}
+                  title={highlight.title}
+                  description={highlight.description}
+                />
+              ))}
             </div>
           </div>
+        </ResponsivePageContainer>
+
+        <ResponsivePageContainer>
+          <div className="pt-[176px] relative z-20">
+            <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-[7%] rounded-[30px] p-8 text-center">
+              <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4">
+                🔥 Key Takeaway
+              </h2>
+              <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
+                Your LinkedIn profile alone won't land you a job – networking, branding, and engagement are crucial to standing out. Start building your presence today!
+              </p>
+            </div>
+          </div>
+        </ResponsivePageContainer>
+
+        <ResponsivePageContainer>
+          <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
+            <div className="text-center">
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
+                📖 AIDA Framework for About Section
+              </h1>
+              <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
+                Structure your About section using the proven AIDA framework to make it engaging and recruiter-friendly.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-8 custom-lg:gap-16">
+              <div className="flex flex-col gap-8">
+                {aidaSteps.map((step, index) => (
+                  <AidaStep
+                    key={index}
+                    letter={step.letter}
+                    title={step.title}
+                    description={step.description}
+                  />
+                ))}
+              </div>
+              <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8">
+                <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6">
+                  📝 Profile Optimization Template
+                </h3>
+                <div className="space-y-6">
+                  {profileOptimizationSections.map((section, index) => (
+                    <div key={index}>
+                      <h4 className="font-manrope text-[18px] font-semibold text-[#20CEB6] mb-3">
+                        {section.title}
+                      </h4>
+                      <ul className="space-y-2">
+                        {section.points.map((point, pointIndex) => (
+                          <li key={pointIndex} className="font-manrope text-[14px] text-[#B0B0B0] leading-[150%] flex items-start gap-2">
+                            <span className="text-[#20CEB6] mt-1">•</span>
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </ResponsivePageContainer>
+
+        <ResponsivePageContainer>
+          <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
+            <div className="text-center">
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
+                🛠 LinkedIn Optimization Tools
+              </h1>
+              <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
+                Leverage these powerful tools to optimize your LinkedIn presence and maximize your networking efforts.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 custom-md:grid-cols-2 custom-lg:grid-cols-4 gap-6">
+              {linkedinTools.map((tool, index) => (
+                <div key={index} className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-6 text-center">
+                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
+                    {tool.name}
+                  </h3>
+                  <p className="font-manrope text-[14px] text-[#20CEB6] font-semibold mb-3">
+                    {tool.purpose}
+                  </p>
+                  <p className="font-manrope text-[12px] text-[#B0B0B0] leading-[150%]">
+                    {tool.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </ResponsivePageContainer>
+
+        <ResponsivePageContainer>
+          <div className="pt-[176px] flex flex-col gap-[50px] relative z-20">
+            <div className="text-center">
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
+                📚 Further Reading & Resources
+              </h1>
+            </div>
+
+            <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8 max-w-[600px] mx-auto w-full text-center">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
+                    📖 Recommended Reading
+                  </h3>
+                  <p className="font-manrope text-[16px] text-[#20CEB6]">
+                    'SEO for LinkedIn Optimization' by Neil Patel
+                  </p>
+                </div>
+                
+                <div className="border-t border-white border-opacity-10 pt-6">
+                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4">
+                    👇 Join Our Community
+                  </h3>
+                  <p className="font-manrope text-[14px] text-[#B0B0B0] mb-4">
+                    Get daily tips and connect with other job seekers
+                  </p>
+                  <Link href="http://www.tinyurl.com/AiPplyJobCommunity" target="_blank">
+                    <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all">
+                      💬 Join WhatsApp Community
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ResponsivePageContainer>
+
+        <div className="mt-[215px] bg-[#111111] relative z-20">
+          <FrequentlyAskedQuestionSection />
         </div>
-      </ResponsivePageContainer>
 
-      <div className="mt-[215px] bg-[#111111]">
-        <FrequentlyAskedQuestionSection />
+        <div className="relative z-20">
+          <Footer />
+        </div>
+
+        <div className="relative z-30">
+          <ScrollToTopBtn />
+        </div>
       </div>
-
-      <Footer />
-
-      <ScrollToTopBtn />
     </div>
   );
 };
