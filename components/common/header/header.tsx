@@ -17,9 +17,9 @@ const resources = [
   },
   {
     name: "ATS Friendly CV Template",
-    redirectUrl: "/resources/ats-friendly-resume",
+    redirectUrl: "/resources/ats",
   },
-  { name: "Cover Letter Template", redirectUrl: "/resources/cover-latter" },
+  { name: "Tips for Interview", redirectUrl: "/resources/interview" },
 ];
 
 const NavLink = ({
