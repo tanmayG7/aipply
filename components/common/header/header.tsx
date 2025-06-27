@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 const resources = [
   {
     name: "Linkedin Optimization Template",
-    redirectUrl: "/resources/linkedin-optimization-template",
+    redirectUrl: "/resources/LinkedIn",
   },
   {
     name: "ATS Friendly CV Template",
