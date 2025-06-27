@@ -189,7 +189,7 @@ const LinkedInOptimization = () => {
             subtitle="Transform your LinkedIn profile into a powerful career tool. Your profile is your digital CV - make it count!"
             button={
               <div className="flex flex-col custom-md:flex-row gap-4">
-                <Link href="https://your-webinar-recording-link.com" target="_blank">
+                <Link href="https://youtu.be/1Cg3C0BLEis" target="_blank">
                   <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
                     📹 Watch Webinar
                   </button>
