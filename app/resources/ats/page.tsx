@@ -224,7 +224,7 @@ const ATSCVInterviewPrep = () => {
             subtitle="Master the art of getting past ATS systems and acing interviews. Your complete guide to landing your dream job!"
             button={
               <div className="flex flex-col custom-md:flex-row gap-4">
-                <Link href="https://your-webinar-recording-link.com" target="_blank">
+                <Link href="https://youtu.be/b-w9NzV8FM0" target="_blank">
                   <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
                     📹 Access Webinar Recording
                   </button>
