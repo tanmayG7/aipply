@@ -185,7 +185,7 @@ const InterviewPreparation = () => {
             subtitle="Master the art of interviewing with proven strategies. Your job isn't to answer everything perfectly—it's to show how you think!"
             button={
               <div className="flex flex-col custom-md:flex-row gap-4">
-                <Link href="https://your-webinar-recording-link.com" target="_blank">
+                <Link href="https://youtu.be/Tm0Gd7GILwc" target="_blank">
                   <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
                     📹 Watch Webinar
                   </button>
