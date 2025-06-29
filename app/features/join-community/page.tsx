@@ -98,12 +98,23 @@ const CommunityPage = () => {
         </div>
       </ResponsivePageContainer>
 
+      {/* Community button below hero image */}
+      <ResponsivePageContainer>
+        <div className="flex justify-center pt-[50px]">
+          <Link href="https://tinyurl.com/aipplyjobcommunity" target="_blank" rel="noopener noreferrer">
+            <button className="font-manrope w-full custom-md:w-[460px] font-bold text-[15px] custom-sm:text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF]">
+              Join the AiPply Community
+            </button>
+          </Link>
+        </div>
+      </ResponsivePageContainer>
+
       <ResponsivePageContainer>
         <div className="pt-[165px] flex flex-col gap-8 items-center relative">
           <div className="absolute z-0 w-full h-[818px] top-[405px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-50 blur-[300px] backdrop-blur-[400px] rounded-full"></div>
 
           <h1 className="font-manrope text-[48px] font-semibold leading-[160%] text-white z-10">
-            What’s Inside
+            What's Inside
           </h1>
 
           <div className="flex flex-col gap-[10px] z-10">
@@ -145,7 +156,7 @@ const CommunityPage = () => {
         <div className="flex flex-col gap-[62px]">
           <div className="pt-[165px] flex flex-col gap-[42px] items-center relative">
             <h1 className="font-manrope text-center text-[48px] font-semibold leading-[160%] text-white z-10">
-              What’s Inside
+              What's Inside
             </h1>
 
             <div className="flex flex-col gap-[70px]">
@@ -193,7 +204,7 @@ const CommunityPage = () => {
           </div>
 
           <div className="flex justify-center pb-[99px]">
-            <Link href="https://chat.whatsapp.com/your-whatsapp-community-link" target="_blank" rel="noopener noreferrer">
+            <Link href="https://www.tinyurl.com/aipplyjobcommunity" target="_blank" rel="noopener noreferrer">
               <button className="font-manrope w-full custom-md:w-[460px] font-bold text-[15px] custom-sm:text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF]">
                 Join the AiPply Community
               </button>
