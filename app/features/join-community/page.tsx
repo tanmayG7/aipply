@@ -193,7 +193,7 @@ const CommunityPage = () => {
           </div>
 
           <div className="flex justify-center pb-[99px]">
-            <Link href="https://chat.whatsapp.com/your-whatsapp-community-link">
+            <Link href="https://chat.whatsapp.com/your-whatsapp-community-link" target="_blank" rel="noopener noreferrer">
               <button className="font-manrope w-full custom-md:w-[460px] font-bold text-[15px] custom-sm:text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF]">
                 Join the AiPply Community
               </button>
