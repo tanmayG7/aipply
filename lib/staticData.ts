@@ -790,6 +790,5 @@ export const features = [
     redirectUrl: "/features/auto-apply",
   },
   { name: "Job Tracker", redirectUrl: "/features/job-tracker" },
-  { name: "AIMock Interview", redirectUrl: "/ai-mockinterview" },
 ];
 
