@@ -9,16 +9,18 @@ import React from "react";
 
 const AboutUsPage = () => {
   return (
-    <div className="bg-[#000000]">
+    <div className="bg-[#000000] relative overflow-hidden">
       <div className="pt-7">
         <Header />
       </div>
 
       {/* Hero Section */}
       <ResponsivePageContainer>
-        <div className="pt-[51px]">
-          <div className="absolute w-full h-[924px] top-[135px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-50 blur-[280px] backdrop-blur-[400px] rounded-full"></div>
-          <div className="relative">
+        <div className="pt-[51px] relative">
+          {/* Background blur - moved to prevent overlap */}
+          <div className="absolute w-full h-[924px] top-[50px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-50 blur-[280px] backdrop-blur-[400px] rounded-full -z-10"></div>
+          
+          <div className="relative z-10">
             <div className="px-4 custom-lg:px-[103px] text-center pt-[100px] pb-[80px]">
               <h1 className="font-manrope font-bold text-[40px] custom-md:text-[60px] leading-[120%] custom-md:leading-[160%] text-white mb-6">
                 About Us
@@ -43,7 +45,7 @@ const AboutUsPage = () => {
       {/* Mission Section */}
       <ResponsivePageContainer>
         <div className="pt-[100px] pb-[80px] relative">
-          <div className="absolute z-0 w-full h-[818px] top-[200px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-30 blur-[300px] backdrop-blur-[400px] rounded-full"></div>
+          <div className="absolute z-0 w-full h-[818px] top-[100px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-30 blur-[300px] backdrop-blur-[400px] rounded-full -z-10"></div>
           
           <div className="relative z-10 text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-8">
@@ -58,7 +60,7 @@ const AboutUsPage = () => {
 
       {/* Story Section */}
       <ResponsivePageContainer>
-        <div className="pt-[80px] pb-[80px]">
+        <div className="pt-[80px] pb-[80px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-8">
               🚀 Our Story
@@ -93,20 +95,32 @@ const AboutUsPage = () => {
 
       {/* Backed By Section */}
       <ResponsivePageContainer>
-        <div className="pt-[80px] pb-[80px]">
+        <div className="pt-[80px] pb-[80px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
               🔥 Backed By
             </h2>
             <div className="flex flex-col custom-md:flex-row justify-center gap-8 custom-md:gap-12 items-center">
-              <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">Google for Startups Accelerator</p>
+              <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741] flex flex-col items-center">
+                {/* Add Google for Startups logo placeholder */}
+                <div className="w-16 h-16 mb-4 bg-gradient-to-r from-[#4285F4] to-[#34A853] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">G</span>
+                </div>
+                <p className="font-manrope text-[18px] text-white font-semibold text-center">Google for Startups Accelerator</p>
               </div>
-              <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">BITS Conquest</p>
+              <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741] flex flex-col items-center">
+                {/* Add BITS Conquest logo placeholder */}
+                <div className="w-16 h-16 mb-4 bg-gradient-to-r from-[#FF6B35] to-[#F7931E] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">B</span>
+                </div>
+                <p className="font-manrope text-[18px] text-white font-semibold text-center">BITS Conquest</p>
               </div>
-              <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">Wadhwani Foundation</p>
+              <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741] flex flex-col items-center">
+                {/* Add Wadhwani Foundation logo placeholder */}
+                <div className="w-16 h-16 mb-4 bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">W</span>
+                </div>
+                <p className="font-manrope text-[18px] text-white font-semibold text-center">Wadhwani Foundation</p>
               </div>
             </div>
           </div>
@@ -116,7 +130,7 @@ const AboutUsPage = () => {
       {/* Team Section */}
       <ResponsivePageContainer>
         <div className="pt-[80px] pb-[80px] relative">
-          <div className="absolute z-0 w-full h-[600px] top-[100px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-20 blur-[250px] backdrop-blur-[400px] rounded-full"></div>
+          <div className="absolute z-0 w-full h-[600px] top-[0px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-20 blur-[250px] backdrop-blur-[400px] rounded-full -z-10"></div>
           
           <div className="relative z-10 text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
@@ -125,6 +139,10 @@ const AboutUsPage = () => {
             <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-8 custom-md:gap-12 max-w-5xl mx-auto">
               {/* Tanmay Garg */}
               <div className="bg-[#111111] p-8 rounded-[30px] border border-[#333741]">
+                {/* Profile image placeholder */}
+                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-2xl">TG</span>
+                </div>
                 <h3 className="font-manrope text-[24px] font-bold text-white mb-2">Tanmay Garg</h3>
                 <p className="font-manrope text-[18px] font-semibold text-[#52A9FF] mb-4">Co-Founder & CEO</p>
                 <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
@@ -134,6 +152,10 @@ const AboutUsPage = () => {
               
               {/* Disha Garg */}
               <div className="bg-[#111111] p-8 rounded-[30px] border border-[#333741]">
+                {/* Profile image placeholder */}
+                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-[#AE94FF] to-[#52A9FF] rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-2xl">DG</span>
+                </div>
                 <h3 className="font-manrope text-[24px] font-bold text-white mb-2">Disha Garg</h3>
                 <p className="font-manrope text-[18px] font-semibold text-[#52A9FF] mb-4">Co-Founder & CTO</p>
                 <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
@@ -147,7 +169,7 @@ const AboutUsPage = () => {
 
       {/* Culture Section */}
       <ResponsivePageContainer>
-        <div className="pt-[80px] pb-[80px]">
+        <div className="pt-[80px] pb-[80px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-8">
               🌍 Remote First, Human Always
@@ -166,14 +188,14 @@ const AboutUsPage = () => {
 
       {/* Values Section */}
       <ResponsivePageContainer>
-        <div className="pt-[80px] pb-[80px]">
+        <div className="pt-[80px] pb-[80px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
               🧠 What We Believe In
             </h2>
             <div className="grid grid-cols-1 custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">⚡ Speed &gt; Perfection</p>
+                <p className="font-manrope text-[18px] text-white font-semibold">⚡ Speed {'>'}  Perfection</p>
               </div>
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
                 <p className="font-manrope text-[18px] text-white font-semibold">👥 User-first, always</p>
@@ -194,7 +216,7 @@ const AboutUsPage = () => {
 
       {/* Join the Movement Section */}
       <ResponsivePageContainer>
-        <div className="pt-[80px] pb-[100px]">
+        <div className="pt-[80px] pb-[100px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
               📢 Join the Movement
@@ -209,7 +231,19 @@ const AboutUsPage = () => {
                 </div>
               </Link>
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741] flex-1">
-                <p className="font-manrope text-[16px] text-[#CECFD2]">📲 Follow us on Social Media</p>
+                <div className="flex items-center justify-center gap-4">
+                  <Link href="#" className="text-[#CECFD2] hover:text-[#52A9FF] transition-colors">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                  </Link>
+                  <Link href="#" className="text-[#CECFD2] hover:text-[#52A9FF] transition-colors">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.1.12.112.226.085.345-.09.375-.294 1.194-.334 1.362-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.748-1.378 0 0-.599 2.282-.744 2.84-.282 1.054-1.059 2.37-1.575 3.179C9.447 23.67 10.693 24 12.017 24c6.625 0 11.99-5.367 11.99-11.987C24.007 5.367 18.642.001 12.017.001z"/>
+                    </svg>
+                  </Link>
+                </div>
+                <p className="font-manrope text-[16px] text-[#CECFD2] mt-2">📲 Follow us on Social Media</p>
               </div>
             </div>
           </div>
