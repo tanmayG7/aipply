@@ -173,7 +173,7 @@ const AboutUsPage = () => {
             </h2>
             <div className="grid grid-cols-1 custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">⚡ Speed > Perfection</p>
+                <p className="font-manrope text-[18px] text-white font-semibold">⚡ Speed &gt; Perfection</p>
               </div>
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
                 <p className="font-manrope text-[18px] text-white font-semibold">👥 User-first, always</p>
