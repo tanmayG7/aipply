@@ -12,22 +12,22 @@ const faqs = [
   {
     question: "How does AiPply ensure my applications stand out?",
     answer:
-      "AiPply is a smart job application tool that automates and streamlines the job search process. It helps job seekers apply faster, track applications, and optimize their resumes for better visibility.",
+      "AiPply uses AI-driven optimizations, ATS-friendly formatting, and smart keyword suggestions to increase your chances of getting noticed by recruiters.",
   },
   {
     question: "Can AiPply help me with networking and recruiter outreach?",
     answer:
-      "AiPply is a smart job application tool that automates and streamlines the job search process. It helps job seekers apply faster, track applications, and optimize their resumes for better visibility.",
+      "Yes! AiPply provides personalized messaging templates and strategies to help you connect with recruiters and hiring managers promptly.",
   },
   {
     question: "Does AiPply support applications across multiple job platforms?",
     answer:
-      "AiPply is a smart job application tool that automates and streamlines the job search process. It helps job seekers apply faster, track applications, and optimize their resumes for better visibility.",
+      "Absolutely! AiPply works with major job portals like Naukri, Hirist, Shine and TimesJob, making your job search seamless across platforms. and more onboarding soon.",
   },
   {
     question: "Is AiPply free to use?",
     answer:
-      "AiPply is a smart job application tool that automates and streamlines the job search process. It helps job seekers apply faster, track applications, and optimize their resumes for better visibility.",
+      "AiPply offers a free version with essential features, while premium plans unlock advanced automation, application tracking, and AI-powered resume enhancements.",
   },
 ];
 
