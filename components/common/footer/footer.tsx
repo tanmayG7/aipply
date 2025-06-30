@@ -5,6 +5,7 @@ import Link from "next/link";
 import { features } from "@/lib/staticData";
 
 const quickLinks = [{ name: "About Us", path: "/about-us" },
+                    { name: "Pricing", path: "/pricing" }
 { name: "Contact Us", path: "/contact-us" }];
 
 const Footer = () => {
