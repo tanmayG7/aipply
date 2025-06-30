@@ -5,8 +5,10 @@ import Link from "next/link";
 import { features } from "@/lib/staticData";
 
 const quickLinks = [{ name: "About Us", path: "/about-us" },
-                    { name: "Pricing", path: "/pricing" }
+                    { name: "Pricing", path: "/pricing" },
+{ name: "Privacy Policy", path: "/privacy" },
 { name: "Contact Us", path: "/contact-us" }];
+
 
 const Footer = () => {
   return (
