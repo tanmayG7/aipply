@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { features } from "@/lib/staticData";
 
-const quickLinks = [{ name: "About Us", path: "/about" }];
+const quickLinks = [{ name: "About Us", path: "/about-us" }];
+const quickLinks = [{ name: "Contact Us", path: "/contact-us" }];
 
 const Footer = () => {
   return (
