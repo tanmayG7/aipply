@@ -29,25 +29,44 @@ const ContactUsPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('idle');
     
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitStatus('success');
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-        inquiryType: "general"
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
-      
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setSubmitStatus('idle');
-      }, 5000);
-    }, 2000);
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+          inquiryType: "general"
+        });
+        
+        // Reset success message after 5 seconds
+        setTimeout(() => {
+          setSubmitStatus('idle');
+        }, 5000);
+      } else {
+        setSubmitStatus('error');
+        console.error('Form submission failed:', data.error);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -173,6 +192,14 @@ const ContactUsPage = () => {
                 <div className="mb-8 p-4 bg-gradient-to-r from-[#22C55E] to-[#16A34A] rounded-[12px] text-center">
                   <p className="font-manrope text-white font-semibold">
                     ✅ Message sent successfully! We'll get back to you soon.
+                  </p>
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                <div className="mb-8 p-4 bg-gradient-to-r from-[#FF4D4F] to-[#FF6B6B] rounded-[12px] text-center">
+                  <p className="font-manrope text-white font-semibold">
+                    ❌ Sorry, something went wrong. Please try again later.
                   </p>
                 </div>
               )}
