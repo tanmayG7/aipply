@@ -256,13 +256,13 @@ export default function PrivacyPolicy() {
                     </p>
                     <div className="bg-[#1A1A1A] border border-[#333741] rounded-lg p-6">
                       <p className="font-manrope text-[16px] leading-[24px] mb-2">
-                        <strong className="text-[#F5F5F6]">Email:</strong> privacy@aipply.com
+                        <strong className="text-[#F5F5F6]">Email:</strong> info@aipply.com
                       </p>
                       <p className="font-manrope text-[16px] leading-[24px] mb-2">
-                        <strong className="text-[#F5F5F6]">Address:</strong> [Your Company Address]
+                        <strong className="text-[#F5F5F6]">Address:</strong> B 301, Golden Palms, Noida
                       </p>
                       <p className="font-manrope text-[16px] leading-[24px]">
-                        <strong className="text-[#F5F5F6]">Phone:</strong> [Your Phone Number]
+                        <strong className="text-[#F5F5F6]">Phone:</strong> 9999852132
                       </p>
                     </div>
                   </section>
