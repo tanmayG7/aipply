@@ -7,6 +7,8 @@ import { features } from "@/lib/staticData";
 const quickLinks = [{ name: "About Us", path: "/about-us" },
                     { name: "Pricing", path: "/pricing" },
 { name: "Privacy Policy", path: "/privacy" },
+{ name: "Terms and Conditions", path: "/terms" },
+{ name: "Cancellation & Refund", path: "/refund" },
 { name: "Contact Us", path: "/contact-us" }];
 
 
