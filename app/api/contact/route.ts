@@ -22,10 +22,12 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error in contact API:', error);
-console.error('Error details:', error.message);
-    console.error('Error stack:', error.stack);
+    
     return NextResponse.json(
-      { error: 'Failed to submit form' },
+      { 
+        error: 'Failed to submit form',
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
+      },
       { status: 500 }
     );
   }
