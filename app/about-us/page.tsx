@@ -109,7 +109,7 @@ const AboutUsPage = () => {
                   height={64}
                   className="mb-4 object-contain"
                 />
-                <p className="font-manrope text-[18px] text-white font-semibold text-center">Google</p>
+                <p className="font-manrope text-[18px] text-white font-semibold text-center">Google for Startup</p>
               </div>
               <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741] flex flex-col items-center">
                 <Image 
