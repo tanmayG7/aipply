@@ -161,7 +161,7 @@ const ContactUsPage = () => {
           <div className="relative z-10 max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-4">
-                📝 Send Us a Message
+                Send Us a Message
               </h2>
               <p className="font-manrope text-[18px] text-[#CECFD2]">
                 Fill out the form below and we'll get back to you within 24 hours.
@@ -291,7 +291,7 @@ const ContactUsPage = () => {
         <div className="py-[80px] relative z-10">
           <div className="text-center mb-12">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-4">
-              ❓ Frequently Asked Questions
+              Frequently Asked Questions
             </h2>
             <p className="font-manrope text-[18px] text-[#CECFD2]">
               Quick answers to common questions
@@ -301,7 +301,7 @@ const ContactUsPage = () => {
           <div className="max-w-4xl mx-auto space-y-4">
             <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
               <h3 className="font-manrope text-[18px] font-semibold text-white mb-3">
-                🚀 How does AiPply work?
+                How does AiPply work?
               </h3>
               <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
                 AiPply automates your job search by finding relevant positions, customizing your resume for each application, and applying on your behalf. You just need to set your preferences and let our AI handle the rest.
@@ -310,7 +310,7 @@ const ContactUsPage = () => {
 
             <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
               <h3 className="font-manrope text-[18px] font-semibold text-white mb-3">
-                💰 What are your pricing plans?
+                What are your pricing plans?
               </h3>
               <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
                 We offer flexible pricing plans to suit different needs, from individual job seekers to enterprise solutions. Contact us at hello@aipply.io for detailed pricing information.
@@ -319,7 +319,7 @@ const ContactUsPage = () => {
 
             <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
               <h3 className="font-manrope text-[18px] font-semibold text-white mb-3">
-                🌍 Do you support international job searches?
+                Do you support international job searches?
               </h3>
               <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
                 Yes! AiPply supports job searches globally. Our AI can adapt to different markets, job board formats, and application requirements across various countries.
@@ -328,7 +328,7 @@ const ContactUsPage = () => {
 
             <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
               <h3 className="font-manrope text-[18px] font-semibold text-white mb-3">
-                🤝 Are you hiring?
+                Are you hiring?
               </h3>
               <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
                 Yes! We're always looking for talented individuals to join our remote-first team. Send your resume to careers@aipply.io or check our current openings.
@@ -343,7 +343,7 @@ const ContactUsPage = () => {
         <div className="py-[60px] relative z-10">
           <div className="bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] p-8 rounded-[24px] text-center">
             <h3 className="font-manrope text-[24px] font-bold text-white mb-4">
-              ⚡ Lightning Fast Response
+              Lightning Fast Response
             </h3>
             <p className="font-manrope text-[18px] text-white opacity-90">
               We typically respond within <strong>24 hours</strong> on weekdays and <strong>48 hours</strong> on weekends.
