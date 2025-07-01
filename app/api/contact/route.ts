@@ -22,6 +22,8 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error in contact API:', error);
+console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
     return NextResponse.json(
       { error: 'Failed to submit form' },
       { status: 500 }
