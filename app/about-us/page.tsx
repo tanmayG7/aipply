@@ -49,7 +49,7 @@ const AboutUsPage = () => {
           
           <div className="relative z-10 text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-8">
-              🎯 Our Mission
+              Our Mission
             </h2>
             <p className="font-manrope font-normal text-[20px] custom-md:text-[24px] leading-[160%] text-[#CECFD2] max-w-3xl mx-auto">
               To make job seeking less painful and more powerful — with AI, empathy, and execution.
@@ -63,7 +63,7 @@ const AboutUsPage = () => {
         <div className="pt-[80px] pb-[80px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-8">
-              🚀 Our Story
+              Our Story
             </h2>
             <div className="max-w-4xl mx-auto space-y-6">
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#CECFD2]">
@@ -98,28 +98,37 @@ const AboutUsPage = () => {
         <div className="pt-[80px] pb-[80px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
-              🔥 Backed By
+              Backed By
             </h2>
             <div className="flex flex-col custom-md:flex-row justify-center gap-8 custom-md:gap-12 items-center">
               <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741] flex flex-col items-center">
-                {/* Add Google for Startups logo placeholder */}
-                <div className="w-16 h-16 mb-4 bg-gradient-to-r from-[#4285F4] to-[#34A853] rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">G</span>
-                </div>
-                <p className="font-manrope text-[18px] text-white font-semibold text-center">Google for Startups Accelerator</p>
+                <Image 
+                  src="/public/static/images/google-logo.png" 
+                  alt="Google for Startups" 
+                  width={64}
+                  height={64}
+                  className="mb-4 object-contain"
+                />
+                <p className="font-manrope text-[18px] text-white font-semibold text-center">Google</p>
               </div>
               <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741] flex flex-col items-center">
-                {/* Add BITS Conquest logo placeholder */}
-                <div className="w-16 h-16 mb-4 bg-gradient-to-r from-[#FF6B35] to-[#F7931E] rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">B</span>
-                </div>
+                <Image 
+                  src="/public/static/images/bits-conquest-logo.png" 
+                  alt="BITS Conquest" 
+                  width={64}
+                  height={64}
+                  className="mb-4 object-contain"
+                />
                 <p className="font-manrope text-[18px] text-white font-semibold text-center">BITS Conquest</p>
               </div>
               <div className="bg-[#111111] p-8 rounded-[20px] border border-[#333741] flex flex-col items-center">
-                {/* Add Wadhwani Foundation logo placeholder */}
-                <div className="w-16 h-16 mb-4 bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">W</span>
-                </div>
+                <Image 
+                  src="/public/static/images/wadhwani-foundation-logo.png" 
+                  alt="Wadhwani Foundation" 
+                  width={64}
+                  height={64}
+                  className="mb-4 object-contain"
+                />
                 <p className="font-manrope text-[18px] text-white font-semibold text-center">Wadhwani Foundation</p>
               </div>
             </div>
@@ -134,15 +143,18 @@ const AboutUsPage = () => {
           
           <div className="relative z-10 text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
-              👥 Meet the Team
+              Meet the Team
             </h2>
             <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-8 custom-md:gap-12 max-w-5xl mx-auto">
               {/* Tanmay Garg */}
               <div className="bg-[#111111] p-8 rounded-[30px] border border-[#333741]">
-                {/* Profile image placeholder */}
-                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-2xl">TG</span>
-                </div>
+                <Image 
+                  src="/public/static/images/tanmay-garg.jpg" 
+                  alt="Tanmay Garg" 
+                  width={96}
+                  height={96}
+                  className="mx-auto mb-6 rounded-full object-cover"
+                />
                 <h3 className="font-manrope text-[24px] font-bold text-white mb-2">Tanmay Garg</h3>
                 <p className="font-manrope text-[18px] font-semibold text-[#52A9FF] mb-4">Co-Founder & CEO</p>
                 <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
@@ -152,10 +164,13 @@ const AboutUsPage = () => {
               
               {/* Disha Garg */}
               <div className="bg-[#111111] p-8 rounded-[30px] border border-[#333741]">
-                {/* Profile image placeholder */}
-                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-[#AE94FF] to-[#52A9FF] rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-2xl">DG</span>
-                </div>
+                <Image 
+                  src="/public/static/images/disha-garg.jpg" 
+                  alt="Disha Garg" 
+                  width={96}
+                  height={96}
+                  className="mx-auto mb-6 rounded-full object-cover"
+                />
                 <h3 className="font-manrope text-[24px] font-bold text-white mb-2">Disha Garg</h3>
                 <p className="font-manrope text-[18px] font-semibold text-[#52A9FF] mb-4">Co-Founder & CTO</p>
                 <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
@@ -172,14 +187,14 @@ const AboutUsPage = () => {
         <div className="pt-[80px] pb-[80px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-8">
-              🌍 Remote First, Human Always
+              Remote First, Human Always
             </h2>
             <div className="max-w-4xl mx-auto space-y-6">
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#CECFD2]">
                 We're a small, scrappy, all-remote team building for job seekers everywhere. We believe in rapid execution, human connection, and problem-solving at scale.
               </p>
               <p className="font-manrope font-bold text-[20px] custom-md:text-[24px] leading-[160%] text-[#52A9FF]">
-                💼 We're hiring! Reach out at hello@aipply.io
+                We're hiring! Reach out at careers@aipply.io
               </p>
             </div>
           </div>
@@ -191,23 +206,23 @@ const AboutUsPage = () => {
         <div className="pt-[80px] pb-[80px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
-              🧠 What We Believe In
+              What We Believe In
             </h2>
             <div className="grid grid-cols-1 custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">⚡ Speed {'>'}  Perfection</p>
+                <p className="font-manrope text-[18px] text-white font-semibold">Speed {'>'}  Perfection</p>
               </div>
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">👥 User-first, always</p>
+                <p className="font-manrope text-[18px] text-white font-semibold">User-first, always</p>
               </div>
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">🤝 Transparency & trust</p>
+                <p className="font-manrope text-[18px] text-white font-semibold">Transparency & trust</p>
               </div>
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">🌍 Fairness in opportunity</p>
+                <p className="font-manrope text-[18px] text-white font-semibold">Fairness in opportunity</p>
               </div>
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741]">
-                <p className="font-manrope text-[18px] text-white font-semibold">🧰 No fluff, just solutions</p>
+                <p className="font-manrope text-[18px] text-white font-semibold">No fluff, just solutions</p>
               </div>
             </div>
           </div>
@@ -219,15 +234,15 @@ const AboutUsPage = () => {
         <div className="pt-[80px] pb-[100px] relative z-10">
           <div className="text-center">
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
-              📢 Join the Movement
+              Join the Movement
             </h2>
             <div className="flex flex-col custom-md:flex-row justify-center gap-6 custom-md:gap-8 items-center max-w-4xl mx-auto">
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741] flex-1">
-                <p className="font-manrope text-[16px] text-[#CECFD2]">📩 Newsletter – Coming Soon</p>
+                <p className="font-manrope text-[16px] text-[#CECFD2]">Newsletter – Coming Soon</p>
               </div>
               <Link href="https://tinyurl.com/aipplyjobcommunity" target="_blank" rel="noopener noreferrer" className="flex-1">
                 <div className="bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] p-6 rounded-[20px] border border-[#5D29FF] cursor-pointer hover:opacity-90 transition-opacity">
-                  <p className="font-manrope text-[16px] text-white font-semibold">💬 Join WhatsApp Community</p>
+                  <p className="font-manrope text-[16px] text-white font-semibold">Join WhatsApp Community</p>
                 </div>
               </Link>
               <div className="bg-[#111111] p-6 rounded-[20px] border border-[#333741] flex-1">
@@ -243,7 +258,7 @@ const AboutUsPage = () => {
                     </svg>
                   </Link>
                 </div>
-                <p className="font-manrope text-[16px] text-[#CECFD2] mt-2">📲 Follow us on Social Media</p>
+                <p className="font-manrope text-[16px] text-[#CECFD2] mt-2">Follow us on Social Media</p>
               </div>
             </div>
           </div>
