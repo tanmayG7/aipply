@@ -93,8 +93,8 @@ const ContactUsPage = () => {
               <p className="font-manrope text-[16px] text-[#CECFD2] mb-4">
                 Drop us a line anytime
               </p>
-              <Link href="mailto:hello@aipply.io" className="font-manrope text-[16px] text-[#52A9FF] hover:text-[#AE94FF] transition-colors">
-                hello@aipply.io
+              <Link href="mailto:info@aipply.io" className="font-manrope text-[16px] text-[#52A9FF] hover:text-[#AE94FF] transition-colors">
+                info@aipply.io
               </Link>
             </div>
 
