@@ -11,7 +11,7 @@ import {
   signOut,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { Job, UserDetails, DashboardData } from "../types";
 import { getJobsByIds, getFilteredJobsByTitle,getJobByTitleandSkills } from "@/lib/mongo/mongo";
@@ -36,6 +36,83 @@ const provider = new GoogleAuthProvider();
 
 // Ensure authentication persistence across page refreshes
 setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+// Contact Form Types and Constants
+type ContactFormData = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  inquiryType: string;
+};
+
+type ContactSubmissionData = ContactFormData & {
+  submittedAt: string;
+  status: 'new' | 'read' | 'responded';
+};
+
+const CONTACT_SUBMISSIONS_COLLECTION = 'contactSubmissions';
+const INITIAL_SUBMISSION_STATUS = 'new';
+
+// Helper function to create submission data
+const createSubmissionData = (formData: ContactFormData): ContactSubmissionData => {
+  const currentTimestamp = new Date().toISOString();
+  
+  const submissionData: ContactSubmissionData = {
+    ...formData,
+    submittedAt: currentTimestamp,
+    status: INITIAL_SUBMISSION_STATUS,
+  };
+  
+  return submissionData;
+};
+
+// Save contact form submission
+const saveContactFormSubmission = async (formData: ContactFormData) => {
+  try {
+    // Create the submission data object
+    const submissionData = createSubmissionData(formData);
+    
+    // Get reference to the contact submissions collection
+    const contactSubmissionsRef = collection(firestore, CONTACT_SUBMISSIONS_COLLECTION);
+    
+    // Add the document to Firestore
+    const docRef = await addDoc(contactSubmissionsRef, submissionData);
+    
+    // Return success response with document ID
+    const response = { 
+      success: true, 
+      id: docRef.id 
+    };
+    
+    return response;
+    
+  } catch (error: any) {
+    // Log the error for debugging
+    console.error('Error saving contact form:', error);
+    
+    // Throw a new error with the message
+    const errorMessage = error.message || 'Failed to save contact form submission';
+    throw new Error(errorMessage);
+  }
+};
+
+// Get all contact submissions (for admin panel)
+const getContactSubmissions = async () => {
+  try {
+    const querySnapshot = await getDocs(
+      query(collection(firestore, CONTACT_SUBMISSIONS_COLLECTION), orderBy('submittedAt', 'desc'))
+    );
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error: any) {
+    console.error('Error fetching contact submissions:', error);
+    throw new Error(error.message);
+  }
+};
 
 const listenToAuthChanges = (setUser: (user: any) => void) => {
   onAuthStateChanged(auth, async (user) => {
@@ -655,6 +732,7 @@ const getJobTrackerData = async (userId: string) => {
   }
 };
 
+// Export all functions
 export {
   auth,
   firestore,
@@ -681,4 +759,9 @@ export {
   getJobTrackerData,
   listenToAuthChanges,
   logoutUser,
+  saveContactFormSubmission,
+  getContactSubmissions,
 };
+
+// Export types if needed elsewhere
+export type { ContactFormData, ContactSubmissionData };
