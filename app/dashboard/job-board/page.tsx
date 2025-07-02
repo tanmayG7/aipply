@@ -340,7 +340,7 @@ export default function Page() {
   };
 
   // Handle search with debouncing
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value;
     setFilter(searchTerm);
