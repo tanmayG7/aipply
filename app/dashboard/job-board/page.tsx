@@ -145,17 +145,15 @@ export default function Page() {
   const [totalJobs, setTotalJobs] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   
-  // Improved state management
+  // Simplified state management
   const [isInitialized, setIsInitialized] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 3;
-  const RETRY_DELAY = 1000; // 1 second
+  const [authChecked, setAuthChecked] = useState(false);
   
-  const hasFetchedJobs = useRef(false);
-  const initializationAttempted = useRef(false);
+  // Handle search with debouncing
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Function to fetch jobs with pagination and improved error handling
-  const fetchJobsWithPagination = useCallback(async (page: number, searchTerm: string = '', retryAttempt: number = 0) => {
+  // Function to fetch jobs with pagination
+  const fetchJobsWithPagination = useCallback(async (page: number, searchTerm: string = '') => {
     try {
       if (!userProfileValue?.jobTitle) {
         console.log("No job title found in user profile");
@@ -165,7 +163,7 @@ export default function Page() {
       setPageLoading(true);
       setError(null);
       
-      console.log(`Fetching jobs for page ${page}, search: "${searchTerm}", attempt: ${retryAttempt + 1}`);
+      console.log(`Fetching jobs for page ${page}, search: "${searchTerm}"`);
       
       const result = await getUpdatedJobsPaginated(
         auth.currentUser?.uid || '',
@@ -178,53 +176,33 @@ export default function Page() {
           experience,
           jobType
         },
-        MAX_TOTAL_JOBS // Pass the limit to the function
+        MAX_TOTAL_JOBS
       );
 
       if (!result || typeof result !== 'object') {
         throw new Error('Invalid response from getUpdatedJobsPaginated');
       }
 
-      // Limit total jobs to MAX_TOTAL_JOBS
-      const limitedTotalJobs = Math.min(result.totalJobs || 0, MAX_TOTAL_JOBS);
-      const limitedTotalPages = Math.ceil(limitedTotalJobs / JOBS_PER_PAGE);
-
       setJobs(result.jobs || []);
       setCurrentPage(result.currentPage || page);
-      setTotalPages(limitedTotalPages);
-      setTotalJobs(limitedTotalJobs);
-      setHasMore(result.hasMore && limitedTotalJobs > page * JOBS_PER_PAGE);
+      setTotalPages(result.totalPages || 0);
+      setTotalJobs(result.totalJobs || 0);
+      setHasMore(result.hasMore || false);
 
       console.log(`Successfully fetched ${(result.jobs || []).length} jobs`);
-      setRetryCount(0); // Reset retry count on success
 
     } catch (error: any) {
-      console.error(`Error fetching jobs (attempt ${retryAttempt + 1}):`, error);
-      
-      if (retryAttempt < MAX_RETRIES) {
-        console.log(`Retrying in ${RETRY_DELAY}ms...`);
-        setTimeout(() => {
-          fetchJobsWithPagination(page, searchTerm, retryAttempt + 1);
-        }, RETRY_DELAY * (retryAttempt + 1)); // Exponential backoff
-        return;
-      }
-      
-      setError(`Failed to fetch jobs after ${MAX_RETRIES + 1} attempts: ${error.message}`);
+      console.error(`Error fetching jobs:`, error);
+      setError(`Failed to fetch jobs: ${error.message}`);
       setJobs([]);
-      setRetryCount(retryAttempt + 1);
     } finally {
       setPageLoading(false);
     }
   }, [userProfileValue, salaryRange, experience, jobType]);
 
-  // Improved initial data fetch with better error handling
-  const fetchInitialData = useCallback(async (retryAttempt: number = 0) => {
-    if (initializationAttempted.current && retryAttempt === 0) {
-      console.log("Initialization already attempted, skipping...");
-      return;
-    }
-    
-    console.log(`Starting initial data fetch (attempt ${retryAttempt + 1})`);
+  // Simplified initial data fetch
+  const fetchInitialData = useCallback(async () => {
+    console.log('Starting initial data fetch...');
     setLoading(true);
     setError(null);
     
@@ -254,33 +232,25 @@ export default function Page() {
       const hideJobs = await getHiddenJobs(currentUser.uid);
       setHiddenJobs(hideJobs || []);
       
-      // Fetch first page of jobs
-      console.log("Fetching first page of jobs...");
-      await fetchJobsWithPagination(1, filter);
-      
       setIsInitialized(true);
-      initializationAttempted.current = true;
       
     } catch (error: any) {
-      console.error(`Error in initial data fetch (attempt ${retryAttempt + 1}):`, error);
-      
-      if (retryAttempt < MAX_RETRIES) {
-        console.log(`Retrying initial data fetch in ${RETRY_DELAY}ms...`);
-        setTimeout(() => {
-          fetchInitialData(retryAttempt + 1);
-        }, RETRY_DELAY * (retryAttempt + 1)); // Exponential backoff
-        return;
-      }
-      
-      setError(`Failed to load data after ${MAX_RETRIES + 1} attempts: ${error.message}`);
+      console.error(`Error in initial data fetch:`, error);
+      setError(`Failed to load data: ${error.message}`);
     } finally {
-      if (retryAttempt >= MAX_RETRIES) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
-  }, [fetchJobsWithPagination, filter]);
+  }, []);
 
-  // Force restart function with better state reset
+  // Fetch jobs when user profile is loaded
+  useEffect(() => {
+    if (isInitialized && userProfileValue?.jobTitle && !pageLoading) {
+      console.log('User profile loaded, fetching jobs...');
+      fetchJobsWithPagination(1, filter);
+    }
+  }, [isInitialized, userProfileValue, fetchJobsWithPagination, filter]);
+
+  // Force restart function
   const forceRestart = useCallback(() => {
     console.log('Force restarting job board...');
     
@@ -293,44 +263,29 @@ export default function Page() {
     setTotalJobs(0);
     setError(null);
     setIsInitialized(false);
-    setRetryCount(0);
-    
-    // Reset refs
-    hasFetchedJobs.current = false;
-    initializationAttempted.current = false;
     
     // Start fresh
     fetchInitialData();
   }, [fetchInitialData]);
 
-  // Improved auth state listener with better error handling
+  // Simplified auth state listener
   useEffect(() => {
-    let mounted = true;
-    
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (!mounted) return;
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      console.log('Auth state changed:', !!user);
+      setAuthChecked(true);
       
-      if (user && !hasFetchedJobs.current && !initializationAttempted.current) {
-        console.log("Auth state changed - user authenticated, starting initialization");
-        hasFetchedJobs.current = true;
-        try {
-          await fetchInitialData();
-        } catch (error) {
-          console.error("Error in auth state change handler:", error);
-        }
+      if (user && !isInitialized) {
+        fetchInitialData();
       } else if (!user) {
         console.log("No authenticated user, redirecting to login");
         window.location.href = '/dashboard/onboarding/login';
       }
     });
     
-    return () => {
-      mounted = false;
-      unsubscribe();
-    };
-  }, [fetchInitialData]);
+    return () => unsubscribe();
+  }, [fetchInitialData, isInitialized]);
 
-  // Handle page change with better error handling
+  // Handle page change
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || pageLoading) return;
     
@@ -340,7 +295,6 @@ export default function Page() {
   };
 
   // Handle search with debouncing
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value;
     setFilter(searchTerm);
@@ -355,7 +309,7 @@ export default function Page() {
       console.log(`Searching for: "${searchTerm}"`);
       setCurrentPage(1);
       fetchJobsWithPagination(1, searchTerm);
-    }, 500); // 500ms debounce
+    }, 500);
   };
 
   // Cleanup timeout on unmount
@@ -435,31 +389,27 @@ export default function Page() {
     }
   };
 
-  // Show loading screen
-  if (loading) {
+  // Show loading screen while checking auth or loading initial data
+  if (!authChecked || loading) {
     return <ShimmerJobCard message={"Loading your personalized job feed..."} />;
   }
 
-  // Show error with retry option
-  if (error || (jobs.length === 0 && !pageLoading && userProfileValue && isInitialized)) {
-    return (
-      <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
-        <AppSidebar />
-        <SidebarInset>
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
+  // Always render the sidebar layout structure
+  return (
+    <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
+      <AppSidebar />
+      <SidebarInset>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
+          {/* Show error with retry option */}
+          {error && (
             <div className="text-center py-8">
               <div className="bg-yellow-900/20 border border-yellow-500 rounded-lg p-6 max-w-md mx-auto">
                 <h2 className="text-yellow-400 text-xl font-semibold mb-2">
-                  {error ? "Error Loading Jobs" : "No Jobs Found"}
+                  Error Loading Jobs
                 </h2>
                 <p className="text-yellow-300 mb-4">
-                  {error || "Jobs failed to load. This sometimes happens on the first try."}
+                  {error}
                 </p>
-                {retryCount > 0 && (
-                  <p className="text-yellow-300 mb-4 text-sm">
-                    Retry attempts: {retryCount}/{MAX_RETRIES + 1}
-                  </p>
-                )}
                 <div className="space-x-2">
                   <button 
                     onClick={forceRestart}
@@ -476,116 +426,113 @@ export default function Page() {
                   </button>
                 </div>
                 <p className="text-xs text-yellow-400 mt-3">
-                  Jobs are limited to {MAX_TOTAL_JOBS} for better performance. 
-                  {retryCount < MAX_RETRIES && " Auto-retry is enabled."}
+                  Jobs are limited to {MAX_TOTAL_JOBS} for better performance.
                 </p>
               </div>
             </div>
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
-    );
-  }
-
-  return (
-    <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
-      <AppSidebar />
-      <SidebarInset>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
-          <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
-            <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
-              {totalJobs > 0 ? `Job Board (${totalJobs}/${MAX_TOTAL_JOBS})` : "Job Board"}
-            </h1>
-            <div className="flex flex-row gap-2 justify-start lg:justify-end">
-              <input
-                type="text"
-                className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
-                value={filter}
-                onChange={handleFilterChange}
-                placeholder="Search jobs (debounced)"
-              />
-              <button
-                onClick={handleFilterClick}
-                className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
-              >
-                <Image
-                  src="/static/icons/filter.svg"
-                  alt="Search"
-                  width={20}
-                  height={20}
-                />
-                Filter
-              </button>
-              <button
-                onClick={forceRestart}
-                className="flex bg-gray-600 text-white py-1 px-4 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
-                title="Force restart if jobs don't load"
-                disabled={loading || pageLoading}
-              >
-                🔄
-              </button>
-            </div>
-          </div>
-
-          {/* Page info with limit indicator */}
-          {totalJobs > 0 && (
-            <div className="text-sm text-gray-400">
-              Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs 
-              {totalJobs >= MAX_TOTAL_JOBS && <span className="text-yellow-400"> (limited to {MAX_TOTAL_JOBS} for performance)</span>}
-            </div>
           )}
 
-          {showFilterCard && (
-            <div className="absolute inset-0 z-60 flex justify-center items-center opacity-100">
-              <FilterCard
-                jobs={jobs}
-                setFilteredJobs={handleFilterApplied}
-                salaryRange={salaryRange}
-                setSalaryRange={setSalaryRange}
-                experience={experience}
-                setExperience={setExperience}
-                jobType={jobType}
-                setJobType={setJobType}
-                onClose={handleFilterCancel}
-              />
-            </div>
-          )}
-
-          <div className={`flex flex-col gap-4 cursor-pointer ${showFilterCard ? "opacity-20" : ""} ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
-            {pageLoading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <span className="ml-3 text-gray-400">Loading jobs...</span>
+          {/* Show main content when no error */}
+          {!error && (
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
+                <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
+                  {totalJobs > 0 ? `Job Board (${totalJobs}/${MAX_TOTAL_JOBS})` : "Job Board"}
+                </h1>
+                <div className="flex flex-row gap-2 justify-start lg:justify-end">
+                  <input
+                    type="text"
+                    className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
+                    value={filter}
+                    onChange={handleFilterChange}
+                    placeholder="Search jobs (debounced)"
+                  />
+                  <button
+                    onClick={handleFilterClick}
+                    className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
+                  >
+                    <Image
+                      src="/static/icons/filter.svg"
+                      alt="Search"
+                      width={20}
+                      height={20}
+                    />
+                    Filter
+                  </button>
+                  <button
+                    onClick={forceRestart}
+                    className="flex bg-gray-600 text-white py-1 px-4 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
+                    title="Force restart if jobs don't load"
+                    disabled={loading || pageLoading}
+                  >
+                    🔄
+                  </button>
+                </div>
               </div>
-            ) : jobs.length > 0 ? (
-              jobs.map((job: Job) => (
-                <div key={job.jobId}>
-                  <JobCard
-                    job={job}
-                    userProfile={userProfileValue || {} as UserDetails}
-                    handleHideJob={() => handleHideJob(job.jobId)}
-                    handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
+
+              {/* Page info with limit indicator */}
+              {totalJobs > 0 && (
+                <div className="text-sm text-gray-400">
+                  Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs 
+                  {totalJobs >= MAX_TOTAL_JOBS && <span className="text-yellow-400"> (limited to {MAX_TOTAL_JOBS} for performance)</span>}
+                </div>
+              )}
+
+              {showFilterCard && (
+                <div className="absolute inset-0 z-60 flex justify-center items-center opacity-100">
+                  <FilterCard
+                    jobs={jobs}
+                    setFilteredJobs={handleFilterApplied}
+                    salaryRange={salaryRange}
+                    setSalaryRange={setSalaryRange}
+                    experience={experience}
+                    setExperience={setExperience}
+                    jobType={jobType}
+                    setJobType={setJobType}
+                    onClose={handleFilterCancel}
                   />
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-400">
-                {filter ? "No jobs found matching your search." : 
-                 !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
-                 "No jobs available for your profile."}
-              </div>
-            )}
-          </div>
+              )}
 
-          {/* Pagination Controls */}
-          <div className="mt-8 mb-4">
-            <PaginationControls
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              loading={pageLoading}
-            />
-          </div>
+              <div className={`flex flex-col gap-4 cursor-pointer ${showFilterCard ? "opacity-20" : ""} ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
+                {pageLoading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <span className="ml-3 text-gray-400">Loading jobs...</span>
+                  </div>
+                ) : jobs.length > 0 ? (
+                  jobs.map((job: Job) => (
+                    <div key={job.jobId}>
+                      <JobCard
+                        job={job}
+                        userProfile={userProfileValue || {} as UserDetails}
+                        handleHideJob={() => handleHideJob(job.jobId)}
+                        handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
+                      />
+                    </div>
+                  ))
+                ) : !pageLoading && isInitialized ? (
+                  <div className="text-center py-8 text-gray-400">
+                    {filter ? "No jobs found matching your search." : 
+                     !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
+                     "No jobs available for your profile."}
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="mt-8 mb-4">
+                  <PaginationControls
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    loading={pageLoading}
+                  />
+                </div>
+              )}
+            </>
+          )}
         </div>
       </SidebarInset>
     </SidebarProvider>
