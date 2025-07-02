@@ -3,8 +3,8 @@ import { Geist, Geist_Mono, Inter, Manrope } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-// Import the environment checker
-import { checkEnvironment } from "@/lib/debug/envChecker";
+// Import the environment checker component
+import { EnvironmentChecker } from "@/components/debug/EnvironmentChecker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,6 +73,9 @@ export default function RootLayout({
             });
           `}
         </Script>
+        
+        {/* Environment Checker Component */}
+        <EnvironmentChecker />
         
         {children}
       </body>
