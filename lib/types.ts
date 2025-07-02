@@ -7,7 +7,7 @@ export interface Job {
   company: string;
   salary: string[];
   experience: string;
-  location: string;
+  location: string | string[];
   description: string;
   recruiter: string;
   jobUrl: string;
