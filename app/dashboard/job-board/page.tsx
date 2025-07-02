@@ -24,13 +24,15 @@ import withReactContent from 'sweetalert2-react-content'
 
 const JOBS_PER_PAGE = 20;
 
-// Pagination component with improved styling
+// Pagination component
 const PaginationControls: React.FC<{
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   loading: boolean;
 }> = ({ currentPage, totalPages, onPageChange, loading }) => {
+  if (totalPages <= 1) return null;
+
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -71,9 +73,6 @@ const PaginationControls: React.FC<{
     
     return pages;
   };
-
-  // Don't render if there's only one page or no pages
-  if (totalPages <= 1) return null;
 
   return (
     <div className="flex justify-center items-center space-x-2 mt-8 mb-8 py-6">
@@ -183,10 +182,18 @@ export default function Page() {
     }
   }, [userProfileValue, salaryRange, experience, jobType]);
 
-  // Initial data fetch
+  // Initial data fetch - THIS IS THE KEY FUNCTION
   const fetchInitialData = useCallback(async () => {
     setLoading(true);
     setError(null);
+    
+    // Reset all state first
+    setJobs([]);
+    setUserProfileValue(null);
+    setHiddenJobs([]);
+    setCurrentPage(1);
+    setTotalPages(0);
+    setTotalJobs(0);
     
     try {
       const currentUser = auth.currentUser;
@@ -217,6 +224,15 @@ export default function Page() {
     }
   }, [fetchJobsWithPagination, filter]);
 
+  // Force restart function (like the debug version had)
+  const forceRestart = useCallback(() => {
+    console.log('Force restarting job board...');
+    // Reset the fetch flag
+    hasFetchedJobs.current = false;
+    // Call fetchInitialData again
+    fetchInitialData();
+  }, [fetchInitialData]);
+
   // Auth state listener
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -236,8 +252,6 @@ export default function Page() {
     if (page < 1 || page > totalPages || pageLoading) return;
     
     fetchJobsWithPagination(page, filter);
-    
-    // Scroll to top of job list
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -245,8 +259,6 @@ export default function Page() {
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value;
     setFilter(searchTerm);
-    
-    // Reset to first page when searching
     setCurrentPage(1);
     fetchJobsWithPagination(1, searchTerm);
   };
@@ -259,7 +271,6 @@ export default function Page() {
     setShowFilterCard(false);
   };
 
-  // Handle filter application
   const handleFilterApplied = () => {
     setCurrentPage(1);
     fetchJobsWithPagination(1, filter);
@@ -272,8 +283,6 @@ export default function Page() {
       if (userId) {
         await setHideJob(userId, jobId);
         setHiddenJobs([...hiddenJobs, jobId]);
-        
-        // Refresh current page
         fetchJobsWithPagination(currentPage, filter);
       }
     } catch (error: any) {
@@ -298,7 +307,6 @@ export default function Page() {
               const appliedDate: string = new Date().toISOString();
               const mergedSalary = mergeSalaryRanges(job.salary);
               
-              // Convert location to string if it's an array
               const locationString = Array.isArray(job.location) 
                 ? job.location.join(", ") 
                 : job.location;
@@ -323,26 +331,32 @@ export default function Page() {
     }
   };
 
-  // Error display component
-  if (error) {
+  // Show loading screen
+  if (loading) {
+    return <ShimmerJobCard message={"Loading your personalized job feed..."} />;
+  }
+
+  // Show error with retry option
+  if (error || (jobs.length === 0 && !pageLoading && userProfileValue)) {
     return (
       <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
         <AppSidebar />
         <SidebarInset>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
             <div className="text-center py-8">
-              <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
-                <h2 className="text-red-400 text-xl font-semibold mb-2">Error Loading Jobs</h2>
-                <p className="text-red-300 mb-4">{error}</p>
+              <div className="bg-yellow-900/20 border border-yellow-500 rounded-lg p-6 max-w-md mx-auto">
+                <h2 className="text-yellow-400 text-xl font-semibold mb-2">
+                  {error ? "Error Loading Jobs" : "No Jobs Found"}
+                </h2>
+                <p className="text-yellow-300 mb-4">
+                  {error || "Jobs failed to load. This sometimes happens on the first try."}
+                </p>
                 <div className="space-x-2">
                   <button 
-                    onClick={() => {
-                      setError(null);
-                      fetchInitialData();
-                    }}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
+                    onClick={forceRestart}
+                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md font-semibold"
                   >
-                    Try Again
+                    🔄 Force Restart
                   </button>
                   <button 
                     onClick={() => window.location.href = '/dashboard/complete-profile'}
@@ -351,6 +365,9 @@ export default function Page() {
                     Complete Profile
                   </button>
                 </div>
+                <p className="text-xs text-yellow-400 mt-3">
+                  If jobs don't load initially, try "Force Restart" - this usually fixes the issue.
+                </p>
               </div>
             </div>
           </div>
@@ -362,100 +379,103 @@ export default function Page() {
   return (
     <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
       <AppSidebar />
-
-      {loading ? (
-        <ShimmerJobCard message={"Loading your personalized job feed..."} />
-      ) : (
-        <SidebarInset>
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
-            <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
-              <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
-                {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
-              </h1>
-              <div className="flex flex-row gap-2 justify-start lg:justify-end">
-                <input
-                  type="text"
-                  className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
-                  value={filter}
-                  onChange={handleFilterChange}
-                  placeholder="Search jobs"
-                />
-                <button
-                  onClick={handleFilterClick}
-                  className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
-                >
-                  <Image
-                    src="/static/icons/filter.svg"
-                    alt="Search"
-                    width={20}
-                    height={20}
-                  />
-                  Filter
-                </button>
-              </div>
-            </div>
-
-            {/* Page info */}
-            {totalJobs > 0 && (
-              <div className="text-sm text-gray-400">
-                Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
-              </div>
-            )}
-
-            {showFilterCard && (
-              <div className="absolute inset-0 z-60 flex justify-center items-center opacity-100">
-                <FilterCard
-                  jobs={jobs}
-                  setFilteredJobs={handleFilterApplied}
-                  salaryRange={salaryRange}
-                  setSalaryRange={setSalaryRange}
-                  experience={experience}
-                  setExperience={setExperience}
-                  jobType={jobType}
-                  setJobType={setJobType}
-                  onClose={handleFilterCancel}
-                />
-              </div>
-            )}
-
-            <div className={`flex flex-col gap-4 cursor-pointer ${showFilterCard ? "opacity-20" : ""} ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
-              {pageLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                  <span className="ml-3 text-gray-400">Loading jobs...</span>
-                </div>
-              ) : jobs.length > 0 ? (
-                jobs.map((job: Job) => (
-                  <div key={job.jobId}>
-                    <JobCard
-                      job={job}
-                      userProfile={userProfileValue || {} as UserDetails}
-                      handleHideJob={() => handleHideJob(job.jobId)}
-                      handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
-                    />
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-400">
-                  {filter ? "No jobs found matching your search." : 
-                   !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
-                   "No jobs available for your profile."}
-                </div>
-              )}
-            </div>
-
-            {/* Pagination Controls - Fixed positioning and visibility */}
-            <div className="mt-8 mb-4">
-              <PaginationControls
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                loading={pageLoading}
+      <SidebarInset>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
+            <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
+              {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
+            </h1>
+            <div className="flex flex-row gap-2 justify-start lg:justify-end">
+              <input
+                type="text"
+                className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
+                value={filter}
+                onChange={handleFilterChange}
+                placeholder="Search jobs"
               />
+              <button
+                onClick={handleFilterClick}
+                className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
+              >
+                <Image
+                  src="/static/icons/filter.svg"
+                  alt="Search"
+                  width={20}
+                  height={20}
+                />
+                Filter
+              </button>
+              {/* Add a small restart button in the header for easy access */}
+              <button
+                onClick={forceRestart}
+                className="flex bg-gray-600 text-white py-1 px-4 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
+                title="Force restart if jobs don't load"
+              >
+                🔄
+              </button>
             </div>
           </div>
-        </SidebarInset>
-      )}
+
+          {/* Page info */}
+          {totalJobs > 0 && (
+            <div className="text-sm text-gray-400">
+              Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
+            </div>
+          )}
+
+          {showFilterCard && (
+            <div className="absolute inset-0 z-60 flex justify-center items-center opacity-100">
+              <FilterCard
+                jobs={jobs}
+                setFilteredJobs={handleFilterApplied}
+                salaryRange={salaryRange}
+                setSalaryRange={setSalaryRange}
+                experience={experience}
+                setExperience={setExperience}
+                jobType={jobType}
+                setJobType={setJobType}
+                onClose={handleFilterCancel}
+              />
+            </div>
+          )}
+
+          <div className={`flex flex-col gap-4 cursor-pointer ${showFilterCard ? "opacity-20" : ""} ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
+            {pageLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span className="ml-3 text-gray-400">Loading jobs...</span>
+              </div>
+            ) : jobs.length > 0 ? (
+              jobs.map((job: Job) => (
+                <div key={job.jobId}>
+                  <JobCard
+                    job={job}
+                    userProfile={userProfileValue || {} as UserDetails}
+                    handleHideJob={() => handleHideJob(job.jobId)}
+                    handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-400">
+                {filter ? "No jobs found matching your search." : 
+                 !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
+                 "No jobs available for your profile."}
+              </div>
+            )}
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="mt-8 mb-4">
+            <PaginationControls
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              loading={pageLoading}
+            />
+          </div>
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
