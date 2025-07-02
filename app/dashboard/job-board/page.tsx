@@ -23,6 +23,7 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
 const JOBS_PER_PAGE = 20;
+const MAX_TOTAL_JOBS = 100; // Limit total jobs to 100
 
 // Pagination component
 const PaginationControls: React.FC<{
@@ -144,15 +145,27 @@ export default function Page() {
   const [totalJobs, setTotalJobs] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   
+  // Improved state management
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 1000; // 1 second
+  
   const hasFetchedJobs = useRef(false);
+  const initializationAttempted = useRef(false);
 
-  // Function to fetch jobs with pagination
-  const fetchJobsWithPagination = useCallback(async (page: number, searchTerm: string = '') => {
+  // Function to fetch jobs with pagination and improved error handling
+  const fetchJobsWithPagination = useCallback(async (page: number, searchTerm: string = '', retryAttempt: number = 0) => {
     try {
-      if (!userProfileValue?.jobTitle) return;
+      if (!userProfileValue?.jobTitle) {
+        console.log("No job title found in user profile");
+        return;
+      }
 
       setPageLoading(true);
       setError(null);
+      
+      console.log(`Fetching jobs for page ${page}, search: "${searchTerm}", attempt: ${retryAttempt + 1}`);
       
       const result = await getUpdatedJobsPaginated(
         auth.currentUser?.uid || '',
@@ -164,36 +177,56 @@ export default function Page() {
           salaryRange,
           experience,
           jobType
-        }
+        },
+        MAX_TOTAL_JOBS // Pass the limit to the function
       );
 
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid response from getUpdatedJobsPaginated');
+      }
+
+      // Limit total jobs to MAX_TOTAL_JOBS
+      const limitedTotalJobs = Math.min(result.totalJobs || 0, MAX_TOTAL_JOBS);
+      const limitedTotalPages = Math.ceil(limitedTotalJobs / JOBS_PER_PAGE);
+
       setJobs(result.jobs || []);
-      setCurrentPage(result.currentPage || 1);
-      setTotalPages(result.totalPages || 0);
-      setTotalJobs(result.totalJobs || 0);
-      setHasMore(result.hasMore || false);
+      setCurrentPage(result.currentPage || page);
+      setTotalPages(limitedTotalPages);
+      setTotalJobs(limitedTotalJobs);
+      setHasMore(result.hasMore && limitedTotalJobs > page * JOBS_PER_PAGE);
+
+      console.log(`Successfully fetched ${(result.jobs || []).length} jobs`);
+      setRetryCount(0); // Reset retry count on success
 
     } catch (error: any) {
-      console.error("Error fetching jobs:", error);
-      setError(`Failed to fetch jobs: ${error.message}`);
+      console.error(`Error fetching jobs (attempt ${retryAttempt + 1}):`, error);
+      
+      if (retryAttempt < MAX_RETRIES) {
+        console.log(`Retrying in ${RETRY_DELAY}ms...`);
+        setTimeout(() => {
+          fetchJobsWithPagination(page, searchTerm, retryAttempt + 1);
+        }, RETRY_DELAY * (retryAttempt + 1)); // Exponential backoff
+        return;
+      }
+      
+      setError(`Failed to fetch jobs after ${MAX_RETRIES + 1} attempts: ${error.message}`);
       setJobs([]);
+      setRetryCount(retryAttempt + 1);
     } finally {
       setPageLoading(false);
     }
   }, [userProfileValue, salaryRange, experience, jobType]);
 
-  // Initial data fetch - THIS IS THE KEY FUNCTION
-  const fetchInitialData = useCallback(async () => {
+  // Improved initial data fetch with better error handling
+  const fetchInitialData = useCallback(async (retryAttempt: number = 0) => {
+    if (initializationAttempted.current && retryAttempt === 0) {
+      console.log("Initialization already attempted, skipping...");
+      return;
+    }
+    
+    console.log(`Starting initial data fetch (attempt ${retryAttempt + 1})`);
     setLoading(true);
     setError(null);
-    
-    // Reset all state first
-    setJobs([]);
-    setUserProfileValue(null);
-    setHiddenJobs([]);
-    setCurrentPage(1);
-    setTotalPages(0);
-    setTotalJobs(0);
     
     try {
       const currentUser = auth.currentUser;
@@ -202,66 +235,137 @@ export default function Page() {
         throw new Error('No authenticated user found');
       }
 
+      console.log("Fetching user profile...");
       const userProfile = await getUserProfile(currentUser.uid) as UserDetails;
+      
+      if (!userProfile) {
+        throw new Error('Failed to load user profile');
+      }
+      
       setUserProfileValue(userProfile);
       
       if (!userProfile?.jobTitle) {
         setError('Please complete your profile setup with a job title before viewing jobs.');
+        setLoading(false);
         return;
       }
 
+      console.log("Fetching hidden jobs...");
       const hideJobs = await getHiddenJobs(currentUser.uid);
       setHiddenJobs(hideJobs || []);
       
       // Fetch first page of jobs
+      console.log("Fetching first page of jobs...");
       await fetchJobsWithPagination(1, filter);
       
+      setIsInitialized(true);
+      initializationAttempted.current = true;
+      
     } catch (error: any) {
-      console.error("Error fetching initial data:", error);
-      setError(`Failed to load data: ${error.message}`);
+      console.error(`Error in initial data fetch (attempt ${retryAttempt + 1}):`, error);
+      
+      if (retryAttempt < MAX_RETRIES) {
+        console.log(`Retrying initial data fetch in ${RETRY_DELAY}ms...`);
+        setTimeout(() => {
+          fetchInitialData(retryAttempt + 1);
+        }, RETRY_DELAY * (retryAttempt + 1)); // Exponential backoff
+        return;
+      }
+      
+      setError(`Failed to load data after ${MAX_RETRIES + 1} attempts: ${error.message}`);
     } finally {
-      setLoading(false);
+      if (retryAttempt >= MAX_RETRIES) {
+        setLoading(false);
+      }
     }
   }, [fetchJobsWithPagination, filter]);
 
-  // Force restart function (like the debug version had)
+  // Force restart function with better state reset
   const forceRestart = useCallback(() => {
     console.log('Force restarting job board...');
-    // Reset the fetch flag
+    
+    // Reset all state
+    setJobs([]);
+    setUserProfileValue(null);
+    setHiddenJobs([]);
+    setCurrentPage(1);
+    setTotalPages(0);
+    setTotalJobs(0);
+    setError(null);
+    setIsInitialized(false);
+    setRetryCount(0);
+    
+    // Reset refs
     hasFetchedJobs.current = false;
-    // Call fetchInitialData again
+    initializationAttempted.current = false;
+    
+    // Start fresh
     fetchInitialData();
   }, [fetchInitialData]);
 
-  // Auth state listener
+  // Improved auth state listener with better error handling
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && !hasFetchedJobs.current) {
+    let mounted = true;
+    
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!mounted) return;
+      
+      if (user && !hasFetchedJobs.current && !initializationAttempted.current) {
+        console.log("Auth state changed - user authenticated, starting initialization");
         hasFetchedJobs.current = true;
-        fetchInitialData();
+        try {
+          await fetchInitialData();
+        } catch (error) {
+          console.error("Error in auth state change handler:", error);
+        }
       } else if (!user) {
+        console.log("No authenticated user, redirecting to login");
         window.location.href = '/dashboard/onboarding/login';
       }
     });
     
-    return () => unsubscribe();
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   }, [fetchInitialData]);
 
-  // Handle page change
+  // Handle page change with better error handling
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || pageLoading) return;
     
+    console.log(`Changing to page ${page}`);
     fetchJobsWithPagination(page, filter);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Handle search
+  // Handle search with debouncing
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value;
     setFilter(searchTerm);
-    setCurrentPage(1);
-    fetchJobsWithPagination(1, searchTerm);
+    
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    // Debounce search
+    searchTimeoutRef.current = setTimeout(() => {
+      console.log(`Searching for: "${searchTerm}"`);
+      setCurrentPage(1);
+      fetchJobsWithPagination(1, searchTerm);
+    }, 500); // 500ms debounce
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleFilterClick = () => {
     setShowFilterCard(true);
@@ -337,7 +441,7 @@ export default function Page() {
   }
 
   // Show error with retry option
-  if (error || (jobs.length === 0 && !pageLoading && userProfileValue)) {
+  if (error || (jobs.length === 0 && !pageLoading && userProfileValue && isInitialized)) {
     return (
       <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
         <AppSidebar />
@@ -351,10 +455,16 @@ export default function Page() {
                 <p className="text-yellow-300 mb-4">
                   {error || "Jobs failed to load. This sometimes happens on the first try."}
                 </p>
+                {retryCount > 0 && (
+                  <p className="text-yellow-300 mb-4 text-sm">
+                    Retry attempts: {retryCount}/{MAX_RETRIES + 1}
+                  </p>
+                )}
                 <div className="space-x-2">
                   <button 
                     onClick={forceRestart}
                     className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md font-semibold"
+                    disabled={loading || pageLoading}
                   >
                     🔄 Force Restart
                   </button>
@@ -366,7 +476,8 @@ export default function Page() {
                   </button>
                 </div>
                 <p className="text-xs text-yellow-400 mt-3">
-                  If jobs don't load initially, try "Force Restart" - this usually fixes the issue.
+                  Jobs are limited to {MAX_TOTAL_JOBS} for better performance. 
+                  {retryCount < MAX_RETRIES && " Auto-retry is enabled."}
                 </p>
               </div>
             </div>
@@ -383,7 +494,7 @@ export default function Page() {
         <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
             <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
-              {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
+              {totalJobs > 0 ? `Job Board (${totalJobs}/${MAX_TOTAL_JOBS})` : "Job Board"}
             </h1>
             <div className="flex flex-row gap-2 justify-start lg:justify-end">
               <input
@@ -391,7 +502,7 @@ export default function Page() {
                 className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
                 value={filter}
                 onChange={handleFilterChange}
-                placeholder="Search jobs"
+                placeholder="Search jobs (debounced)"
               />
               <button
                 onClick={handleFilterClick}
@@ -405,21 +516,22 @@ export default function Page() {
                 />
                 Filter
               </button>
-              {/* Add a small restart button in the header for easy access */}
               <button
                 onClick={forceRestart}
                 className="flex bg-gray-600 text-white py-1 px-4 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
                 title="Force restart if jobs don't load"
+                disabled={loading || pageLoading}
               >
                 🔄
               </button>
             </div>
           </div>
 
-          {/* Page info */}
+          {/* Page info with limit indicator */}
           {totalJobs > 0 && (
             <div className="text-sm text-gray-400">
-              Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
+              Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs 
+              {totalJobs >= MAX_TOTAL_JOBS && <span className="text-yellow-400"> (limited to {MAX_TOTAL_JOBS} for performance)</span>}
             </div>
           )}
 
