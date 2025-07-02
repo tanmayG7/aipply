@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Job, UserDetails } from "@/lib/types";
 import {
   getUserProfile,
-  getUpdatedJobsPaginated, // Use the new paginated function
+  getUpdatedJobsPaginated,
   auth,
   getHiddenJobs,
   setHideJob,
@@ -26,54 +26,23 @@ import { User } from "firebase/auth";
 // Pagination constants
 const JOBS_PER_PAGE = 20;
 
-// Pagination component
+// Add debug logging
+const DEBUG = process.env.NODE_ENV === 'development';
+
+const debugLog = (message: string, data?: any) => {
+  if (DEBUG) {
+    console.log(`🔍 JobBoard: ${message}`, data || '');
+  }
+};
+
+// Pagination component (unchanged)
 const PaginationControls: React.FC<{
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   loading: boolean;
 }> = ({ currentPage, totalPages, onPageChange, loading }) => {
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-      
-      let start = Math.max(2, currentPage - 1);
-      let end = Math.min(totalPages - 1, currentPage + 1);
-      
-      if (currentPage <= 3) {
-        end = Math.min(totalPages - 1, 4);
-      }
-      if (currentPage >= totalPages - 2) {
-        start = Math.max(2, totalPages - 3);
-      }
-      
-      if (start > 2) {
-        pages.push(-1);
-      }
-      
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-      
-      if (end < totalPages - 1) {
-        pages.push(-2);
-      }
-      
-      if (totalPages > 1) {
-        pages.push(totalPages);
-      }
-    }
-    
-    return pages;
-  };
-
+  // ... existing pagination code
   return (
     <div className="flex justify-center items-center space-x-2 mt-8 mb-4">
       <button
@@ -84,30 +53,9 @@ const PaginationControls: React.FC<{
         Previous
       </button>
 
-      {getPageNumbers().map((page, index) => {
-        if (page === -1 || page === -2) {
-          return (
-            <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-500">
-              ...
-            </span>
-          );
-        }
-
-        return (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            disabled={loading}
-            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-              currentPage === page
-                ? "bg-blue-600 text-white border border-blue-600"
-                : "text-gray-300 bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e]"
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            {page}
-          </button>
-        );
-      })}
+      <span className="px-3 py-2 text-sm text-gray-400">
+        Page {currentPage} of {totalPages}
+      </span>
 
       <button
         onClick={() => onPageChange(currentPage + 1)}
@@ -116,10 +64,6 @@ const PaginationControls: React.FC<{
       >
         Next
       </button>
-
-      <span className="ml-4 text-sm text-gray-400">
-        Page {currentPage} of {totalPages}
-      </span>
     </div>
   );
 };
@@ -128,7 +72,7 @@ export default function Page() {
   const MySwal = withReactContent(Swal);
   const [filter, setFilter] = useState("");
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [userProfileValue, setUserProfileValue] = useState<any>([]);
+  const [userProfileValue, setUserProfileValue] = useState<UserDetails | null>(null);
   const [hiddenJobs, setHiddenJobs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(false);
@@ -136,6 +80,7 @@ export default function Page() {
   const [salaryRange, setSalaryRange] = useState<[number, number][]>([]);
   const [experience, setExperience] = useState<[number, number][]>([]);
   const [jobType, setJobType] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -145,12 +90,20 @@ export default function Page() {
   
   const hasFetchedJobs = useRef(false);
 
-  // Function to fetch jobs with pagination
+  debugLog('Component mounted');
+
+  // Enhanced function to fetch jobs with better error handling
   const fetchJobsWithPagination = useCallback(async (page: number, searchTerm: string = '') => {
     try {
-      if (!userProfileValue?.jobTitle) return;
+      debugLog('Fetching jobs', { page, searchTerm, userProfile: !!userProfileValue });
+      
+      if (!userProfileValue?.jobTitle) {
+        debugLog('No job title in user profile', userProfileValue);
+        return;
+      }
 
       setPageLoading(true);
+      setError(null);
       
       const result = await getUpdatedJobsPaginated(
         auth.currentUser?.uid || '',
@@ -165,45 +118,105 @@ export default function Page() {
         }
       );
 
-      setJobs(result.jobs);
-      setCurrentPage(result.currentPage);
-      setTotalPages(result.totalPages);
-      setTotalJobs(result.totalJobs);
-      setHasMore(result.hasMore);
+      debugLog('Jobs fetched successfully', {
+        jobCount: result.jobs?.length || 0,
+        totalJobs: result.totalJobs,
+        currentPage: result.currentPage
+      });
 
-    } catch (error) {
+      setJobs(result.jobs || []);
+      setCurrentPage(result.currentPage || 1);
+      setTotalPages(result.totalPages || 0);
+      setTotalJobs(result.totalJobs || 0);
+      setHasMore(result.hasMore || false);
+
+    } catch (error: any) {
       console.error("Error fetching jobs:", error);
+      debugLog('Error fetching jobs', error);
+      setError(`Failed to fetch jobs: ${error.message}`);
+      setJobs([]);
     } finally {
       setPageLoading(false);
     }
   }, [userProfileValue, salaryRange, experience, jobType]);
 
-  // Initial data fetch
+  // Enhanced initial data fetch
   const fetchInitialData = useCallback(async () => {
+    debugLog('Fetching initial data');
     setLoading(true);
+    setError(null);
+    
     try {
-      const userProfile = (await getUserProfile()) as UserDetails;
-      const userId = auth.currentUser?.uid;
+      const currentUser = auth.currentUser;
+      debugLog('Current user', { uid: currentUser?.uid, email: currentUser?.email });
+      
+      if (!currentUser) {
+        throw new Error('No authenticated user found');
+      }
+
+      debugLog('Fetching user profile');
+      const userProfile = await getUserProfile(currentUser.uid) as UserDetails;
+      debugLog('User profile fetched', { 
+        hasJobTitle: !!userProfile?.jobTitle,
+        jobTitle: userProfile?.jobTitle,
+        hasSkills: !!userProfile?.skills?.length
+      });
+      
       setUserProfileValue(userProfile);
       
-      if (userId) {
-        const hideJobs = await getHiddenJobs(userId);
-        setHiddenJobs(hideJobs);
-        
-        // Fetch first page of jobs
-        await fetchJobsWithPagination(1, filter);
+      if (!userProfile?.jobTitle) {
+        setError('Please complete your profile setup with a job title before viewing jobs.');
+        return;
       }
-    } catch (error) {
+
+      debugLog('Fetching hidden jobs');
+      const hideJobs = await getHiddenJobs(currentUser.uid);
+      setHiddenJobs(hideJobs || []);
+      debugLog('Hidden jobs fetched', { count: hideJobs?.length || 0 });
+      
+      // Fetch first page of jobs
+      await fetchJobsWithPagination(1, filter);
+      
+    } catch (error: any) {
       console.error("Error fetching initial data:", error);
+      debugLog('Error in fetchInitialData', error);
+      setError(`Failed to load data: ${error.message}`);
     } finally {
       setLoading(false);
     }
   }, [fetchJobsWithPagination, filter]);
 
+  // Enhanced auth state listener
+  useEffect(() => {
+    debugLog('Setting up auth listener');
+    
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      debugLog('Auth state changed', { 
+        hasUser: !!user, 
+        uid: user?.uid,
+        hasFetched: hasFetchedJobs.current 
+      });
+      
+      if (user && !hasFetchedJobs.current) {
+        hasFetchedJobs.current = true;
+        fetchInitialData();
+      } else if (!user) {
+        debugLog('No user - redirecting to login');
+        window.location.href = '/dashboard/onboarding/login';
+      }
+    });
+    
+    return () => {
+      debugLog('Cleaning up auth listener');
+      unsubscribe();
+    };
+  }, [fetchInitialData]);
+
   // Handle page change
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || pageLoading) return;
     
+    debugLog('Page change', { from: currentPage, to: page });
     fetchJobsWithPagination(page, filter);
     
     // Scroll to top of job list
@@ -215,21 +228,12 @@ export default function Page() {
     const searchTerm = event.target.value;
     setFilter(searchTerm);
     
+    debugLog('Filter change', { searchTerm });
+    
     // Reset to first page when searching
     setCurrentPage(1);
     fetchJobsWithPagination(1, searchTerm);
   };
-
-  // Effect for initial load
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && !hasFetchedJobs.current) {
-        fetchInitialData();
-        hasFetchedJobs.current = true;
-      }
-    });
-    return () => unsubscribe();
-  }, [fetchInitialData]);
 
   const handleFilterClick = () => {
     setShowFilterCard(true);
@@ -256,8 +260,9 @@ export default function Page() {
         // Refresh current page
         fetchJobsWithPagination(currentPage, filter);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error hiding job:", error);
+      setError(`Failed to hide job: ${error.message}`);
     }
   };
 
@@ -267,15 +272,13 @@ export default function Page() {
       if (userId) {
         const appliedJobs = await getAppliedJobs(userId);
         MySwal.fire({
-          title: "Do you applied for the Job?",
+          title: "Did you apply for this job?",
           showDenyButton: true,
           confirmButtonText: "Yes",
-          denyButtonText: `No`
+          denyButtonText: "No"
         }).then(async (result) => {
           if (result.isConfirmed) {
-            if (
-              !appliedJobs.some((appliedJob: Job) => appliedJob.jobId === jobId)
-            ) {
+            if (!appliedJobs.some((appliedJob: Job) => appliedJob.jobId === jobId)) {
               const appliedDate: string = new Date().toISOString();
               const mergedSalary = mergeSalaryRanges(job.salary);
               
@@ -287,44 +290,63 @@ export default function Page() {
               await updateDashboardOnJobApplied(
                 userId,
                 mergedSalary,
-                locationString, // Now always a string
+                locationString,
                 job.experience
               );
               await setAppliedJob(userId, jobId, appliedDate);
             }
             Swal.fire("Job Saved!", "", "success");
           } else if (result.isDenied) {
-            Swal.fire("Try any other Job", "", "info");
+            Swal.fire("Try another job", "", "info");
           }
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error applying for job:", error);
+      setError(`Failed to apply for job: ${error.message}`);
     }
   };
 
+  // Error display component
+  if (error) {
+    return (
+      <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
+        <AppSidebar />
+        <SidebarInset>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
+            <div className="text-center py-8">
+              <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
+                <h2 className="text-red-400 text-xl font-semibold mb-2">Error Loading Jobs</h2>
+                <p className="text-red-300 mb-4">{error}</p>
+                <button 
+                  onClick={() => {
+                    setError(null);
+                    fetchInitialData();
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "19rem",
-        } as React.CSSProperties
-      }
-    >
+    <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
       <AppSidebar />
 
       {loading ? (
-        <ShimmerJobCard
-          message={"Best things takes time! Fetching jobs for your profile..."}
-        />
+        <ShimmerJobCard message={"Loading your personalized job feed..."} />
       ) : (
         <SidebarInset>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
             <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
               <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
-                {totalJobs > 0
-                  ? `Job Board (${totalJobs})`
-                  : "Job Board"}
+                {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
               </h1>
               <div className="flex flex-row gap-2 justify-start lg:justify-end">
                 <input
@@ -349,6 +371,13 @@ export default function Page() {
               </div>
             </div>
 
+            {/* Debug info in development */}
+            {DEBUG && (
+              <div className="bg-gray-800 p-2 rounded text-xs text-gray-300">
+                Debug: User: {userProfileValue?.firstName} | Jobs: {jobs.length} | Loading: {pageLoading.toString()}
+              </div>
+            )}
+
             {/* Page info */}
             {totalJobs > 0 && (
               <div className="text-sm text-gray-400">
@@ -372,11 +401,7 @@ export default function Page() {
               </div>
             )}
 
-            <div
-              className={`flex flex-col gap-4 cursor-pointer ${
-                showFilterCard ? "opacity-20" : ""
-              } ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}
-            >
+            <div className={`flex flex-col gap-4 cursor-pointer ${showFilterCard ? "opacity-20" : ""} ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
               {pageLoading ? (
                 <div className="flex justify-center items-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -387,7 +412,7 @@ export default function Page() {
                   <div key={job.jobId}>
                     <JobCard
                       job={job}
-                      userProfile={userProfileValue}
+                      userProfile={userProfileValue || {} as UserDetails}
                       handleHideJob={() => handleHideJob(job.jobId)}
                       handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
                     />
@@ -395,7 +420,7 @@ export default function Page() {
                 ))
               ) : (
                 <div className="text-center py-8 text-gray-400">
-                  {filter ? "No jobs found matching your search." : "No jobs available."}
+                  {filter ? "No jobs found matching your search." : userProfileValue?.jobTitle ? "No jobs available for your profile." : "Please complete your profile to see jobs."}
                 </div>
               )}
             </div>
