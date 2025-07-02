@@ -43,13 +43,10 @@ export const getJobsByPreferences = async (location: string, role: string) => {
     .toArray();
 };
 
-function getType(value:any) {
-  if (value === null) return 'null';
-  if (Array.isArray(value)) return 'array';
-  if (value instanceof Date) return 'date';
-  if (value?.constructor?.name === 'ObjectId') return 'ObjectId'; // for Mongo
-  return typeof value;
-}
+// Add this helper function at the top of the file
+const normalizeLocation = (location: string | string[]): string => {
+  return Array.isArray(location) ? location.join(", ") : location;
+};
 
 export const getJobByTitleandSkills = async(userProfile:UserDetails) => {
   const db = await connectToMongoDB();
