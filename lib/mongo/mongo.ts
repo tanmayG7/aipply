@@ -332,12 +332,20 @@ export const getJobsByIds = async (
   // Filter by jobTitle
   if (jobTitle) {
     const titleLower = jobTitle.toLowerCase();
-    jobs = filterJobs(jobs, (job) =>
-      job.title?.toLowerCase().includes(titleLower) ||
-      job.description?.toLowerCase().includes(titleLower) ||
-      job.keywords?.some((keyword: string) => keyword.toLowerCase().includes(titleLower)) ||
-      job.tags?.some((tag: string) => tag.toLowerCase().includes(titleLower))
-    );
+    jobs = filterJobs(jobs, (job) => {
+      // Handle location - check if it's array or string
+      const locationMatch = Array.isArray(job.location) 
+        ? job.location.some((loc: string) => loc.toLowerCase().includes(titleLower))
+        : job.location?.toLowerCase().includes(titleLower);
+      
+      return (
+        job.title?.toLowerCase().includes(titleLower) ||
+        job.description?.toLowerCase().includes(titleLower) ||
+        job.keywords?.some((keyword: string) => keyword.toLowerCase().includes(titleLower)) ||
+        job.tags?.some((tag: string) => tag.toLowerCase().includes(titleLower)) ||
+        locationMatch
+      );
+    });
   }
 
   // Filter by expectedCTC
