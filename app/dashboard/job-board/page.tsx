@@ -102,7 +102,7 @@ const PaginationControls: React.FC<{
             className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
               currentPage === page
                 ? "bg-blue-600 text-white border border-blue-600 font-semibold"
-                : "text-gray-200 bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e] hover:text-white"
+                : "text-gray-300 bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e] hover:text-white"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {page}
@@ -426,7 +426,7 @@ export default function Page() {
                   </button>
                 </div>
                 <p className="text-xs text-yellow-400 mt-3">
-                  Jobs are limited to {MAX_TOTAL_JOBS} for better performance.
+                  If the page doesn't load initially, try "Force Restart" - this usually fixes the issue.
                 </p>
               </div>
             </div>
@@ -437,7 +437,7 @@ export default function Page() {
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
                 <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
-                  {totalJobs > 0 ? `Job Board (${totalJobs}/${MAX_TOTAL_JOBS})` : "Job Board"}
+                  {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
                 </h1>
                 <div className="flex flex-row gap-2 justify-start lg:justify-end">
                   <input
@@ -470,11 +470,10 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* Page info with limit indicator */}
+              {/* Page info */}
               {totalJobs > 0 && (
-                <div className="text-sm text-gray-400">
-                  Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs 
-                  {totalJobs >= MAX_TOTAL_JOBS && <span className="text-yellow-400"> (limited to {MAX_TOTAL_JOBS} for performance)</span>}
+                <div className="text-sm text-gray-300">
+                  Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
                 </div>
               )}
 
