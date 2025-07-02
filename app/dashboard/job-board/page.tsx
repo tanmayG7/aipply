@@ -79,7 +79,7 @@ const PaginationControls: React.FC<{
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1 || loading}
-        className="px-4 py-2 text-sm font-medium text-gray-300 bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-4 py-2 text-sm font-medium text-gray-200 bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         Previous
       </button>
@@ -87,7 +87,7 @@ const PaginationControls: React.FC<{
       {getPageNumbers().map((page, index) => {
         if (page === -1 || page === -2) {
           return (
-            <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-500">
+            <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-300 font-medium">
               ...
             </span>
           );
@@ -100,8 +100,8 @@ const PaginationControls: React.FC<{
             disabled={loading}
             className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
               currentPage === page
-                ? "bg-blue-600 text-white border border-blue-600"
-                : "text-gray-300 bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e]"
+                ? "bg-blue-600 text-white border border-blue-600 font-semibold"
+                : "text-gray-200 bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e] hover:text-white"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {page}
@@ -112,12 +112,12 @@ const PaginationControls: React.FC<{
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages || loading}
-        className="px-4 py-2 text-sm font-medium text-gray-300 bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-4 py-2 text-sm font-medium text-gray-200 bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         Next
       </button>
 
-      <span className="ml-4 text-sm text-gray-400">
+      <span className="ml-4 text-sm text-gray-200 font-medium">
         Page {currentPage} of {totalPages}
       </span>
     </div>
