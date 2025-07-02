@@ -556,12 +556,16 @@ const getUpdatedJobsPaginated = async (
     if (searchTerm && searchTerm.trim()) {
       jobs = jobs.filter((job: Job) => {
         const searchLower = searchTerm.toLowerCase();
+        
+        // Handle location - check if it's array or string
+        const locationMatch = Array.isArray(job.location) 
+          ? job.location.some((loc: string) => loc.toLowerCase().includes(searchLower))
+          : job.location?.toLowerCase().includes(searchLower);
+        
         return (
           job.title.toLowerCase().includes(searchLower) ||
           job.company.toLowerCase().includes(searchLower) ||
-          job.location.some((loc: string) => 
-            loc.toLowerCase().includes(searchLower)
-          ) ||
+          locationMatch ||
           job.tags?.some((tag: string) => 
             tag.toLowerCase().includes(searchLower)
           )
