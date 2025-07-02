@@ -88,7 +88,7 @@ const PaginationControls: React.FC<{
       {getPageNumbers().map((page, index) => {
         if (page === -1 || page === -2) {
           return (
-            <span key={`ellipsis-${index}`} className="px-3 py-2 text-white-100 font-medium">
+            <span key={`ellipsis-${index}`} className="px-3 py-2 text-white font-medium">
               ...
             </span>
           );
@@ -118,7 +118,7 @@ const PaginationControls: React.FC<{
         Next
       </button>
 
-      <span className="ml-4 text-sm text-white-100 font-medium">
+      <span className="ml-4 text-sm text-white font-medium">
         Page {currentPage} of {totalPages}
       </span>
     </div>
@@ -472,7 +472,7 @@ export default function Page() {
 
               {/* Page info */}
               {totalJobs > 0 && (
-                <div className="text-sm text-white-100">
+                <div className="text-sm text-white">
                   Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
                 </div>
               )}
