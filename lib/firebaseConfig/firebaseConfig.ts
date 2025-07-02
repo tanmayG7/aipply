@@ -14,7 +14,7 @@ import {
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { Job, UserDetails, DashboardData } from "../types";
-import { getJobsByIds, getFilteredJobsByTitle,getJobByTitleandSkills } from "@/lib/mongo/mongo";
+import { getJobsByIds, getFilteredJobsByTitle, getJobByTitleandSkills, getFilteredJobsByTitlePaginated } from "@/lib/mongo/mongo";
 import { mapSalaryToRange, mapExperienceToRange } from "../utils";
 
 const firebaseConfig = {
@@ -248,7 +248,6 @@ const getUserProfile = async (userId?: string) => {
   }
 };
 
-
 const updateUserProfile = async (userId: string, profileData: any) => {
   try {
     const currentDate = new Date().toISOString();
@@ -473,6 +472,185 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
     }
   } catch (error: any) {
     throw new Error("Error fetching updated jobs: " + error.message);
+  }
+};
+
+// NEW PAGINATED VERSION OF getUpdatedJobs
+const getUpdatedJobsPaginated = async (
+  userId: string, 
+  userProfile: UserDetails,
+  page: number = 1,
+  pageSize: number = 20,
+  searchTerm?: string,
+  filters?: {
+    salaryRange?: [number, number][];
+    experience?: [number, number][];
+    jobType?: string[];
+  }
+) => {
+  try {
+    const currentDate = new Date().toISOString().split("T")[0];
+    
+    if (!userProfile.jobTitle) {
+      throw new Error("Primary role not found");
+    }
+
+    // Get cached jobs data
+    const currentJobsData = await getCurrentJobs(userId);
+    let allJobIds: string[] = [];
+    let useCache = false;
+
+    // Check if we can use cached data (from today)
+    if (
+      currentJobsData &&
+      currentJobsData.jobs &&
+      currentJobsData.jobs.length > 0 &&
+      currentJobsData.lastFetchedDate &&
+      currentJobsData.lastFetchedDate.split("T")[0] === currentDate
+    ) {
+      allJobIds = currentJobsData.jobs;
+      useCache = true;
+    }
+
+    // If no cache or cache is old, fetch new jobs
+    if (!useCache) {
+      const archivedJobs = await getArchivedJobs(userId);
+      const hiddenJobs = await getHiddenJobs(userId);
+      const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
+
+      // Get jobs from MongoDB using the paginated function
+      const result = await getFilteredJobsByTitlePaginated(
+        userProfile.jobTitle,
+        excludedJobs,
+        userProfile,
+        1, // Always start from page 1 when fetching fresh data
+        1000 // Get a large number to cache locally
+      );
+
+      const fetchedJobs = result.jobs;
+      allJobIds = fetchedJobs.map((job: any) => job.jobId);
+      
+      // Save to cache
+      await saveCurrentJobs(userId, allJobIds);
+      await saveArchivedJobs(userId, allJobIds);
+      
+      // Update dashboard
+      const dashboardData = await getDashboardData(userId);
+      dashboardData.totalJobsShown += allJobIds.length;
+      await updateDashboardData(userId, dashboardData);
+    }
+
+    // Apply pagination to cached job IDs
+    const startIndex = (page - 1) * pageSize;
+    const paginatedJobIds = allJobIds.slice(startIndex, startIndex + pageSize);
+
+    // Get job details for this page
+    let jobs = await getJobsByIds(
+      paginatedJobIds,
+      userProfile.jobTitle,
+      userProfile.expectedCTC,
+      userProfile.workexperience
+    );
+
+    // Apply search filter if provided
+    if (searchTerm && searchTerm.trim()) {
+      jobs = jobs.filter((job: Job) => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          job.title.toLowerCase().includes(searchLower) ||
+          job.company.toLowerCase().includes(searchLower) ||
+          job.location.some((loc: string) => 
+            loc.toLowerCase().includes(searchLower)
+          ) ||
+          job.tags?.some((tag: string) => 
+            tag.toLowerCase().includes(searchLower)
+          )
+        );
+      });
+    }
+
+    // Apply additional filters
+    if (filters?.salaryRange?.length) {
+      jobs = jobs.filter((job: Job) => {
+        // Add your salary filtering logic here
+        return true; // Placeholder
+      });
+    }
+
+    if (filters?.experience?.length) {
+      jobs = jobs.filter((job: Job) => {
+        // Add your experience filtering logic here
+        return true; // Placeholder
+      });
+    }
+
+    if (filters?.jobType?.length) {
+      jobs = jobs.filter((job: Job) => {
+        return filters.jobType?.includes(job.type || 'Full-time');
+      });
+    }
+
+    // Sanitize jobs before returning
+    const sanitizedJobs = jobs.map((job: any) => ({
+      ...job,
+      _id: job._id?.toString(),
+    }));
+
+    // Calculate total jobs after search/filter
+    let totalJobsAfterFilter = allJobIds.length;
+    
+    if (searchTerm || filters?.salaryRange?.length || filters?.experience?.length || filters?.jobType?.length) {
+      // If filters are applied, we need to count all filtered jobs
+      // For now, we'll use the current page results, but ideally you'd count all filtered results
+      totalJobsAfterFilter = sanitizedJobs.length > 0 ? Math.ceil(sanitizedJobs.length * allJobIds.length / paginatedJobIds.length) : 0;
+    }
+
+    return {
+      jobs: sanitizedJobs,
+      currentPage: page,
+      totalPages: Math.ceil(totalJobsAfterFilter / pageSize),
+      totalJobs: totalJobsAfterFilter,
+      hasMore: startIndex + pageSize < totalJobsAfterFilter
+    };
+
+  } catch (error: any) {
+    throw new Error("Error fetching paginated jobs: " + error.message);
+  }
+};
+
+// Function to get total job count
+const getTotalJobCount = async (
+  userId: string,
+  userProfile: UserDetails,
+  searchTerm?: string,
+  filters?: any
+) => {
+  try {
+    // Get current jobs or fetch new ones
+    const currentJobsData = await getCurrentJobs(userId);
+    
+    if (currentJobsData && currentJobsData.jobs) {
+      return currentJobsData.jobs.length;
+    }
+
+    // If no cached data, get fresh count
+    const archivedJobs = await getArchivedJobs(userId);
+    const hiddenJobs = await getHiddenJobs(userId);
+    const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
+
+    const result = await getFilteredJobsByTitlePaginated(
+      userProfile.jobTitle || '',
+      excludedJobs,
+      userProfile,
+      1,
+      1
+    );
+
+    return result.totalCount || 0;
+
+  } catch (error: any) {
+    console.error('Error getting job count:', error);
+    return 0;
   }
 };
 
@@ -748,6 +926,8 @@ export {
   getCurrentJobs,
   getArchivedJobs,
   getUpdatedJobs,
+  getUpdatedJobsPaginated, // NEW PAGINATED FUNCTION
+  getTotalJobCount, // NEW COUNT FUNCTION
   getHiddenJobs,
   setHideJob,
   getDashboardData,
