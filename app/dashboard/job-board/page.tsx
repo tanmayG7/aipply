@@ -80,7 +80,7 @@ const PaginationControls: React.FC<{
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1 || loading}
-        className="px-4 py-2 text-sm font-medium text-gray-200 bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-4 py-2 text-sm font-medium text-white bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         Previous
       </button>
@@ -102,7 +102,7 @@ const PaginationControls: React.FC<{
             className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
               currentPage === page
                 ? "bg-blue-600 text-white border border-blue-600 font-semibold"
-                : "text-gray-300 bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e] hover:text-white"
+                : "text-white bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e] hover:text-white"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {page}
@@ -113,7 +113,7 @@ const PaginationControls: React.FC<{
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages || loading}
-        className="px-4 py-2 text-sm font-medium text-gray-200 bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-4 py-2 text-sm font-medium text-white bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         Next
       </button>
