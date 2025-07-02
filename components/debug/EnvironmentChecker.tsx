@@ -1,5 +1,4 @@
-// Create this file: components/debug/EnvironmentChecker.tsx
-
+// components/debug/EnvironmentChecker.tsx
 "use client";
 
 import { useEffect } from 'react';
@@ -57,49 +56,19 @@ export const EnvironmentChecker = () => {
     
     // Test Firebase initialization
     try {
-      const { initializeApp, getApps } = require('firebase/app');
-      const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-      console.log('✅ Firebase app initialized successfully:', app.name);
+      // Use dynamic import to avoid SSR issues
+      import('firebase/app').then(({ initializeApp, getApps }) => {
+        const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+        console.log('✅ Firebase app initialized successfully:', app.name);
+      }).catch((error) => {
+        console.error('❌ Firebase initialization failed:', error);
+      });
     } catch (error) {
-      console.error('❌ Firebase initialization failed:', error);
+      console.error('❌ Firebase import failed:', error);
     }
     
   }, []);
 
   // This component doesn't render anything visible
   return null;
-};
-
-// Create this file: components/debug/ServerEnvironmentChecker.tsx
-
-"use server";
-
-export const checkServerEnvironment = () => {
-  console.log('🔧 Server Environment Check:');
-  
-  // Check MongoDB vars (server-side only)
-  const mongoUri = process.env.MONGODB_URI;
-  const mongoDb = process.env.MONGODB_DB;
-  
-  console.log('📊 MongoDB Config:', {
-    hasUri: !!mongoUri,
-    hasDb: !!mongoDb,
-    uriPreview: mongoUri ? `${mongoUri.substring(0, 30)}...` : 'Missing',
-    dbName: mongoDb || 'Missing'
-  });
-  
-  // Check other server-side vars if any
-  const nodeEnv = process.env.NODE_ENV;
-  const nexttelemetry = process.env.NEXT_TELEMETRY_DISABLED;
-  
-  console.log('⚙️ Server Config:', {
-    nodeEnv,
-    telemetryDisabled: nexttelemetry,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-  });
-  
-  return {
-    mongodb: !!mongoUri && !!mongoDb,
-    nodeEnv
-  };
 };
