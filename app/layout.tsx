@@ -74,14 +74,11 @@ export default function RootLayout({
           `}
         </Script>
         
-        {/* Environment Checker Component */}
-        <EnvironmentChecker />
+        {/* Environment Checker Component - Only in development */}
+        {process.env.NODE_ENV === 'development' && <EnvironmentChecker />}
         
         {children}
       </body>
     </html>
   );
 }
-
-// Also create a client component for more detailed environment checking
-// This will run the environment checker on the client side
