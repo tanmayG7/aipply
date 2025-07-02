@@ -13,65 +13,133 @@ import { DashboardData } from "@/lib/types";
 import { DashboardBarChart } from "@/components/charts/barChart";
 import { HomeShimmer } from "@/components/loaders/loader";
 
+const DEBUG = process.env.NODE_ENV === 'development';
+
+const debugLog = (message: string, data?: any) => {
+  if (DEBUG) {
+    console.log(`🏠 HomePage: ${message}`, data || '');
+  }
+};
+
 const HomePage: React.FC = () => {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    debugLog('Setting up auth listener');
+    
     const unsubscribe = auth.onAuthStateChanged((user) => {
+      debugLog('Auth state changed', { hasUser: !!user, uid: user?.uid });
+      
       if (user) {
         fetchDashboardData(user.uid);
+      } else {
+        debugLog('No user - redirecting to login');
+        window.location.href = '/dashboard/onboarding/login';
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      debugLog('Cleaning up auth listener');
+      unsubscribe();
+    };
   }, []);
 
   const fetchDashboardData = async (uid: string) => {
     try {
+      debugLog('Fetching dashboard data', { uid });
+      setLoading(true);
+      setError(null);
+      
       const data = await getDashboardData(uid);
+      debugLog('Dashboard data fetched', { 
+        hasData: !!data,
+        jobsApplied: data?.jobsApplied,
+        totalJobsShown: data?.totalJobsShown
+      });
+      
       setDashboardData(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching dashboard data:", error);
+      debugLog('Error fetching dashboard data', error);
+      setError(`Failed to load dashboard: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Error display
+  if (error) {
+    return (
+      <>
+        <Head>
+          <title>Home - Aipply</title>
+          <meta name="description" content="Welcome to Aipply. Find your dream job today." />
+        </Head>
+        <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
+          <AppSidebar />
+          <SidebarInset>
+            <div className="flex flex-1 flex-col gap-4 p-4 relative bg-[#020218] text-white">
+              <div className="text-center py-8">
+                <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
+                  <h2 className="text-red-400 text-xl font-semibold mb-2">Error Loading Dashboard</h2>
+                  <p className="text-red-300 mb-4">{error}</p>
+                  <button 
+                    onClick={() => {
+                      setError(null);
+                      if (auth.currentUser) {
+                        fetchDashboardData(auth.currentUser.uid);
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+      </>
+    );
+  }
 
   return (
     <>
       <Head>
         <title>Home - Aipply</title>
-        <meta
-          name="description"
-          content="Welcome to Aipply. Find your dream job today."
-        />
+        <meta name="description" content="Welcome to Aipply. Find your dream job today." />
       </Head>
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "19rem",
-          } as React.CSSProperties
-        }
-      >
+      <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
         <AppSidebar />
         
         <SidebarInset>
           <div className="flex flex-1 flex-col gap-4 p-4 relative bg-[#020218] text-white">
-            {!dashboardData ? (
+            {loading ? (
               <HomeShimmer />
             ) : (
               <div className="flex flex-col gap-6">
+                {/* Debug info in development */}
+                {DEBUG && (
+                  <div className="bg-gray-800 p-2 rounded text-xs text-gray-300">
+                    Debug: Data loaded: {!!dashboardData} | Jobs Applied: {dashboardData?.jobsApplied}
+                  </div>
+                )}
+                
                 <div className="gap-3">
                   <h1 className="font-inter text-[#ECECED] font-bold text-[40px]">
                     Home
                   </h1>
                   <p className="font-inter text-[#F5F5F6] text-text-sm-semibold">
-                    Today we have curated 20 jobs for you.
+                    Today we have curated {dashboardData?.totalJobsShown || 0} jobs for you.
                   </p>
                 </div>
+                
                 <div className="w-[50%]">
                   <GetStartedCard appliedJoblength={dashboardData?.jobsApplied ? parseInt(dashboardData.jobsApplied.toString()) : 0}/>
                 </div>
+                
                 <div className="grid grid-cols-4 gap-4">
                   {dashboardData && (
                     <>
@@ -90,7 +158,6 @@ const HomePage: React.FC = () => {
                         title="Avg. Experience (Years)"
                         totalNumber={dashboardData.averageExperience.toString()}
                       />
-
                       <DashboardCard
                         id="4"
                         title="Avg. Package (LPA)"
@@ -99,14 +166,13 @@ const HomePage: React.FC = () => {
                     </>
                   )}
                 </div>
+                
                 <div className="grid grid-cols-2 gap-8">
                   {dashboardData && (
                     <DashboardBarChart locationData={dashboardData.location} />
                   )}
                   {dashboardData && (
-                    <DashboardChart
-                      packageAppliedTo={dashboardData.packageAppliedTo}
-                    />
+                    <DashboardChart packageAppliedTo={dashboardData.packageAppliedTo} />
                   )}
                 </div>
 
@@ -129,11 +195,12 @@ const HomePage: React.FC = () => {
                             Find more jobs
                           </h3>
                           <p className="text-text-md-medium font-inter text-[#94969C]">
-                            Add discount code to your page to increase sales
+                            Discover opportunities that match your skills
                           </p>
                           <Button
                             variant={"secondary"}
                             className="bg-background text-white border hover:bg-blue text-text-sm-medium w-fit font-inter"
+                            onClick={() => window.location.href = '/dashboard/job-board'}
                           >
                             Find more jobs
                           </Button>
@@ -153,7 +220,7 @@ const HomePage: React.FC = () => {
                             Need Help?
                           </h3>
                           <p className="text-text-md-medium font-inter text-[#94969C]">
-                            Contact support or check out our marketing guide!
+                            Contact support or check out our help guide!
                           </p>
                           <Button
                             variant={"secondary"}
