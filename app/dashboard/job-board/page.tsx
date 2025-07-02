@@ -21,28 +21,29 @@ import { mergeSalaryRanges } from "@/lib/utils";
 import { ShimmerJobCard } from "@/components/loaders/loader";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import { User } from "firebase/auth";
 
-// Pagination constants
 const JOBS_PER_PAGE = 20;
 
-// Add debug logging
-const DEBUG = process.env.NODE_ENV === 'development';
-
-const debugLog = (message: string, data?: any) => {
-  if (DEBUG) {
-    console.log(`🔍 JobBoard: ${message}`, data || '');
+// Enhanced debug logging
+const debugLog = (step: string, data?: any) => {
+  console.log(`🔍 JobBoard-${step}:`, data || '');
+  
+  // Also show on screen in development
+  if (process.env.NODE_ENV === 'development') {
+    const debugElement = document.getElementById('debug-info');
+    if (debugElement) {
+      debugElement.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${step}: ${JSON.stringify(data || {})}</div>`;
+      debugElement.scrollTop = debugElement.scrollHeight;
+    }
   }
 };
 
-// Pagination component (unchanged)
 const PaginationControls: React.FC<{
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   loading: boolean;
 }> = ({ currentPage, totalPages, onPageChange, loading }) => {
-  // ... existing pagination code
   return (
     <div className="flex justify-center items-center space-x-2 mt-8 mb-4">
       <button
@@ -81,6 +82,7 @@ export default function Page() {
   const [experience, setExperience] = useState<[number, number][]>([]);
   const [jobType, setJobType] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [debugSteps, setDebugSteps] = useState<string[]>([]);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,20 +92,37 @@ export default function Page() {
   
   const hasFetchedJobs = useRef(false);
 
-  debugLog('Component mounted');
+  // Add debug step
+  const addDebugStep = (step: string, data?: any) => {
+    debugLog(step, data);
+    setDebugSteps(prev => [...prev, `${step}: ${JSON.stringify(data || {})}`]);
+  };
 
-  // Enhanced function to fetch jobs with better error handling
+  // Enhanced function to fetch jobs with detailed logging
   const fetchJobsWithPagination = useCallback(async (page: number, searchTerm: string = '') => {
     try {
-      debugLog('Fetching jobs', { page, searchTerm, userProfile: !!userProfileValue });
+      addDebugStep('FETCH_JOBS_START', { page, searchTerm, hasUserProfile: !!userProfileValue });
       
-      if (!userProfileValue?.jobTitle) {
-        debugLog('No job title in user profile', userProfileValue);
+      if (!userProfileValue) {
+        addDebugStep('FETCH_JOBS_NO_PROFILE');
+        return;
+      }
+
+      if (!userProfileValue.jobTitle) {
+        addDebugStep('FETCH_JOBS_NO_JOB_TITLE', { userProfile: userProfileValue });
+        setError('Please set a job title in your profile to see job recommendations.');
         return;
       }
 
       setPageLoading(true);
       setError(null);
+      
+      addDebugStep('FETCH_JOBS_CALLING_API', {
+        userId: auth.currentUser?.uid,
+        jobTitle: userProfileValue.jobTitle,
+        page,
+        pageSize: JOBS_PER_PAGE
+      });
       
       const result = await getUpdatedJobsPaginated(
         auth.currentUser?.uid || '',
@@ -118,11 +137,18 @@ export default function Page() {
         }
       );
 
-      debugLog('Jobs fetched successfully', {
-        jobCount: result.jobs?.length || 0,
-        totalJobs: result.totalJobs,
-        currentPage: result.currentPage
+      addDebugStep('FETCH_JOBS_RESULT', {
+        hasResult: !!result,
+        jobsLength: result?.jobs?.length || 0,
+        totalJobs: result?.totalJobs || 0,
+        currentPage: result?.currentPage || 0,
+        totalPages: result?.totalPages || 0
       });
+
+      if (!result) {
+        setError('No response from job fetching service');
+        return;
+      }
 
       setJobs(result.jobs || []);
       setCurrentPage(result.currentPage || 1);
@@ -130,9 +156,17 @@ export default function Page() {
       setTotalJobs(result.totalJobs || 0);
       setHasMore(result.hasMore || false);
 
+      addDebugStep('FETCH_JOBS_SUCCESS', {
+        finalJobsCount: result.jobs?.length || 0
+      });
+
     } catch (error: any) {
-      console.error("Error fetching jobs:", error);
-      debugLog('Error fetching jobs', error);
+      addDebugStep('FETCH_JOBS_ERROR', {
+        message: error.message,
+        stack: error.stack,
+        code: error.code
+      });
+      console.error("Full error object:", error);
       setError(`Failed to fetch jobs: ${error.message}`);
       setJobs([]);
     } finally {
@@ -140,46 +174,57 @@ export default function Page() {
     }
   }, [userProfileValue, salaryRange, experience, jobType]);
 
-  // Enhanced initial data fetch
+  // Enhanced initial data fetch with detailed logging
   const fetchInitialData = useCallback(async () => {
-    debugLog('Fetching initial data');
+    addDebugStep('INIT_START');
     setLoading(true);
     setError(null);
     
     try {
       const currentUser = auth.currentUser;
-      debugLog('Current user', { uid: currentUser?.uid, email: currentUser?.email });
+      addDebugStep('INIT_USER_CHECK', { 
+        hasUser: !!currentUser, 
+        uid: currentUser?.uid,
+        email: currentUser?.email 
+      });
       
       if (!currentUser) {
         throw new Error('No authenticated user found');
       }
 
-      debugLog('Fetching user profile');
+      addDebugStep('INIT_FETCH_PROFILE_START');
       const userProfile = await getUserProfile(currentUser.uid) as UserDetails;
-      debugLog('User profile fetched', { 
-        hasJobTitle: !!userProfile?.jobTitle,
+      addDebugStep('INIT_FETCH_PROFILE_SUCCESS', { 
+        hasProfile: !!userProfile,
         jobTitle: userProfile?.jobTitle,
-        hasSkills: !!userProfile?.skills?.length
+        firstName: userProfile?.firstName,
+        skills: userProfile?.skills?.length || 0,
+        email: userProfile?.email
       });
       
       setUserProfileValue(userProfile);
       
-      if (!userProfile?.jobTitle) {
-        setError('Please complete your profile setup with a job title before viewing jobs.');
+      if (!userProfile) {
+        setError('Failed to load user profile. Please complete your profile setup.');
         return;
       }
 
-      debugLog('Fetching hidden jobs');
+      addDebugStep('INIT_FETCH_HIDDEN_START');
       const hideJobs = await getHiddenJobs(currentUser.uid);
+      addDebugStep('INIT_FETCH_HIDDEN_SUCCESS', { count: hideJobs?.length || 0 });
       setHiddenJobs(hideJobs || []);
-      debugLog('Hidden jobs fetched', { count: hideJobs?.length || 0 });
       
       // Fetch first page of jobs
+      addDebugStep('INIT_FETCH_JOBS_START');
       await fetchJobsWithPagination(1, filter);
       
     } catch (error: any) {
-      console.error("Error fetching initial data:", error);
-      debugLog('Error in fetchInitialData', error);
+      addDebugStep('INIT_ERROR', {
+        message: error.message,
+        stack: error.stack,
+        code: error.code
+      });
+      console.error("Full init error:", error);
       setError(`Failed to load data: ${error.message}`);
     } finally {
       setLoading(false);
@@ -188,12 +233,13 @@ export default function Page() {
 
   // Enhanced auth state listener
   useEffect(() => {
-    debugLog('Setting up auth listener');
+    addDebugStep('AUTH_LISTENER_SETUP');
     
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      debugLog('Auth state changed', { 
+      addDebugStep('AUTH_STATE_CHANGE', { 
         hasUser: !!user, 
         uid: user?.uid,
+        email: user?.email,
         hasFetched: hasFetchedJobs.current 
       });
       
@@ -201,36 +247,30 @@ export default function Page() {
         hasFetchedJobs.current = true;
         fetchInitialData();
       } else if (!user) {
-        debugLog('No user - redirecting to login');
+        addDebugStep('AUTH_NO_USER_REDIRECT');
         window.location.href = '/dashboard/onboarding/login';
       }
     });
     
     return () => {
-      debugLog('Cleaning up auth listener');
+      addDebugStep('AUTH_LISTENER_CLEANUP');
       unsubscribe();
     };
   }, [fetchInitialData]);
 
-  // Handle page change
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || pageLoading) return;
     
-    debugLog('Page change', { from: currentPage, to: page });
+    addDebugStep('PAGE_CHANGE', { from: currentPage, to: page });
     fetchJobsWithPagination(page, filter);
-    
-    // Scroll to top of job list
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Handle search
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value;
     setFilter(searchTerm);
     
-    debugLog('Filter change', { searchTerm });
-    
-    // Reset to first page when searching
+    addDebugStep('FILTER_CHANGE', { searchTerm });
     setCurrentPage(1);
     fetchJobsWithPagination(1, searchTerm);
   };
@@ -243,7 +283,6 @@ export default function Page() {
     setShowFilterCard(false);
   };
 
-  // Handle filter application
   const handleFilterApplied = () => {
     setCurrentPage(1);
     fetchJobsWithPagination(1, filter);
@@ -256,8 +295,6 @@ export default function Page() {
       if (userId) {
         await setHideJob(userId, jobId);
         setHiddenJobs([...hiddenJobs, jobId]);
-        
-        // Refresh current page
         fetchJobsWithPagination(currentPage, filter);
       }
     } catch (error: any) {
@@ -282,7 +319,6 @@ export default function Page() {
               const appliedDate: string = new Date().toISOString();
               const mergedSalary = mergeSalaryRanges(job.salary);
               
-              // Convert location to string if it's an array
               const locationString = Array.isArray(job.location) 
                 ? job.location.join(", ") 
                 : job.location;
@@ -307,6 +343,15 @@ export default function Page() {
     }
   };
 
+  // Force re-fetch button for debugging
+  const forceRefetch = () => {
+    addDebugStep('FORCE_REFETCH');
+    setError(null);
+    setJobs([]);
+    hasFetchedJobs.current = false;
+    fetchInitialData();
+  };
+
   // Error display component
   if (error) {
     return (
@@ -315,18 +360,33 @@ export default function Page() {
         <SidebarInset>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
             <div className="text-center py-8">
-              <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
+              <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-2xl mx-auto">
                 <h2 className="text-red-400 text-xl font-semibold mb-2">Error Loading Jobs</h2>
                 <p className="text-red-300 mb-4">{error}</p>
-                <button 
-                  onClick={() => {
-                    setError(null);
-                    fetchInitialData();
-                  }}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
-                >
-                  Try Again
-                </button>
+                <div className="space-y-2 mb-4">
+                  <button 
+                    onClick={forceRefetch}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md mr-2"
+                  >
+                    Try Again
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = '/dashboard/complete-profile'}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                  >
+                    Complete Profile
+                  </button>
+                </div>
+                
+                {/* Debug info */}
+                <details className="text-left">
+                  <summary className="cursor-pointer text-red-300">Debug Info</summary>
+                  <div className="mt-2 text-xs text-red-200 max-h-40 overflow-y-auto">
+                    {debugSteps.map((step, index) => (
+                      <div key={index}>{step}</div>
+                    ))}
+                  </div>
+                </details>
               </div>
             </div>
           </div>
@@ -344,6 +404,46 @@ export default function Page() {
       ) : (
         <SidebarInset>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
+            
+            {/* Debug Panel */}
+            <div id="debug-info" className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs max-h-32 overflow-y-auto font-mono">
+              <div className="font-bold mb-2">Debug Log:</div>
+              {debugSteps.map((step, index) => (
+                <div key={index}>{step}</div>
+              ))}
+            </div>
+
+            {/* Status Panel */}
+            <div className="bg-blue-900/20 border border-blue-500 rounded-lg p-4">
+              <h3 className="text-blue-400 font-semibold mb-2">Job Board Status</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <strong>User:</strong> {userProfileValue?.firstName || 'Loading...'}
+                </div>
+                <div>
+                  <strong>Job Title:</strong> {userProfileValue?.jobTitle || 'Not set'}
+                </div>
+                <div>
+                  <strong>Jobs Loaded:</strong> {jobs.length}
+                </div>
+                <div>
+                  <strong>Total Available:</strong> {totalJobs}
+                </div>
+                <div>
+                  <strong>Loading:</strong> {pageLoading ? 'Yes' : 'No'}
+                </div>
+                <div>
+                  <strong>Hidden Jobs:</strong> {hiddenJobs.length}
+                </div>
+              </div>
+              <button 
+                onClick={forceRefetch}
+                className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+              >
+                Force Refresh
+              </button>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
               <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
                 {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
@@ -370,13 +470,6 @@ export default function Page() {
                 </button>
               </div>
             </div>
-
-            {/* Debug info in development */}
-            {DEBUG && (
-              <div className="bg-gray-800 p-2 rounded text-xs text-gray-300">
-                Debug: User: {userProfileValue?.firstName} | Jobs: {jobs.length} | Loading: {pageLoading.toString()}
-              </div>
-            )}
 
             {/* Page info */}
             {totalJobs > 0 && (
@@ -419,8 +512,21 @@ export default function Page() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-gray-400">
-                  {filter ? "No jobs found matching your search." : userProfileValue?.jobTitle ? "No jobs available for your profile." : "Please complete your profile to see jobs."}
+                <div className="text-center py-8">
+                  <div className="bg-yellow-900/20 border border-yellow-500 rounded-lg p-6 max-w-md mx-auto">
+                    <h3 className="text-yellow-400 text-lg font-semibold mb-2">No Jobs Found</h3>
+                    <p className="text-yellow-300 mb-4">
+                      {filter ? "No jobs match your search." : 
+                       !userProfileValue?.jobTitle ? "Please set a job title in your profile." :
+                       "No jobs available for your profile."}
+                    </p>
+                    <button 
+                      onClick={() => window.location.href = '/dashboard/complete-profile'}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md"
+                    >
+                      Update Profile
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
