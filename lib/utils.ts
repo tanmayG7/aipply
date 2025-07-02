@@ -98,14 +98,19 @@ export const mergeSalaryRanges = (salaries: string[]): string => {
   return `${minSalary}-${maxSalary} Lakhs`;
 };
 
+// Updated to handle both string and array locations
 export const determineJobLocation = (
-  location: string
+  location: string | string[]
 ): { type: string; color: string } => {
-  const lowerCaseLocation = location.toLowerCase();
-  if (lowerCaseLocation.includes("remote")) {
+  // Convert to string if it's an array
+  const locationString = Array.isArray(location) 
+    ? location.join(", ").toLowerCase() 
+    : location.toLowerCase();
+    
+  if (locationString.includes("remote")) {
     if (
-      lowerCaseLocation.includes("on-site") ||
-      lowerCaseLocation.includes("onsite")
+      locationString.includes("on-site") ||
+      locationString.includes("onsite")
     ) {
       return { type: "Hybrid", color: "#FFB946" };
     }
