@@ -24,15 +24,8 @@ interface FilterCardProps {
   ) => void;
   jobType: string[];
   setJobType: (jobType: string[] | ((prev: string[]) => string[])) => void;
-  platform: string[];  // NEW: Platform filter prop
-  setPlatform: (platform: string[] | ((prev: string[]) => string[])) => void;  // NEW: Platform setter prop
   onClose: () => void;
 }
-
-const platformOptions = [
-  { label: "Hirist", value: "Hirist" },
-  { label: "Shine", value: "Shine" }
-];
 
 const FilterCard: React.FC<FilterCardProps> = ({
   jobs,
@@ -43,14 +36,11 @@ const FilterCard: React.FC<FilterCardProps> = ({
   setExperience,
   jobType,
   setJobType,
-  platform,  // NEW: Platform state
-  setPlatform,  // NEW: Platform setter
   onClose,
 }) => {
   const [isSalaryChecked, setIsSalaryChecked] = useState(false);
   const [isExperienceChecked, setIsExperienceChecked] = useState(false);
   const [isJobTypeChecked, setIsJobTypeChecked] = useState(false);
-  const [isPlatformChecked, setIsPlatformChecked] = useState(false);  // NEW: Platform check state
   const [noJobsFound, setNoJobsFound] = useState(false);
 
   // Update state variables based on the current filter arrays
@@ -66,17 +56,11 @@ const FilterCard: React.FC<FilterCardProps> = ({
     setIsJobTypeChecked(jobType.length > 0);
   }, [jobType]);
 
-  // NEW: Update platform check state
-  useEffect(() => {
-    setIsPlatformChecked(platform.length > 0);
-  }, [platform]);
-
   const applyFilters = () => {
-    // Dynamically adjust filters based on checked states
+    // Dynamically adjust salaryRange and experience based on checked ranges
     if (!isSalaryChecked) setSalaryRange([]);
     if (!isExperienceChecked) setExperience([]);
     if (!isJobTypeChecked) setJobType([]);
-    if (!isPlatformChecked) setPlatform([]);  // NEW: Reset platform if not checked
 
     const filteredJobs = jobs.filter((job) => {
       const jobSalaryRanges: [number, number][] = job.salary?.map(
@@ -126,17 +110,10 @@ const FilterCard: React.FC<FilterCardProps> = ({
       const isJobTypeMatch =
         jobType.length === 0 || jobType.includes(jobTypeFromDescription);
 
-      // NEW: Platform filter logic
-      const isPlatformMatch =
-        !isPlatformChecked || 
-        platform.length === 0 || 
-        platform.includes(job.platform || 'Unknown');
-
       const conditions = [];
       if (isSalaryChecked) conditions.push(isWithinSalaryRange);
       if (isExperienceChecked) conditions.push(isWithinExperience);
       if (isJobTypeChecked) conditions.push(isJobTypeMatch);
-      if (isPlatformChecked) conditions.push(isPlatformMatch);  // NEW: Add platform condition
 
       // Ensure all conditions are true
       return conditions.length === 0 || conditions.every((condition) => condition);
@@ -176,16 +153,6 @@ const FilterCard: React.FC<FilterCardProps> = ({
     });
   };
 
-  // NEW: Platform checkbox handler
-  const handlePlatformCheckboxChange = (value: string) => {
-    setPlatform((prev) => {
-      const updatedPlatform = prev.includes(value)
-        ? prev.filter((platform) => platform !== value)
-        : [...prev, value];
-      return updatedPlatform;
-    });
-  };
-
   const handleFilterSubmit = () => {
     applyFilters();
   };
@@ -193,7 +160,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
   return (
     <div>
       <div
-        className="fixed top-0 right-0 w-[300px] h-full bg-[#0C111D] shadow-lg min-w-[443px] px-8 py-8 z-50 flex flex-col gap-8 overflow-y-auto"
+        className="fixed top-0 right-0 w-[300px] h-full bg-[#0C111D] shadow-lg min-w-[443px] px-8 py-8 z-50 flex flex-col gap-8"
         style={{
           borderTopLeftRadius: "40px",
           borderBottomLeftRadius: "40px",
@@ -210,7 +177,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
             onClick={onClose}
           />
         </div>
-        <div className="flex flex-col gap-4 pb-20">
+        <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-8">
             <div className="flex flex-row justify-between">
               <div className="flex flex-col gap-4">
@@ -273,59 +240,30 @@ const FilterCard: React.FC<FilterCardProps> = ({
                 </div>
               </div>
             </div>
-            
-            <div className="flex flex-row justify-between">
-              <div className="flex flex-col gap-4">
-                <label className="block text-[16px] text-white font-inter font-bold">
-                  Job Type
-                </label>
-                <div className="flex flex-col gap-3">
-                  {jobTypes.map((jobTypeOption) => (
-                    <div
-                      key={jobTypeOption.value}
-                      className="flex items-center gap-2"
-                    >
-                      <Checkbox
-                        checked={jobType.includes(jobTypeOption.value)}
-                        onCheckedChange={() =>
-                          handleJobTypeCheckboxChange(jobTypeOption.value)
-                        }
-                      />
-                      <label className="text-text-lg-medium text-[#CECFD2] font-inter">
-                        {jobTypeOption.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* NEW: Platform Filter Section */}
-              <div className="flex flex-col gap-4">
-                <label className="block text-[16px] text-white font-inter font-bold">
-                  Platform
-                </label>
-                <div className="flex flex-col gap-3">
-                  {platformOptions.map((platformOption) => (
-                    <div
-                      key={platformOption.value}
-                      className="flex items-center gap-2"
-                    >
-                      <Checkbox
-                        checked={platform.includes(platformOption.value)}
-                        onCheckedChange={() =>
-                          handlePlatformCheckboxChange(platformOption.value)
-                        }
-                      />
-                      <label className="text-text-lg-medium text-[#CECFD2] font-inter">
-                        {platformOption.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+            <div className="flex flex-col gap-4">
+              <label className="block text-[16px] text-white font-inter font-bold">
+                Job Type
+              </label>
+              <div className="flex flex-col gap-3">
+                {jobTypes.map((jobTypeOption) => (
+                  <div
+                    key={jobTypeOption.value}
+                    className="flex items-center gap-2"
+                  >
+                    <Checkbox
+                      checked={jobType.includes(jobTypeOption.value)}
+                      onCheckedChange={() =>
+                        handleJobTypeCheckboxChange(jobTypeOption.value)
+                      }
+                    />
+                    <label className="text-text-lg-medium text-[#CECFD2] font-inter">
+                      {jobTypeOption.label}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-          
           <div className="absolute z-50 bottom-7 justify-end gap-2 w-full">
             <div className="flex flex-row gap-4 mr-16">
               <Button
