@@ -175,8 +175,7 @@ export default function Page() {
         {
           salaryRange,
           experience,
-          jobType,
-          platform  // NEW: Include platform filter
+          jobType
         },
         MAX_TOTAL_JOBS
       );
@@ -185,7 +184,16 @@ export default function Page() {
         throw new Error('Invalid response from getUpdatedJobsPaginated');
       }
 
-      setJobs(result.jobs || []);
+      let filteredJobs = result.jobs || [];
+      
+      // Apply platform filter on frontend if selected
+      if (platform.length > 0) {
+        filteredJobs = filteredJobs.filter((job: Job) => 
+          platform.includes(job.platform || 'Unknown')
+        );
+      }
+
+      setJobs(filteredJobs);
       setCurrentPage(result.currentPage || page);
       setTotalPages(result.totalPages || 0);
       setTotalJobs(result.totalJobs || 0);
@@ -530,8 +538,8 @@ export default function Page() {
                     setExperience={setExperience}
                     jobType={jobType}
                     setJobType={setJobType}
-                    platform={platform}        // NEW: Pass platform state
-                    setPlatform={setPlatform}  // NEW: Pass platform setter
+                    platform={platform}        // Platform filter props
+                    setPlatform={setPlatform}  // Platform setter props
                     onClose={handleFilterCancel}
                   />
                 </div>
