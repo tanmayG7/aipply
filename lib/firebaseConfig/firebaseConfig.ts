@@ -486,6 +486,8 @@ const getUpdatedJobsPaginated = async (
     salaryRange?: [number, number][];
     experience?: [number, number][];
     jobType?: string[];
+    platform?: string[]; 
+},
   },
   maxTotalJobs: number = 100 // NEW: Job limit parameter
 ) => {
