@@ -669,6 +669,15 @@ const getUpdatedJobsPaginated = async (
       });
       console.log(`[getUpdatedJobsPaginated] Job type filter applied: ${originalLength} -> ${jobs.length}`);
     }
+  if (filters?.platform && filters.platform.length > 0) 
+  {
+  const originalLength = jobs.length;
+  jobs = jobs.filter((job: Job) => 
+    {
+    return filters.platform?.includes(job.platform || 'Unknown');
+    });
+  console.log(`[getUpdatedJobsPaginated] Platform filter applied: ${originalLength} -> ${jobs.length}`);
+  }
 
     // Sanitize jobs before returning
     const sanitizedJobs = jobs.map((job: any) => ({
