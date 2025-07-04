@@ -23,7 +23,7 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
 const JOBS_PER_PAGE = 20;
-const MAX_TOTAL_JOBS = 100; // Limit total jobs to 100
+const MAX_TOTAL_JOBS = 100;
 
 // Pagination component
 const PaginationControls: React.FC<{
@@ -137,7 +137,6 @@ export default function Page() {
   const [salaryRange, setSalaryRange] = useState<[number, number][]>([]);
   const [experience, setExperience] = useState<[number, number][]>([]);
   const [jobType, setJobType] = useState<string[]>([]);
-  const [platform, setPlatform] = useState<string[]>([]); // NEW: Platform filter
   const [error, setError] = useState<string | null>(null);
   
   // Pagination state
@@ -184,16 +183,7 @@ export default function Page() {
         throw new Error('Invalid response from getUpdatedJobsPaginated');
       }
 
-      let filteredJobs = result.jobs || [];
-      
-      // Apply platform filter on frontend if selected
-      if (platform.length > 0) {
-        filteredJobs = filteredJobs.filter((job: Job) => 
-          platform.includes(job.platform || 'Unknown')
-        );
-      }
-
-      setJobs(filteredJobs);
+      setJobs(result.jobs || []);
       setCurrentPage(result.currentPage || page);
       setTotalPages(result.totalPages || 0);
       setTotalJobs(result.totalJobs || 0);
@@ -208,7 +198,7 @@ export default function Page() {
     } finally {
       setPageLoading(false);
     }
-  }, [userProfileValue, salaryRange, experience, jobType, platform]); // Added platform to dependencies
+  }, [userProfileValue, salaryRange, experience, jobType]);
 
   // Simplified initial data fetch
   const fetchInitialData = useCallback(async () => {
@@ -320,18 +310,6 @@ export default function Page() {
       setCurrentPage(1);
       fetchJobsWithPagination(1, searchTerm);
     }, 500);
-  };
-
-  // Handle platform filter change
-  const handlePlatformChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
-    if (value === 'all') {
-      setPlatform([]);
-    } else {
-      setPlatform([value]);
-    }
-    setCurrentPage(1);
-    fetchJobsWithPagination(1, filter);
   };
 
   // Cleanup timeout on unmount
@@ -462,18 +440,6 @@ export default function Page() {
                   {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
                 </h1>
                 <div className="flex flex-row gap-2 justify-start lg:justify-end">
-                  {/* NEW: Platform Filter Dropdown */}
-                  <select
-                    value={platform.length === 1 ? platform[0] : 'all'}
-                    onChange={handlePlatformChange}
-                    className="border border-[#454545] bg-[#020218] text-white py-1 px-4 rounded-md h-11 min-w-[120px]"
-                    title="Filter by job platform"
-                  >
-                    <option value="all">All Platforms</option>
-                    <option value="Hirist">Hirist Only</option>
-                    <option value="Shine">Shine Only</option>
-                  </select>
-                  
                   <input
                     type="text"
                     className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
@@ -504,22 +470,6 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* Platform indicator */}
-              {platform.length > 0 && (
-                <div className="text-sm text-blue-400 flex items-center gap-2">
-                  <span>🔍 Filtering by:</span>
-                  <span className="bg-blue-900/30 px-2 py-1 rounded border border-blue-500">
-                    {platform[0]} Platform
-                  </span>
-                  <button 
-                    onClick={() => {setPlatform([]); setCurrentPage(1); fetchJobsWithPagination(1, filter);}}
-                    className="text-blue-400 hover:text-blue-300 text-xs"
-                  >
-                    ✕ Clear
-                  </button>
-                </div>
-              )}
-
               {/* Page info */}
               {totalJobs > 0 && (
                 <div className="text-sm text-white">
@@ -538,8 +488,6 @@ export default function Page() {
                     setExperience={setExperience}
                     jobType={jobType}
                     setJobType={setJobType}
-                    platform={platform}        // Platform filter props
-                    setPlatform={setPlatform}  // Platform setter props
                     onClose={handleFilterCancel}
                   />
                 </div>
@@ -566,7 +514,6 @@ export default function Page() {
                   <div className="text-center py-8 text-gray-400">
                     {filter ? "No jobs found matching your search." : 
                      !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
-                     platform.length > 0 ? `No jobs available from ${platform[0]} platform.` :
                      "No jobs available for your profile."}
                   </div>
                 ) : null}
