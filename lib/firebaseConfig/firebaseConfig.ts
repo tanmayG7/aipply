@@ -357,6 +357,11 @@ const saveArchivedJobs = async (userId: string, jobIds: string[]) => {
 
 const getCurrentJobs = async (userId: string) => {
   try {
+    // TEMP :: only for purpose of testing method getFilteredJobsByTitlePaginated
+    // to be removed in the next commit
+    return null;
+
+
     const currentJobsDoc = await getDoc(doc(firestore, "currentJobs", userId));
     if (currentJobsDoc?.exists()) {
       return currentJobsDoc.data();
