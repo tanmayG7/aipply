@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   const handleSubscribeClick = () => {
     setShowRazorpay(true);
@@ -15,38 +14,18 @@ const MonthlyComponent = () => {
   const handleMaximize = () => {
     setShowRazorpay(false);
     setMinimizeFeatures(false);
+    // Clear the form content when going back
+    const form = document.getElementById('razorpay-subscription-form');
+    if (form) {
+      form.innerHTML = '';
+    }
   };
 
   useEffect(() => {
-    // Pre-load Razorpay script on component mount for faster subsequent loads
-    if (!razorpayLoaded) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-      script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
-      script.setAttribute('data-button_theme', 'brand-color');
-      script.async = true;
-      
-      script.onload = () => {
-        setRazorpayLoaded(true);
-      };
-      
-      document.head.appendChild(script);
-      
-      // Cleanup function
-      return () => {
-        if (script.parentNode) {
-          document.head.removeChild(script);
-        }
-      };
-    }
-  }, []);
-
-  useEffect(() => {
-    // Initialize Razorpay button when showRazorpay is true and script is loaded
-    if (showRazorpay && razorpayLoaded) {
+    // Add Razorpay script inside form when showRazorpay is true
+    if (showRazorpay) {
       const form = document.getElementById('razorpay-subscription-form');
-      if (form && !form.hasChildNodes()) {
-        // Create and append the script element to the form
+      if (form && form.children.length === 0) {
         const script = document.createElement('script');
         script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
         script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
@@ -55,7 +34,7 @@ const MonthlyComponent = () => {
         form.appendChild(script);
       }
     }
-  }, [showRazorpay, razorpayLoaded]);
+  }, [showRazorpay]);
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
@@ -117,17 +96,9 @@ const MonthlyComponent = () => {
                 </button>
               ) : (
                 <div className="space-y-3">
-                  {razorpayLoaded ? (
-                    <form id="razorpay-subscription-form">
-                      {/* Razorpay button will be injected here */}
-                    </form>
-                  ) : (
-                    <div className="w-full">
-                      <button className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] opacity-70 cursor-not-allowed">
-                        Loading Payment...
-                      </button>
-                    </div>
-                  )}
+                  <form id="razorpay-subscription-form">
+                    {/* Razorpay script will be injected here */}
+                  </form>
                   <button
                     onClick={handleMaximize}
                     className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
@@ -136,7 +107,7 @@ const MonthlyComponent = () => {
                   </button>
                 </div>
               )}
-              {showRazorpay && razorpayLoaded && (
+              {showRazorpay && (
                 <style jsx>{`
                   form#razorpay-subscription-form button {
                     font-family: inherit !important;
