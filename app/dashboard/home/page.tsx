@@ -48,35 +48,41 @@ const HomePage: React.FC = () => {
   }, []);
 
 useEffect(() => {
-  console.log('🧪 Testing skill tree (forced)...');
+  console.log('🧪 Testing skill tree...');
   
-  // Import and test the skill tree
-  import('@/lib/enhanced-skill-tree').then(module => {
-    console.log('✅ Skill tree module loaded:', Object.keys(module));
+  // Import the test function directly
+  import('@/lib/test-skill-tree').then(testModule => {
+    console.log('✅ Test module loaded:', Object.keys(testModule));
     
-    if (module.testSkillTree) {
+    if (testModule.testSkillTree) {
       console.log('🎯 Running testSkillTree...');
-      module.testSkillTree();
+      testModule.testSkillTree();
     } else {
-      console.log('❌ testSkillTree function not found in module');
-    }
-    
-    // Test individual functions
-    if (module.getSkillsStats) {
-      const stats = module.getSkillsStats();
-      console.log('📊 Direct stats test:', stats);
-    }
-    
-    if (module.getSkillsForJobTitle) {
-      const skills = module.getSkillsForJobTitle('Software Engineer');
-      console.log('🔧 Direct skills test:', skills?.slice(0, 5));
+      console.log('❌ testSkillTree function not found');
     }
     
   }).catch(error => {
-    console.error('❌ Failed to import skill tree:', error);
+    console.error('❌ Failed to import test module:', error);
+    
+    // If test module fails, try testing the enhanced-skill-tree directly
+    import('@/lib/enhanced-skill-tree').then(skillModule => {
+      console.log('✅ Skill tree module loaded as fallback:', Object.keys(skillModule));
+      
+      if (skillModule.getSkillsStats) {
+        const stats = skillModule.getSkillsStats();
+        console.log('📊 Direct stats test:', stats);
+      }
+      
+      if (skillModule.getSkillsForJobTitle) {
+        const skills = skillModule.getSkillsForJobTitle('Software Engineer');
+        console.log('🔧 Software Engineer skills:', skills?.slice(0, 5));
+      }
+      
+    }).catch(skillError => {
+      console.error('❌ Both imports failed:', { testError: error, skillError });
+    });
   });
 }, []);
-
   const fetchDashboardData = async (uid: string) => {
     try {
       debugLog('Fetching dashboard data', { uid });
