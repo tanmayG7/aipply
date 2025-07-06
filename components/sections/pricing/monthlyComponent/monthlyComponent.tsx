@@ -14,25 +14,33 @@ const MonthlyComponent = () => {
   const handleMaximize = () => {
     setShowRazorpay(false);
     setMinimizeFeatures(false);
-    // Clear the form content when going back
-    const form = document.getElementById('razorpay-subscription-form');
-    if (form) {
-      form.innerHTML = '';
-    }
+    // Clear the form content when going back to ensure fresh loading
+    setTimeout(() => {
+      const form = document.getElementById('razorpay-subscription-form');
+      if (form) {
+        form.innerHTML = '';
+      }
+    }, 100);
   };
 
   useEffect(() => {
     // Add Razorpay script inside form when showRazorpay is true
     if (showRazorpay) {
-      const form = document.getElementById('razorpay-subscription-form');
-      if (form && form.children.length === 0) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-        script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
-        script.setAttribute('data-button_theme', 'brand-color');
-        script.async = true;
-        form.appendChild(script);
-      }
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const form = document.getElementById('razorpay-subscription-form');
+        if (form) {
+          // Always clear and reload to ensure it works on repeated clicks
+          form.innerHTML = '';
+          
+          const script = document.createElement('script');
+          script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+          script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
+          script.setAttribute('data-button_theme', 'brand-color');
+          script.async = true;
+          form.appendChild(script);
+        }
+      }, 50);
     }
   }, [showRazorpay]);
 
@@ -137,19 +145,14 @@ const MonthlyComponent = () => {
           }
           checkpoints={
             <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center">
-                <span className="font-manrope font-medium text-[18px] text-white">
-                  Features
-                </span>
-                {minimizeFeatures && (
-                  <button
-                    onClick={handleMaximize}
-                    className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300"
-                  >
-                    Show all ↓
-                  </button>
-                )}
-              </div>
+              {minimizeFeatures && (
+                <button
+                  onClick={handleMaximize}
+                  className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 text-left"
+                >
+                  Show all ↓
+                </button>
+              )}
               <div className={`transition-all duration-500 overflow-hidden ${
                 minimizeFeatures ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
               }`}>
