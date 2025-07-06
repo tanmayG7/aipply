@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
-  const [razorpayKey, setRazorpayKey] = useState(0); // Force re-render
 
   const handleSubscribeClick = () => {
     setShowRazorpay(true);
@@ -15,8 +14,6 @@ const MonthlyComponent = () => {
   const handleMaximize = () => {
     setShowRazorpay(false);
     setMinimizeFeatures(false);
-    // Force a new instance by changing the key
-    setRazorpayKey(prev => prev + 1);
   };
 
   return (
@@ -80,7 +77,6 @@ const MonthlyComponent = () => {
               ) : (
                 <div className="space-y-3">
                   <div 
-                    key={razorpayKey}
                     dangerouslySetInnerHTML={{
                       __html: `
                         <form>
@@ -91,25 +87,6 @@ const MonthlyComponent = () => {
                             async>
                           </script>
                         </form>
-                        <style>
-                          form button {
-                            font-family: inherit !important;
-                            width: 100% !important;
-                            font-weight: 700 !important;
-                            font-size: 20px !important;
-                            line-height: 160% !important;
-                            border: 1px solid #5D29FF !important;
-                            color: white !important;
-                            border-radius: 9999px !important;
-                            padding: 12px 20px !important;
-                            background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
-                            transition: all 0.3s ease !important;
-                          }
-                          form button:hover {
-                            transform: translateY(-2px) !important;
-                            box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
-                          }
-                        </style>
                       `
                     }}
                   />
@@ -121,6 +98,25 @@ const MonthlyComponent = () => {
                   </button>
                 </div>
               )}
+              <style jsx>{`
+                form button {
+                  font-family: inherit !important;
+                  width: 100% !important;
+                  font-weight: 700 !important;
+                  font-size: 20px !important;
+                  line-height: 160% !important;
+                  border: 1px solid #5D29FF !important;
+                  color: white !important;
+                  border-radius: 9999px !important;
+                  padding: 12px 20px !important;
+                  background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
+                  transition: all 0.3s ease !important;
+                }
+                form button:hover {
+                  transform: translateY(-2px) !important;
+                  box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
+                }
+              `}</style>
             </div>
           }
           earlyBirdButton={
