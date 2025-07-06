@@ -50,15 +50,33 @@ const normalizeLocation = (location: string | string[]): string => {
   return Array.isArray(location) ? location.join(", ") : location;
 };
 
-export const getJobByTitleandSkills = async(userProfile:UserDetails) => {
+export const getJobByTitleandSkills = async(userProfile: UserDetails) => {
   const db = await connectToMongoDB();
-    const results = await db.collection('jobs')
-    .find({ tags: { $in: userProfile.skills } }) // Match array values
-    .limit(20) // Limit number of documents returned
+  
+  // Get enhanced skills for user's job title (now using 703 job titles!)
+  const enhancedSkills = getSkillsForJobTitle(userProfile.jobTitle || '');
+  const userSkills = userProfile.skills || [];
+  const allSkills = [...new Set([...enhancedSkills, ...userSkills])];
+
+  console.log(`🎯 Enhanced job search for "${userProfile.jobTitle}"`);
+  console.log(`📊 Using ${enhancedSkills.length} job-specific skills + ${userSkills.length} user skills = ${allSkills.length} total`);
+
+  const results = await db.collection('jobs')
+    .find({ 
+      $or: [
+        // Enhanced skills matching (much broader now!)
+        { tags: { $in: allSkills } },
+        { keywords: { $in: allSkills } },
+        // Title matching
+        { title: { $regex: userProfile.jobTitle, $options: 'i' } }
+      ]
+    })
+    .sort({ postedDate: -1 }) // Recent jobs first!
+    .limit(20)
     .toArray();
 
-  
-    return  JSON.parse(JSON.stringify(results));
+  console.log(`✅ Found ${results.length} jobs with enhanced matching`);
+  return JSON.parse(JSON.stringify(results));
 }
 
 export const getJobsByTitle = async (
