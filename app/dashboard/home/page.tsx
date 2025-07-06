@@ -48,12 +48,11 @@ const HomePage: React.FC = () => {
   }, []);
 
   // Test skill tree in development
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🧪 Running skill tree test...');
-      testSkillTree();
-    }
-  }, []);
+ useEffect(() => {
+  console.log('🔥 BASIC TEST - This should appear in console');
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Auth current user:', auth.currentUser?.uid);
+}, []);
 
   const fetchDashboardData = async (uid: string) => {
     try {
