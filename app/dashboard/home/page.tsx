@@ -28,29 +28,31 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-  debugLog('Setting up auth listener');
-  
-  const unsubscribe = auth.onAuthStateChanged((user) => {
-    // ... existing code ...
-  });
-
-  return () => {
-    debugLog('Cleaning up auth listener');
-    unsubscribe();
-  };
-}, []);
-
-useEffect(() => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🧪 Running skill tree test...');
-    testSkillTree();
-  }
-}, []);
+    debugLog('Setting up auth listener');
+    
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      debugLog('Auth state changed', { hasUser: !!user, uid: user?.uid });
+      
+      if (user) {
+        fetchDashboardData(user.uid);
+      } else {
+        debugLog('No user - redirecting to login');
+        window.location.href = '/dashboard/onboarding/login';
+      }
+    });
 
     return () => {
       debugLog('Cleaning up auth listener');
       unsubscribe();
     };
+  }, []);
+
+  // Test skill tree in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🧪 Running skill tree test...');
+      testSkillTree();
+    }
   }, []);
 
   const fetchDashboardData = async (uid: string) => {
