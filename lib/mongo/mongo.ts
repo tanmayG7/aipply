@@ -196,6 +196,7 @@ export const getFilteredJobsByTitlePaginated = async (
 
   if (totalFromJobMap === 0) {
   // ENHANCED: Use comprehensive skill tree for better matching
+      console.log('about to perform Enhanced fallback search');
       const enhancedSkills = getSkillsForJobTitle(userProfile.jobTitle || '');
       const userSkills = userProfile.skills || [];
       const allSkills = [...new Set([...enhancedSkills, ...userSkills])];
