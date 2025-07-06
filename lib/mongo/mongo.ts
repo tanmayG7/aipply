@@ -166,6 +166,7 @@ export const getFilteredJobsByTitlePaginated = async (
   page: number = 1,
   limit: number = 20
 ) => {
+  console.log('[getFilteredJobsByTitlePaginated] function called');
   const db = await connectToMongoDB();
   const skip = (page - 1) * limit;
 
