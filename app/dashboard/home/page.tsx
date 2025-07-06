@@ -47,11 +47,34 @@ const HomePage: React.FC = () => {
     };
   }, []);
 
-  // Test skill tree in development
- useEffect(() => {
-  console.log('🔥 BASIC TEST - This should appear in console');
-  console.log('Environment:', process.env.NODE_ENV);
-  console.log('Auth current user:', auth.currentUser?.uid);
+useEffect(() => {
+  console.log('🧪 Testing skill tree (forced)...');
+  
+  // Import and test the skill tree
+  import('@/lib/enhanced-skill-tree').then(module => {
+    console.log('✅ Skill tree module loaded:', Object.keys(module));
+    
+    if (module.testSkillTree) {
+      console.log('🎯 Running testSkillTree...');
+      module.testSkillTree();
+    } else {
+      console.log('❌ testSkillTree function not found in module');
+    }
+    
+    // Test individual functions
+    if (module.getSkillsStats) {
+      const stats = module.getSkillsStats();
+      console.log('📊 Direct stats test:', stats);
+    }
+    
+    if (module.getSkillsForJobTitle) {
+      const skills = module.getSkillsForJobTitle('Software Engineer');
+      console.log('🔧 Direct skills test:', skills?.slice(0, 5));
+    }
+    
+  }).catch(error => {
+    console.error('❌ Failed to import skill tree:', error);
+  });
 }, []);
 
   const fetchDashboardData = async (uid: string) => {
