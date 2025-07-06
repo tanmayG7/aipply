@@ -4,9 +4,16 @@ import React, { useEffect, useState } from "react";
 
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
+  const [minimizeFeatures, setMinimizeFeatures] = useState(false);
 
   const handleSubscribeClick = () => {
     setShowRazorpay(true);
+    setMinimizeFeatures(true);
+  };
+
+  const handleMaximize = () => {
+    setShowRazorpay(false);
+    setMinimizeFeatures(false);
   };
 
   useEffect(() => {
@@ -92,9 +99,17 @@ const MonthlyComponent = () => {
                   Subscribe Now
                 </button>
               ) : (
-                <form id="razorpay-subscription-form">
-                  {/* Razorpay button will be injected here */}
-                </form>
+                <div className="space-y-3">
+                  <form id="razorpay-subscription-form">
+                    {/* Razorpay button will be injected here */}
+                  </form>
+                  <button
+                    onClick={handleMaximize}
+                    className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
+                  >
+                    ← Back to details
+                  </button>
+                </div>
               )}
               {showRazorpay && (
                 <style jsx>{`
@@ -128,31 +143,50 @@ const MonthlyComponent = () => {
           }
           checkpoints={
             <div className="flex flex-col gap-4">
-              <CheckPointscard
-                imageUrl={"/static/icons/checkpoint.svg"}
-                text="Everything in Free"
-                opacity={true}
-              />
-              <CheckPointscard
-                imageUrl={"/static/icons/checkpoint.svg"}
-                text="Unlimited Job Listings"
-                opacity={true}
-              />
-              <CheckPointscard
-                imageUrl={"/static/icons/checkpoint.svg"}
-                text="Auto Apply (100 jobs/month)"
-                opacity={true}
-              />
-              <CheckPointscard
-                imageUrl={"/static/icons/checkpoint.svg"}
-                text="AI Resume Builder"
-                opacity={true}
-              />
-              <CheckPointscard
-                imageUrl={"/static/icons/checkpoint.svg"}
-                text="AI Mock Interviews"
-                opacity={true}
-              />
+              <div className="flex justify-between items-center">
+                <span className="font-manrope font-medium text-[18px] text-white">
+                  Features
+                </span>
+                {minimizeFeatures && (
+                  <button
+                    onClick={handleMaximize}
+                    className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300"
+                  >
+                    Show all ↓
+                  </button>
+                )}
+              </div>
+              <div className={`transition-all duration-500 overflow-hidden ${
+                minimizeFeatures ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
+              }`}>
+                <div className="flex flex-col gap-4">
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="Everything in Free"
+                    opacity={true}
+                  />
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="Unlimited Job Listings"
+                    opacity={true}
+                  />
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="Auto Apply (100 jobs/month)"
+                    opacity={true}
+                  />
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="AI Resume Builder"
+                    opacity={true}
+                  />
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="AI Mock Interviews"
+                    opacity={true}
+                  />
+                </div>
+              </div>
             </div>
           }
         />
