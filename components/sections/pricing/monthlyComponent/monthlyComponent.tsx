@@ -67,56 +67,24 @@ const MonthlyComponent = () => {
           price="666"
           button={
             <div className="w-full">
-              {!showRazorpay ? (
+              <div className={showRazorpay ? 'hidden' : 'block'}>
                 <button 
                   onClick={handleSubscribeClick}
                   className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
                 >
                   Subscribe Now
                 </button>
-              ) : (
-                <div className="space-y-3">
-                  <div 
-                    dangerouslySetInnerHTML={{
-                      __html: `
-                        <form>
-                          <script 
-                            src="https://cdn.razorpay.com/static/widget/subscription-button.js" 
-                            data-subscription_button_id="pl_Qpqiazi0S9XVVD" 
-                            data-button_theme="brand-color" 
-                            async>
-                          </script>
-                        </form>
-                      `
-                    }}
-                  />
-                  <button
-                    onClick={handleMaximize}
-                    className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
-                  >
-                    ← Back to details
-                  </button>
-                </div>
-              )}
-              <style jsx>{`
-                form button {
-                  font-family: inherit !important;
-                  width: 100% !important;
-                  font-weight: 700 !important;
-                  font-size: 20px !important;
-                  line-height: 160% !important;
-                  border: 1px solid #5D29FF !important;
-                  color: white !important;
-                  border-radius: 9999px !important;
-                  padding: 12px 20px !important;
-                  background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
-                  transition: all 0.3s ease !important;
-                }
-                form button:hover {
-                  transform: translateY(-2px) !important;
-                  box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
-                }
-              `}</style>
+              </div>
+              
+              <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
+                <form><script src="https://cdn.razorpay.com/static/widget/subscription-button.js" data-subscription_button_id="pl_Qpqiazi0S9XVVD" data-button_theme="brand-color" async> </script> </form>
+                <button
+                  onClick={handleMaximize}
+                  className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
+                >
+                  ← Back to details
+                </button>
+              </div>
             </div>
           }
           earlyBirdButton={
