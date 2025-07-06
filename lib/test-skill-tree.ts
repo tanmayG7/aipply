@@ -1,21 +1,30 @@
-// Test file: test-skill-tree.ts (or add to an existing component)
-import { getSkillsForJobTitle, getSkillsStats, getAllJobTitles } from './lib/enhanced-skill-tree';
+// lib/test-skill-tree.ts
+import { getSkillsForJobTitle, getSkillsStats, getAllJobTitles } from './enhanced-skill-tree';
+//                                                                    ^^ Remove the "lib/" part
 
-// Test basic functionality
-console.log('=== Skill Tree Stats ===');
-console.log(getSkillsStats());
-
-console.log('\n=== Sample Job Skills ===');
-console.log('Software Engineer:', getSkillsForJobTitle('Software Engineer'));
-console.log('AI Engineer:', getSkillsForJobTitle('AI Engineer'));
-console.log('Data Scientist:', getSkillsForJobTitle('Data Scientist'));
-
-// Test fuzzy matching
-console.log('\n=== Fuzzy Matching Tests ===');
-console.log('software engineer (lowercase):', getSkillsForJobTitle('software engineer'));
-console.log('Frontend Dev (partial match):', getSkillsForJobTitle('Frontend'));
-console.log('ML Engineer (partial match):', getSkillsForJobTitle('ML Engineer'));
-
-console.log('\n=== Total Job Titles Available ===');
-console.log(`Total: ${getAllJobTitles().length}`);
-console.log('First 10:', getAllJobTitles().slice(0, 10));
+export const testSkillTree = () => {
+  console.log('=== Enhanced Skill Tree Test Results ===');
+  
+  // Basic stats
+  const stats = getSkillsStats();
+  console.log('📊 Statistics:', stats);
+  
+  // Test specific job titles
+  const testJobs = ['Software Engineer', 'AI Engineer', 'Data Scientist', 'Product Manager'];
+  testJobs.forEach(job => {
+    const skills = getSkillsForJobTitle(job);
+    console.log(`🔧 ${job}:`, skills.slice(0, 5), `(${skills.length} total)`);
+  });
+  
+  // Test fuzzy matching
+  console.log('\n🔍 Fuzzy Matching Tests:');
+  console.log('software engineer:', getSkillsForJobTitle('software engineer').slice(0, 3));
+  console.log('frontend:', getSkillsForJobTitle('frontend').slice(0, 3));
+  console.log('ml engineer:', getSkillsForJobTitle('ml engineer').slice(0, 3));
+  
+  // Show available job titles
+  console.log(`\n📋 Total job titles: ${getAllJobTitles().length}`);
+  console.log('Sample titles:', getAllJobTitles().slice(0, 10));
+  
+  return stats;
+};
