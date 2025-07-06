@@ -191,8 +191,8 @@ export const getFilteredJobsByTitlePaginated = async (
     .aggregate(totalCountPipeline)
     .toArray();
 
-  //const totalFromJobMap = totalCountResult.length > 0 ? totalCountResult[0].total : 0;
-  const totalFromJobMap=0; // TEMP CODE : added to ensure we enter the next if block, need to uncomment the above line
+  const totalFromJobMap = totalCountResult.length > 0 ? totalCountResult[0].total : 0;
+  // const totalFromJobMap=0; // TEMP CODE : added to ensure we enter the next if block, need to uncomment the above line
   console.log(`Before Enhanced fallback search for "${userProfile.jobTitle}"`);
   console.log(`totalFromJobMap "${totalFromJobMap}"`);
 
