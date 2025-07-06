@@ -1,8 +1,30 @@
 import PricingCard from "@/components/card/pricingCard/pricingCard";
 import CheckPointscard from "@/components/common/checkPointscard/checkPointscard";
-import React from "react";
+import React, { useEffect } from "react";
 
 const MonthlyComponent = () => {
+  useEffect(() => {
+    // Load Razorpay script dynamically
+    const script = document.createElement('script');
+    script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+    script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
+    script.setAttribute('data-button_theme', 'brand-color');
+    script.async = true;
+    
+    // Find the form element and append the script
+    const form = document.getElementById('razorpay-subscription-form');
+    if (form) {
+      form.appendChild(script);
+    }
+    
+    // Cleanup function
+    return () => {
+      if (form && script.parentNode) {
+        form.removeChild(script);
+      }
+    };
+  }, []);
+
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
       {/* <div
@@ -53,9 +75,30 @@ const MonthlyComponent = () => {
           subtitle="Save 85% of your time and land interviews faster"
           price="666"
           button={
-            <button className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF]">
-              Upgrade Now
-            </button>
+            <div className="w-full">
+              <form id="razorpay-subscription-form">
+                {/* Razorpay button will be injected here */}
+              </form>
+              <style jsx>{`
+                form#razorpay-subscription-form button {
+                  font-family: inherit !important;
+                  width: 100% !important;
+                  font-weight: 700 !important;
+                  font-size: 20px !important;
+                  line-height: 160% !important;
+                  border: 1px solid #5D29FF !important;
+                  color: white !important;
+                  border-radius: 9999px !important;
+                  padding: 12px 20px !important;
+                  background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
+                  transition: all 0.3s ease !important;
+                }
+                form#razorpay-subscription-form button:hover {
+                  transform: translateY(-2px) !important;
+                  box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
+                }
+              `}</style>
+            </div>
           }
           earlyBirdButton={
             <button className="font-manrope font-[800] text-[16px] leading-[100%] text-white  border rounded-[30px] px-6 py-[10px]">
