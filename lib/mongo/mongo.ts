@@ -191,6 +191,8 @@ export const getFilteredJobsByTitlePaginated = async (
     .toArray();
 
   const totalFromJobMap = totalCountResult.length > 0 ? totalCountResult[0].total : 0;
+  console.log(`Before Enhanced fallback search for "${userProfile.jobTitle}"`);
+  console.log(`totalFromJobMap "${totalFromJobMap}"`);
 
   if (totalFromJobMap === 0) {
   // ENHANCED: Use comprehensive skill tree for better matching
