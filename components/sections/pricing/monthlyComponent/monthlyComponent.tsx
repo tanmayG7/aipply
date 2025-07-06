@@ -144,9 +144,7 @@ const MonthlyComponent = () => {
           checkpoints={
             <div className="flex flex-col gap-4">
               <div className="flex justify-between items-center">
-                <span className="font-manrope font-medium text-[18px] text-white">
-                  Features
-                </span>
+                
                 {minimizeFeatures && (
                   <button
                     onClick={handleMaximize}
