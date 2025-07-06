@@ -542,6 +542,8 @@ const getUpdatedJobsPaginated = async (
         1, // Always start from page 1 when fetching fresh data
         maxTotalJobs // Use the job limit here instead of 1000
       );
+      // In getUpdatedJobsPaginated, add this after the getFilteredJobsByTitlePaginated call:
+      console.log('[getUpdatedJobsPaginated] Result from getFilteredJobsByTitlePaginated:', result);
 
       if (!result || !result.jobs) {
         console.error(`[getUpdatedJobsPaginated] Invalid result from getFilteredJobsByTitlePaginated:`, result);
