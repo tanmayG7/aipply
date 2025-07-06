@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
+  const [razorpayKey, setRazorpayKey] = useState(0); // Force re-render
 
   const handleSubscribeClick = () => {
     setShowRazorpay(true);
@@ -14,35 +15,9 @@ const MonthlyComponent = () => {
   const handleMaximize = () => {
     setShowRazorpay(false);
     setMinimizeFeatures(false);
-    // Clear the form content when going back to ensure fresh loading
-    setTimeout(() => {
-      const form = document.getElementById('razorpay-subscription-form');
-      if (form) {
-        form.innerHTML = '';
-      }
-    }, 100);
+    // Force a new instance by changing the key
+    setRazorpayKey(prev => prev + 1);
   };
-
-  useEffect(() => {
-    // Add Razorpay script inside form when showRazorpay is true
-    if (showRazorpay) {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        const form = document.getElementById('razorpay-subscription-form');
-        if (form) {
-          // Always clear and reload to ensure it works on repeated clicks
-          form.innerHTML = '';
-          
-          const script = document.createElement('script');
-          script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-          script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
-          script.setAttribute('data-button_theme', 'brand-color');
-          script.async = true;
-          form.appendChild(script);
-        }
-      }, 50);
-    }
-  }, [showRazorpay]);
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
@@ -104,9 +79,40 @@ const MonthlyComponent = () => {
                 </button>
               ) : (
                 <div className="space-y-3">
-                  <form id="razorpay-subscription-form">
-                    {/* Razorpay script will be injected here */}
-                  </form>
+                  <div 
+                    key={razorpayKey}
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                        <form>
+                          <script 
+                            src="https://cdn.razorpay.com/static/widget/subscription-button.js" 
+                            data-subscription_button_id="pl_Qpqiazi0S9XVVD" 
+                            data-button_theme="brand-color" 
+                            async>
+                          </script>
+                        </form>
+                        <style>
+                          form button {
+                            font-family: inherit !important;
+                            width: 100% !important;
+                            font-weight: 700 !important;
+                            font-size: 20px !important;
+                            line-height: 160% !important;
+                            border: 1px solid #5D29FF !important;
+                            color: white !important;
+                            border-radius: 9999px !important;
+                            padding: 12px 20px !important;
+                            background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
+                            transition: all 0.3s ease !important;
+                          }
+                          form button:hover {
+                            transform: translateY(-2px) !important;
+                            box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
+                          }
+                        </style>
+                      `
+                    }}
+                  />
                   <button
                     onClick={handleMaximize}
                     className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
@@ -114,27 +120,6 @@ const MonthlyComponent = () => {
                     ← Back to details
                   </button>
                 </div>
-              )}
-              {showRazorpay && (
-                <style jsx>{`
-                  form#razorpay-subscription-form button {
-                    font-family: inherit !important;
-                    width: 100% !important;
-                    font-weight: 700 !important;
-                    font-size: 20px !important;
-                    line-height: 160% !important;
-                    border: 1px solid #5D29FF !important;
-                    color: white !important;
-                    border-radius: 9999px !important;
-                    padding: 12px 20px !important;
-                    background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
-                    transition: all 0.3s ease !important;
-                  }
-                  form#razorpay-subscription-form button:hover {
-                    transform: translateY(-2px) !important;
-                    box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
-                  }
-                `}</style>
               )}
             </div>
           }
