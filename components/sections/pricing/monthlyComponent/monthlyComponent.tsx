@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   const handleSubscribeClick = () => {
     setShowRazorpay(true);
@@ -17,28 +18,44 @@ const MonthlyComponent = () => {
   };
 
   useEffect(() => {
-    // Only load Razorpay script when showRazorpay is true
-    if (showRazorpay) {
+    // Pre-load Razorpay script on component mount for faster subsequent loads
+    if (!razorpayLoaded) {
       const script = document.createElement('script');
       script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
       script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
       script.setAttribute('data-button_theme', 'brand-color');
       script.async = true;
       
-      // Find the form element and append the script
-      const form = document.getElementById('razorpay-subscription-form');
-      if (form) {
-        form.appendChild(script);
-      }
+      script.onload = () => {
+        setRazorpayLoaded(true);
+      };
+      
+      document.head.appendChild(script);
       
       // Cleanup function
       return () => {
-        if (form && script.parentNode) {
-          form.removeChild(script);
+        if (script.parentNode) {
+          document.head.removeChild(script);
         }
       };
     }
-  }, [showRazorpay]);
+  }, []);
+
+  useEffect(() => {
+    // Initialize Razorpay button when showRazorpay is true and script is loaded
+    if (showRazorpay && razorpayLoaded) {
+      const form = document.getElementById('razorpay-subscription-form');
+      if (form && !form.hasChildNodes()) {
+        // Create and append the script element to the form
+        const script = document.createElement('script');
+        script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+        script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
+        script.setAttribute('data-button_theme', 'brand-color');
+        script.async = true;
+        form.appendChild(script);
+      }
+    }
+  }, [showRazorpay, razorpayLoaded]);
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
@@ -100,9 +117,17 @@ const MonthlyComponent = () => {
                 </button>
               ) : (
                 <div className="space-y-3">
-                  <form id="razorpay-subscription-form">
-                    {/* Razorpay button will be injected here */}
-                  </form>
+                  {razorpayLoaded ? (
+                    <form id="razorpay-subscription-form">
+                      {/* Razorpay button will be injected here */}
+                    </form>
+                  ) : (
+                    <div className="w-full">
+                      <button className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] opacity-70 cursor-not-allowed">
+                        Loading Payment...
+                      </button>
+                    </div>
+                  )}
                   <button
                     onClick={handleMaximize}
                     className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
@@ -111,7 +136,7 @@ const MonthlyComponent = () => {
                   </button>
                 </div>
               )}
-              {showRazorpay && (
+              {showRazorpay && razorpayLoaded && (
                 <style jsx>{`
                   form#razorpay-subscription-form button {
                     font-family: inherit !important;
@@ -135,16 +160,16 @@ const MonthlyComponent = () => {
             </div>
           }
           earlyBirdButton={
-            !showRazorpay ? (
-              <button className="font-manrope font-[800] text-[16px] leading-[100%] text-white  border rounded-[30px] px-6 py-[10px]">
-                Early-bird price
-              </button>
-            ) : null
+            <button className="font-manrope font-[800] text-[16px] leading-[100%] text-white  border rounded-[30px] px-6 py-[10px]">
+              Early-bird price
+            </button>
           }
           checkpoints={
             <div className="flex flex-col gap-4">
               <div className="flex justify-between items-center">
-                
+                <span className="font-manrope font-medium text-[18px] text-white">
+                  Features
+                </span>
                 {minimizeFeatures && (
                   <button
                     onClick={handleMaximize}
