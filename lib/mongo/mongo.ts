@@ -193,11 +193,22 @@ export const getFilteredJobsByTitlePaginated = async (
   const totalFromJobMap = totalCountResult.length > 0 ? totalCountResult[0].total : 0;
 
   if (totalFromJobMap === 0) {
-    // Fallback to skills-based search with pagination
-    const skillsQuery = { 
-      tags: { $in: userProfile.skills },
-      id: { $nin: excludedArray }
-    };
+  // ENHANCED: Use comprehensive skill tree for better matching
+      const enhancedSkills = getSkillsForJobTitle(userProfile.jobTitle || '');
+      const userSkills = userProfile.skills || [];
+      const allSkills = [...new Set([...enhancedSkills, ...userSkills])];
+      
+      console.log(`🎯 Enhanced fallback search for "${userProfile.jobTitle}"`);
+      console.log(`📊 Using ${enhancedSkills.length} enhanced skills + ${userSkills.length} user skills = ${allSkills.length} total`);
+    
+      const skillsQuery = { 
+        $or: [
+          { tags: { $in: allSkills } },
+          { keywords: { $in: allSkills } },
+          { title: { $regex: userProfile.jobTitle || '', $options: 'i' } }
+        ],
+        id: { $nin: excludedArray }
+      };
 
     // Get total count for skills-based search
     const skillsTotal = await db.collection('jobs').countDocuments(skillsQuery);
