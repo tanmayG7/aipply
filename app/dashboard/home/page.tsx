@@ -12,6 +12,7 @@ import { auth, getDashboardData } from "@/lib/firebaseConfig/firebaseConfig";
 import { DashboardData } from "@/lib/types";
 import { DashboardBarChart } from "@/components/charts/barChart";
 import { HomeShimmer } from "@/components/loaders/loader";
+import { testSkillTree } from '@/lib/test-skill-tree';
 
 const DEBUG = process.env.NODE_ENV === 'development';
 
@@ -27,18 +28,24 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    debugLog('Setting up auth listener');
-    
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      debugLog('Auth state changed', { hasUser: !!user, uid: user?.uid });
-      
-      if (user) {
-        fetchDashboardData(user.uid);
-      } else {
-        debugLog('No user - redirecting to login');
-        window.location.href = '/dashboard/onboarding/login';
-      }
-    });
+  debugLog('Setting up auth listener');
+  
+  const unsubscribe = auth.onAuthStateChanged((user) => {
+    // ... existing code ...
+  });
+
+  return () => {
+    debugLog('Cleaning up auth listener');
+    unsubscribe();
+  };
+}, []);
+
+useEffect(() => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🧪 Running skill tree test...');
+    testSkillTree();
+  }
+}, []);
 
     return () => {
       debugLog('Cleaning up auth listener');
