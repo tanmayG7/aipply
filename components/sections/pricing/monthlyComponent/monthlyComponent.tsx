@@ -137,7 +137,7 @@ const MonthlyComponent = () => {
                   Show all ↓
                 </button>
               )}
-              <div className={`transition-all duration-500 overflow-hidden ${
+              <div className={`overflow-hidden ${
                 minimizeFeatures ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
               }`}>
                 <div className="flex flex-col gap-4">
