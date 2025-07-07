@@ -11,19 +11,6 @@ import React, { useState } from "react";
 const Pricing = () => {
   const [selectedPlan, setSelectedPlan] = useState("monthly");
 
-  const renderPlanComponent = () => {
-    switch (selectedPlan) {
-      case "monthly":
-        return <MonthlyComponent />;
-      case "quarterly":
-        return <QuarterlyComponent />;
-      case "yearly":
-        return <YearlyComponent />;
-      default:
-        return null;
-    }
-  };
-
   const getButtonClass = (plan: string) => {
     return `font-manrope font-[500] text-[18px] leading-[160%] text-white px-[12px] custom-sm:px-[30px] py-2 ${
       selectedPlan === plan ? "border border-white rounded-md" : ""
@@ -68,7 +55,19 @@ const Pricing = () => {
               </button>
             </div>
           </div>
-          <div>{renderPlanComponent()}</div>
+          
+          {/* Render all components but hide the ones not selected */}
+          <div>
+            <div className={selectedPlan === "monthly" ? "block" : "hidden"}>
+              <MonthlyComponent />
+            </div>
+            <div className={selectedPlan === "quarterly" ? "block" : "hidden"}>
+              <QuarterlyComponent />
+            </div>
+            <div className={selectedPlan === "yearly" ? "block" : "hidden"}>
+              <YearlyComponent />
+            </div>
+          </div>
         </div>
       </ResponsivePageContainer>
 
