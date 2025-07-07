@@ -1,12 +1,27 @@
 import PricingCard from "@/components/card/pricingCard/pricingCard";
 import CheckPointscard from "@/components/common/checkPointscard/checkPointscard";
 import React, { useEffect, useState } from "react";
+import { auth } from "@/lib/firebaseConfig/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  // Listen for auth changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleSubscribeClick = () => {
+    if (!user) {
+      alert("Please login first to subscribe");
+      return;
+    }
     setShowRazorpay(true);
     setMinimizeFeatures(true);
   };
@@ -19,15 +34,21 @@ const MonthlyComponent = () => {
   useEffect(() => {
     // Load Razorpay script once when component mounts
     const form = document.getElementById('razorpay-subscription-form');
-    if (form && form.children.length === 0) {
+    if (form && form.children.length === 0 && user) {
       const script = document.createElement('script');
       script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-      script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD');
+      script.setAttribute('data-subscription_button_id', 'pl_QqIH3ysYHYPnEP');
       script.setAttribute('data-button_theme', 'brand-color');
+      
+      // Add user data to Razorpay
+      script.setAttribute('data-subscription_prefill_name', user.displayName || user.email);
+      script.setAttribute('data-subscription_prefill_email', user.email);
+      script.setAttribute('data-subscription_notes_userId', user.uid); // This is crucial!
+      
       script.async = true;
       form.appendChild(script);
     }
-  }, []); // Empty dependency array - runs once on mount
+  }, [user]); // Re-run when user changes
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
@@ -85,14 +106,25 @@ const MonthlyComponent = () => {
                   onClick={handleSubscribeClick}
                   className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
                 >
-                  Subscribe Now
+                  {user ? 'Subscribe Now' : 'Login to Subscribe'}
                 </button>
               </div>
               
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
-                <form id="razorpay-subscription-form">
-                  {/* Razorpay script will be injected here by useEffect */}
-                </form>
+                {user ? (
+                  <>
+                    <form id="razorpay-subscription-form">
+                      {/* Razorpay script will be injected here by useEffect */}
+                    </form>
+                    <div className="text-xs text-white text-opacity-50 text-center">
+                      Subscribing as: {user.email}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center text-white text-opacity-70">
+                    Please login first
+                  </div>
+                )}
                 <button
                   onClick={handleMaximize}
                   className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
