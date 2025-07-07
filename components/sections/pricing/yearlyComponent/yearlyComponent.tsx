@@ -26,7 +26,7 @@ const YearlyComponent = () => {
         console.log('Injecting yearly script...');
         const script = document.createElement('script');
         script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-        script.setAttribute('data-subscription_button_id', 'pl_QqCnmIE8a89Pst');
+        script.setAttribute('data-subscription_button_id', 'pl_QqCnmIE8a89Pst'); // Back to original yearly ID
         script.setAttribute('data-button_theme', 'brand-color');
         script.async = true;
         script.onload = () => console.log('Yearly script loaded successfully');
