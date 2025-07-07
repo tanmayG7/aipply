@@ -214,10 +214,9 @@ class FuzzyJobMatcher {
       ...job,
       id: job._id?.toString() || job.id,
       jobId: job.id || job._id,
-      postedDate: job && job.postedDate && job.postedDate instanceof Date 
-        ? job.postedDate.toISOString() 
+      postedDate: job && job.postedDate && (job.postedDate as any) instanceof Date
+        ? job.postedDate.toISOString()
         : job.postedDate,
-
     }));
   }
 
