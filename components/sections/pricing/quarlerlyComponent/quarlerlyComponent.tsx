@@ -2,7 +2,7 @@ import PricingCard from '@/components/card/pricingCard/pricingCard';
 import CheckPointscard from '@/components/common/checkPointscard/checkPointscard';
 import React, { useEffect, useState } from 'react'
 
-const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
+const QuarterlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
 
