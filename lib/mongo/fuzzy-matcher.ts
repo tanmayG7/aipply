@@ -617,4 +617,5 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
 // Import the existing function to maintain compatibility
 import { getFilteredJobsByTitlePaginated } from './mongo';
 
-export { FuzzyJobMatcher, ScoredJob, FuzzyMatchResult };
+export { FuzzyJobMatcher };
+export type { ScoredJob, FuzzyMatchResult };
