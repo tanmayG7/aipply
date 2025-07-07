@@ -81,21 +81,9 @@ const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
               </div>
               
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
-                <div 
-                  key={`quarterly-${razorpayKey}`}
-                  dangerouslySetInnerHTML={{
-                    __html: `
-                      <form>
-                        <script 
-                          src="https://cdn.razorpay.com/static/widget/subscription-button.js" 
-                          data-subscription_button_id="pl_QqBpW1j6IzLa1M" 
-                          data-button_theme="brand-color" 
-                          async>
-                        </script>
-                      </form>
-                    `
-                  }}
-                />
+                <form id="razorpay-subscription-form-quarterly">
+                  {/* Razorpay script will be injected here by useEffect */}
+                </form>
                 <button
                   onClick={handleMaximize}
                   className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
@@ -105,7 +93,7 @@ const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
               </div>
               
               <style jsx>{`
-                form button {
+                form#razorpay-subscription-form-quarterly button {
                   font-family: inherit !important;
                   width: 100% !important;
                   font-weight: 700 !important;
@@ -118,7 +106,7 @@ const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
                   background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
                   transition: all 0.3s ease !important;
                 }
-                form button:hover {
+                form#razorpay-subscription-form-quarterly button:hover {
                   transform: translateY(-2px) !important;
                   box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
                 }
