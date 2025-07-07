@@ -6,19 +6,39 @@ const QuarterlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
 
-  const [razorpayKey, setRazorpayKey] = useState(0);
-
   const handleSubscribeClick = () => {
     setShowRazorpay(true);
     setMinimizeFeatures(true);
-    // Force fresh instance
-    setRazorpayKey(prev => prev + 1);
   };
 
   const handleMaximize = () => {
     setShowRazorpay(false);
     setMinimizeFeatures(false);
   };
+
+  useEffect(() => {
+    // Add delay and logging to debug
+    console.log('Quarterly component mounted, looking for form...');
+    const timer = setTimeout(() => {
+      const form = document.getElementById('razorpay-subscription-form-quarterly');
+      console.log('Quarterly form found:', form);
+      if (form && form.children.length === 0) {
+        console.log('Injecting quarterly script...');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+        script.setAttribute('data-subscription_button_id', 'pl_QqBpW1j6IzLa1M');
+        script.setAttribute('data-button_theme', 'brand-color');
+        script.async = true;
+        script.onload = () => console.log('Quarterly script loaded successfully');
+        script.onerror = () => console.log('Quarterly script failed to load');
+        form.appendChild(script);
+      } else {
+        console.log('Quarterly form not found or already has children');
+      }
+    }, 500); // Increased delay
+
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array - runs once on mount
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
