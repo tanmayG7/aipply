@@ -17,20 +17,16 @@ const QuarterlyComponent = () => {
   };
 
   useEffect(() => {
-    // Add delay to ensure DOM is fully rendered after tab switch
-    const timer = setTimeout(() => {
-      const form = document.getElementById('razorpay-subscription-form-quarterly');
-      if (form && form.children.length === 0) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-        script.setAttribute('data-subscription_button_id', 'pl_QqBpW1j6IzLa1M');
-        script.setAttribute('data-button_theme', 'brand-color');
-        script.async = true;
-        form.appendChild(script);
-      }
-    }, 200); // Increased delay for tab switching
-
-    return () => clearTimeout(timer);
+    // Load Razorpay script once when component mounts - no delays needed since component stays mounted
+    const form = document.getElementById('razorpay-subscription-form-quarterly');
+    if (form && form.children.length === 0) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+      script.setAttribute('data-subscription_button_id', 'pl_QqBpW1j6IzLa1M');
+      script.setAttribute('data-button_theme', 'brand-color');
+      script.async = true;
+      form.appendChild(script);
+    }
   }, []); // Empty dependency array - runs once on mount
 
   return (
@@ -94,6 +90,9 @@ const QuarterlyComponent = () => {
               </div>
               
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
+                <form id="razorpay-subscription-form-quarterly">
+                  {/* Razorpay script will be injected here by useEffect */}
+                </form>
                 <button
                   onClick={handleMaximize}
                   className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
@@ -101,14 +100,6 @@ const QuarterlyComponent = () => {
                   ← Back to details
                 </button>
               </div>
-              
-              {/* Always present form for script injection, shown when needed */}
-              <form 
-                id="razorpay-subscription-form-quarterly" 
-                className={showRazorpay ? 'block' : 'hidden'}
-              >
-                {/* Razorpay script will be injected here by useEffect */}
-              </form>
               
               <style jsx>{`
                 form#razorpay-subscription-form-quarterly button {
