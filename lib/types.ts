@@ -172,8 +172,18 @@ export interface FeatureAccess {
   reason?: 'upgrade_required' | 'daily_limit_reached' | 'monthly_limit_reached' | 'unknown_error';
 }
 
-// Plan configuration constants
+// Update this in your lib/types.ts file - replace the existing RAZORPAY_PLAN_MAPPING
+
 export const RAZORPAY_PLAN_MAPPING: Record<string, PlanConfig> = {
+  // Test mode plan IDs
+  'pl_QqIH3ysYHYPnEP': { 
+    type: 'monthly', 
+    price: 666, 
+    duration: 30,
+    name: 'Premium Monthly'
+  },
+  
+  // Keep your old live mode plan IDs as well (for when you switch back)
   'pl_Qpqiazi0S9XVVD': { 
     type: 'monthly', 
     price: 666, 
