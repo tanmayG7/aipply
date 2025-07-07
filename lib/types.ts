@@ -93,3 +93,129 @@ export interface DashboardData {
   totalJobsShown: number;
   updatedAt: string;
 }
+
+// ========== SUBSCRIPTION TYPES ==========
+// Add these interfaces to the end of your lib/types.ts file
+
+export interface UserSubscription {
+  userId: string;
+  subscriptionStatus: 'free' | 'premium' | 'expired' | 'cancelled' | 'grace_period';
+  planType: 'monthly' | 'quarterly' | 'yearly' | null;
+  planTier: 'free' | 'premium';
+  
+  // Razorpay details
+  razorpaySubscriptionId: string | null;
+  razorpayCustomerId: string | null;
+  razorpayPlanId: string | null;
+  
+  // Dates
+  subscriptionStartDate: string | null;
+  renewalDate: string | null;
+  lastPaymentDate: string | null;
+  nextBillingDate: string | null;
+  cancelledDate: string | null;
+  expiredDate: string | null;
+  gracePeriodEndDate: string | null;
+  
+  // Plan details
+  planPrice: number | null;
+  planCurrency: 'INR';
+  
+  // Feature access & limits
+  features: {
+    autoApply: boolean;
+    unlimitedJobListings: boolean;
+    aiResumeBuilder: boolean;
+    aiMockInterviews: boolean;
+    prioritySupport: boolean;
+    maxAutoApplyPerDay: number;
+    maxAutoApplyPerMonth: number;
+    hasManualApply: boolean;
+  };
+  
+  // Usage tracking (resets at midnight IST)
+  usage: {
+    autoApplyToday: number;
+    autoApplyThisMonth: number;
+    lastResetDate: string; // YYYY-MM-DD format (IST)
+    lastMonthlyResetDate: string; // YYYY-MM format (IST)
+    timezone: 'Asia/Kolkata';
+  };
+  
+  // Metadata
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaymentHistory {
+  userId: string;
+  razorpayPaymentId: string;
+  razorpaySubscriptionId: string;
+  amount: number;
+  currency: 'INR';
+  status: 'success' | 'failed' | 'pending' | 'refunded';
+  planType: 'monthly' | 'quarterly' | 'yearly';
+  paymentDate: string;
+  failureReason?: string;
+  createdAt: string;
+}
+
+export interface PlanConfig {
+  type: 'monthly' | 'quarterly' | 'yearly';
+  price: number;
+  duration: number; // days
+  name: string;
+}
+
+export interface FeatureAccess {
+  allowed: boolean;
+  reason?: 'upgrade_required' | 'daily_limit_reached' | 'monthly_limit_reached' | 'unknown_error';
+}
+
+// Plan configuration constants
+export const RAZORPAY_PLAN_MAPPING: Record<string, PlanConfig> = {
+  'pl_Qpqiazi0S9XVVD': { 
+    type: 'monthly', 
+    price: 666, 
+    duration: 30,
+    name: 'Premium Monthly'
+  },
+  'pl_QqBpW1j6IzLa1M': { 
+    type: 'quarterly', 
+    price: 499, 
+    duration: 90,
+    name: 'Premium Quarterly'
+  },
+  'pl_QqCnmIE8a89Pst': { 
+    type: 'yearly', 
+    price: 349, 
+    duration: 365,
+    name: 'Premium Yearly'
+  }
+};
+
+export const PLAN_FEATURES = {
+  free: {
+    autoApply: false,
+    unlimitedJobListings: true,
+    aiResumeBuilder: false,
+    aiMockInterviews: false,
+    prioritySupport: false,
+    maxAutoApplyPerDay: 0,
+    maxAutoApplyPerMonth: 0,
+    hasManualApply: true
+  },
+  premium: {
+    autoApply: true,
+    unlimitedJobListings: true,
+    aiResumeBuilder: true,
+    aiMockInterviews: true,
+    prioritySupport: true,
+    maxAutoApplyPerDay: 20,
+    maxAutoApplyPerMonth: 600,
+    hasManualApply: true
+  }
+};
+
+export const GRACE_PERIOD_DAYS = 7;
+export const INDIA_TIMEZONE = 'Asia/Kolkata';
