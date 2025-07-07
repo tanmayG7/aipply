@@ -56,16 +56,16 @@ const Pricing = () => {
             </div>
           </div>
           
-          {/* Render all components but hide the ones not selected */}
+          {/* Render all components but hide the ones not selected, pass visibility prop */}
           <div>
             <div className={selectedPlan === "monthly" ? "block" : "hidden"}>
               <MonthlyComponent />
             </div>
             <div className={selectedPlan === "quarterly" ? "block" : "hidden"}>
-              <QuarterlyComponent />
+              <QuarterlyComponent isVisible={selectedPlan === "quarterly"} />
             </div>
             <div className={selectedPlan === "yearly" ? "block" : "hidden"}>
-              <YearlyComponent />
+              <YearlyComponent isVisible={selectedPlan === "yearly"} />
             </div>
           </div>
         </div>
