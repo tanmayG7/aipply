@@ -17,8 +17,8 @@ const QuarterlyComponent = () => {
   };
 
   useEffect(() => {
-    // Load Razorpay script once when component mounts - no delays needed since component stays mounted
-    const form = document.getElementById('razorpay-subscription-form-quarterly');
+    // Load Razorpay script once when component mounts - using same form ID as monthly for testing
+    const form = document.getElementById('razorpay-subscription-form');
     if (form && form.children.length === 0) {
       const script = document.createElement('script');
       script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
@@ -90,7 +90,7 @@ const QuarterlyComponent = () => {
               </div>
               
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
-                <form id="razorpay-subscription-form-quarterly">
+                <form id="razorpay-subscription-form">
                   {/* Razorpay script will be injected here by useEffect */}
                 </form>
                 <button
@@ -102,7 +102,7 @@ const QuarterlyComponent = () => {
               </div>
               
               <style jsx>{`
-                form#razorpay-subscription-form-quarterly button {
+                form#razorpay-subscription-form button {
                   font-family: inherit !important;
                   width: 100% !important;
                   font-weight: 700 !important;
@@ -115,7 +115,7 @@ const QuarterlyComponent = () => {
                   background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
                   transition: all 0.3s ease !important;
                 }
-                form#razorpay-subscription-form-quarterly button:hover {
+                form#razorpay-subscription-form button:hover {
                   transform: translateY(-2px) !important;
                   box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
                 }
