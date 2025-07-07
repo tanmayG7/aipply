@@ -24,7 +24,7 @@ const YearlyComponent = ({ isVisible }: { isVisible: boolean }) => {
         if (form && form.children.length === 0) {
           const script = document.createElement('script');
           script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-          script.setAttribute('data-subscription_button_id', 'pl_QqCnmIE8a89Pst');
+          script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD'); // Using monthly ID for testing
           script.setAttribute('data-button_theme', 'brand-color');
           script.async = true;
           form.appendChild(script);
