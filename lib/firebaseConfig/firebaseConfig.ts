@@ -228,6 +228,9 @@ const updateUserSubscription = async (userId: string, updates: Partial<UserSubsc
 };
 
 // Check if user can use a specific feature
+// Replace the existing canUseFeature function in your firebaseConfig.ts with this fixed version:
+
+// Check if user can use a specific feature
 const canUseFeature = async (userId: string, feature: keyof UserSubscription['features']): Promise<FeatureAccess> => {
   try {
     const subscription = await getUserSubscription(userId);
@@ -252,6 +255,31 @@ const canUseFeature = async (userId: string, feature: keyof UserSubscription['fe
       }
     }
     
+    // For boolean features, check if enabled
+    if (typeof subscription.features[feature] === 'boolean') {
+      const hasFeature = subscription.features[feature] as boolean;
+      if (!hasFeature && effectiveStatus === 'free') {
+        return { allowed: false, reason: 'upgrade_required' };
+      }
+      return { allowed: hasFeature };
+    }
+    
+    // For number features (like maxAutoApplyPerDay), they're always "allowed" if > 0
+    if (typeof subscription.features[feature] === 'number') {
+      const featureValue = subscription.features[feature] as number;
+      if (featureValue === 0 && effectiveStatus === 'free') {
+        return { allowed: false, reason: 'upgrade_required' };
+      }
+      return { allowed: featureValue > 0 };
+    }
+    
+    // Default case
+    return { allowed: false, reason: 'unknown_error' };
+  } catch (error: any) {
+    console.error(`Error checking feature access for ${feature}:`, error);
+    return { allowed: false, reason: 'unknown_error' };
+  }
+};
     // For other features, just check if enabled
     const hasFeature = subscription.features[feature];
     if (!hasFeature && effectiveStatus === 'free') {
