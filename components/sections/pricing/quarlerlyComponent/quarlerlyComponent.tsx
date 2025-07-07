@@ -17,16 +17,20 @@ const QuarterlyComponent = () => {
   };
 
   useEffect(() => {
-    // Load Razorpay script once when component mounts
-    const form = document.getElementById('razorpay-subscription-form');
-    if (form && form.children.length === 0) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-      script.setAttribute('data-subscription_button_id', 'pl_QqBpW1j6IzLa1M');
-      script.setAttribute('data-button_theme', 'brand-color');
-      script.async = true;
-      form.appendChild(script);
-    }
+    // Add a small delay to ensure the DOM is ready after tab switch
+    const timer = setTimeout(() => {
+      const form = document.getElementById('razorpay-subscription-form-quarterly');
+      if (form && form.children.length === 0) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+        script.setAttribute('data-subscription_button_id', 'pl_QqBpW1j6IzLa1M');
+        script.setAttribute('data-button_theme', 'brand-color');
+        script.async = true;
+        form.appendChild(script);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []); // Empty dependency array - runs once on mount
 
   return (
@@ -90,9 +94,6 @@ const QuarterlyComponent = () => {
               </div>
               
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
-                <form id="razorpay-subscription-form">
-                  {/* Razorpay script will be injected here by useEffect */}
-                </form>
                 <button
                   onClick={handleMaximize}
                   className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
@@ -101,8 +102,13 @@ const QuarterlyComponent = () => {
                 </button>
               </div>
               
+              {/* Always present form for script injection */}
+              <form id="razorpay-subscription-form-quarterly" className={showRazorpay ? 'block' : 'hidden'}>
+                {/* Razorpay script will be injected here by useEffect */}
+              </form>
+              
               <style jsx>{`
-                form#razorpay-subscription-form button {
+                form#razorpay-subscription-form-quarterly button {
                   font-family: inherit !important;
                   width: 100% !important;
                   font-weight: 700 !important;
@@ -115,7 +121,7 @@ const QuarterlyComponent = () => {
                   background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
                   transition: all 0.3s ease !important;
                 }
-                form#razorpay-subscription-form button:hover {
+                form#razorpay-subscription-form-quarterly button:hover {
                   transform: translateY(-2px) !important;
                   box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
                 }
@@ -127,7 +133,7 @@ const QuarterlyComponent = () => {
               Early-bird price
             </button>
           }
-          crossText="666"
+          crossText="1998"
           discount="25% Saved"
           checkpoints={
             <div className="flex flex-col gap-4">
