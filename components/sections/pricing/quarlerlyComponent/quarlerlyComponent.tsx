@@ -30,7 +30,10 @@ const QuarterlyComponent = () => {
   }, []); // Empty dependency array - runs once on mount
 
   return (
-    <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-[60px] ">
+    <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
+      {/* <div
+        className="absolute w-full h-[710px] top-[-135px] left-[685px] bg-[#AE94FF] opacity-50 backdrop-blur-[400px] blur-[200px] rounded-full"
+      ></div> */}
       <div>
         <PricingCard
           image="/static/pricingIcons/freeplan.svg"
@@ -69,7 +72,7 @@ const QuarterlyComponent = () => {
         />
       </div>
 
-      <div className="border-2 border-[#FFFFFF4D] rounded-[20px]">
+      <div className="border-2 border-[#FFFFFF4D] rounded-[20px] relative">
         <PricingCard
           image="/static/pricingIcons/premiumplan.svg"
           planName="Premium Plan"
@@ -80,7 +83,7 @@ const QuarterlyComponent = () => {
               <div className={showRazorpay ? 'hidden' : 'block'}>
                 <button 
                   onClick={handleSubscribeClick}
-                  className="font-manrope w-full font-bold text-[14px] custom-sm:text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
+                  className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
                 >
                   Subscribe Now
                 </button>
@@ -124,7 +127,7 @@ const QuarterlyComponent = () => {
               Early-bird price
             </button>
           }
-          crossText="1998"
+          crossText="666"
           discount="25% Saved"
           checkpoints={
             <div className="flex flex-col gap-4">
