@@ -17,27 +17,16 @@ const YearlyComponent = () => {
   };
 
   useEffect(() => {
-    // Add delay and logging to debug
-    console.log('Yearly component mounted, looking for form...');
-    const timer = setTimeout(() => {
-      const form = document.getElementById('razorpay-subscription-form-yearly');
-      console.log('Yearly form found:', form);
-      if (form && form.children.length === 0) {
-        console.log('Injecting yearly script...');
-        const script = document.createElement('script');
-        script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-        script.setAttribute('data-subscription_button_id', 'pl_QqCnmIE8a89Pst'); // Back to original yearly ID
-        script.setAttribute('data-button_theme', 'brand-color');
-        script.async = true;
-        script.onload = () => console.log('Yearly script loaded successfully');
-        script.onerror = () => console.log('Yearly script failed to load');
-        form.appendChild(script);
-      } else {
-        console.log('Yearly form not found or already has children');
-      }
-    }, 750); // Even more delay to avoid conflicts
-
-    return () => clearTimeout(timer);
+    // Load Razorpay script once when component mounts - exactly like monthly
+    const form = document.getElementById('razorpay-subscription-form-yearly');
+    if (form && form.children.length === 0) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+      script.setAttribute('data-subscription_button_id', 'pl_QqCnmIE8a89Pst');
+      script.setAttribute('data-button_theme', 'brand-color');
+      script.async = true;
+      form.appendChild(script);
+    }
   }, []); // Empty dependency array - runs once on mount
 
   return (
