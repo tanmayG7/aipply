@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { UserSubscription, PLAN_FEATURES } from "../types";
 import { initializeApp, getApps, getApp } from "firebase/app";
 import {
   getAuth,
