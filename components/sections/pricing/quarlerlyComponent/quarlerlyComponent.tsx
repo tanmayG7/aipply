@@ -2,7 +2,7 @@ import PricingCard from '@/components/card/pricingCard/pricingCard';
 import CheckPointscard from '@/components/common/checkPointscard/checkPointscard';
 import React, { useEffect, useState } from 'react'
 
-const QuarterlyComponent = () => {
+const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
 
@@ -17,17 +17,23 @@ const QuarterlyComponent = () => {
   };
 
   useEffect(() => {
-    // Load Razorpay script once when component mounts - using unique form ID
-    const form = document.getElementById('razorpay-subscription-form-quarterly');
-    if (form && form.children.length === 0) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-      script.setAttribute('data-subscription_button_id', 'pl_QqBpW1j6IzLa1M');
-      script.setAttribute('data-button_theme', 'brand-color');
-      script.async = true;
-      form.appendChild(script);
+    // Only load script when this component is visible
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        const form = document.getElementById('razorpay-subscription-form-quarterly');
+        if (form && form.children.length === 0) {
+          const script = document.createElement('script');
+          script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+          script.setAttribute('data-subscription_button_id', 'pl_QqBpW1j6IzLa1M');
+          script.setAttribute('data-button_theme', 'brand-color');
+          script.async = true;
+          form.appendChild(script);
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
     }
-  }, []); // Empty dependency array - runs once on mount
+  }, [isVisible]); // Load when component becomes visible
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
