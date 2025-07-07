@@ -280,7 +280,9 @@ class FuzzyJobMatcher {
         );
         if (titleSimilarity >= minSimilarity) {
           totalScore += titleSimilarity * 0.6;
-          matchType = matchType === 'exact' ? 'exact' : 'title';
+          if (matchType !== 'exact') {
+            matchType = 'title';
+          }
         }
       }
 
