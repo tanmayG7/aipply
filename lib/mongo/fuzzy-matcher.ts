@@ -233,7 +233,7 @@ class FuzzyJobMatcher {
    * Core fuzzy matching and scoring logic
    * Time Complexity: O(n * m * k) where n = jobs, m = avg tags per job, k = user skills
    */
-  private static scoreJobsWithFuzzyMatching(
+  public static scoreJobsWithFuzzyMatching(
     jobs: any[],
     userSkills: string[],
     jobTitle: string,
