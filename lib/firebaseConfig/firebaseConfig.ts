@@ -331,7 +331,7 @@ const checkSubscriptionStatus = async (userId: string): Promise<'free' | 'premiu
   }
 };
 
-// ========== EXISTING FUNCTIONS (keeping all your current functions) ==========
+// ========== EXISTING FUNCTIONS ==========
 
 // Contact Form Types and Constants
 type ContactFormData = {
@@ -844,4 +844,520 @@ const getUpdatedJobsPaginated = async (
       const fetchedJobs = result.jobs;
       allJobIds = fetchedJobs.map((job: any) => job.jobId).filter(Boolean); // Filter out null/undefined jobIds
       
-      console.log(`[getUpdatedJobsPaginated] Fetched ${fetchedJobs.length} jobs,
+      console.log(`[getUpdatedJobsPaginated] Fetched ${fetchedJobs.length} jobs, got ${allJobIds.length} job IDs`);
+      
+      // Limit the job IDs to maxTotalJobs
+      if (allJobIds.length > maxTotalJobs) {
+        allJobIds = allJobIds.slice(0, maxTotalJobs);
+        console.log(`[getUpdatedJobsPaginated] Limited job IDs to ${maxTotalJobs}`);
+      }
+      
+      // Save to cache only if we have jobs
+      if (allJobIds.length > 0) {
+        await saveCurrentJobs(userId, allJobIds);
+        await saveArchivedJobs(userId, allJobIds);
+        
+        // Update dashboard
+        const dashboardData = await getDashboardData(userId);
+        dashboardData.totalJobsShown += allJobIds.length;
+        await updateDashboardData(userId, dashboardData);
+        
+        console.log(`[getUpdatedJobsPaginated] Saved ${allJobIds.length} jobs to cache`);
+      } else {
+        console.warn(`[getUpdatedJobsPaginated] No jobs to cache`);
+      }
+    }
+
+    // Apply job limit to cached data as well
+    if (allJobIds.length > maxTotalJobs) {
+      allJobIds = allJobIds.slice(0, maxTotalJobs);
+      console.log(`[getUpdatedJobsPaginated] Limited cached job IDs to ${maxTotalJobs}`);
+    }
+
+    // Calculate pagination boundaries
+    const totalAvailableJobs = allJobIds.length;
+    const totalPages = Math.ceil(totalAvailableJobs / pageSize);
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, totalAvailableJobs);
+    
+    console.log(`[getUpdatedJobsPaginated] Pagination - Total: ${totalAvailableJobs}, Pages: ${totalPages}, Range: ${startIndex}-${endIndex}`);
+
+    // Get job IDs for this page
+    const paginatedJobIds = allJobIds.slice(startIndex, endIndex);
+
+    if (paginatedJobIds.length === 0) {
+      console.log(`[getUpdatedJobsPaginated] No jobs for page ${page}`);
+      return {
+        jobs: [],
+        currentPage: page,
+        totalPages: totalPages,
+        totalJobs: totalAvailableJobs,
+        hasMore: false
+      };
+    }
+
+    // Get job details for this page
+    console.log(`[getUpdatedJobsPaginated] Fetching details for ${paginatedJobIds.length} jobs`);
+    
+    let jobs = await getJobsByIds(
+      paginatedJobIds,
+      userProfile.jobTitle,
+      userProfile.expectedCTC,
+      userProfile.workexperience
+    );
+
+    if (!jobs || !Array.isArray(jobs)) {
+      console.error(`[getUpdatedJobsPaginated] Invalid jobs response:`, jobs);
+      jobs = [];
+    }
+
+    console.log(`[getUpdatedJobsPaginated] Retrieved ${jobs.length} job details`);
+
+    // Apply search filter if provided
+    if (searchTerm && searchTerm.trim()) {
+      const originalLength = jobs.length;
+      jobs = jobs.filter((job: Job) => {
+        if (!job) return false;
+        
+        const searchLower = searchTerm.toLowerCase();
+        
+        // Handle location - check if it's array or string
+        const locationMatch = Array.isArray(job.location) 
+          ? job.location.some((loc: string) => loc && loc.toLowerCase().includes(searchLower))
+          : job.location?.toLowerCase().includes(searchLower);
+        
+        return (
+          (job.title && job.title.toLowerCase().includes(searchLower)) ||
+          (job.company && job.company.toLowerCase().includes(searchLower)) ||
+          locationMatch ||
+          (job.tags && job.tags.some((tag: string) => 
+            tag && tag.toLowerCase().includes(searchLower)
+          ))
+        );
+      });
+      
+      console.log(`[getUpdatedJobsPaginated] Search filtered jobs from ${originalLength} to ${jobs.length}`);
+    }
+
+    // Apply additional filters
+    if (filters?.salaryRange && filters.salaryRange.length > 0) {
+      const originalLength = jobs.length;
+      jobs = jobs.filter((job: Job) => {
+        // Implement salary filtering logic based on your salary structure
+        // This is a placeholder - you'll need to implement based on your data structure
+        return true; 
+      });
+      console.log(`[getUpdatedJobsPaginated] Salary filter applied: ${originalLength} -> ${jobs.length}`);
+    }
+
+    if (filters?.experience && filters.experience.length > 0) {
+      const originalLength = jobs.length;
+      jobs = jobs.filter((job: Job) => {
+        // Implement experience filtering logic
+        // This is a placeholder - you'll need to implement based on your data structure
+        return true;
+      });
+      console.log(`[getUpdatedJobsPaginated] Experience filter applied: ${originalLength} -> ${jobs.length}`);
+    }
+
+    if (filters?.jobType && filters.jobType.length > 0) {
+      const originalLength = jobs.length;
+      jobs = jobs.filter((job: Job) => {
+        return filters.jobType?.includes(job.type || 'Full-time');
+      });
+      console.log(`[getUpdatedJobsPaginated] Job type filter applied: ${originalLength} -> ${jobs.length}`);
+    }
+    
+    if (filters?.platform && filters.platform.length > 0) {
+      const originalLength = jobs.length;
+      jobs = jobs.filter((job: Job) => {
+        return filters.platform?.includes(job.platform || 'Unknown');
+      });
+      console.log(`[getUpdatedJobsPaginated] Platform filter applied: ${originalLength} -> ${jobs.length}`);
+    }
+
+    // Sanitize jobs before returning
+    const sanitizedJobs = jobs.map((job: any) => ({
+      ...job,
+      _id: job._id?.toString(),
+    })).filter(job => job && job.jobId); // Remove any null/undefined jobs
+
+    console.log(`[getUpdatedJobsPaginated] Returning ${sanitizedJobs.length} sanitized jobs`);
+
+    // For filtered results, we need to handle totalJobs differently
+    // When filters are applied, totalJobs should reflect the filtered count across all pages
+    let totalJobsAfterFilter = totalAvailableJobs;
+    
+    if (searchTerm || filters?.salaryRange?.length || filters?.experience?.length || filters?.jobType?.length) {
+      // If filters are applied, the actual total would require filtering all jobs
+      // For performance, we'll estimate based on current page ratio
+      // In a production app, you might want to do this filtering at the database level
+      if (paginatedJobIds.length > 0) {
+        const filterRatio = sanitizedJobs.length / Math.min(paginatedJobIds.length, jobs.length || 1);
+        totalJobsAfterFilter = Math.ceil(totalAvailableJobs * filterRatio);
+      } else {
+        totalJobsAfterFilter = sanitizedJobs.length;
+      }
+      
+      console.log(`[getUpdatedJobsPaginated] Estimated total after filters: ${totalJobsAfterFilter}`);
+    }
+
+    const result = {
+      jobs: sanitizedJobs,
+      currentPage: page,
+      totalPages: Math.ceil(totalJobsAfterFilter / pageSize),
+      totalJobs: Math.min(totalJobsAfterFilter, maxTotalJobs), // Ensure we don't exceed the limit
+      hasMore: (page * pageSize) < Math.min(totalJobsAfterFilter, maxTotalJobs)
+    };
+
+    console.log(`[getUpdatedJobsPaginated] Final result:`, {
+      jobCount: result.jobs.length,
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      totalJobs: result.totalJobs,
+      hasMore: result.hasMore
+    });
+
+    return result;
+
+  } catch (error: any) {
+    console.error(`[getUpdatedJobsPaginated] Error:`, error);
+    throw new Error("Error fetching paginated jobs: " + error.message);
+  }
+};
+
+// Function to get total job count
+const getTotalJobCount = async (
+  userId: string,
+  userProfile: UserDetails,
+  searchTerm?: string,
+  filters?: any
+) => {
+  try {
+    // Get current jobs or fetch new ones
+    const currentJobsData = await getCurrentJobs(userId);
+    
+    if (currentJobsData && currentJobsData.jobs) {
+      return currentJobsData.jobs.length;
+    }
+
+    // If no cached data, get fresh count
+    const archivedJobs = await getArchivedJobs(userId);
+    const hiddenJobs = await getHiddenJobs(userId);
+    const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
+
+    const result = await getFilteredJobsByTitlePaginated(
+      userProfile.jobTitle || '',
+      excludedJobs,
+      userProfile,
+      1,
+      1
+    );
+
+    return result.totalCount || 0;
+
+  } catch (error: any) {
+    console.error('Error getting job count:', error);
+    return 0;
+  }
+};
+
+const getDashboardData = async (userId: string): Promise<DashboardData> => {
+  try {
+    const dashboardDataDoc = await getDoc(
+      doc(firestore, "dashboardData", userId)
+    );
+    if (dashboardDataDoc.exists()) {
+      return dashboardDataDoc.data() as DashboardData;
+    } else {
+      return {
+        averageExperience: 0,
+        averagePackage: 0,
+        experienceAppliedTo: {},
+        jobsApplied: 0,
+        location: {},
+        packageAppliedTo: {},
+        totalJobsShown: 0,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+const setAppliedJob = async (
+  userId: string,
+  jobId: string,
+  appliedDate: string
+) => {
+  try {
+    const appliedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    const appliedJobs = appliedJobsDoc.exists()
+      ? appliedJobsDoc.data().appliedJobs
+      : [];
+    if (!appliedJobs.some((job: { jobId: string }) => job.jobId === jobId)) {
+      appliedJobs.push({ jobId, appliedDate });
+    }
+
+    await setDoc(
+      doc(firestore, "appliedJobs", userId),
+      {
+        appliedJobs: appliedJobs,
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+  } catch (error: any) {
+    throw new Error("Error applying job: " + error.message);
+  }
+};
+
+const updateJobStatus = async (
+  userId: string,
+  jobId: string,
+  newStatus: string,
+  currentStatus: string
+) => {
+  try {
+    const jobTrackerDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    if (jobTrackerDoc.exists()) {
+      const jobTrackerData = jobTrackerDoc.data();
+      const currentStatusJobs = jobTrackerData[currentStatus];
+      const newStatusJobs = jobTrackerData[newStatus] ?? [];
+      const jobIndex = currentStatusJobs.findIndex(
+        (job: { jobId: string }) => job.jobId === jobId
+      );
+      if (jobIndex !== -1) {
+        const job = currentStatusJobs[jobIndex];
+        currentStatusJobs.splice(jobIndex, 1);
+        newStatusJobs.push(job);
+      }
+      await setDoc(
+        doc(firestore, "appliedJobs", userId),
+        {
+          ...jobTrackerData,
+          [currentStatus]: currentStatusJobs,
+          [newStatus]: newStatusJobs,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+    }
+  } catch (error: any) {
+    throw new Error("Error updating job status: " + error.message);
+  }
+};
+
+const averageSalaryValues = {
+  "0-3 LPA": 1.5,
+  "3-6 LPA": 4.5,
+  "6-10 LPA": 8,
+  "10-15 LPA": 12.5,
+  "15-25 LPA": 20,
+  "25+ LPA": 30,
+};
+
+const averageExperienceValues = {
+  "0-2 Years": 1,
+  "2-4 Years": 3,
+  "4-8 Years": 6,
+  "8-12 Years": 10,
+  "12 Years+": 15,
+};
+
+const updateDashboardOnJobApplied = async (
+  userId: string,
+  packageRange: string,
+  locations: string,
+  experienceRange: string
+) => {
+  try {
+    const dashboardData = await getDashboardData(userId);
+
+    // Initialize experienceAppliedTo and location if they don't exist
+    if (!dashboardData.experienceAppliedTo) {
+      dashboardData.experienceAppliedTo = {};
+    }
+    if (!dashboardData.location) {
+      dashboardData.location = {};
+    }
+
+    const generalPackageRange = mapSalaryToRange(packageRange);
+    dashboardData.jobsApplied += 1;
+    dashboardData.packageAppliedTo[generalPackageRange] =
+      (dashboardData.packageAppliedTo[generalPackageRange] || 0) + 1;
+
+    // Split locations and increment count for each
+    const locationList = locations
+      .split(",")
+      .map((location) => location.trim());
+    locationList.forEach((location) => {
+      dashboardData.location[location] =
+        (dashboardData.location[location] || 0) + 1;
+    });
+
+    // Handle experience ranges
+    const generalExperienceRanges = mapExperienceToRange(experienceRange);
+    generalExperienceRanges.forEach((range) => {
+      dashboardData.experienceAppliedTo[range] =
+        (dashboardData.experienceAppliedTo[range] || 0) + 1;
+    });
+
+    // Calculate averagePackage
+    let totalPackages = 0;
+    let totalJobs = 0;
+    for (const [range, count] of Object.entries(
+      dashboardData.packageAppliedTo
+    )) {
+      if (
+        range !== "Unknown" &&
+        averageSalaryValues[range as keyof typeof averageSalaryValues] !==
+          undefined
+      ) {
+        totalPackages +=
+          averageSalaryValues[range as keyof typeof averageSalaryValues] *
+          (count as number);
+        totalJobs += count as number;
+      }
+    }
+    dashboardData.averagePackage =
+      totalJobs > 0 ? totalPackages / totalJobs : 0;
+
+    // Calculate averageExperience
+    let totalExperience = 0;
+    let totalExperienceJobs = 0;
+    for (const [range, count] of Object.entries(
+      dashboardData.experienceAppliedTo
+    )) {
+      if (
+        range !== "Unknown" &&
+        averageExperienceValues[
+          range as keyof typeof averageExperienceValues
+        ] !== undefined
+      ) {
+        totalExperience +=
+          averageExperienceValues[
+            range as keyof typeof averageExperienceValues
+          ] * (count as number);
+        totalExperienceJobs += count as number;
+      }
+    }
+    dashboardData.averageExperience =
+      totalExperienceJobs > 0
+        ? Math.round(totalExperience / totalExperienceJobs)
+        : 0;
+
+    await updateDashboardData(userId, dashboardData);
+  } catch (error: any) {
+    console.log(error);
+
+    throw new Error("Error updating dashboard data: " + error.message);
+  }
+};
+
+const getAppliedJobs = async (userId: string) => {
+  try {
+    const archivedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    if (archivedJobsDoc.exists()) {
+      return archivedJobsDoc.data().appliedJobs || [];
+    } else {
+      return [];
+    }
+  } catch (error: any) {
+    throw new Error("Error fetching applied jobs: " + error.message);
+  }
+};
+
+const updateDashboardData = async (userId: string, data: any) => {
+  try {
+    const currentDate = new Date().toISOString();
+    const dashboardDataDoc = await getDoc(
+      doc(firestore, "dashboardData", userId)
+    );
+    const existingData = dashboardDataDoc.exists()
+      ? dashboardDataDoc.data()
+      : {};
+
+    const updatedData = {
+      ...existingData,
+      ...data,
+      updatedAt: currentDate,
+    };
+
+    await setDoc(doc(firestore, "dashboardData", userId), updatedData, {
+      merge: true,
+    });
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+const getJobTrackerData = async (userId: string) => {
+  try {
+    const jobTrackerDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    console.log(jobTrackerDoc.data(),"job");
+    if (jobTrackerDoc.exists()) {
+      const data = jobTrackerDoc.data();
+      return {
+        appliedJobs: data.appliedJobs || [],
+        personalArchive: data.personalArchive || [],
+        followUp: data.followUp || [],
+        noReply: data.noReply || [],
+      };
+    } else {
+      return {
+        appliedJobs: [],
+        personalArchive: [],
+        followUp: [],
+        noReply: [],
+      };
+    }
+  } catch (error: any) {
+    throw new Error("Error fetching job tracker data: " + error.message);
+  }
+};
+
+// Export all functions
+export {
+  auth,
+  firestore,
+  storage,
+  checkAuthToken,
+  authenticateUser,
+  saveUserProfile,
+  provider,
+  getUserProfile,
+  updateUserProfile,
+  getUserDetails,
+  saveCurrentJobs,
+  getCurrentJobs,
+  getArchivedJobs,
+  getUpdatedJobs,
+  getUpdatedJobsPaginated,
+  getTotalJobCount,
+  getHiddenJobs,
+  setHideJob,
+  getDashboardData,
+  updateDashboardData,
+  setAppliedJob,
+  getAppliedJobs,
+  updateDashboardOnJobApplied,
+  updateJobStatus,
+  getJobTrackerData,
+  listenToAuthChanges,
+  logoutUser,
+  saveContactFormSubmission,
+  getContactSubmissions,
+  // New subscription functions
+  createUserSubscription,
+  getUserSubscription,
+  updateUserSubscription,
+  canUseFeature,
+  incrementAutoApplyUsage,
+  getSubscriptionStatusWithWarnings,
+  checkSubscriptionStatus,
+};
+
+// Export types if needed elsewhere
+export type { ContactFormData, ContactSubmissionData };
