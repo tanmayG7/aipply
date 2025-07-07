@@ -6,34 +6,19 @@ const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
 
+  const [razorpayKey, setRazorpayKey] = useState(0);
+
   const handleSubscribeClick = () => {
     setShowRazorpay(true);
     setMinimizeFeatures(true);
+    // Force fresh instance
+    setRazorpayKey(prev => prev + 1);
   };
 
   const handleMaximize = () => {
     setShowRazorpay(false);
     setMinimizeFeatures(false);
   };
-
-  useEffect(() => {
-    // Only load script when this component is visible
-    if (isVisible) {
-      const timer = setTimeout(() => {
-        const form = document.getElementById('razorpay-subscription-form-quarterly');
-        if (form && form.children.length === 0) {
-          const script = document.createElement('script');
-          script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-          script.setAttribute('data-subscription_button_id', 'pl_Qpqiazi0S9XVVD'); // Using monthly ID for testing
-          script.setAttribute('data-button_theme', 'brand-color');
-          script.async = true;
-          form.appendChild(script);
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible]); // Load when component becomes visible
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
@@ -96,9 +81,21 @@ const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
               </div>
               
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
-                <form id="razorpay-subscription-form-quarterly">
-                  {/* Razorpay script will be injected here by useEffect */}
-                </form>
+                <div 
+                  key={`quarterly-${razorpayKey}`}
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      <form>
+                        <script 
+                          src="https://cdn.razorpay.com/static/widget/subscription-button.js" 
+                          data-subscription_button_id="pl_QqBpW1j6IzLa1M" 
+                          data-button_theme="brand-color" 
+                          async>
+                        </script>
+                      </form>
+                    `
+                  }}
+                />
                 <button
                   onClick={handleMaximize}
                   className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
@@ -108,7 +105,7 @@ const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
               </div>
               
               <style jsx>{`
-                form#razorpay-subscription-form-quarterly button {
+                form button {
                   font-family: inherit !important;
                   width: 100% !important;
                   font-weight: 700 !important;
@@ -121,7 +118,7 @@ const QuarterlyComponent = ({ isVisible }: { isVisible: boolean }) => {
                   background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
                   transition: all 0.3s ease !important;
                 }
-                form#razorpay-subscription-form-quarterly button:hover {
+                form button:hover {
                   transform: translateY(-2px) !important;
                   box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
                 }
