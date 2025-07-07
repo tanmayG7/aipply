@@ -135,14 +135,14 @@ const MonthlyComponent = () => {
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
                 {user ? (
                   <>
-                    <div id="razorpay-subscription-form">
+                    <form id="razorpay-subscription-form">
                       {/* Razorpay script will be injected here by useEffect */}
                       {!scriptLoaded && (
                         <div className="text-center text-white text-opacity-70 py-4">
                           Loading payment options...
                         </div>
                       )}
-                    </div>
+                    </form>
                     <div className="text-xs text-white text-opacity-50 text-center">
                       Subscribing as: {user.email}
                     </div>
@@ -161,7 +161,7 @@ const MonthlyComponent = () => {
               </div>
               
               <style jsx>{`
-                #razorpay-subscription-form button {
+                form#razorpay-subscription-form button {
                   font-family: inherit !important;
                   width: 100% !important;
                   font-weight: 700 !important;
@@ -174,7 +174,7 @@ const MonthlyComponent = () => {
                   background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
                   transition: all 0.3s ease !important;
                 }
-                #razorpay-subscription-form button:hover {
+                form#razorpay-subscription-form button:hover {
                   transform: translateY(-2px) !important;
                   box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
                 }
