@@ -242,7 +242,7 @@ class FuzzyJobMatcher {
     return jobs.map(job => {
       let totalScore = 0;
       const matchedSkills: string[] = [];
-      let matchType: 'exact' | 'fuzzy' | 'enhanced' | 'title' = 'fuzzy';
+      let matchType = 'fuzzy' as 'exact' | 'fuzzy' | 'enhanced' | 'title';
 
       // Score 1: Exact skill matches (highest weight)
       const jobTags = job.tags || [];
