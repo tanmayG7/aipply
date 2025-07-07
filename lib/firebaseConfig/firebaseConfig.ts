@@ -21,6 +21,7 @@ import {
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { Job, UserDetails, DashboardData } from "../types";
+import { getFilteredJobsByTitlePaginatedWithFuzzy } from "@/lib/mongo/fuzzy-matcher";
 import { getJobsByIds, getFilteredJobsByTitle, getJobByTitleandSkills, getFilteredJobsByTitlePaginated } from "@/lib/mongo/mongo";
 import { mapSalaryToRange, mapExperienceToRange } from "../utils";
 
@@ -839,13 +840,25 @@ const getUpdatedJobsPaginated = async (
       console.log(`[getUpdatedJobsPaginated] Excluded jobs - Archived: ${archivedJobs.length}, Hidden: ${hiddenJobs.length}`);
 
       // Get jobs from MongoDB using the paginated function
-      const result = await getFilteredJobsByTitlePaginated(
+      // const result = await getFilteredJobsByTitlePaginated(
+      //   userProfile.jobTitle,
+      //   excludedJobs,
+      //   userProfile,
+      //   1, // Always start from page 1 when fetching fresh data
+      //   maxTotalJobs // Use the job limit here instead of 1000
+      // );
+
+      const result = await getFilteredJobsByTitlePaginatedWithFuzzy(
         userProfile.jobTitle,
         excludedJobs,
         userProfile,
         1, // Always start from page 1 when fetching fresh data
-        maxTotalJobs // Use the job limit here instead of 1000
+        maxTotalJobs, // Use the job limit here instead of 1000
+        0.6 // minSimilarity - adjust between 0.5-0.8 as needed
       );
+      // Log which search method was used
+      console.log(`Search completed using: ${result.searchMethod}`);
+      
       // In getUpdatedJobsPaginated, add this after the getFilteredJobsByTitlePaginated call:
       console.log('[getUpdatedJobsPaginated] Result from getFilteredJobsByTitlePaginated:', result);
 
