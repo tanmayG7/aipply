@@ -127,7 +127,7 @@ const QuarterlyComponent = () => {
               Early-bird price
             </button>
           }
-          crossText="666"
+          crossText="1998"
           discount="25% Saved"
           checkpoints={
             <div className="flex flex-col gap-4">
