@@ -218,10 +218,12 @@ class FuzzyJobMatcher {
         const date = job.postedDate;
         if (!date) return date;
         
-        // If it's already a Date object, convert to ISO string
-        if (date instanceof Date) return date.toISOString();
+        // Type guard: check if it's a Date object
+        if (date && typeof date === 'object' && 'toISOString' in date) {
+          return (date as Date).toISOString();
+        }
         
-        // If it's a string, keep it as is (or validate/convert if needed)
+        // If it's a string or other type, return as is
         return date;
       })(),
     }));
