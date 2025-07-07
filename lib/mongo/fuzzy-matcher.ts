@@ -214,9 +214,16 @@ class FuzzyJobMatcher {
       ...job,
       id: job._id?.toString() || job.id,
       jobId: job.id || job._id,
-      postedDate: ((job && job.postedDate && (job.postedDate as any) instanceof Date)
-        ? (job.postedDate as Date).toISOString()
-        : job.postedDate),
+      postedDate: (() => {
+        const date = job.postedDate;
+        if (!date) return date;
+        
+        // If it's already a Date object, convert to ISO string
+        if (date instanceof Date) return date.toISOString();
+        
+        // If it's a string, keep it as is (or validate/convert if needed)
+        return date;
+      })(),
     }));
   }
 
