@@ -8,6 +8,7 @@ const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
   // Listen for auth changes
   useEffect(() => {
@@ -32,29 +33,50 @@ const MonthlyComponent = () => {
   };
 
   useEffect(() => {
-    // Load Razorpay script once when component mounts
-    const form = document.getElementById('razorpay-subscription-form');
-    if (form && form.children.length === 0 && user) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-      script.setAttribute('data-subscription_button_id', 'pl_QqIH3ysYHYPnEP');
-      script.setAttribute('data-button_theme', 'brand-color');
-      
-      // Add user data to Razorpay
-      script.setAttribute('data-subscription_prefill_name', user.displayName || user.email);
-      script.setAttribute('data-subscription_prefill_email', user.email);
-      script.setAttribute('data-subscription_notes_userId', user.uid); // This is crucial!
-      
-      script.async = true;
-      form.appendChild(script);
+    // Only load script when showRazorpay is true and user exists
+    if (showRazorpay && user && !scriptLoaded) {
+      const form = document.getElementById('razorpay-subscription-form');
+      if (form) {
+        // Clear any existing content
+        form.innerHTML = '';
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
+        script.setAttribute('data-subscription_button_id', 'pl_QqIH3ysYHYPnEP');
+        script.setAttribute('data-button_theme', 'brand-color');
+        
+        // Add user data to Razorpay
+        script.setAttribute('data-subscription_prefill_name', user.displayName || user.email);
+        script.setAttribute('data-subscription_prefill_email', user.email);
+        script.setAttribute('data-subscription_notes_userId', user.uid);
+        
+        script.async = true;
+        
+        script.onload = () => {
+          setScriptLoaded(true);
+          console.log('Razorpay script loaded successfully');
+        };
+        
+        script.onerror = () => {
+          console.error('Failed to load Razorpay script');
+        };
+        
+        form.appendChild(script);
+      }
     }
-  }, [user]); // Re-run when user changes
+    
+    // Clean up when hiding Razorpay
+    if (!showRazorpay && scriptLoaded) {
+      const form = document.getElementById('razorpay-subscription-form');
+      if (form) {
+        form.innerHTML = '';
+      }
+      setScriptLoaded(false);
+    }
+  }, [showRazorpay, user, scriptLoaded]);
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
-      {/* <div
-        className="absolute w-full h-[710px] top-[-135px] left-[685px] bg-[#AE94FF] opacity-50 backdrop-blur-[400px] blur-[200px] rounded-full"
-      ></div> */}
       <div>
         <PricingCard
           image="/static/pricingIcons/freeplan.svg"
@@ -113,9 +135,14 @@ const MonthlyComponent = () => {
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
                 {user ? (
                   <>
-                    <form id="razorpay-subscription-form">
+                    <div id="razorpay-subscription-form">
                       {/* Razorpay script will be injected here by useEffect */}
-                    </form>
+                      {!scriptLoaded && (
+                        <div className="text-center text-white text-opacity-70 py-4">
+                          Loading payment options...
+                        </div>
+                      )}
+                    </div>
                     <div className="text-xs text-white text-opacity-50 text-center">
                       Subscribing as: {user.email}
                     </div>
@@ -134,7 +161,7 @@ const MonthlyComponent = () => {
               </div>
               
               <style jsx>{`
-                form#razorpay-subscription-form button {
+                #razorpay-subscription-form button {
                   font-family: inherit !important;
                   width: 100% !important;
                   font-weight: 700 !important;
@@ -147,7 +174,7 @@ const MonthlyComponent = () => {
                   background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
                   transition: all 0.3s ease !important;
                 }
-                form#razorpay-subscription-form button:hover {
+                #razorpay-subscription-form button:hover {
                   transform: translateY(-2px) !important;
                   box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
                 }
