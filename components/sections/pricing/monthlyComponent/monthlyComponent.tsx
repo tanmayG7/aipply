@@ -1,3 +1,4 @@
+// components/sections/pricing/monthlyComponent/monthlyComponent.tsx (FIXED)
 import PricingCard from "@/components/card/pricingCard/pricingCard";
 import CheckPointscard from "@/components/common/checkPointscard/checkPointscard";
 import React, { useEffect, useState } from "react";
@@ -58,34 +59,59 @@ const MonthlyComponent = () => {
       return;
     }
 
+    console.log('🚀 Initiating Razorpay subscription...');
+    console.log('👤 User:', user.email);
+    console.log('📋 Plan ID: pl_QqIH3ysYHYPnEP');
+
     const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_your_key', // Add your Razorpay key ID
-      subscription_id: 'pl_QqIH3ysYHYPnEP', // Your test plan ID
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Your Razorpay key ID
+      subscription_id: undefined, // Remove this - we're creating a subscription, not using existing one
       name: 'AiPply Premium',
-      description: 'Monthly Premium Subscription',
-      handler: function (response: any) {
-        console.log('Payment successful:', response);
-        alert('Payment successful! Your subscription is now active.');
-        // Here you can call your webhook or update user status directly
+      description: 'Monthly Premium Subscription - ₹666',
+      
+      // For subscription creation, use this instead:
+      subscription: {
+        plan_id: 'pl_QqIH3ysYHYPnEP', // Correct way to specify plan
       },
+      
+      handler: function (response: any) {
+        console.log('✅ Payment successful:', response);
+        alert('Payment successful! Your subscription is now active.');
+        
+        // The webhook will handle the subscription activation
+        // You can also make an API call here to verify the payment
+      },
+      
       prefill: {
         name: user.displayName || user.email,
         email: user.email,
       },
+      
       notes: {
-        userId: user.uid,
+        userId: user.uid, // This is crucial for the webhook
+        planType: 'monthly'
       },
+      
       theme: {
         color: '#5D29FF'
       },
+      
       modal: {
         ondismiss: function() {
-          console.log('Payment modal closed');
+          console.log('❌ Payment modal closed by user');
         }
       }
     };
 
+    console.log('🔧 Razorpay options:', options);
+
     const rzp = new window.Razorpay(options);
+    
+    rzp.on('payment.failed', function (response: any) {
+      console.error('❌ Payment failed:', response.error);
+      alert('Payment failed: ' + response.error.description);
+    });
+
     rzp.open();
   };
 
