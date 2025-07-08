@@ -28,18 +28,23 @@ export async function POST(request: NextRequest) {
       currentSub = await createUserSubscription(userId);
     }
     
-    // Prepare test update
+    // Prepare test update - with ALL required fields
     const testUpdate = {
       subscriptionStatus: 'premium' as const,
       planTier: 'premium' as const,
-      planType: 'monthly',
+      planType: 'monthly' as const,
       razorpaySubscriptionId: 'test_sub_' + Date.now(),
       razorpayCustomerId: 'test_cust_' + Date.now(),
       razorpayPlanId: 'plan_Qpq8Ccn726wjfX',
+      subscriptionStartDate: new Date().toISOString(),
+      renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      lastPaymentDate: new Date().toISOString(),
+      nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       planPrice: 666,
       planCurrency: 'INR' as const,
-      lastPaymentDate: new Date().toISOString(),
-      renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      cancelledDate: null,
+      expiredDate: null,
+      gracePeriodEndDate: null,
       features: {
         autoApply: true,
         unlimitedJobListings: true,
