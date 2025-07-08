@@ -55,11 +55,20 @@ export async function POST(request: NextRequest) {
       console.log('🔍 Customer search result:', JSON.stringify(existingCustomerData, null, 2));
       
       if (existingCustomerData.items && existingCustomerData.items.length > 0) {
-        // Customer exists, use the existing one
-        customerId = existingCustomerData.items[0].id;
-        console.log('✅ Found existing customer:', customerId);
-        console.log('✅ Customer email from Razorpay:', existingCustomerData.items[0].email);
-        console.log('✅ Customer name from Razorpay:', existingCustomerData.items[0].name);
+        // FIXED: Manually filter by email since Razorpay API doesn't filter properly
+        const matchingCustomer = existingCustomerData.items.find(
+          (customer: any) => customer.email === userEmail
+        );
+        
+        if (matchingCustomer) {
+          customerId = matchingCustomer.id;
+          console.log('✅ Found existing customer:', customerId);
+          console.log('✅ Customer email from Razorpay:', matchingCustomer.email);
+          console.log('✅ Customer name from Razorpay:', matchingCustomer.name);
+        } else {
+          console.log('📝 No customer found with matching email:', userEmail);
+          console.log('📝 Available customers:', existingCustomerData.items.map((c: any) => c.email));
+        }
       } else {
         console.log('📝 No existing customer found for email:', userEmail);
       }
