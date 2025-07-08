@@ -84,7 +84,7 @@ const MonthlyComponent = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          planId: 'plan_QqIEHpLF5PwF2R',
+          planId: 'plan_Qpq8Ccn726wjfX', // LIVE Monthly Plan ID
           userId: user.uid,
           userEmail: user.email,
           userName: user.displayName || user.email
