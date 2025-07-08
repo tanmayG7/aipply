@@ -1,4 +1,4 @@
-// components/sections/pricing/yearlyComponent/yearlyComponent.tsx (UPDATED)
+// components/sections/pricing/yearlyComponent/yearlyComponent.tsx (COMPLETE FIXED VERSION)
 import PricingCard from '@/components/card/pricingCard/pricingCard';
 import CheckPointscard from '@/components/common/checkPointscard/checkPointscard';
 import React, { useEffect, useState } from 'react'
@@ -234,6 +234,16 @@ const YearlyComponent = () => {
           price="4188"
           button={
             <div className="w-full">
+              <div className={showRazorpay ? 'hidden' : 'block'}>
+                <button 
+                  onClick={handleSubscribeClick}
+                  disabled={buttonContent.disabled}
+                  className={buttonContent.className}
+                >
+                  {buttonContent.text}
+                </button>
+              </div>
+              
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
                 <button
                   onClick={handleRazorpayPayment}
@@ -330,14 +340,4 @@ const YearlyComponent = () => {
   );
 };
 
-export default YearlyComponent;ay ? 'hidden' : 'block'}>
-                <button 
-                  onClick={handleSubscribeClick}
-                  disabled={buttonContent.disabled}
-                  className={buttonContent.className}
-                >
-                  {buttonContent.text}
-                </button>
-              </div>
-              
-              <div className={showRazorp
+export default YearlyComponent;
