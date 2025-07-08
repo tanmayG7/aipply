@@ -110,7 +110,7 @@ async function handleSubscriptionActivated(event: any) {
       lastPaymentDate: now.toISOString(),
       nextBillingDate: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : renewalDate.toISOString(),
       planPrice: planDetails.price,
-      planCurrency: 'INR',
+      planCurrency: 'INR' as const,
       features: planDetails.features,
       // Clear any previous cancellation/expiry data
       cancelledDate: null,
@@ -164,7 +164,7 @@ async function handleSubscriptionCharged(event: any) {
       
       // Update subscription with successful payment
       await updateUserSubscription(userId, {
-        subscriptionStatus: 'premium',
+        subscriptionStatus: 'premium' as const,
         lastPaymentDate: new Date().toISOString(),
         renewalDate: renewalDate.toISOString(),
         nextBillingDate: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : renewalDate.toISOString(),
@@ -206,7 +206,7 @@ async function handleSubscriptionCancelled(event: any) {
       // User has paid time remaining - let them use it until renewal date
       console.log(`⏰ User has time remaining until ${renewalDate.toISOString()}`);
       await updateUserSubscription(userId, {
-        subscriptionStatus: 'premium', // Keep premium until renewal date
+        subscriptionStatus: 'premium' as const, // Keep premium until renewal date
         cancelledDate: now.toISOString(),
         // Don't change renewalDate - let them use paid time
       });
@@ -214,8 +214,8 @@ async function handleSubscriptionCancelled(event: any) {
     } else {
       // No remaining time - immediate downgrade
       await updateUserSubscription(userId, {
-        subscriptionStatus: 'cancelled',
-        planTier: 'free',
+        subscriptionStatus: 'cancelled' as const,
+        planTier: 'free' as const,
         features: {
           autoApply: false,
           aiResumeBuilder: false,
@@ -261,7 +261,7 @@ async function handleSubscriptionExpired(event: any) {
     gracePeriodEnd.setDate(gracePeriodEnd.getDate() + 7);
     
     await updateUserSubscription(userId, {
-      subscriptionStatus: 'grace_period',
+      subscriptionStatus: 'grace_period' as const,
       expiredDate: new Date().toISOString(),
       gracePeriodEndDate: gracePeriodEnd.toISOString(),
     });
