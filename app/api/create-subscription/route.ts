@@ -119,15 +119,31 @@ export async function POST(request: NextRequest) {
     // Create subscription
     console.log('📄 Creating subscription for customer:', customerId);
     
+    // Set total_count based on plan type to avoid end_time issues
+    let totalCount = 99;
+    let planType = 'monthly';
+    
+    if (planId.includes('monthly') || planId.includes('QqIEHpLF5PwF2R')) {
+      totalCount = 99; // 99 months = ~8 years
+      planType = 'monthly';
+    } else if (planId.includes('quarterly') || planId.includes('QqXCvclxm4IyDb')) {
+      totalCount = 32; // 32 quarters = 8 years
+      planType = 'quarterly';
+    } else if (planId.includes('yearly') || planId.includes('QqXDGeoo6kS3sH')) {
+      totalCount = 8; // 8 years (reasonable limit)
+      planType = 'yearly';
+    }
+    
+    console.log('📄 Plan type detected:', planType, 'Total count:', totalCount);
+    
     const subscriptionData = {
       plan_id: planId,
       customer_id: customerId,
       quantity: 1,
-      total_count: 99, // Set to 99 to be safe under Razorpay's limit
+      total_count: totalCount,
       notes: {
         userId: userId,
-        planType: planId.includes('monthly') ? 'monthly' : 
-                  planId.includes('quarterly') ? 'quarterly' : 'yearly'
+        planType: planType
       }
     };
 
