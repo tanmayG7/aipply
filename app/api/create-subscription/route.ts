@@ -1,4 +1,4 @@
-// app/api/create-subscription/route.ts (NEW VERSION WITH DETAILED LOGGING)
+// app/api/create-subscription/route.ts (UPDATED - Fixed deployment)
 import { NextRequest, NextResponse } from 'next/server';
 
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
