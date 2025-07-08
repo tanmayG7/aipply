@@ -1,4 +1,4 @@
-// components/sections/pricing/monthlyComponent/monthlyComponent.tsx (FIXED)
+// components/sections/pricing/monthlyComponent/monthlyComponent.tsx (ENHANCED)
 import PricingCard from "@/components/card/pricingCard/pricingCard";
 import CheckPointscard from "@/components/common/checkPointscard/checkPointscard";
 import React, { useEffect, useState } from "react";
@@ -17,6 +17,9 @@ const MonthlyComponent = () => {
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
+  const [subscriptionCreated, setSubscriptionCreated] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   // Listen for auth changes
   useEffect(() => {
@@ -44,34 +47,37 @@ const MonthlyComponent = () => {
       alert("Please login first to subscribe");
       return;
     }
+    if (paymentSuccess) {
+      alert("You already have an active subscription!");
+      return;
+    }
     setShowRazorpay(true);
     setMinimizeFeatures(true);
   };
 
   const handleMaximize = () => {
-    setShowRazorpay(false);
-    setMinimizeFeatures(false);
+    if (!isCreatingSubscription && !subscriptionCreated) {
+      setShowRazorpay(false);
+      setMinimizeFeatures(false);
+    }
   };
 
   const handleRazorpayPayment = async () => {
-    if (!razorpayLoaded || !user) {
-      alert('Payment system not ready or user not logged in');
+    if (!razorpayLoaded || !user || isCreatingSubscription || subscriptionCreated) {
       return;
     }
 
-    console.log('🚀 Initiating Razorpay subscription...');
-    console.log('👤 User:', user.email);
-    console.log('📋 Plan ID: pl_QqIH3ysYHYPnEP');
-
-    // Check if key is available
-    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-      console.error('❌ Razorpay key not configured');
-      alert('Payment system not configured. Please contact support.');
-      return;
-    }
+    setIsCreatingSubscription(true);
 
     try {
-      // Create subscription on your backend first
+      console.log('🚀 Initiating Razorpay subscription...');
+      console.log('👤 User:', user.email);
+
+      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+        throw new Error('Payment system not configured');
+      }
+
+      // Create subscription on backend
       const subscriptionResponse = await fetch('/api/create-subscription', {
         method: 'POST',
         headers: {
@@ -92,19 +98,25 @@ const MonthlyComponent = () => {
       }
 
       console.log('📄 Subscription created:', subscriptionData.subscriptionId);
+      setSubscriptionCreated(true);
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        subscription_id: subscriptionData.subscriptionId, // Use the created subscription ID
+        subscription_id: subscriptionData.subscriptionId,
         name: 'AiPply Premium',
         description: 'Monthly Premium Subscription - ₹666',
         
         handler: function (response: any) {
           console.log('✅ Payment successful:', response);
-          alert('Payment successful! Your subscription is now active.');
+          setPaymentSuccess(true);
           
-          // Optionally refresh the page or redirect
-          window.location.reload();
+          // Show success message
+          alert('🎉 Payment successful! Your premium subscription is now active. Welcome to AiPply Premium!');
+          
+          // Optionally redirect to dashboard
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 2000);
         },
         
         prefill: {
@@ -119,17 +131,19 @@ const MonthlyComponent = () => {
         modal: {
           ondismiss: function() {
             console.log('❌ Payment modal closed by user');
+            setIsCreatingSubscription(false);
+            // Don't reset subscriptionCreated here - subscription still exists
           }
         }
       };
-
-      console.log('🔧 Razorpay options:', options);
 
       const rzp = new window.Razorpay(options);
       
       rzp.on('payment.failed', function (response: any) {
         console.error('❌ Payment failed:', response.error);
         alert('Payment failed: ' + response.error.description);
+        setIsCreatingSubscription(false);
+        // Don't reset subscriptionCreated - subscription still exists, just payment failed
       });
 
       rzp.open();
@@ -137,8 +151,44 @@ const MonthlyComponent = () => {
     } catch (error) {
       console.error('❌ Subscription creation failed:', error);
       alert('Failed to create subscription. Please try again.');
+      setIsCreatingSubscription(false);
+      setSubscriptionCreated(false);
     }
   };
+
+  const getButtonContent = () => {
+    if (paymentSuccess) {
+      return {
+        text: "✅ Subscription Active",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-green-500 text-white border rounded-full px-5 py-3 bg-green-600 cursor-not-allowed"
+      };
+    }
+    
+    if (isCreatingSubscription) {
+      return {
+        text: "Creating Subscription...",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] opacity-50 cursor-not-allowed"
+      };
+    }
+    
+    if (subscriptionCreated) {
+      return {
+        text: "Complete Payment ⏳",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-orange-500 text-white border rounded-full px-5 py-3 bg-orange-600 cursor-not-allowed"
+      };
+    }
+    
+    return {
+      text: user ? 'Subscribe Now' : 'Login to Subscribe',
+      disabled: false,
+      className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
+    };
+  };
+
+  const buttonContent = getButtonContent();
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
@@ -191,31 +241,49 @@ const MonthlyComponent = () => {
               <div className={showRazorpay ? 'hidden' : 'block'}>
                 <button 
                   onClick={handleSubscribeClick}
-                  className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
+                  disabled={buttonContent.disabled}
+                  className={buttonContent.className}
                 >
-                  {user ? 'Subscribe Now' : 'Login to Subscribe'}
+                  {buttonContent.text}
                 </button>
               </div>
               
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
                 <button
                   onClick={handleRazorpayPayment}
-                  disabled={!razorpayLoaded}
-                  className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300 disabled:opacity-50"
+                  disabled={!razorpayLoaded || isCreatingSubscription || subscriptionCreated || paymentSuccess}
+                  className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {razorpayLoaded ? 'Pay ₹666' : 'Loading...'}
+                  {isCreatingSubscription ? 'Creating...' : 
+                   subscriptionCreated ? 'Processing...' :
+                   paymentSuccess ? '✅ Completed' :
+                   razorpayLoaded ? 'Pay ₹666' : 'Loading...'}
                 </button>
                 
                 <div className="text-xs text-white text-opacity-50 text-center">
                   Subscribing as: {user?.email}
                 </div>
                 
-                <button
-                  onClick={handleMaximize}
-                  className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
-                >
-                  ← Back to details
-                </button>
+                {!isCreatingSubscription && !subscriptionCreated && (
+                  <button
+                    onClick={handleMaximize}
+                    className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
+                  >
+                    ← Back to details
+                  </button>
+                )}
+                
+                {subscriptionCreated && !paymentSuccess && (
+                  <div className="text-sm text-orange-300 text-center">
+                    Subscription created! Complete payment in the popup.
+                  </div>
+                )}
+                
+                {paymentSuccess && (
+                  <div className="text-sm text-green-300 text-center">
+                    🎉 Welcome to AiPply Premium! Redirecting to dashboard...
+                  </div>
+                )}
               </div>
             </div>
           }
@@ -229,7 +297,8 @@ const MonthlyComponent = () => {
               {minimizeFeatures && (
                 <button
                   onClick={handleMaximize}
-                  className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 text-left"
+                  disabled={isCreatingSubscription || subscriptionCreated}
+                  className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 text-left disabled:opacity-30"
                 >
                   Show all ↓
                 </button>
