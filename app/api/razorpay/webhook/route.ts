@@ -1,4 +1,4 @@
-// app/api/create-subscription/route.ts (WITH DETAILED LOGGING)
+// app/api/create-subscription/route.ts (WITH .includes() VERSION)
 import { NextRequest, NextResponse } from 'next/server';
 
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -55,11 +55,20 @@ export async function POST(request: NextRequest) {
       console.log('🔍 Customer search result:', JSON.stringify(existingCustomerData, null, 2));
       
       if (existingCustomerData.items && existingCustomerData.items.length > 0) {
-        // Customer exists, use the existing one
-        customerId = existingCustomerData.items[0].id;
-        console.log('✅ Found existing customer:', customerId);
-        console.log('✅ Customer email from Razorpay:', existingCustomerData.items[0].email);
-        console.log('✅ Customer name from Razorpay:', existingCustomerData.items[0].name);
+        // FIXED: Manually filter by email since Razorpay API doesn't filter properly
+        const matchingCustomer = existingCustomerData.items.find(
+          (customer: any) => customer.email === userEmail
+        );
+        
+        if (matchingCustomer) {
+          customerId = matchingCustomer.id;
+          console.log('✅ Found existing customer:', customerId);
+          console.log('✅ Customer email from Razorpay:', matchingCustomer.email);
+          console.log('✅ Customer name from Razorpay:', matchingCustomer.name);
+        } else {
+          console.log('📝 No customer found with matching email:', userEmail);
+          console.log('📝 Available customers:', existingCustomerData.items.map((c: any) => c.email));
+        }
       } else {
         console.log('📝 No existing customer found for email:', userEmail);
       }
@@ -110,14 +119,31 @@ export async function POST(request: NextRequest) {
     // Create subscription
     console.log('📄 Creating subscription for customer:', customerId);
     
+    // Set total_count based on plan type to avoid end_time issues
+    let totalCount = 50;
+    let planType = 'monthly';
+    
+    if (planId.includes('monthly') || planId.includes('QqIEHpLF5PwF2R')) {
+      totalCount = 50; // 50 months = ~4 years
+      planType = 'monthly';
+    } else if (planId.includes('quarterly') || planId.includes('QqXCvclxm4IyDb')) {
+      totalCount = 16; // 16 quarters = 4 years
+      planType = 'quarterly';
+    } else if (planId.includes('yearly') || planId.includes('QqXDGeoo6kS3sH')) {
+      totalCount = 5; // 5 years (reasonable limit)
+      planType = 'yearly';
+    }
+    
+    console.log('📄 Plan type detected:', planType, 'Total count:', totalCount);
+    
     const subscriptionData = {
       plan_id: planId,
       customer_id: customerId,
       quantity: 1,
-      total_count: 120, // 120 months = 10 years (effectively unlimited)
+      total_count: totalCount,
       notes: {
         userId: userId,
-        planType: 'monthly'
+        planType: planType
       }
     };
 
