@@ -84,7 +84,7 @@ const QuarterlyComponent = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          planId: 'plan_QqXCvclxm4IyDb', // Quarterly plan ID
+          planId: 'plan_Qpq96uaFwtJnrF', // LIVE Quarterly Plan ID
           userId: user.uid,
           userEmail: user.email,
           userName: user.displayName || user.email
