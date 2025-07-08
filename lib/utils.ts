@@ -84,6 +84,14 @@ export const mergeSalaryRanges = (salaries: string[]): string => {
         .toLowerCase()
         .split("to")
         .map((s) => parseInt(s.trim().split(" ")[0]));
+    } else if (salary.includes(">")) {
+      // Handle cases like ">25 Lakhs"
+      min = parseInt(salary.replace(/[^0-9]/g, ""));
+      max = Infinity;
+    } else if (salary.includes("+")) {
+      // Handle cases like "25 Lakhs+"
+      min = parseInt(salary.replace(/[^0-9]/g, ""));
+      max = Infinity;
     } else {
       [min, max] = salary
         .split("-")
@@ -91,10 +99,15 @@ export const mergeSalaryRanges = (salaries: string[]): string => {
     }
     return { min, max };
   });
-
+  
   const minSalary = Math.min(...ranges.map((range) => range.min));
   const maxSalary = Math.max(...ranges.map((range) => range.max));
-
+  
+  // Handle the case where maximum is infinity
+  if (maxSalary === Infinity) {
+    return `${minSalary}+ Lakhs`;
+  }
+  
   return `${minSalary}-${maxSalary} Lakhs`;
 };
 
