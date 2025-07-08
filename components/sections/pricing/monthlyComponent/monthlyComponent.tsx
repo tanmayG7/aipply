@@ -53,7 +53,7 @@ const MonthlyComponent = () => {
     setMinimizeFeatures(false);
   };
 
-  const handleRazorpayPayment = () => {
+  const handleRazorpayPayment = async () => {
     if (!razorpayLoaded || !user) {
       alert('Payment system not ready or user not logged in');
       return;
@@ -63,56 +63,81 @@ const MonthlyComponent = () => {
     console.log('👤 User:', user.email);
     console.log('📋 Plan ID: pl_QqIH3ysYHYPnEP');
 
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Your Razorpay key ID
-      subscription_id: undefined, // Remove this - we're creating a subscription, not using existing one
-      name: 'AiPply Premium',
-      description: 'Monthly Premium Subscription - ₹666',
+    // Check if key is available
+    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+      console.error('❌ Razorpay key not configured');
+      alert('Payment system not configured. Please contact support.');
+      return;
+    }
+
+    try {
+      // Create subscription on your backend first
+      const subscriptionResponse = await fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: 'pl_QqIH3ysYHYPnEP',
+          userId: user.uid,
+          userEmail: user.email,
+          userName: user.displayName || user.email
+        }),
+      });
+
+      const subscriptionData = await subscriptionResponse.json();
       
-      // For subscription creation, use this instead:
-      subscription: {
-        plan_id: 'pl_QqIH3ysYHYPnEP', // Correct way to specify plan
-      },
-      
-      handler: function (response: any) {
-        console.log('✅ Payment successful:', response);
-        alert('Payment successful! Your subscription is now active.');
-        
-        // The webhook will handle the subscription activation
-        // You can also make an API call here to verify the payment
-      },
-      
-      prefill: {
-        name: user.displayName || user.email,
-        email: user.email,
-      },
-      
-      notes: {
-        userId: user.uid, // This is crucial for the webhook
-        planType: 'monthly'
-      },
-      
-      theme: {
-        color: '#5D29FF'
-      },
-      
-      modal: {
-        ondismiss: function() {
-          console.log('❌ Payment modal closed by user');
-        }
+      if (!subscriptionResponse.ok) {
+        throw new Error(subscriptionData.error || 'Failed to create subscription');
       }
-    };
 
-    console.log('🔧 Razorpay options:', options);
+      console.log('📄 Subscription created:', subscriptionData.subscriptionId);
 
-    const rzp = new window.Razorpay(options);
-    
-    rzp.on('payment.failed', function (response: any) {
-      console.error('❌ Payment failed:', response.error);
-      alert('Payment failed: ' + response.error.description);
-    });
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        subscription_id: subscriptionData.subscriptionId, // Use the created subscription ID
+        name: 'AiPply Premium',
+        description: 'Monthly Premium Subscription - ₹666',
+        
+        handler: function (response: any) {
+          console.log('✅ Payment successful:', response);
+          alert('Payment successful! Your subscription is now active.');
+          
+          // Optionally refresh the page or redirect
+          window.location.reload();
+        },
+        
+        prefill: {
+          name: user.displayName || user.email,
+          email: user.email,
+        },
+        
+        theme: {
+          color: '#5D29FF'
+        },
+        
+        modal: {
+          ondismiss: function() {
+            console.log('❌ Payment modal closed by user');
+          }
+        }
+      };
 
-    rzp.open();
+      console.log('🔧 Razorpay options:', options);
+
+      const rzp = new window.Razorpay(options);
+      
+      rzp.on('payment.failed', function (response: any) {
+        console.error('❌ Payment failed:', response.error);
+        alert('Payment failed: ' + response.error.description);
+      });
+
+      rzp.open();
+
+    } catch (error) {
+      console.error('❌ Subscription creation failed:', error);
+      alert('Failed to create subscription. Please try again.');
+    }
   };
 
   return (
