@@ -1,4 +1,4 @@
-// app/pricing/page.tsx (QUARTERLY ONLY ENABLED)
+// app/pricing/page.tsx (ALL PLANS ENABLED)
 "use client";
 import Footer from "@/components/common/footer/footer";
 import Header from "@/components/common/header/header";
@@ -6,7 +6,7 @@ import { ResponsivePageContainer } from "@/components/common/responsivePageConta
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import MonthlyComponent from "@/components/sections/pricing/monthlyComponent/monthlyComponent";
 import QuarterlyComponent from "@/components/sections/pricing/quarlerlyComponent/quarlerlyComponent";
-// import YearlyComponent from "@/components/sections/pricing/yearlyComponent/yearlyComponent";
+import YearlyComponent from "@/components/sections/pricing/yearlyComponent/yearlyComponent";
 import React, { useState } from "react";
 
 const Pricing = () => {
@@ -49,15 +49,15 @@ const Pricing = () => {
                 Quarterly
               </button>
               <button
-                disabled
-                className="font-manrope font-[500] text-[18px] leading-[160%] text-white px-[12px] custom-sm:px-[30px] py-2 opacity-50 cursor-not-allowed"
+                onClick={() => setSelectedPlan("yearly")}
+                className={getButtonClass("yearly")}
               >
-                Yearly (Testing)
+                Yearly
               </button>
             </div>
           </div>
           
-          {/* Render Monthly and Quarterly only */}
+          {/* Render all components but hide the ones not selected */}
           <div>
             <div className={selectedPlan === "monthly" ? "block" : "hidden"}>
               <MonthlyComponent />
@@ -65,11 +65,9 @@ const Pricing = () => {
             <div className={selectedPlan === "quarterly" ? "block" : "hidden"}>
               <QuarterlyComponent />
             </div>
-            {/* Yearly component commented out for testing
             <div className={selectedPlan === "yearly" ? "block" : "hidden"}>
               <YearlyComponent />
             </div>
-            */}
           </div>
         </div>
       </ResponsivePageContainer>
