@@ -1,11 +1,11 @@
-// app/pricing/page.tsx (TEMPORARILY DISABLE QUARTERLY/YEARLY)
+// app/pricing/page.tsx (QUARTERLY ONLY ENABLED)
 "use client";
 import Footer from "@/components/common/footer/footer";
 import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import MonthlyComponent from "@/components/sections/pricing/monthlyComponent/monthlyComponent";
-// import QuarterlyComponent from "@/components/sections/pricing/quarlerlyComponent/quarlerlyComponent";
+import QuarterlyComponent from "@/components/sections/pricing/quarlerlyComponent/quarlerlyComponent";
 // import YearlyComponent from "@/components/sections/pricing/yearlyComponent/yearlyComponent";
 import React, { useState } from "react";
 
@@ -35,38 +35,37 @@ const Pricing = () => {
                 10x your job search by automating with AiPply.
               </p>
             </div>
-            
-            {/* TEMPORARILY DISABLE PLAN SELECTOR */}
             <div className="flex flex-row border border-white border-opacity-[20%] w-fit m-auto bg-white bg-opacity-10 p-2 rounded-lg">
               <button
                 onClick={() => setSelectedPlan("monthly")}
                 className={getButtonClass("monthly")}
               >
-                Monthly (Testing)
+                Monthly
+              </button>
+              <button
+                onClick={() => setSelectedPlan("quarterly")}
+                className={getButtonClass("quarterly")}
+              >
+                Quarterly
               </button>
               <button
                 disabled
                 className="font-manrope font-[500] text-[18px] leading-[160%] text-white px-[12px] custom-sm:px-[30px] py-2 opacity-50 cursor-not-allowed"
               >
-                Quarterly (Disabled)
-              </button>
-              <button
-                disabled
-                className="font-manrope font-[500] text-[18px] leading-[160%] text-white px-[12px] custom-sm:px-[30px] py-2 opacity-50 cursor-not-allowed"
-              >
-                Yearly (Disabled)
+                Yearly (Testing)
               </button>
             </div>
           </div>
           
-          {/* Only render Monthly for now */}
+          {/* Render Monthly and Quarterly only */}
           <div>
-            <MonthlyComponent />
-            
-            {/* COMMENTED OUT FOR TESTING
+            <div className={selectedPlan === "monthly" ? "block" : "hidden"}>
+              <MonthlyComponent />
+            </div>
             <div className={selectedPlan === "quarterly" ? "block" : "hidden"}>
               <QuarterlyComponent />
             </div>
+            {/* Yearly component commented out for testing
             <div className={selectedPlan === "yearly" ? "block" : "hidden"}>
               <YearlyComponent />
             </div>
