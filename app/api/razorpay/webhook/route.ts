@@ -1,190 +1,322 @@
-// app/api/create-subscription/route.ts (WITH .includes() VERSION)
+// app/api/razorpay/webhook/route.ts (COMPLETE INTEGRATION)
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+import { 
+  updateUserSubscription, 
+  getUserSubscription,
+  createUserSubscription 
+} from '@/lib/firebaseConfig/firebaseConfig';
 
-const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 =================================');
-    console.log('🔄 CREATE SUBSCRIPTION API CALLED');
-    console.log('🔄 =================================');
+    console.log('🔔 Razorpay webhook received');
     
-    const { planId, userId, userEmail, userName } = await request.json();
+    const body = await request.text();
+    const signature = request.headers.get('x-razorpay-signature');
     
-    console.log('📝 Request body received:');
-    console.log('  Plan ID:', planId);
-    console.log('  User ID:', userId);
-    console.log('  User Email:', userEmail);
-    console.log('  User Name:', userName);
-    
-    if (!planId || !userId || !userEmail) {
-      console.error('❌ Missing required fields');
-      return NextResponse.json({ 
-        error: 'Missing required fields' 
-      }, { status: 400 });
+    if (!signature || !RAZORPAY_WEBHOOK_SECRET) {
+      console.error('❌ Missing signature or webhook secret');
+      return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
     }
-
-    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
-      console.error('❌ Razorpay credentials not configured');
-      return NextResponse.json({ 
-        error: 'Payment system not configured' 
-      }, { status: 500 });
+    
+    // Verify webhook signature
+    const expectedSignature = crypto
+      .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET)
+      .update(body)
+      .digest('hex');
+    
+    if (signature !== expectedSignature) {
+      console.error('❌ Invalid webhook signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
-
-    const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
-    let customerId;
-
-    // First, try to find existing customer by email
-    console.log('🔍 Searching for existing customer with email:', userEmail);
     
-    const searchUrl = `https://api.razorpay.com/v1/customers?email=${encodeURIComponent(userEmail)}`;
-    console.log('🔍 Search URL:', searchUrl);
+    const event = JSON.parse(body);
+    console.log('📧 Webhook event:', event.event);
     
-    const existingCustomerResponse = await fetch(searchUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Basic ${auth}`
-      }
-    });
-
-    console.log('🔍 Customer search response status:', existingCustomerResponse.status);
-
-    if (existingCustomerResponse.ok) {
-      const existingCustomerData = await existingCustomerResponse.json();
-      console.log('🔍 Customer search result:', JSON.stringify(existingCustomerData, null, 2));
-      
-      if (existingCustomerData.items && existingCustomerData.items.length > 0) {
-        // FIXED: Manually filter by email since Razorpay API doesn't filter properly
-        const matchingCustomer = existingCustomerData.items.find(
-          (customer: any) => customer.email === userEmail
-        );
+    // Handle different webhook events
+    switch (event.event) {
+      case 'subscription.authenticated':
+      case 'subscription.activated':
+        await handleSubscriptionActivated(event);
+        break;
         
-        if (matchingCustomer) {
-          customerId = matchingCustomer.id;
-          console.log('✅ Found existing customer:', customerId);
-          console.log('✅ Customer email from Razorpay:', matchingCustomer.email);
-          console.log('✅ Customer name from Razorpay:', matchingCustomer.name);
-        } else {
-          console.log('📝 No customer found with matching email:', userEmail);
-          console.log('📝 Available customers:', existingCustomerData.items.map((c: any) => c.email));
-        }
-      } else {
-        console.log('📝 No existing customer found for email:', userEmail);
-      }
-    } else {
-      console.error('❌ Failed to search for existing customer:', existingCustomerResponse.status);
-    }
-
-    // If no existing customer found, create a new one
-    if (!customerId) {
-      console.log('👤 Creating new customer for email:', userEmail);
-      
-      const customerData = {
-        name: userName || userEmail,
-        email: userEmail,
-        notes: {
-          userId: userId
-        }
-      };
-
-      console.log('👤 Customer data to create:', JSON.stringify(customerData, null, 2));
-
-      const customerResponse = await fetch('https://api.razorpay.com/v1/customers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${auth}`
-        },
-        body: JSON.stringify(customerData)
-      });
-
-      console.log('👤 Customer creation response status:', customerResponse.status);
-      
-      const customer = await customerResponse.json();
-      console.log('👤 Customer creation result:', JSON.stringify(customer, null, 2));
-      
-      if (!customerResponse.ok) {
-        console.error('❌ Customer creation failed');
-        return NextResponse.json({ 
-          error: 'Failed to create customer',
-          details: customer
-        }, { status: 400 });
-      }
-
-      customerId = customer.id;
-      console.log('✅ New customer created with ID:', customerId);
-    }
-
-    // Create subscription
-    console.log('📄 Creating subscription for customer:', customerId);
-    
-    // Set total_count based on plan type to avoid end_time issues
-    let totalCount = 50;
-    let planType = 'monthly';
-    
-    if (planId.includes('monthly') || planId.includes('Qpq8Ccn726wjfX')) {
-      totalCount = 50; // 50 months = ~4 years
-      planType = 'monthly';
-    } else if (planId.includes('quarterly') || planId.includes('Qpq96uaFwtJnrF')) {
-      totalCount = 16; // 16 quarters = 4 years
-      planType = 'quarterly';
-    } else if (planId.includes('yearly') || planId.includes('QpqBIEeMGX2B2C')) {
-      totalCount = 5; // 5 years (reasonable limit)
-      planType = 'yearly';
+      case 'subscription.charged':
+        await handleSubscriptionCharged(event);
+        break;
+        
+      case 'subscription.cancelled':
+        await handleSubscriptionCancelled(event);
+        break;
+        
+      case 'subscription.completed':
+      case 'subscription.halted':
+        await handleSubscriptionExpired(event);
+        break;
+        
+      default:
+        console.log(`ℹ️ Unhandled webhook event: ${event.event}`);
     }
     
-    console.log('📄 Plan type detected:', planType, 'Total count:', totalCount);
+    return NextResponse.json({ status: 'success' });
     
-    const subscriptionData = {
-      plan_id: planId,
-      customer_id: customerId,
-      quantity: 1,
-      total_count: totalCount,
-      notes: {
-        userId: userId,
-        planType: planType
-      }
-    };
-
-    console.log('📄 Subscription data:', JSON.stringify(subscriptionData, null, 2));
-
-    const subscriptionResponse = await fetch('https://api.razorpay.com/v1/subscriptions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${auth}`
-      },
-      body: JSON.stringify(subscriptionData)
-    });
-
-    console.log('📄 Subscription creation response status:', subscriptionResponse.status);
-    
-    const subscription = await subscriptionResponse.json();
-    console.log('📄 Subscription creation result:', JSON.stringify(subscription, null, 2));
-    
-    if (!subscriptionResponse.ok) {
-      console.error('❌ Subscription creation failed');
-      return NextResponse.json({ 
-        error: 'Failed to create subscription',
-        details: subscription
-      }, { status: 400 });
-    }
-
-    console.log('✅ Subscription created successfully:', subscription.id);
-    console.log('✅ Final customer ID used:', customerId);
-
-    return NextResponse.json({
-      subscriptionId: subscription.id,
-      customerId: customerId,
-      status: subscription.status
-    });
-
   } catch (error) {
-    console.error('❌ Subscription creation error:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('❌ Webhook error:', error);
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
+}
+
+// Handle successful subscription activation/authentication
+async function handleSubscriptionActivated(event: any) {
+  try {
+    console.log('🎉 Processing subscription activation');
+    
+    const subscription = event.payload.subscription.entity;
+    const userId = subscription.notes?.userId;
+    
+    if (!userId) {
+      console.error('❌ No userId found in subscription notes');
+      return;
+    }
+    
+    console.log(`👤 Activating subscription for user: ${userId}`);
+    console.log(`📋 Plan ID: ${subscription.plan_id}`);
+    console.log(`💰 Subscription ID: ${subscription.id}`);
+    
+    // Determine plan details based on plan_id
+    const planDetails = getPlanDetails(subscription.plan_id);
+    
+    if (!planDetails) {
+      console.error(`❌ Unknown plan ID: ${subscription.plan_id}`);
+      return;
+    }
+    
+    // Calculate dates
+    const now = new Date();
+    const renewalDate = new Date(now);
+    renewalDate.setDate(renewalDate.getDate() + planDetails.durationDays);
+    
+    // Prepare subscription update data
+    const subscriptionUpdate = {
+      subscriptionStatus: 'premium' as const,
+      planType: planDetails.type,
+      planTier: 'premium' as const,
+      razorpaySubscriptionId: subscription.id,
+      razorpayCustomerId: subscription.customer_id,
+      razorpayPlanId: subscription.plan_id,
+      subscriptionStartDate: now.toISOString(),
+      renewalDate: renewalDate.toISOString(),
+      lastPaymentDate: now.toISOString(),
+      nextBillingDate: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : renewalDate.toISOString(),
+      planPrice: planDetails.price,
+      planCurrency: 'INR',
+      features: planDetails.features,
+      // Clear any previous cancellation/expiry data
+      cancelledDate: null,
+      expiredDate: null,
+      gracePeriodEndDate: null,
+    };
+    
+    // Update or create user subscription
+    try {
+      await updateUserSubscription(userId, subscriptionUpdate);
+      console.log(`✅ Successfully activated premium subscription for user ${userId}`);
+      console.log(`📅 Renewal date: ${renewalDate.toISOString()}`);
+      console.log(`💎 Plan: ${planDetails.name} (${planDetails.type})`);
+    } catch (updateError) {
+      console.log('🔄 User subscription not found, creating new one...');
+      await createUserSubscription(userId);
+      await updateUserSubscription(userId, subscriptionUpdate);
+      console.log(`✅ Created and activated subscription for user ${userId}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error in handleSubscriptionActivated:', error);
+  }
+}
+
+// Handle successful subscription charges (renewals)
+async function handleSubscriptionCharged(event: any) {
+  try {
+    console.log('💳 Processing subscription charge/renewal');
+    
+    const subscription = event.payload.subscription.entity;
+    const payment = event.payload.payment.entity;
+    const userId = subscription.notes?.userId;
+    
+    if (!userId) {
+      console.error('❌ No userId found in subscription.charged');
+      return;
+    }
+    
+    console.log(`💳 Processing payment for user: ${userId}`);
+    console.log(`💰 Payment ID: ${payment.id}`);
+    console.log(`💵 Amount: ₹${payment.amount / 100}`);
+    
+    // Get plan details
+    const planDetails = getPlanDetails(subscription.plan_id);
+    
+    if (planDetails) {
+      // Calculate new renewal date
+      const renewalDate = new Date();
+      renewalDate.setDate(renewalDate.getDate() + planDetails.durationDays);
+      
+      // Update subscription with successful payment
+      await updateUserSubscription(userId, {
+        subscriptionStatus: 'premium',
+        lastPaymentDate: new Date().toISOString(),
+        renewalDate: renewalDate.toISOString(),
+        nextBillingDate: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : renewalDate.toISOString(),
+        // Clear any grace period or expiry data since payment was successful
+        cancelledDate: null,
+        expiredDate: null,
+        gracePeriodEndDate: null,
+      });
+      
+      console.log(`✅ Subscription renewed for user ${userId} until ${renewalDate.toISOString()}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error in handleSubscriptionCharged:', error);
+  }
+}
+
+// Handle subscription cancellation
+async function handleSubscriptionCancelled(event: any) {
+  try {
+    console.log('❌ Processing subscription cancellation');
+    
+    const subscription = event.payload.subscription.entity;
+    const userId = subscription.notes?.userId;
+    
+    if (!userId) {
+      console.error('❌ No userId found in subscription.cancelled');
+      return;
+    }
+    
+    console.log(`❌ Cancelling subscription for user: ${userId}`);
+    
+    // Get current subscription to check if they have remaining time
+    const currentSubscription = await getUserSubscription(userId);
+    const now = new Date();
+    const renewalDate = currentSubscription.renewalDate ? new Date(currentSubscription.renewalDate) : now;
+    
+    if (renewalDate > now) {
+      // User has paid time remaining - let them use it until renewal date
+      console.log(`⏰ User has time remaining until ${renewalDate.toISOString()}`);
+      await updateUserSubscription(userId, {
+        subscriptionStatus: 'premium', // Keep premium until renewal date
+        cancelledDate: now.toISOString(),
+        // Don't change renewalDate - let them use paid time
+      });
+      console.log(`✅ Marked as cancelled but keeping premium until ${renewalDate.toISOString()}`);
+    } else {
+      // No remaining time - immediate downgrade
+      await updateUserSubscription(userId, {
+        subscriptionStatus: 'cancelled',
+        planTier: 'free',
+        features: {
+          autoApply: false,
+          aiResumeBuilder: false,
+          aiMockInterviews: false,
+          maxAutoApplyPerDay: 0,
+          maxAutoApplyPerMonth: 0
+        },
+        cancelledDate: now.toISOString(),
+        // Reset usage since they're now free
+        usage: {
+          autoApplyToday: 0,
+          autoApplyThisMonth: 0,
+          lastResetDate: now.toISOString().split('T')[0],
+          lastMonthlyResetDate: now.toISOString().substring(0, 7),
+          timezone: 'Asia/Kolkata'
+        }
+      });
+      console.log(`❌ Immediate downgrade to free for user ${userId}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error in handleSubscriptionCancelled:', error);
+  }
+}
+
+// Handle subscription expiry/completion
+async function handleSubscriptionExpired(event: any) {
+  try {
+    console.log('⏰ Processing subscription expiry');
+    
+    const subscription = event.payload.subscription.entity;
+    const userId = subscription.notes?.userId;
+    
+    if (!userId) {
+      console.error('❌ No userId found in subscription expiry event');
+      return;
+    }
+    
+    console.log(`⏰ Starting grace period for user: ${userId}`);
+    
+    // Start 7-day grace period
+    const gracePeriodEnd = new Date();
+    gracePeriodEnd.setDate(gracePeriodEnd.getDate() + 7);
+    
+    await updateUserSubscription(userId, {
+      subscriptionStatus: 'grace_period',
+      expiredDate: new Date().toISOString(),
+      gracePeriodEndDate: gracePeriodEnd.toISOString(),
+    });
+    
+    console.log(`⏰ Grace period started for user ${userId} until ${gracePeriodEnd.toISOString()}`);
+    
+  } catch (error) {
+    console.error('❌ Error in handleSubscriptionExpired:', error);
+  }
+}
+
+// Helper function to get plan details
+function getPlanDetails(planId: string) {
+  const planMap: Record<string, any> = {
+    // LIVE Plan IDs
+    'plan_Qpq8Ccn726wjfX': {
+      name: 'Monthly Premium',
+      type: 'monthly',
+      price: 666,
+      durationDays: 30,
+      features: {
+        autoApply: true,
+        aiResumeBuilder: true,
+        aiMockInterviews: true,
+        maxAutoApplyPerDay: 5,
+        maxAutoApplyPerMonth: 100
+      }
+    },
+    'plan_Qpq96uaFwtJnrF': {
+      name: 'Quarterly Premium',
+      type: 'quarterly',
+      price: 1497,
+      durationDays: 90,
+      features: {
+        autoApply: true,
+        aiResumeBuilder: true,
+        aiMockInterviews: true,
+        maxAutoApplyPerDay: 5,
+        maxAutoApplyPerMonth: 100
+      }
+    },
+    'plan_QpqBIEeMGX2B2C': {
+      name: 'Yearly Premium',
+      type: 'yearly',
+      price: 4188,
+      durationDays: 365,
+      features: {
+        autoApply: true,
+        aiResumeBuilder: true,
+        aiMockInterviews: true,
+        maxAutoApplyPerDay: 5,
+        maxAutoApplyPerMonth: 100
+      }
+    }
+  };
+  
+  return planMap[planId] || null;
 }
