@@ -1,4 +1,4 @@
-// app/api/create-subscription/route.ts (DEBUG VERSION)
+// app/api/create-subscription/route.ts (FIXED VERSION)
 import { NextRequest, NextResponse } from 'next/server';
 
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -6,97 +6,94 @@ const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 =================================');
-    console.log('🔄 CREATE SUBSCRIPTION API CALLED');
-    console.log('🔄 =================================');
+    console.log('🔄 Creating Razorpay subscription...');
     
-    const body = await request.json();
-    console.log('📝 Request body:', body);
-    
-    const { planId, userId, userEmail, userName } = body;
-    
-    console.log('📋 Extracted data:');
-    console.log('  Plan ID:', planId);
-    console.log('  User ID:', userId);
-    console.log('  User Email:', userEmail);
-    console.log('  User Name:', userName);
-    
-    console.log('🔑 Environment check:');
-    console.log('  RAZORPAY_KEY_ID configured:', !!RAZORPAY_KEY_ID);
-    console.log('  RAZORPAY_KEY_SECRET configured:', !!RAZORPAY_KEY_SECRET);
-    console.log('  KEY_ID length:', RAZORPAY_KEY_ID?.length || 0);
-    console.log('  KEY_SECRET length:', RAZORPAY_KEY_SECRET?.length || 0);
+    const { planId, userId, userEmail, userName } = await request.json();
     
     if (!planId || !userId || !userEmail) {
-      console.error('❌ Missing required fields');
       return NextResponse.json({ 
-        error: 'Missing required fields',
-        received: { planId: !!planId, userId: !!userId, userEmail: !!userEmail }
+        error: 'Missing required fields' 
       }, { status: 400 });
     }
 
     if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
       console.error('❌ Razorpay credentials not configured');
       return NextResponse.json({ 
-        error: 'Payment system not configured',
-        debug: {
-          hasKeyId: !!RAZORPAY_KEY_ID,
-          hasKeySecret: !!RAZORPAY_KEY_SECRET
-        }
+        error: 'Payment system not configured' 
       }, { status: 500 });
     }
 
-    // Create customer first
-    const customerData = {
-      name: userName || userEmail,
-      email: userEmail,
-      notes: {
-        userId: userId
-      }
-    };
-
-    console.log('👤 Creating customer with data:', customerData);
-
     const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
-    console.log('🔐 Auth header length:', auth.length);
+    let customerId;
 
-    const customerResponse = await fetch('https://api.razorpay.com/v1/customers', {
-      method: 'POST',
+    // First, try to find existing customer by email
+    console.log('🔍 Checking for existing customer...');
+    
+    const existingCustomerResponse = await fetch(`https://api.razorpay.com/v1/customers?email=${encodeURIComponent(userEmail)}`, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Basic ${auth}`
-      },
-      body: JSON.stringify(customerData)
+      }
     });
 
-    console.log('👤 Customer response status:', customerResponse.status);
-    
-    const customer = await customerResponse.json();
-    console.log('👤 Customer response:', customer);
-    
-    if (!customerResponse.ok) {
-      console.error('❌ Customer creation failed');
-      return NextResponse.json({ 
-        error: 'Failed to create customer',
-        details: customer,
-        status: customerResponse.status
-      }, { status: 400 });
+    if (existingCustomerResponse.ok) {
+      const existingCustomerData = await existingCustomerResponse.json();
+      
+      if (existingCustomerData.items && existingCustomerData.items.length > 0) {
+        // Customer exists, use the existing one
+        customerId = existingCustomerData.items[0].id;
+        console.log('✅ Found existing customer:', customerId);
+      }
     }
 
-    console.log('✅ Customer created successfully:', customer.id);
+    // If no existing customer found, create a new one
+    if (!customerId) {
+      console.log('👤 Creating new customer...');
+      
+      const customerData = {
+        name: userName || userEmail,
+        email: userEmail,
+        notes: {
+          userId: userId
+        }
+      };
+
+      const customerResponse = await fetch('https://api.razorpay.com/v1/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${auth}`
+        },
+        body: JSON.stringify(customerData)
+      });
+
+      const customer = await customerResponse.json();
+      
+      if (!customerResponse.ok) {
+        console.error('❌ Customer creation failed:', customer);
+        return NextResponse.json({ 
+          error: 'Failed to create customer',
+          details: customer
+        }, { status: 400 });
+      }
+
+      customerId = customer.id;
+      console.log('✅ New customer created:', customerId);
+    }
 
     // Create subscription
+    console.log('📄 Creating subscription...');
+    
     const subscriptionData = {
       plan_id: planId,
-      customer_id: customer.id,
+      customer_id: customerId,
       quantity: 1,
+      total_count: 120, // 120 months = 10 years (effectively unlimited)
       notes: {
         userId: userId,
         planType: 'monthly'
       }
     };
-
-    console.log('📄 Creating subscription with data:', subscriptionData);
 
     const subscriptionResponse = await fetch('https://api.razorpay.com/v1/subscriptions', {
       method: 'POST',
@@ -107,25 +104,21 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(subscriptionData)
     });
 
-    console.log('📄 Subscription response status:', subscriptionResponse.status);
-    
     const subscription = await subscriptionResponse.json();
-    console.log('📄 Subscription response:', subscription);
     
     if (!subscriptionResponse.ok) {
-      console.error('❌ Subscription creation failed');
+      console.error('❌ Subscription creation failed:', subscription);
       return NextResponse.json({ 
         error: 'Failed to create subscription',
-        details: subscription,
-        status: subscriptionResponse.status
+        details: subscription
       }, { status: 400 });
     }
 
-    console.log('✅ Subscription created successfully:', subscription.id);
+    console.log('✅ Subscription created:', subscription.id);
 
     return NextResponse.json({
       subscriptionId: subscription.id,
-      customerId: customer.id,
+      customerId: customerId,
       status: subscription.status
     });
 
