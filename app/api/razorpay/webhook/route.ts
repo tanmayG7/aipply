@@ -1,4 +1,4 @@
-// app/api/create-subscription/route.ts (WITH .includes() VERSION 5)
+// app/api/create-subscription/route.ts (WITH .includes() VERSION)
 import { NextRequest, NextResponse } from 'next/server';
 
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -123,13 +123,13 @@ export async function POST(request: NextRequest) {
     let totalCount = 50;
     let planType = 'monthly';
     
-    if (planId.includes('monthly') || planId.includes('QqIEHpLF5PwF2R')) {
+    if (planId.includes('monthly') || planId.includes('Qpq8Ccn726wjfX')) {
       totalCount = 50; // 50 months = ~4 years
       planType = 'monthly';
-    } else if (planId.includes('quarterly') || planId.includes('QqXCvclxm4IyDb')) {
+    } else if (planId.includes('quarterly') || planId.includes('Qpq96uaFwtJnrF')) {
       totalCount = 16; // 16 quarters = 4 years
       planType = 'quarterly';
-    } else if (planId.includes('yearly') || planId.includes('QqXDGeoo6kS3sH')) {
+    } else if (planId.includes('yearly') || planId.includes('QpqBIEeMGX2B2C')) {
       totalCount = 5; // 5 years (reasonable limit)
       planType = 'yearly';
     }
