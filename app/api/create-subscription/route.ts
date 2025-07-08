@@ -64,15 +64,19 @@ export async function POST(request: NextRequest) {
       customerId = customer.id;
     }
 
-    // Create subscription with dynamic total_count
-    let totalCount = 50; // Conservative default
+    // Set total_count based on exact plan ID match (NO .includes())
+    let totalCount = 50;
+    let planType = 'monthly';
     
-    if (planId.includes('QqIEHpLF5PwF2R')) {
-      totalCount = 50; // Monthly
-    } else if (planId.includes('QqXCvclxm4IyDb')) {
-      totalCount = 16; // Quarterly
-    } else if (planId.includes('QqXDGeoo6kS3sH')) {
-      totalCount = 5; // Yearly
+    if (planId === 'plan_QqIEHpLF5PwF2R') {
+      totalCount = 50;
+      planType = 'monthly';
+    } else if (planId === 'plan_QqXCvclxm4IyDb') {
+      totalCount = 16;
+      planType = 'quarterly';
+    } else if (planId === 'plan_QqXDGeoo6kS3sH') {
+      totalCount = 5;
+      planType = 'yearly';
     }
     
     const subscriptionData = {
@@ -82,7 +86,7 @@ export async function POST(request: NextRequest) {
       total_count: totalCount,
       notes: {
         userId: userId,
-        planType: 'subscription'
+        planType: planType
       }
     };
 
