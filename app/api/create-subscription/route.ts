@@ -123,10 +123,11 @@ export async function POST(request: NextRequest) {
       plan_id: planId,
       customer_id: customerId,
       quantity: 1,
-      total_count: 120, // 120 months = 10 years (effectively unlimited)
+      total_count: 99, // Set to 99 to be safe under Razorpay's limit
       notes: {
         userId: userId,
-        planType: 'monthly'
+        planType: planId.includes('monthly') ? 'monthly' : 
+                  planId.includes('quarterly') ? 'quarterly' : 'yearly'
       }
     };
 
