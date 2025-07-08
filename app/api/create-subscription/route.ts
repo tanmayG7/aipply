@@ -68,16 +68,18 @@ export async function POST(request: NextRequest) {
     let totalCount = 50;
     let planType = 'monthly';
     
-    if (planId === 'plan_QqIEHpLF5PwF2R') {
-      totalCount = 50;
-      planType = 'monthly';
-    } else if (planId === 'plan_QqXCvclxm4IyDb') {
-      totalCount = 16;
-      planType = 'quarterly';
-    } else if (planId === 'plan_QqXDGeoo6kS3sH') {
-      totalCount = 5;
-      planType = 'yearly';
-    }
+    if (planId === 'plan_Qpq8Ccn726wjfX') {  // ✅ Correct monthly
+  totalCount = 50;
+  planType = 'monthly';
+} else if (planId === 'plan_Qpq96uaFwtJnrF') {  // ✅ Correct quarterly
+  totalCount = 16;
+  planType = 'quarterly';
+} else if (planId === 'plan_QpqBIEeMGX2B2C') {  // ✅ Correct yearly
+  totalCount = 5;
+  planType = 'yearly';
+} else {
+  return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
+}
     
     const subscriptionData = {
       plan_id: planId,
