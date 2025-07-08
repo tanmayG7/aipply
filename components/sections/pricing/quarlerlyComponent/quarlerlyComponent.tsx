@@ -1,13 +1,25 @@
+// components/sections/pricing/quarlerlyComponent/quarlerlyComponent.tsx (UPDATED)
 import PricingCard from '@/components/card/pricingCard/pricingCard';
 import CheckPointscard from '@/components/common/checkPointscard/checkPointscard';
 import React, { useEffect, useState } from 'react'
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
+// Declare Razorpay for TypeScript
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 const QuarterlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
   const [minimizeFeatures, setMinimizeFeatures] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
+  const [subscriptionCreated, setSubscriptionCreated] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   // Listen for auth changes
   useEffect(() => {
@@ -17,9 +29,26 @@ const QuarterlyComponent = () => {
     return () => unsubscribe();
   }, []);
 
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => setRazorpayLoaded(true);
+    script.onerror = () => console.error('Failed to load Razorpay');
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const handleSubscribeClick = () => {
     if (!user) {
       alert("Please login first to subscribe");
+      return;
+    }
+    if (paymentSuccess) {
+      alert("You already have an active subscription!");
       return;
     }
     setShowRazorpay(true);
@@ -27,28 +56,135 @@ const QuarterlyComponent = () => {
   };
 
   const handleMaximize = () => {
-    setShowRazorpay(false);
-    setMinimizeFeatures(false);
+    if (!isCreatingSubscription && !subscriptionCreated) {
+      setShowRazorpay(false);
+      setMinimizeFeatures(false);
+    }
   };
 
-  useEffect(() => {
-    // Load Razorpay script once when component mounts - exactly like monthly
-    const form = document.getElementById('razorpay-subscription-form-quarterly');
-    if (form && form.children.length === 0 && user) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.razorpay.com/static/widget/subscription-button.js';
-      script.setAttribute('data-subscription_button_id', 'pl_QqBpW1j6IzLa1M'); // Keep original for now
-      script.setAttribute('data-button_theme', 'brand-color');
-      
-      // Add user data
-      script.setAttribute('data-subscription_prefill_name', user.displayName || user.email);
-      script.setAttribute('data-subscription_prefill_email', user.email);
-      script.setAttribute('data-subscription_notes_userId', user.uid);
-      
-      script.async = true;
-      form.appendChild(script);
+  const handleRazorpayPayment = async () => {
+    if (!razorpayLoaded || !user || isCreatingSubscription || subscriptionCreated) {
+      return;
     }
-  }, [user]); // Only depend on user
+
+    setIsCreatingSubscription(true);
+
+    try {
+      console.log('🚀 Initiating Razorpay quarterly subscription...');
+      console.log('👤 User:', user.email);
+
+      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+        throw new Error('Payment system not configured');
+      }
+
+      // Create subscription on backend
+      const subscriptionResponse = await fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: 'plan_QqXCvclxm4IyDb', // Quarterly plan ID
+          userId: user.uid,
+          userEmail: user.email,
+          userName: user.displayName || user.email
+        }),
+      });
+
+      const subscriptionData = await subscriptionResponse.json();
+      
+      if (!subscriptionResponse.ok) {
+        throw new Error(subscriptionData.error || 'Failed to create subscription');
+      }
+
+      console.log('📄 Quarterly subscription created:', subscriptionData.subscriptionId);
+      setSubscriptionCreated(true);
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        subscription_id: subscriptionData.subscriptionId,
+        name: 'AiPply Premium',
+        description: 'Quarterly Premium Subscription - ₹1497',
+        
+        handler: function (response: any) {
+          console.log('✅ Quarterly payment successful:', response);
+          setPaymentSuccess(true);
+          
+          alert('🎉 Payment successful! Your quarterly premium subscription is now active. Welcome to AiPply Premium!');
+          
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 2000);
+        },
+        
+        prefill: {
+          name: user.displayName || user.email,
+          email: user.email,
+        },
+        
+        theme: {
+          color: '#5D29FF'
+        },
+        
+        modal: {
+          ondismiss: function() {
+            console.log('❌ Quarterly payment modal closed by user');
+            setIsCreatingSubscription(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      
+      rzp.on('payment.failed', function (response: any) {
+        console.error('❌ Quarterly payment failed:', response.error);
+        alert('Payment failed: ' + response.error.description);
+        setIsCreatingSubscription(false);
+      });
+
+      rzp.open();
+
+    } catch (error) {
+      console.error('❌ Quarterly subscription creation failed:', error);
+      alert('Failed to create subscription. Please try again.');
+      setIsCreatingSubscription(false);
+      setSubscriptionCreated(false);
+    }
+  };
+
+  const getButtonContent = () => {
+    if (paymentSuccess) {
+      return {
+        text: "✅ Subscription Active",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-green-500 text-white border rounded-full px-5 py-3 bg-green-600 cursor-not-allowed"
+      };
+    }
+    
+    if (isCreatingSubscription) {
+      return {
+        text: "Creating Subscription...",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] opacity-50 cursor-not-allowed"
+      };
+    }
+    
+    if (subscriptionCreated) {
+      return {
+        text: "Complete Payment ⏳",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-orange-500 text-white border rounded-full px-5 py-3 bg-orange-600 cursor-not-allowed"
+      };
+    }
+    
+    return {
+      text: user ? 'Subscribe Now' : 'Login to Subscribe',
+      disabled: false,
+      className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
+    };
+  };
+
+  const buttonContent = getButtonContent();
 
   return (
     <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
@@ -95,60 +231,56 @@ const QuarterlyComponent = () => {
           image="/static/pricingIcons/premiumplan.svg"
           planName="Premium Plan"
           subtitle="Save 85% of your time and land interviews faster"
-          price="499"
+          price="1497"
           button={
             <div className="w-full">
               <div className={showRazorpay ? 'hidden' : 'block'}>
                 <button 
                   onClick={handleSubscribeClick}
-                  className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
+                  disabled={buttonContent.disabled}
+                  className={buttonContent.className}
                 >
-                  {user ? 'Subscribe Now' : 'Login to Subscribe'}
+                  {buttonContent.text}
                 </button>
               </div>
               
               <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
-                {user ? (
-                  <>
-                    <form id="razorpay-subscription-form-quarterly">
-                      {/* Razorpay script will be injected here by useEffect */}
-                    </form>
-                    <div className="text-xs text-white text-opacity-50 text-center">
-                      Subscribing as: {user.email}
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center text-white text-opacity-70">
-                    Please login first
+                <button
+                  onClick={handleRazorpayPayment}
+                  disabled={!razorpayLoaded || isCreatingSubscription || subscriptionCreated || paymentSuccess}
+                  className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isCreatingSubscription ? 'Creating...' : 
+                   subscriptionCreated ? 'Processing...' :
+                   paymentSuccess ? '✅ Completed' :
+                   razorpayLoaded ? 'Pay ₹1497' : 'Loading...'}
+                </button>
+                
+                <div className="text-xs text-white text-opacity-50 text-center">
+                  Subscribing as: {user?.email}
+                </div>
+                
+                {!isCreatingSubscription && !subscriptionCreated && (
+                  <button
+                    onClick={handleMaximize}
+                    className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
+                  >
+                    ← Back to details
+                  </button>
+                )}
+                
+                {subscriptionCreated && !paymentSuccess && (
+                  <div className="text-sm text-orange-300 text-center">
+                    Subscription created! Complete payment in the popup.
                   </div>
                 )}
-                <button
-                  onClick={handleMaximize}
-                  className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
-                >
-                  ← Back to details
-                </button>
+                
+                {paymentSuccess && (
+                  <div className="text-sm text-green-300 text-center">
+                    🎉 Welcome to AiPply Premium! Redirecting to dashboard...
+                  </div>
+                )}
               </div>
-              
-              <style jsx>{`
-                form#razorpay-subscription-form-quarterly button {
-                  font-family: inherit !important;
-                  width: 100% !important;
-                  font-weight: 700 !important;
-                  font-size: 20px !important;
-                  line-height: 160% !important;
-                  border: 1px solid #5D29FF !important;
-                  color: white !important;
-                  border-radius: 9999px !important;
-                  padding: 12px 20px !important;
-                  background: linear-gradient(to right, #52A9FF, #5D29FF) !important;
-                  transition: all 0.3s ease !important;
-                }
-                form#razorpay-subscription-form-quarterly button:hover {
-                  transform: translateY(-2px) !important;
-                  box-shadow: 0 4px 15px rgba(93, 41, 255, 0.4) !important;
-                }
-              `}</style>
             </div>
           }
           earlyBirdButton={
@@ -163,7 +295,8 @@ const QuarterlyComponent = () => {
               {minimizeFeatures && (
                 <button
                   onClick={handleMaximize}
-                  className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 text-left"
+                  disabled={isCreatingSubscription || subscriptionCreated}
+                  className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 text-left disabled:opacity-30"
                 >
                   Show all ↓
                 </button>
