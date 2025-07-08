@@ -1,4 +1,3 @@
-// app/api/create-subscription/route.ts (UPDATED - Fixed deployment)
 import { NextRequest, NextResponse } from 'next/server';
 
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -6,89 +5,46 @@ const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 =================================');
-    console.log('🔄 CREATE SUBSCRIPTION API CALLED');
-    console.log('🔄 =================================');
-    
     const { planId, userId, userEmail, userName } = await request.json();
     
-    console.log('📝 Request body received:');
-    console.log('  Plan ID:', planId);
-    console.log('  User ID:', userId);
-    console.log('  User Email:', userEmail);
-    console.log('  User Name:', userName);
-    
     if (!planId || !userId || !userEmail) {
-      console.error('❌ Missing required fields');
-      return NextResponse.json({ 
-        error: 'Missing required fields' 
-      }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
-      console.error('❌ Razorpay credentials not configured');
-      return NextResponse.json({ 
-        error: 'Payment system not configured' 
-      }, { status: 500 });
+      return NextResponse.json({ error: 'Payment system not configured' }, { status: 500 });
     }
 
     const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
     let customerId;
 
-    // First, try to find existing customer by email
-    console.log('🔍 Searching for existing customer with email:', userEmail);
-    
-    const searchUrl = `https://api.razorpay.com/v1/customers?email=${encodeURIComponent(userEmail)}`;
-    console.log('🔍 Search URL:', searchUrl);
-    
-    const existingCustomerResponse = await fetch(searchUrl, {
+    // Check for existing customer
+    const existingCustomerResponse = await fetch(`https://api.razorpay.com/v1/customers?email=${encodeURIComponent(userEmail)}`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Basic ${auth}`
-      }
+      headers: { 'Authorization': `Basic ${auth}` }
     });
-
-    console.log('🔍 Customer search response status:', existingCustomerResponse.status);
 
     if (existingCustomerResponse.ok) {
       const existingCustomerData = await existingCustomerResponse.json();
-      console.log('🔍 Customer search result:', JSON.stringify(existingCustomerData, null, 2));
       
       if (existingCustomerData.items && existingCustomerData.items.length > 0) {
-        // FIXED: Manually filter by email since Razorpay API doesn't filter properly
         const matchingCustomer = existingCustomerData.items.find(
           (customer: any) => customer.email === userEmail
         );
         
         if (matchingCustomer) {
           customerId = matchingCustomer.id;
-          console.log('✅ Found existing customer:', customerId);
-          console.log('✅ Customer email from Razorpay:', matchingCustomer.email);
-          console.log('✅ Customer name from Razorpay:', matchingCustomer.name);
-        } else {
-          console.log('📝 No customer found with matching email:', userEmail);
-          console.log('📝 Available customers:', existingCustomerData.items.map((c: any) => c.email));
         }
-      } else {
-        console.log('📝 No existing customer found for email:', userEmail);
       }
-    } else {
-      console.error('❌ Failed to search for existing customer:', existingCustomerResponse.status);
     }
 
-    // If no existing customer found, create a new one
+    // Create new customer if needed
     if (!customerId) {
-      console.log('👤 Creating new customer for email:', userEmail);
-      
       const customerData = {
         name: userName || userEmail,
         email: userEmail,
-        notes: {
-          userId: userId
-        }
+        notes: { userId: userId }
       };
-
-      console.log('👤 Customer data to create:', JSON.stringify(customerData, null, 2));
 
       const customerResponse = await fetch('https://api.razorpay.com/v1/customers', {
         method: 'POST',
@@ -99,42 +55,25 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify(customerData)
       });
 
-      console.log('👤 Customer creation response status:', customerResponse.status);
-      
       const customer = await customerResponse.json();
-      console.log('👤 Customer creation result:', JSON.stringify(customer, null, 2));
       
       if (!customerResponse.ok) {
-        console.error('❌ Customer creation failed');
-        return NextResponse.json({ 
-          error: 'Failed to create customer',
-          details: customer
-        }, { status: 400 });
+        return NextResponse.json({ error: 'Failed to create customer', details: customer }, { status: 400 });
       }
 
       customerId = customer.id;
-      console.log('✅ New customer created with ID:', customerId);
     }
 
-    // Create subscription
-    console.log('📄 Creating subscription for customer:', customerId);
+    // Create subscription with dynamic total_count
+    let totalCount = 50; // Conservative default
     
-    // Set total_count based on plan type to avoid end_time issues
-    let totalCount = 99;
-    let planType = 'monthly';
-    
-    if (planId.includes('monthly') || planId.includes('QqIEHpLF5PwF2R')) {
-      totalCount = 99; // 99 months = ~8 years
-      planType = 'monthly';
-    } else if (planId.includes('quarterly') || planId.includes('QqXCvclxm4IyDb')) {
-      totalCount = 32; // 32 quarters = 8 years
-      planType = 'quarterly';
-    } else if (planId.includes('yearly') || planId.includes('QqXDGeoo6kS3sH')) {
-      totalCount = 8; // 8 years (reasonable limit)
-      planType = 'yearly';
+    if (planId.includes('QqIEHpLF5PwF2R')) {
+      totalCount = 50; // Monthly
+    } else if (planId.includes('QqXCvclxm4IyDb')) {
+      totalCount = 16; // Quarterly
+    } else if (planId.includes('QqXDGeoo6kS3sH')) {
+      totalCount = 5; // Yearly
     }
-    
-    console.log('📄 Plan type detected:', planType, 'Total count:', totalCount);
     
     const subscriptionData = {
       plan_id: planId,
@@ -143,11 +82,9 @@ export async function POST(request: NextRequest) {
       total_count: totalCount,
       notes: {
         userId: userId,
-        planType: planType
+        planType: 'subscription'
       }
     };
-
-    console.log('📄 Subscription data:', JSON.stringify(subscriptionData, null, 2));
 
     const subscriptionResponse = await fetch('https://api.razorpay.com/v1/subscriptions', {
       method: 'POST',
@@ -158,21 +95,11 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(subscriptionData)
     });
 
-    console.log('📄 Subscription creation response status:', subscriptionResponse.status);
-    
     const subscription = await subscriptionResponse.json();
-    console.log('📄 Subscription creation result:', JSON.stringify(subscription, null, 2));
     
     if (!subscriptionResponse.ok) {
-      console.error('❌ Subscription creation failed');
-      return NextResponse.json({ 
-        error: 'Failed to create subscription',
-        details: subscription
-      }, { status: 400 });
+      return NextResponse.json({ error: 'Failed to create subscription', details: subscription }, { status: 400 });
     }
-
-    console.log('✅ Subscription created successfully:', subscription.id);
-    console.log('✅ Final customer ID used:', customerId);
 
     return NextResponse.json({
       subscriptionId: subscription.id,
@@ -181,7 +108,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Subscription creation error:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
