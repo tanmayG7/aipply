@@ -84,7 +84,7 @@ const YearlyComponent = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          planId: 'plan_QqXDGeoo6kS3sH', // Yearly plan ID
+          planId: 'plan_QpqBIEeMGX2B2C', // LIVE Yearly Plan ID
           userId: user.uid,
           userEmail: user.email,
           userName: user.displayName || user.email
