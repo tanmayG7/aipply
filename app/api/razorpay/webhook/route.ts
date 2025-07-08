@@ -218,10 +218,13 @@ async function handleSubscriptionCancelled(event: any) {
         planTier: 'free' as const,
         features: {
           autoApply: false,
+          unlimitedJobListings: false,
           aiResumeBuilder: false,
           aiMockInterviews: false,
+          prioritySupport: false,
           maxAutoApplyPerDay: 0,
-          maxAutoApplyPerMonth: 0
+          maxAutoApplyPerMonth: 0,
+          hasManualApply: true
         },
         cancelledDate: now.toISOString(),
         // Reset usage since they're now free
@@ -284,10 +287,13 @@ function getPlanDetails(planId: string) {
       durationDays: 30,
       features: {
         autoApply: true,
+        unlimitedJobListings: true,
         aiResumeBuilder: true,
         aiMockInterviews: true,
+        prioritySupport: true,
         maxAutoApplyPerDay: 5,
-        maxAutoApplyPerMonth: 100
+        maxAutoApplyPerMonth: 100,
+        hasManualApply: true
       }
     },
     'plan_Qpq96uaFwtJnrF': {
@@ -297,10 +303,13 @@ function getPlanDetails(planId: string) {
       durationDays: 90,
       features: {
         autoApply: true,
+        unlimitedJobListings: true,
         aiResumeBuilder: true,
         aiMockInterviews: true,
+        prioritySupport: true,
         maxAutoApplyPerDay: 5,
-        maxAutoApplyPerMonth: 100
+        maxAutoApplyPerMonth: 100,
+        hasManualApply: true
       }
     },
     'plan_QpqBIEeMGX2B2C': {
@@ -310,10 +319,13 @@ function getPlanDetails(planId: string) {
       durationDays: 365,
       features: {
         autoApply: true,
+        unlimitedJobListings: true,
         aiResumeBuilder: true,
         aiMockInterviews: true,
+        prioritySupport: true,
         maxAutoApplyPerDay: 5,
-        maxAutoApplyPerMonth: 100
+        maxAutoApplyPerMonth: 100,
+        hasManualApply: true
       }
     }
   };
