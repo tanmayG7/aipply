@@ -157,7 +157,8 @@ const JobCard =  ({
 
         {jobTags.length > 0 && (
           <div className="flex flex-wrap gap-2 max-w-full">
-            {jobTags.map((tag, index) => (
+            {job.platform.toLowerCase() !== "hirist" &&
+              jobTags.map((tag, index) => (
                 <span
                   key={index}
                   style={{background: userProfile.skills?.includes(tag)? 'green': 'none'}}
