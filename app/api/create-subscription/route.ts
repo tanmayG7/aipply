@@ -1,3 +1,4 @@
+// app/api/create-subscription/route.ts (UPDATED WITH TEST PLAN)
 import { NextRequest, NextResponse } from 'next/server';
 
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -64,22 +65,30 @@ export async function POST(request: NextRequest) {
       customerId = customer.id;
     }
 
-    // Set total_count based on exact plan ID match (NO .includes())
+    // Set total_count based on exact plan ID match
     let totalCount = 50;
     let planType = 'monthly';
     
-    if (planId === 'plan_Qpq8Ccn726wjfX') {  // ✅ Correct monthly
-  totalCount = 50;
-  planType = 'monthly';
-} else if (planId === 'plan_Qpq96uaFwtJnrF') {  // ✅ Correct quarterly
-  totalCount = 16;
-  planType = 'quarterly';
-} else if (planId === 'plan_QpqBIEeMGX2B2C') {  // ✅ Correct yearly
-  totalCount = 5;
-  planType = 'yearly';
-} else {
-  return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
-}
+    // TEST Plan ID (₹1)
+    if (planId === 'plan_Qqp7I7yW23U7jJ') {
+      totalCount = 50;
+      planType = 'monthly';
+    } 
+    // LIVE Plan IDs
+    else if (planId === 'plan_Qpq8Ccn726wjfX') {
+      totalCount = 50;
+      planType = 'monthly';
+    } else if (planId === 'plan_Qpq96uaFwtJnrF') {
+      totalCount = 16;
+      planType = 'quarterly';
+    } else if (planId === 'plan_QpqBIEeMGX2B2C') {
+      totalCount = 5;
+      planType = 'yearly';
+    } else {
+      return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
+    }
+    
+    console.log(`✅ Creating subscription for plan ${planId} (${planType}) with ${totalCount} cycles`);
     
     const subscriptionData = {
       plan_id: planId,
@@ -107,13 +116,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create subscription', details: subscription }, { status: 400 });
     }
 
+    console.log(`✅ Created subscription ${subscription.id} for user ${userId}`);
+
     return NextResponse.json({
       subscriptionId: subscription.id,
       customerId: customerId,
-      status: subscription.status
+      status: subscription.status,
+      planType: planType
     });
 
   } catch (error) {
+    console.error('❌ Subscription creation error:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
