@@ -69,14 +69,14 @@ export async function POST(request: NextRequest) {
     let totalCount = 50;
     let planType = 'monthly';
     
-    // TEST Plan ID (₹10) - Single payment for testing
-    if (planId === 'plan_QqrdMIMXarYxg0') {
-      totalCount = 1;  // Single payment only - no recurring
+    // LIVE Plan IDs
+    if (planId === 'plan_Qpq8Ccn726wjfX') {
+      totalCount = 50;
       planType = 'monthly';
     } 
-    // LIVE Plan IDs
-    else if (planId === 'plan_Qpq8Ccn726wjfX') {
-      totalCount = 50;
+    // TEST Plan ID (₹10) - Keep for future testing
+    else if (planId === 'plan_QqrdMIMXarYxg0') {
+      totalCount = 1;  // Single payment only - no recurring
       planType = 'monthly';
     } else if (planId === 'plan_Qpq96uaFwtJnrF') {
       totalCount = 16;
