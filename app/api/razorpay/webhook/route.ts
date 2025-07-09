@@ -1,4 +1,4 @@
-// app/api/razorpay/webhook/route.ts (COMPLETE INTEGRATION)
+// app/api/razorpay/webhook/route.ts (UPDATED WITH TEST PLAN)
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { 
@@ -279,7 +279,24 @@ async function handleSubscriptionExpired(event: any) {
 // Helper function to get plan details
 function getPlanDetails(planId: string) {
   const planMap: Record<string, any> = {
-    // LIVE Plan IDs
+    // TEST Plan ID (₹1)
+    'plan_Qqp7I7yW23U7jJ': {
+      name: 'Monthly Premium (Test)',
+      type: 'monthly',
+      price: 1,
+      durationDays: 30,
+      features: {
+        autoApply: true,
+        unlimitedJobListings: true,
+        aiResumeBuilder: true,
+        aiMockInterviews: true,
+        prioritySupport: true,
+        maxAutoApplyPerDay: 5,
+        maxAutoApplyPerMonth: 100,
+        hasManualApply: true
+      }
+    },
+    // LIVE Plan IDs (keep these for production)
     'plan_Qpq8Ccn726wjfX': {
       name: 'Monthly Premium',
       type: 'monthly',
