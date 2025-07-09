@@ -69,9 +69,9 @@ export async function POST(request: NextRequest) {
     let totalCount = 50;
     let planType = 'monthly';
     
-    // TEST Plan ID (₹1) - Limited to 12 months for UPI compatibility
-    if (planId === 'plan_Qqp7I7yW23U7jJ') {
-      totalCount = 1;  // 12 months maximum for UPI
+    // TEST Plan ID (₹10) - Single payment for testing
+    if (planId === 'plan_QqrdMIMXarYxg0') {
+      totalCount = 1;  // Single payment only - no recurring
       planType = 'monthly';
     } 
     // LIVE Plan IDs
