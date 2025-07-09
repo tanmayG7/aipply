@@ -1,351 +1,350 @@
-// app/api/razorpay/webhook/route.ts (UPDATED WITH TEST PLAN)
-import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
-import { 
-  updateUserSubscription, 
-  getUserSubscription,
-  createUserSubscription 
-} from '@/lib/firebaseConfig/firebaseConfig';
+// components/sections/pricing/monthlyComponent/monthlyComponent.tsx (UPDATED WITH TEST PLAN)
+import PricingCard from "@/components/card/pricingCard/pricingCard";
+import CheckPointscard from "@/components/common/checkPointscard/checkPointscard";
+import React, { useEffect, useState } from "react";
+import { auth } from "@/lib/firebaseConfig/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 
-const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
-
-export async function POST(request: NextRequest) {
-  try {
-    console.log('🔔 Razorpay webhook received');
-    
-    const body = await request.text();
-    const signature = request.headers.get('x-razorpay-signature');
-    
-    if (!signature || !RAZORPAY_WEBHOOK_SECRET) {
-      console.error('❌ Missing signature or webhook secret');
-      return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
-    }
-    
-    // Verify webhook signature
-    const expectedSignature = crypto
-      .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET)
-      .update(body)
-      .digest('hex');
-    
-    if (signature !== expectedSignature) {
-      console.error('❌ Invalid webhook signature');
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-    }
-    
-    const event = JSON.parse(body);
-    console.log('📧 Webhook event:', event.event);
-    
-    // Handle different webhook events
-    switch (event.event) {
-      case 'subscription.authenticated':
-      case 'subscription.activated':
-        await handleSubscriptionActivated(event);
-        break;
-        
-      case 'subscription.charged':
-        await handleSubscriptionCharged(event);
-        break;
-        
-      case 'subscription.cancelled':
-        await handleSubscriptionCancelled(event);
-        break;
-        
-      case 'subscription.completed':
-      case 'subscription.halted':
-        await handleSubscriptionExpired(event);
-        break;
-        
-      default:
-        console.log(`ℹ️ Unhandled webhook event: ${event.event}`);
-    }
-    
-    return NextResponse.json({ status: 'success' });
-    
-  } catch (error) {
-    console.error('❌ Webhook error:', error);
-    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
+// Declare Razorpay for TypeScript
+declare global {
+  interface Window {
+    Razorpay: any;
   }
 }
 
-// Handle successful subscription activation/authentication
-async function handleSubscriptionActivated(event: any) {
-  try {
-    console.log('🎉 Processing subscription activation');
-    
-    const subscription = event.payload.subscription.entity;
-    const userId = subscription.notes?.userId;
-    
-    if (!userId) {
-      console.error('❌ No userId found in subscription notes');
-      return;
-    }
-    
-    console.log(`👤 Activating subscription for user: ${userId}`);
-    console.log(`📋 Plan ID: ${subscription.plan_id}`);
-    console.log(`💰 Subscription ID: ${subscription.id}`);
-    
-    // Determine plan details based on plan_id
-    const planDetails = getPlanDetails(subscription.plan_id);
-    
-    if (!planDetails) {
-      console.error(`❌ Unknown plan ID: ${subscription.plan_id}`);
-      return;
-    }
-    
-    // Calculate dates
-    const now = new Date();
-    const renewalDate = new Date(now);
-    renewalDate.setDate(renewalDate.getDate() + planDetails.durationDays);
-    
-    // Prepare subscription update data
-    const subscriptionUpdate = {
-      subscriptionStatus: 'premium' as const,
-      planType: planDetails.type,
-      planTier: 'premium' as const,
-      razorpaySubscriptionId: subscription.id,
-      razorpayCustomerId: subscription.customer_id,
-      razorpayPlanId: subscription.plan_id,
-      subscriptionStartDate: now.toISOString(),
-      renewalDate: renewalDate.toISOString(),
-      lastPaymentDate: now.toISOString(),
-      nextBillingDate: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : renewalDate.toISOString(),
-      planPrice: planDetails.price,
-      planCurrency: 'INR' as const,
-      features: planDetails.features,
-      // Clear any previous cancellation/expiry data
-      cancelledDate: null,
-      expiredDate: null,
-      gracePeriodEndDate: null,
-    };
-    
-    // Update or create user subscription
-    try {
-      await updateUserSubscription(userId, subscriptionUpdate);
-      console.log(`✅ Successfully activated premium subscription for user ${userId}`);
-      console.log(`📅 Renewal date: ${renewalDate.toISOString()}`);
-      console.log(`💎 Plan: ${planDetails.name} (${planDetails.type})`);
-    } catch (updateError) {
-      console.log('🔄 User subscription not found, creating new one...');
-      await createUserSubscription(userId);
-      await updateUserSubscription(userId, subscriptionUpdate);
-      console.log(`✅ Created and activated subscription for user ${userId}`);
-    }
-    
-  } catch (error) {
-    console.error('❌ Error in handleSubscriptionActivated:', error);
-  }
-}
+const MonthlyComponent = () => {
+  const [showRazorpay, setShowRazorpay] = useState(false);
+  const [minimizeFeatures, setMinimizeFeatures] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
+  const [subscriptionCreated, setSubscriptionCreated] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-// Handle successful subscription charges (renewals)
-async function handleSubscriptionCharged(event: any) {
-  try {
-    console.log('💳 Processing subscription charge/renewal');
-    
-    const subscription = event.payload.subscription.entity;
-    const payment = event.payload.payment.entity;
-    const userId = subscription.notes?.userId;
-    
-    if (!userId) {
-      console.error('❌ No userId found in subscription.charged');
-      return;
-    }
-    
-    console.log(`💳 Processing payment for user: ${userId}`);
-    console.log(`💰 Payment ID: ${payment.id}`);
-    console.log(`💵 Amount: ₹${payment.amount / 100}`);
-    
-    // Get plan details
-    const planDetails = getPlanDetails(subscription.plan_id);
-    
-    if (planDetails) {
-      // Calculate new renewal date
-      const renewalDate = new Date();
-      renewalDate.setDate(renewalDate.getDate() + planDetails.durationDays);
-      
-      // Update subscription with successful payment
-      await updateUserSubscription(userId, {
-        subscriptionStatus: 'premium' as const,
-        lastPaymentDate: new Date().toISOString(),
-        renewalDate: renewalDate.toISOString(),
-        nextBillingDate: subscription.current_end ? new Date(subscription.current_end * 1000).toISOString() : renewalDate.toISOString(),
-        // Clear any grace period or expiry data since payment was successful
-        cancelledDate: null,
-        expiredDate: null,
-        gracePeriodEndDate: null,
-      });
-      
-      console.log(`✅ Subscription renewed for user ${userId} until ${renewalDate.toISOString()}`);
-    }
-    
-  } catch (error) {
-    console.error('❌ Error in handleSubscriptionCharged:', error);
-  }
-}
-
-// Handle subscription cancellation
-async function handleSubscriptionCancelled(event: any) {
-  try {
-    console.log('❌ Processing subscription cancellation');
-    
-    const subscription = event.payload.subscription.entity;
-    const userId = subscription.notes?.userId;
-    
-    if (!userId) {
-      console.error('❌ No userId found in subscription.cancelled');
-      return;
-    }
-    
-    console.log(`❌ Cancelling subscription for user: ${userId}`);
-    
-    // Get current subscription to check if they have remaining time
-    const currentSubscription = await getUserSubscription(userId);
-    const now = new Date();
-    const renewalDate = currentSubscription.renewalDate ? new Date(currentSubscription.renewalDate) : now;
-    
-    if (renewalDate > now) {
-      // User has paid time remaining - let them use it until renewal date
-      console.log(`⏰ User has time remaining until ${renewalDate.toISOString()}`);
-      await updateUserSubscription(userId, {
-        subscriptionStatus: 'premium' as const, // Keep premium until renewal date
-        cancelledDate: now.toISOString(),
-        // Don't change renewalDate - let them use paid time
-      });
-      console.log(`✅ Marked as cancelled but keeping premium until ${renewalDate.toISOString()}`);
-    } else {
-      // No remaining time - immediate downgrade
-      await updateUserSubscription(userId, {
-        subscriptionStatus: 'cancelled' as const,
-        planTier: 'free' as const,
-        features: {
-          autoApply: false,
-          unlimitedJobListings: false,
-          aiResumeBuilder: false,
-          aiMockInterviews: false,
-          prioritySupport: false,
-          maxAutoApplyPerDay: 0,
-          maxAutoApplyPerMonth: 0,
-          hasManualApply: true
-        },
-        cancelledDate: now.toISOString(),
-        // Reset usage since they're now free
-        usage: {
-          autoApplyToday: 0,
-          autoApplyThisMonth: 0,
-          lastResetDate: now.toISOString().split('T')[0],
-          lastMonthlyResetDate: now.toISOString().substring(0, 7),
-          timezone: 'Asia/Kolkata'
-        }
-      });
-      console.log(`❌ Immediate downgrade to free for user ${userId}`);
-    }
-    
-  } catch (error) {
-    console.error('❌ Error in handleSubscriptionCancelled:', error);
-  }
-}
-
-// Handle subscription expiry/completion
-async function handleSubscriptionExpired(event: any) {
-  try {
-    console.log('⏰ Processing subscription expiry');
-    
-    const subscription = event.payload.subscription.entity;
-    const userId = subscription.notes?.userId;
-    
-    if (!userId) {
-      console.error('❌ No userId found in subscription expiry event');
-      return;
-    }
-    
-    console.log(`⏰ Starting grace period for user: ${userId}`);
-    
-    // Start 7-day grace period
-    const gracePeriodEnd = new Date();
-    gracePeriodEnd.setDate(gracePeriodEnd.getDate() + 7);
-    
-    await updateUserSubscription(userId, {
-      subscriptionStatus: 'grace_period' as const,
-      expiredDate: new Date().toISOString(),
-      gracePeriodEndDate: gracePeriodEnd.toISOString(),
+  // Listen for auth changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
     });
-    
-    console.log(`⏰ Grace period started for user ${userId} until ${gracePeriodEnd.toISOString()}`);
-    
-  } catch (error) {
-    console.error('❌ Error in handleSubscriptionExpired:', error);
-  }
-}
+    return () => unsubscribe();
+  }, []);
 
-// Helper function to get plan details
-function getPlanDetails(planId: string) {
-  const planMap: Record<string, any> = {
-    // TEST Plan ID (₹10)
-    'plan_QqrdMIMXarYxg0': {
-      name: 'Monthly Premium (Test)',
-      type: 'monthly',
-      price: 10,
-      durationDays: 30,
-      features: {
-        autoApply: true,
-        unlimitedJobListings: true,
-        aiResumeBuilder: true,
-        aiMockInterviews: true,
-        prioritySupport: true,
-        maxAutoApplyPerDay: 5,
-        maxAutoApplyPerMonth: 100,
-        hasManualApply: true
-      }
-    },
-    // LIVE Plan IDs (keep these for production)
-    'plan_Qpq8Ccn726wjfX': {
-      name: 'Monthly Premium',
-      type: 'monthly',
-      price: 666,
-      durationDays: 30,
-      features: {
-        autoApply: true,
-        unlimitedJobListings: true,
-        aiResumeBuilder: true,
-        aiMockInterviews: true,
-        prioritySupport: true,
-        maxAutoApplyPerDay: 5,
-        maxAutoApplyPerMonth: 100,
-        hasManualApply: true
-      }
-    },
-    'plan_Qpq96uaFwtJnrF': {
-      name: 'Quarterly Premium',
-      type: 'quarterly',
-      price: 1497,
-      durationDays: 90,
-      features: {
-        autoApply: true,
-        unlimitedJobListings: true,
-        aiResumeBuilder: true,
-        aiMockInterviews: true,
-        prioritySupport: true,
-        maxAutoApplyPerDay: 5,
-        maxAutoApplyPerMonth: 100,
-        hasManualApply: true
-      }
-    },
-    'plan_QpqBIEeMGX2B2C': {
-      name: 'Yearly Premium',
-      type: 'yearly',
-      price: 4188,
-      durationDays: 365,
-      features: {
-        autoApply: true,
-        unlimitedJobListings: true,
-        aiResumeBuilder: true,
-        aiMockInterviews: true,
-        prioritySupport: true,
-        maxAutoApplyPerDay: 5,
-        maxAutoApplyPerMonth: 100,
-        hasManualApply: true
-      }
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => setRazorpayLoaded(true);
+    script.onerror = () => console.error('Failed to load Razorpay');
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleSubscribeClick = () => {
+    if (!user) {
+      alert("Please login first to subscribe");
+      return;
+    }
+    if (paymentSuccess) {
+      alert("You already have an active subscription!");
+      return;
+    }
+    setShowRazorpay(true);
+    setMinimizeFeatures(true);
+  };
+
+  const handleMaximize = () => {
+    if (!isCreatingSubscription && !subscriptionCreated) {
+      setShowRazorpay(false);
+      setMinimizeFeatures(false);
     }
   };
-  
-  return planMap[planId] || null;
-}
+
+  const handleRazorpayPayment = async () => {
+    if (!razorpayLoaded || !user || isCreatingSubscription || subscriptionCreated) {
+      return;
+    }
+
+    setIsCreatingSubscription(true);
+
+    try {
+      console.log('🚀 Initiating Razorpay subscription...');
+      console.log('👤 User:', user.email);
+
+      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+        throw new Error('Payment system not configured');
+      }
+
+      // Create subscription on backend
+      const subscriptionResponse = await fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: 'plan_Qpq8Ccn726wjfX', // LIVE Monthly Plan ID (₹666)
+          userId: user.uid,
+          userEmail: user.email,
+          userName: user.displayName || user.email
+        }),
+      });
+
+      const subscriptionData = await subscriptionResponse.json();
+      
+      if (!subscriptionResponse.ok) {
+        throw new Error(subscriptionData.error || 'Failed to create subscription');
+      }
+
+      console.log('📄 Subscription created:', subscriptionData.subscriptionId);
+      setSubscriptionCreated(true);
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        subscription_id: subscriptionData.subscriptionId,
+        name: 'AiPply Premium',
+        description: 'Monthly Premium Subscription - ₹666',
+        
+        handler: function (response: any) {
+          console.log('✅ Payment successful:', response);
+          setPaymentSuccess(true);
+          
+          // Show success message
+          alert('🎉 Payment successful! Your premium subscription is now active. Welcome to AiPply Premium!');
+          
+          // Optionally redirect to dashboard
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 2000);
+        },
+        
+        prefill: {
+          name: user.displayName || user.email,
+          email: user.email,
+        },
+        
+        theme: {
+          color: '#5D29FF'
+        },
+        
+        modal: {
+          ondismiss: function() {
+            console.log('❌ Payment modal closed by user');
+            setIsCreatingSubscription(false);
+            // Don't reset subscriptionCreated here - subscription still exists
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      
+      rzp.on('payment.failed', function (response: any) {
+        console.error('❌ Payment failed - Full response:', response);
+        console.error('❌ Error object:', response.error);
+        console.error('❌ Error description:', response.error?.description);
+        console.error('❌ Error code:', response.error?.code);
+        console.error('❌ Error reason:', response.error?.reason);
+        
+        const errorMsg = response.error?.description || response.error?.reason || 'Payment failed';
+        alert('Payment failed: ' + errorMsg);
+        setIsCreatingSubscription(false);
+      });
+
+      rzp.open();
+
+    } catch (error) {
+      console.error('❌ Subscription creation failed:', error);
+      alert('Failed to create subscription. Please try again.');
+      setIsCreatingSubscription(false);
+      setSubscriptionCreated(false);
+    }
+  };
+
+  const getButtonContent = () => {
+    if (paymentSuccess) {
+      return {
+        text: "✅ Subscription Active",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-green-500 text-white border rounded-full px-5 py-3 bg-green-600 cursor-not-allowed"
+      };
+    }
+    
+    if (isCreatingSubscription) {
+      return {
+        text: "Creating Subscription...",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] opacity-50 cursor-not-allowed"
+      };
+    }
+    
+    if (subscriptionCreated) {
+      return {
+        text: "Complete Payment ⏳",
+        disabled: true,
+        className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-orange-500 text-white border rounded-full px-5 py-3 bg-orange-600 cursor-not-allowed"
+      };
+    }
+    
+    return {
+      text: user ? 'Subscribe Now' : 'Login to Subscribe',
+      disabled: false,
+      className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
+    };
+  };
+
+  const buttonContent = getButtonContent();
+
+  return (
+    <div className="relative grid grid-cols-1 custom-lg:grid-cols-2 gap-[60px] ">
+      <div>
+        <PricingCard
+          image="/static/pricingIcons/freeplan.svg"
+          planName="Free Plan"
+          subtitle="Kickstart your job search now!"
+          price="0"
+          button={
+            <button className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3">
+              Continue for free
+            </button>
+          }
+          checkpoints={
+            <div className="flex flex-col gap-4">
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Custom Job Listings"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Cover Letter Templates"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="ATS-Friendly CV Templates"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Job Tracker"
+                opacity={true}
+              />
+            </div>
+          }
+        />
+      </div>
+
+      <div className="border-2 border-[#FFFFFF4D] rounded-[20px] relative">
+        <PricingCard
+          image="/static/pricingIcons/premiumplan.svg"
+          planName="Premium Plan"
+          subtitle="Save 85% of your time and land interviews faster"
+          price="666"
+          button={
+            <div className="w-full">
+              <div className={showRazorpay ? 'hidden' : 'block'}>
+                <button 
+                  onClick={handleSubscribeClick}
+                  disabled={buttonContent.disabled}
+                  className={buttonContent.className}
+                >
+                  {buttonContent.text}
+                </button>
+              </div>
+              
+              <div className={showRazorpay ? 'block space-y-3' : 'hidden'}>
+                <button
+                  onClick={handleRazorpayPayment}
+                  disabled={!razorpayLoaded || isCreatingSubscription || subscriptionCreated || paymentSuccess}
+                  className="font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isCreatingSubscription ? 'Creating...' : 
+                   subscriptionCreated ? 'Processing...' :
+                   paymentSuccess ? '✅ Completed' :
+                   razorpayLoaded ? 'Pay ₹666' : 'Loading...'}
+                </button>
+                
+                <div className="text-xs text-white text-opacity-50 text-center">
+                  Subscribing as: {user?.email}
+                </div>
+                
+                {!isCreatingSubscription && !subscriptionCreated && (
+                  <button
+                    onClick={handleMaximize}
+                    className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
+                  >
+                    ← Back to details
+                  </button>
+                )}
+                
+                {subscriptionCreated && !paymentSuccess && (
+                  <div className="text-sm text-orange-300 text-center">
+                    Subscription created! Complete payment in the popup.
+                  </div>
+                )}
+                
+                {paymentSuccess && (
+                  <div className="text-sm text-green-300 text-center">
+                    🎉 Welcome to AiPply Premium! Redirecting to dashboard...
+                  </div>
+                )}
+              </div>
+            </div>
+          }
+          earlyBirdButton={
+            <button className="font-manrope font-[800] text-[16px] leading-[100%] text-white  border rounded-[30px] px-6 py-[10px]">
+              Test Mode - ₹10
+            </button>
+          }
+          checkpoints={
+            <div className="flex flex-col gap-4">
+              {minimizeFeatures && (
+                <button
+                  onClick={handleMaximize}
+                  disabled={isCreatingSubscription || subscriptionCreated}
+                  className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 text-left disabled:opacity-30"
+                >
+                  Show all ↓
+                </button>
+              )}
+              <div className={`overflow-hidden ${
+                minimizeFeatures ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
+              }`}>
+                <div className="flex flex-col gap-4">
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="Everything in Free"
+                    opacity={true}
+                  />
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="Unlimited Job Listings"
+                    opacity={true}
+                  />
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="Auto Apply (100 jobs/month)"
+                    opacity={true}
+                  />
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="AI Resume Builder"
+                    opacity={true}
+                  />
+                  <CheckPointscard
+                    imageUrl={"/static/icons/checkpoint.svg"}
+                    text="AI Mock Interviews"
+                    opacity={true}
+                  />
+                </div>
+              </div>
+            </div>
+          }
+        />
+      </div>
+    </div>
+  );
+};
+
+export default MonthlyComponent;
