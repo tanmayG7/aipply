@@ -84,7 +84,7 @@ const MonthlyComponent = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          planId: 'plan_Qqp7I7yW23U7jJ', // TEST Plan ID (₹1)
+          planId: 'plan_QqrdMIMXarYxg0', // TEST Plan ID (₹10)
           userId: user.uid,
           userEmail: user.email,
           userName: user.displayName || user.email
@@ -104,7 +104,7 @@ const MonthlyComponent = () => {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         subscription_id: subscriptionData.subscriptionId,
         name: 'AiPply Premium',
-        description: 'Monthly Premium Subscription (Test) - ₹1',
+        description: 'Monthly Premium Subscription (Test) - ₹10',
         
         handler: function (response: any) {
           console.log('✅ Payment successful:', response);
@@ -140,10 +140,15 @@ const MonthlyComponent = () => {
       const rzp = new window.Razorpay(options);
       
       rzp.on('payment.failed', function (response: any) {
-        console.error('❌ Payment failed:', response.error);
-        alert('Payment failed: ' + response.error.description);
+        console.error('❌ Payment failed - Full response:', response);
+        console.error('❌ Error object:', response.error);
+        console.error('❌ Error description:', response.error?.description);
+        console.error('❌ Error code:', response.error?.code);
+        console.error('❌ Error reason:', response.error?.reason);
+        
+        const errorMsg = response.error?.description || response.error?.reason || 'Payment failed';
+        alert('Payment failed: ' + errorMsg);
         setIsCreatingSubscription(false);
-        // Don't reset subscriptionCreated - subscription still exists, just payment failed
       });
 
       rzp.open();
@@ -182,7 +187,7 @@ const MonthlyComponent = () => {
     }
     
     return {
-      text: user ? 'Subscribe Now (Test ₹1)' : 'Login to Subscribe',
+      text: user ? 'Subscribe Now (Test ₹10)' : 'Login to Subscribe',
       disabled: false,
       className: "font-manrope w-full font-bold text-[20px] leading-[160%] border-[#5D29FF] text-white border rounded-full px-5 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-300"
     };
@@ -235,7 +240,7 @@ const MonthlyComponent = () => {
           image="/static/pricingIcons/premiumplan.svg"
           planName="Premium Plan (Test)"
           subtitle="Save 85% of your time and land interviews faster"
-          price="1"
+          price="10"
           button={
             <div className="w-full">
               <div className={showRazorpay ? 'hidden' : 'block'}>
@@ -257,7 +262,7 @@ const MonthlyComponent = () => {
                   {isCreatingSubscription ? 'Creating...' : 
                    subscriptionCreated ? 'Processing...' :
                    paymentSuccess ? '✅ Completed' :
-                   razorpayLoaded ? 'Pay ₹1 (Test)' : 'Loading...'}
+                   razorpayLoaded ? 'Pay ₹10 (Test)' : 'Loading...'}
                 </button>
                 
                 <div className="text-xs text-white text-opacity-50 text-center">
@@ -289,7 +294,7 @@ const MonthlyComponent = () => {
           }
           earlyBirdButton={
             <button className="font-manrope font-[800] text-[16px] leading-[100%] text-white  border rounded-[30px] px-6 py-[10px]">
-              Test Mode - ₹1
+              Test Mode - ₹10
             </button>
           }
           checkpoints={
