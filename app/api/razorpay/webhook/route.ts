@@ -279,11 +279,11 @@ async function handleSubscriptionExpired(event: any) {
 // Helper function to get plan details
 function getPlanDetails(planId: string) {
   const planMap: Record<string, any> = {
-    // TEST Plan ID (₹1)
-    'plan_Qqp7I7yW23U7jJ': {
+    // TEST Plan ID (₹10)
+    'plan_QqrdMIMXarYxg0': {
       name: 'Monthly Premium (Test)',
       type: 'monthly',
-      price: 1,
+      price: 10,
       durationDays: 30,
       features: {
         autoApply: true,
