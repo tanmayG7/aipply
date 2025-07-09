@@ -1,12 +1,11 @@
-// app/api/razorpay/webhook/route.ts (FIXED - NO JSX)
+// app/api/razorpay/webhook/route.ts (FIXED IMPORTS)
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { 
   updateUserSubscription, 
-  createUserSubscription,
-  firestore
+  createUserSubscription 
 } from '@/lib/firebaseConfig/firebaseConfig';
-import { setDoc, doc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 
@@ -119,44 +118,17 @@ async function handleSubscriptionActivated(event: any) {
       gracePeriodEndDate: null,
     };
     
-    // Create premium subscription directly (no default creation)
+    // Update or create user subscription
     try {
-      // Add required fields for complete subscription
-      const completeSubscription = {
-        userId,
-        ...subscriptionUpdate,
-        // Add current date fields
-        createdAt: subscriptionUpdate.subscriptionStartDate,
-        updatedAt: now.toISOString(),
-        // Add usage tracking
-        usage: {
-          autoApplyToday: 0,
-          autoApplyThisMonth: 0,
-          lastResetDate: now.toISOString().split('T')[0],
-          lastMonthlyResetDate: now.toISOString().substring(0, 7),
-          timezone: 'Asia/Kolkata'
-        }
-      };
-
-      // Create subscription directly with premium data
-      await setDoc(doc(firestore, "subscriptions", userId), completeSubscription);
-      
-      console.log(`✅ Successfully created premium subscription for user ${userId}`);
+      await updateUserSubscription(userId, subscriptionUpdate);
+      console.log(`✅ Successfully activated premium subscription for user ${userId}`);
       console.log(`📅 Renewal date: ${renewalDate.toISOString()}`);
       console.log(`💎 Plan: ${planDetails.name} (${planDetails.type})`);
-      
-    } catch (error) {
-      console.error('❌ Error creating premium subscription:', error);
-      
-      // Fallback: try the old method if direct creation fails
-      try {
-        console.log('🔄 Fallback: Creating default then updating...');
-        await createUserSubscription(userId);
-        await updateUserSubscription(userId, subscriptionUpdate);
-        console.log(`✅ Fallback succeeded for user ${userId}`);
-      } catch (fallbackError) {
-        console.error('❌ Fallback also failed:', fallbackError);
-      }
+    } catch (updateError) {
+      console.log('🔄 User subscription not found, creating new one...');
+      await createUserSubscription(userId);
+      await updateUserSubscription(userId, subscriptionUpdate);
+      console.log(`✅ Created and activated subscription for user ${userId}`);
     }
     
   } catch (error) {
@@ -226,7 +198,15 @@ async function handleSubscriptionCancelled(event: any) {
     console.log(`❌ Cancelling subscription for user: ${userId}`);
     
     // Get current subscription to check if they have remaining time
-    const currentSubscription = await getUserSubscription(userId);
+    const firestore = getFirestore();
+    const subscriptionDoc = await getDoc(doc(firestore, "subscriptions", userId));
+    
+    if (!subscriptionDoc.exists()) {
+      console.error('❌ No subscription document found for user');
+      return;
+    }
+    
+    const currentSubscription = subscriptionDoc.data();
     const now = new Date();
     const renewalDate = currentSubscription.renewalDate ? new Date(currentSubscription.renewalDate) : now;
     
