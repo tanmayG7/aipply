@@ -76,26 +76,28 @@ export const mergeSalaryRanges = (salaries: string[]): string => {
   
   const ranges = salaries.map((salary) => {
     let min, max;
-    if (salary.toLowerCase().includes("up to")) {
+    const cleanSalary = salary.toLowerCase().trim();
+    
+    if (cleanSalary.includes("up to")) {
       max = parseInt(salary.replace(/[^0-9]/g, ""));
       min = 0;
-    } else if (salary.toLowerCase().includes("to")) {
+    } else if (cleanSalary.includes("to")) {
       [min, max] = salary
         .toLowerCase()
         .split("to")
-        .map((s) => parseInt(s.trim().split(" ")[0]));
-    } else if (salary.includes(">")) {
-      // Handle cases like ">25 Lakhs"
+        .map((s) => parseInt(s.trim().replace(/[^0-9]/g, "")));
+    } else if (cleanSalary.includes(">")) {
+      // Handle cases like ">25 Lakhs" or ">25Lakhs"
       min = parseInt(salary.replace(/[^0-9]/g, ""));
       max = Infinity;
-    } else if (salary.includes("+")) {
-      // Handle cases like "25 Lakhs+"
+    } else if (cleanSalary.includes("+")) {
+      // Handle cases like "25 Lakhs+" or "25Lakhs+"
       min = parseInt(salary.replace(/[^0-9]/g, ""));
       max = Infinity;
     } else {
       [min, max] = salary
         .split("-")
-        .map((s) => parseInt(s.trim().split(" ")[0]));
+        .map((s) => parseInt(s.trim().replace(/[^0-9]/g, "")));
     }
     return { min, max };
   });
