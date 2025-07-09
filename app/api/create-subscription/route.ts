@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     
     // TEST Plan ID (₹1) - Limited to 12 months for UPI compatibility
     if (planId === 'plan_Qqp7I7yW23U7jJ') {
-      totalCount = 12;  // 12 months maximum for UPI
+      totalCount = 1;  // 12 months maximum for UPI
       planType = 'monthly';
     } 
     // LIVE Plan IDs
