@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { 
   updateUserSubscription, 
-  getUserSubscription,
-  createUserSubscription 
+  createUserSubscription,
+  firestore
 } from '@/lib/firebaseConfig/firebaseConfig';
+import { setDoc, doc } from 'firebase/firestore';
 
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 
@@ -118,17 +119,44 @@ async function handleSubscriptionActivated(event: any) {
       gracePeriodEndDate: null,
     };
     
-    // Update or create user subscription
+    // Create premium subscription directly (no default creation)
     try {
-      await updateUserSubscription(userId, subscriptionUpdate);
-      console.log(`✅ Successfully activated premium subscription for user ${userId}`);
+      // Add required fields for complete subscription
+      const completeSubscription = {
+        userId,
+        ...subscriptionUpdate,
+        // Add current date fields
+        createdAt: subscriptionUpdate.subscriptionStartDate,
+        updatedAt: now.toISOString(),
+        // Add usage tracking
+        usage: {
+          autoApplyToday: 0,
+          autoApplyThisMonth: 0,
+          lastResetDate: now.toISOString().split('T')[0],
+          lastMonthlyResetDate: now.toISOString().substring(0, 7),
+          timezone: 'Asia/Kolkata'
+        }
+      };
+
+      // Create subscription directly with premium data
+      await setDoc(doc(firestore, "subscriptions", userId), completeSubscription);
+      
+      console.log(`✅ Successfully created premium subscription for user ${userId}`);
       console.log(`📅 Renewal date: ${renewalDate.toISOString()}`);
       console.log(`💎 Plan: ${planDetails.name} (${planDetails.type})`);
-    } catch (updateError) {
-      console.log('🔄 User subscription not found, creating new one...');
-      await createUserSubscription(userId);
-      await updateUserSubscription(userId, subscriptionUpdate);
-      console.log(`✅ Created and activated subscription for user ${userId}`);
+      
+    } catch (error) {
+      console.error('❌ Error creating premium subscription:', error);
+      
+      // Fallback: try the old method if direct creation fails
+      try {
+        console.log('🔄 Fallback: Creating default then updating...');
+        await createUserSubscription(userId);
+        await updateUserSubscription(userId, subscriptionUpdate);
+        console.log(`✅ Fallback succeeded for user ${userId}`);
+      } catch (fallbackError) {
+        console.error('❌ Fallback also failed:', fallbackError);
+      }
     }
     
   } catch (error) {
