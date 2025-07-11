@@ -106,7 +106,7 @@ const QuarterlyComponent = () => {
           alert('🎉 Payment successful! Your quarterly premium subscription is now active. Welcome to AiPply Premium!');
           
           setTimeout(() => {
-            window.location.href = '/dashboard';
+            window.location.href = '/dashboard/home';
           }, 2000);
         },
         
