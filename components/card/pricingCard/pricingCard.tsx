@@ -11,6 +11,7 @@ interface PricingCardProps {
   earlyBirdButton?: React.ReactNode;
   crossText?: string;
   discount?: string;
+  timeline?: string; // New prop for dynamic timeline
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
@@ -23,6 +24,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
   earlyBirdButton,
   crossText,
   discount,
+  timeline = "/month", // Default to "/month"
 }) => {
   return (
     <div className="bg-[#2E2E2E] rounded-[20px] px-5 custom-sm:px-10 pt-10 w-full h-[736px]">
@@ -43,7 +45,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
           <h1 className="font-manrope text-[44px] custom-lg:text-[64px] leading-[100%] font-[800] text-white">
             ₹{price}
             <span className="font-manrope text-[18px] leading-[160%] font-[500] text-white opacity-70 custom-sm:pl-2">
-              <span className="line-through">₹{crossText}</span>/month
+              {crossText && <span className="line-through">₹{crossText}</span>}{timeline}
               {discount && <span>({discount})</span>}
             </span>
           </h1>
