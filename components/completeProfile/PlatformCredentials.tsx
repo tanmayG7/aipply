@@ -181,12 +181,8 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                       type="email"
                       value={credentials[platform.id]?.email || ''}
                       onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
-                      className="w-full bg-gray-700 border border-gray-600 text-white placeholder:text-gray-400"
-                      style={{ 
-                        color: 'white !important',
-                        backgroundColor: '#374151 !important'
-                      }}
                       placeholder="Enter your email or username"
+                      required
                     />
                   </div>
 
@@ -200,12 +196,8 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                         type={showPasswords[platform.id] ? 'text' : 'password'}
                         value={credentials[platform.id]?.password || ''}
                         onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
-                        className="w-full bg-gray-700 border border-gray-600 text-white pr-10 placeholder:text-gray-400"
-                        style={{ 
-                          color: 'white !important',
-                          backgroundColor: '#374151 !important'
-                        }}
                         placeholder="Enter your password"
+                        required
                       />
                       <button
                         type="button"
