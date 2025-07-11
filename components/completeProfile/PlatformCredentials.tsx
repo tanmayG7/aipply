@@ -1,0 +1,241 @@
+// components/completeProfile/PlatformCredentials.tsx
+"use client";
+import React, { useState, useEffect } from 'react';
+import { Eye, EyeOff, Save, Shield, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { auth, saveUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
+import { UserDetails, PlatformCredentials } from '@/lib/types';
+
+interface PlatformCredentialsProps {
+  isEditing: boolean;
+  userDetails: UserDetails;
+}
+
+const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
+  isEditing,
+  userDetails
+}) => {
+  const [showPasswords, setShowPasswords] = useState({
+    naukri: false,
+    hirist: false,
+    shine: false,
+    timesjobs: false
+  });
+  
+  const [credentials, setCredentials] = useState<PlatformCredentials>({
+    naukri: { email: '', password: '' },
+    hirist: { email: '', password: '' },
+    shine: { email: '', password: '' },
+    timesjobs: { email: '', password: '' }
+  });
+
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+  // Load existing credentials
+  useEffect(() => {
+    if (userDetails.platformCredentials) {
+      setCredentials({
+        naukri: userDetails.platformCredentials.naukri || { email: '', password: '' },
+        hirist: userDetails.platformCredentials.hirist || { email: '', password: '' },
+        shine: userDetails.platformCredentials.shine || { email: '', password: '' },
+        timesjobs: userDetails.platformCredentials.timesjobs || { email: '', password: '' }
+      });
+    }
+  }, [userDetails]);
+
+  const platforms = [
+    { 
+      id: 'naukri' as keyof PlatformCredentials, 
+      name: 'Naukri.com', 
+      color: 'bg-blue-600', 
+      icon: '🔍',
+      description: 'India\'s leading job portal'
+    },
+    { 
+      id: 'hirist' as keyof PlatformCredentials, 
+      name: 'Hirist.com', 
+      color: 'bg-purple-600', 
+      icon: '💼',
+      description: 'Tech jobs and IT careers'
+    },
+    { 
+      id: 'shine' as keyof PlatformCredentials, 
+      name: 'Shine.com', 
+      color: 'bg-orange-600', 
+      icon: '✨',
+      description: 'Career opportunities and jobs'
+    },
+    { 
+      id: 'timesjobs' as keyof PlatformCredentials, 
+      name: 'TimesJobs.com', 
+      color: 'bg-red-600', 
+      icon: '📰',
+      description: 'Times Group job portal'
+    }
+  ];
+
+  const togglePasswordVisibility = (platform: keyof PlatformCredentials) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [platform]: !prev[platform]
+    }));
+  };
+
+  const handleCredentialChange = (platform: keyof PlatformCredentials, field: 'email' | 'password', value: string) => {
+    setCredentials(prev => ({
+      ...prev,
+      [platform]: {
+        ...prev[platform]!,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSave = async () => {
+    setSaveStatus('saving');
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        await saveUserProfile(user.uid, { 
+          platformCredentials: credentials 
+        });
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus('idle'), 2000);
+      }
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+      setSaveStatus('idle');
+    }
+  };
+
+  return (
+    <Card className="max-w-[100%] py-6 text-white border border-gray rounded-xl">
+      <CardHeader>
+        <div className="flex items-center space-x-3 mb-4">
+          <Shield className="w-6 h-6 text-blue-400" />
+          <CardTitle className="text-xl font-semibold">Platform Credentials</CardTitle>
+        </div>
+        <CardDescription>
+          Store your job portal login credentials for easy access.
+        </CardDescription>
+        <div className="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4">
+          <div className="flex items-center space-x-2 text-blue-400">
+            <Shield className="w-4 h-4" />
+            <span className="text-sm font-medium">Security Note</span>
+          </div>
+          <p className="text-sm text-blue-300 mt-1">
+            All credentials are stored securely in your profile.
+          </p>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-6">
+        {/* Platform Cards */}
+        <div className="grid gap-6">
+          {platforms.map((platform) => (
+            <div key={platform.id} className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className={`w-10 h-10 ${platform.color} rounded-lg flex items-center justify-center text-white font-bold text-lg`}>
+                  {platform.icon}
+                </div>
+                <div>
+                  <h3 className="font-semibold">{platform.name}</h3>
+                  <p className="text-sm text-gray-400">{platform.description}</p>
+                </div>
+              </div>
+
+              {isEditing ? (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Email/Username Field */}
+                  <div>
+                    <Label className="block text-sm font-medium text-gray-300 mb-2">
+                      Email/Username
+                    </Label>
+                    <Input
+                      type="email"
+                      value={credentials[platform.id]?.email || ''}
+                      onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 text-white"
+                      placeholder="Enter your email or username"
+                    />
+                  </div>
+
+                  {/* Password Field */}
+                  <div>
+                    <Label className="block text-sm font-medium text-gray-300 mb-2">
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type={showPasswords[platform.id] ? 'text' : 'password'}
+                        value={credentials[platform.id]?.password || ''}
+                        onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
+                        className="w-full bg-gray-700 border border-gray-600 text-white pr-10"
+                        placeholder="Enter your password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility(platform.id)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                      >
+                        {showPasswords[platform.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {credentials[platform.id]?.email ? (
+                    <>
+                      <p className="text-gray-300">
+                        <span className="font-medium">Email:</span> {credentials[platform.id]?.email}
+                      </p>
+                      <p className="text-gray-300">
+                        <span className="font-medium">Password:</span> {'•'.repeat(8)}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-gray-500 italic">No credentials saved</p>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Save Button */}
+        {isEditing && (
+          <div className="flex justify-end">
+            <Button
+              onClick={handleSave}
+              disabled={saveStatus === 'saving'}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50"
+            >
+              {saveStatus === 'saving' ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : saveStatus === 'saved' ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  Saved!
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Credentials
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default PlatformCredentials;
