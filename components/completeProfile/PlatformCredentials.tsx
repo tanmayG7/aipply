@@ -5,7 +5,6 @@ import { Eye, EyeOff, Save, Shield, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { auth, saveUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { UserDetails, PlatformCredentialsData } from '@/lib/types';
 
@@ -135,129 +134,129 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
   };
 
   return (
-    <Card className="max-w-[100%] py-6 text-white border border-gray rounded-xl">
-      <CardHeader>
-        <div className="flex items-center space-x-3 mb-4">
-          <Shield className="w-6 h-6 text-blue-400" />
-          <CardTitle className="text-xl font-semibold">Platform Credentials</CardTitle>
-        </div>
-        <CardDescription>
-          Store your job portal login credentials for easy access.
-        </CardDescription>
-        <div className="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4">
-          <div className="flex items-center space-x-2 text-blue-400">
-            <Shield className="w-4 h-4" />
-            <span className="text-sm font-medium">Security Note</span>
-          </div>
-          <p className="text-sm text-blue-300 mt-1">
-            Your credentials are stored securely in your profile.
+    <div className="py-6 border border-gray rounded-xl">
+      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+        <div className="col-span-2">
+          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Platform Credentials</h3>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+            Store your job portal login credentials for easy access.
           </p>
         </div>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        {/* Platform Cards */}
-        <div className="grid gap-6">
-          {platforms.map((platform) => (
-            <div key={platform.id} className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className={`w-10 h-10 ${platform.color} rounded-lg flex items-center justify-center text-white font-bold text-lg`}>
-                  {platform.icon}
-                </div>
-                <div>
-                  <h3 className="font-semibold">{platform.name}</h3>
-                  <p className="text-sm text-gray-400">{platform.description}</p>
-                </div>
-              </div>
-
-              {isEditing ? (
-                <div className="grid md:grid-cols-2 gap-4">
-                  {/* Email/Username Field */}
-                  <div>
-                    <Label className="block text-sm font-medium text-gray-300 mb-2">
-                      Email/Username
-                    </Label>
-                    <Input
-                      type="email"
-                      value={credentials[platform.id]?.email || ''}
-                      onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
-                      placeholder="Enter your email or username"
-                      required
-                    />
+        <div className="col-span-5">
+          {/* Security Note */}
+          <div className="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4 mb-6">
+            <div className="flex items-center space-x-2 text-blue-400">
+              <Shield className="w-4 h-4" />
+              <span className="text-sm font-medium">Security Note</span>
+            </div>
+            <p className="text-sm text-blue-300 mt-1">
+              Your credentials are stored securely in your profile.
+            </p>
+          </div>
+          
+          {/* Platform Cards */}
+          <div className="grid gap-6">
+            {platforms.map((platform) => (
+              <div key={platform.id} className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className={`w-10 h-10 ${platform.color} rounded-lg flex items-center justify-center text-white font-bold text-lg`}>
+                    {platform.icon}
                   </div>
-
-                  {/* Password Field */}
                   <div>
-                    <Label className="block text-sm font-medium text-gray-300 mb-2">
-                      Password
-                    </Label>
-                    <div className="relative">
+                    <h3 className="font-semibold text-white">{platform.name}</h3>
+                    <p className="text-sm text-gray-400">{platform.description}</p>
+                  </div>
+                </div>
+
+                {isEditing ? (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {/* Email/Username Field */}
+                    <div>
+                      <Label className="block text-sm font-medium text-gray-300 mb-2">
+                        Email/Username
+                      </Label>
                       <Input
-                        type={showPasswords[platform.id] ? 'text' : 'password'}
-                        value={credentials[platform.id]?.password || ''}
-                        onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
-                        placeholder="Enter your password"
+                        type="email"
+                        value={credentials[platform.id]?.email || ''}
+                        onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
+                        placeholder="Enter your email or username"
                         required
                       />
-                      <button
-                        type="button"
-                        onClick={() => togglePasswordVisibility(platform.id)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                      >
-                        {showPasswords[platform.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
+                    </div>
+
+                    {/* Password Field */}
+                    <div>
+                      <Label className="block text-sm font-medium text-gray-300 mb-2">
+                        Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          type={showPasswords[platform.id] ? 'text' : 'password'}
+                          value={credentials[platform.id]?.password || ''}
+                          onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
+                          placeholder="Enter your password"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => togglePasswordVisibility(platform.id)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                        >
+                          {showPasswords[platform.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {credentials[platform.id]?.email ? (
-                    <>
-                      <p className="text-gray-300">
-                        <span className="font-medium">Email:</span> {credentials[platform.id]?.email}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="font-medium">Password:</span> {'•'.repeat(8)}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="text-gray-500 italic">No credentials saved</p>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Save Button */}
-        {isEditing && (
-          <div className="flex justify-end">
-            <Button
-              onClick={handleSave}
-              disabled={saveStatus === 'saving'}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50"
-            >
-              {saveStatus === 'saving' ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Saving...
-                </>
-              ) : saveStatus === 'saved' ? (
-                <>
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Saved!
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Credentials
-                </>
-              )}
-            </Button>
+                ) : (
+                  <div className="space-y-2">
+                    {credentials[platform.id]?.email ? (
+                      <>
+                        <p className="text-gray-300">
+                          <span className="font-medium">Email:</span> {credentials[platform.id]?.email}
+                        </p>
+                        <p className="text-gray-300">
+                          <span className="font-medium">Password:</span> {'•'.repeat(8)}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-gray-500 italic">No credentials saved</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        )}
-      </CardContent>
-    </Card>
+          
+          {/* Save Button */}
+          {isEditing && (
+            <div className="flex justify-end mt-6">
+              <Button
+                onClick={handleSave}
+                disabled={saveStatus === 'saving'}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white"
+              >
+                {saveStatus === 'saving' ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Saving...
+                  </>
+                ) : saveStatus === 'saved' ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Saved!
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Credentials
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
