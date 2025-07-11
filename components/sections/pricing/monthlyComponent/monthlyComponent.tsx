@@ -234,6 +234,7 @@ const MonthlyComponent = () => {
           planName="Premium Plan"
           subtitle="Save 85% of your time and land interviews faster"
           price="666"
+          timeline="/month"
           button={
             <div className="w-full">
               <div className={showRazorpay ? 'hidden' : 'block'}>
