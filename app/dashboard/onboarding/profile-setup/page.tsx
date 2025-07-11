@@ -412,18 +412,18 @@ export default function ProfileSetup() {
                           ))}
                         </div>
 
-                        <Input
-                          value={skillsInput}
-                          onChange={(e) => setSkillsInput(e.target.value)}
-                          placeholder="Add Skills"
-                          onKeyDown={async (e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              await addSkill();
-                            }
-                          }}
-                        />
-
+                       <Input
+  value={skillsInput}
+  onChange={(e) => setSkillsInput(e.target.value)}
+  placeholder="Add Skills"
+  onKeyDown={async (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation(); // Add this line to prevent event bubbling
+      await addSkill();
+    }
+  }}
+/>
                         {errors.skills && (
                           <p className="text-red-500">Skills required</p>
                         )}
