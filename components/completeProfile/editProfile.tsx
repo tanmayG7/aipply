@@ -1,119 +1,75 @@
-import React, { useEffect, useState } from "react";
+// components/completeProfile/editProfile.tsx
+"use client";
+import React, { useState } from 'react';
+import PlatformCredentials from './PlatformCredentials';
+import BasicInfo from './BasicInfo'; // You'll need to create this
+import Preferences from './Preferences'; // You'll need to create this
 
-import ProfileForm from "./profileForm/profileForm";
-import UploadCv from "./uploadCv";
-import PreferenceForm from "./preferenceForm";
-import { Button } from "../ui/button";
-import {
-  auth,
-  getUserProfile,
-  saveUserProfile,
-} from "@/lib/firebaseConfig/firebaseConfig";
-import { UserDetails } from "@/lib/types";
-import { onAuthStateChanged } from "firebase/auth";
+interface Tab {
+  id: string;
+  label: string;
+  icon: string;
+  component: React.ReactNode;
+}
 
 const EditProfile: React.FC = () => {
-  const [selectedSection, setSelectedSection] = useState("profile");
-  const [isEditing, setIsEditing] = useState(false);
-  const [userDetails, setUserDetails] = useState<UserDetails>(
-    {} as UserDetails
-  );
+  const [activeTab, setActiveTab] = useState('basic-info');
 
-  // const handleEditClick = async () => {
-  //   const user = auth.currentUser;
-  //   if (user) {
-  //     const details: UserDetails = await getUserProfile(user.uid);
-  //     setUserDetails(details);
-  //     if (isEditing) {
-  //       await saveUserProfile(user.uid, details);
-  //     }
-  //   }
-  //   setIsEditing(!isEditing);
-  // };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const fetchUserDetails = async () => {
-          const details: UserDetails = await getUserProfile(user.uid);
-
-          setUserDetails(details);
-        };
-        fetchUserDetails();
-      }
-    });
-
-    return () => unsubscribe();
-  }, [isEditing]);
-
-  const handleCancel = () => {
-    setIsEditing(preState => !preState);
-  };
-
-  const renderSection = () => {
-    switch (selectedSection) {
-      case "profile":
-        return <ProfileForm isEditing={isEditing} userDetails={userDetails} />;
-      case "resume":
-        return <UploadCv isEditing={isEditing} userDetails={userDetails} />;
-      case "preferences":
-        return (
-          <PreferenceForm isEditing={isEditing} userDetails={userDetails} />
-        );
-      default:
-        return null;
+  const tabs: Tab[] = [
+    { 
+      id: 'basic-info', 
+      label: 'Basic Info', 
+      icon: '👤',
+      component: <BasicInfo />
+    },
+    { 
+      id: 'platform-credentials', 
+      label: 'Platform Credentials', 
+      icon: '🔐',
+      component: <PlatformCredentials />
+    },
+    { 
+      id: 'preferences', 
+      label: 'Preferences', 
+      icon: '⚙️',
+      component: <Preferences />
     }
-  };
+  ];
+
+  const currentTab = tabs.find(tab => tab.id === activeTab);
 
   return (
-    <div className="flex flex-col gap-6 max-w-[75%]">
-      <div className="flex flex-row justify-between">
-        <p className="font-inter text-[28px] text-lg font-bold">Profile</p>
-        <div className="flex flex-row gap-4">
-  
-       
-            <Button
-              className="w-fit bg-transparent border hover:bg-slate-800"
-              onClick={handleCancel}
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2 text-white">Complete Your Profile</h1>
+        <p className="text-gray-400">Manage your job portal credentials and preferences</p>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-700 mb-8">
+        <div className="flex space-x-8">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center space-x-2 pb-4 px-1 border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-400 hover:text-white'
+              }`}
             >
-               {isEditing ? "Cancel" : "Update"}
-            </Button>
-          
+              <span className="text-lg">{tab.icon}</span>
+              <span className="font-medium">{tab.label}</span>
+            </button>
+          ))}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3 max-w-[100%] border-b-[1px] border-[#454545] ">
-        <button
-          onClick={() => setSelectedSection("profile")}
-          className={`text-text-sm-semibold pb-4 ${
-            selectedSection === "profile"
-              ? "text-white border-b-2 border-white"
-              : "text-[#667085]"
-          }`}
-        >
-          Profile
-        </button>
-        <button
-          onClick={() => setSelectedSection("resume")}
-          className={`text-text-sm-semibold pb-4 ${
-            selectedSection === "resume"
-              ? "text-white border-b-2 border-white"
-              : "text-[#667085]"
-          }`}
-        >
-          Resume/CV
-        </button>
-        <button
-          onClick={() => setSelectedSection("preferences")}
-          className={`text-text-sm-semibold pb-4 ${
-            selectedSection === "preferences"
-              ? "text-white border-b-2 border-white"
-              : "text-[#667085]"
-          }`}
-        >
-          Preferences
-        </button>
+
+      {/* Tab Content */}
+      <div className="min-h-[400px]">
+        {currentTab?.component}
       </div>
-      {renderSection()}
     </div>
   );
 };
