@@ -1,4 +1,4 @@
-// components/sections/pricing/monthlyComponent/monthlyComponent.tsx (UPDATED WITH TEST PLAN)
+// components/sections/pricing/monthlyComponent/monthlyComponent.tsx (FEATURES ALWAYS VISIBLE)
 import PricingCard from "@/components/card/pricingCard/pricingCard";
 import CheckPointscard from "@/components/common/checkPointscard/checkPointscard";
 import React, { useEffect, useState } from "react";
@@ -14,7 +14,6 @@ declare global {
 
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
-  const [minimizeFeatures, setMinimizeFeatures] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
@@ -52,13 +51,11 @@ const MonthlyComponent = () => {
       return;
     }
     setShowRazorpay(true);
-    setMinimizeFeatures(true);
   };
 
   const handleMaximize = () => {
     if (!isCreatingSubscription && !subscriptionCreated) {
       setShowRazorpay(false);
-      setMinimizeFeatures(false);
     }
   };
 
@@ -299,46 +296,31 @@ const MonthlyComponent = () => {
           }
           checkpoints={
             <div className="flex flex-col gap-4">
-              {minimizeFeatures && (
-                <button
-                  onClick={handleMaximize}
-                  disabled={isCreatingSubscription || subscriptionCreated}
-                  className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 text-left disabled:opacity-30"
-                >
-                  Show all ↓
-                </button>
-              )}
-              <div className={`overflow-hidden ${
-                minimizeFeatures ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
-              }`}>
-                <div className="flex flex-col gap-4">
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="Everything in Free"
-                    opacity={true}
-                  />
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="Unlimited Job Listings"
-                    opacity={true}
-                  />
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="Auto Apply (100 jobs/month)"
-                    opacity={true}
-                  />
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="AI Resume Builder"
-                    opacity={true}
-                  />
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="AI Mock Interviews"
-                    opacity={true}
-                  />
-                </div>
-              </div>
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Everything in Free"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Unlimited Job Listings"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Auto Apply (100 jobs/month)"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="AI Resume Builder"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="AI Mock Interviews"
+                opacity={true}
+              />
             </div>
           }
         />
