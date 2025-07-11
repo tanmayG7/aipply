@@ -108,7 +108,7 @@ const MonthlyComponent = () => {
           
           // Optionally redirect to dashboard
           setTimeout(() => {
-            window.location.href = '/dashboard';
+            window.location.href = '/dashboard/home';
           }, 2000);
         },
         
