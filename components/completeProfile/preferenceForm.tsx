@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
@@ -103,18 +96,16 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
   };
 
   return (
-    <Card className="grid grid-cols-7 max-w-[100%] py-6 text-white border border-gray rounded-lg shadow-md bg-gray-900">
-      <CardHeader className="col-span-3">
-        <CardTitle className="text-xl font-semibold">Preferences</CardTitle>
-        <CardDescription className="text-gray-400">
-          Set your job preferences.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col col-span-4 gap-6">
-        <div className="flex flex-col gap-4">
-          <Label className="text-[16px] font-semibold font-inter">
-            Job Search Status
-          </Label>
+    <div className="py-6 border border-gray rounded-xl">
+      {/* Job Search Status Section */}
+      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+        <div className="col-span-2">
+          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Job Search Status</h3>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+            Set your current job search preferences.
+          </p>
+        </div>
+        <div className="col-span-5">
           {isEditing ? (
             <Button
               onClick={() =>
@@ -129,7 +120,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
                   : "bg-gray-600 hover:bg-gray-500 w-fit border border-gray"
               }`}
             >
-              <p className="text-[16px] font-semibold font-inter opacity-70 ">
+              <p className="text-[16px] font-semibold font-inter opacity-70">
                 {preferences.jobSearchStatus
                   ? "Actively looking for a job"
                   : "Not actively looking"}
@@ -147,15 +138,23 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
             </p>
           )}
         </div>
+      </div>
 
-        <div className="flex flex-col w-fit gap-4">
-          <Label className="font-semibold">Preferred Job Type</Label>
+      {/* Job Type Section */}
+      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+        <div className="col-span-2">
+          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Preferred Job Type</h3>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+            Select your preferred employment type.
+          </p>
+        </div>
+        <div className="col-span-5">
           {isEditing ? (
             <select
               name="jobType"
               value={preferences.jobType}
               onChange={handleChange}
-              className="bg-gray px-3 py-2 rounded-md"
+              className="bg-gray px-3 py-2 rounded-md text-white"
             >
               <option value="fulltime">Full-time</option>
               <option value="parttime">Part-time</option>
@@ -165,91 +164,106 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
               {preferences.jobType === "fulltime" ? "Full-time" : "Part-time"}
             </p>
           )}
-        </div>
 
-        <div className="flex flex-col gap-2">
-          <p className="text-text-lg-semibold text-white">
-            Open for the following job types:
-          </p>
-          <div className="flex flex-col gap-2 opacity-70">
-            {["contractor", "intern", "freelance"].map((type) => (
-              <div key={type} className="flex items-center gap-2">
-                {isEditing ? (
-                  <Checkbox
-                    id={type}
-                    checked={
-                      preferences.additionalTypes[
+          {/* Additional Job Types */}
+          <div className="mt-6">
+            <p className="text-white font-semibold mb-4">
+              Open for the following job types:
+            </p>
+            <div className="flex flex-col gap-2 opacity-70">
+              {["contractor", "intern", "freelance"].map((type) => (
+                <div key={type} className="flex items-center gap-2">
+                  {isEditing ? (
+                    <>
+                      <Checkbox
+                        id={type}
+                        checked={
+                          preferences.additionalTypes[
+                            type as keyof typeof preferences.additionalTypes
+                          ]
+                        }
+                        onCheckedChange={() =>
+                          setPreferences((prev) => ({
+                            ...prev,
+                            additionalTypes: {
+                              ...prev.additionalTypes,
+                              [type]: !prev.additionalTypes[type as keyof typeof preferences.additionalTypes],
+                            },
+                          }))
+                        }
+                      />
+                      <Label htmlFor={type} className="text-white">
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Label>
+                    </>
+                  ) : (
+                    <span className="text-gray-300">
+                      {type.charAt(0).toUpperCase() + type.slice(1)}:{" "}
+                      {preferences.additionalTypes[
                         type as keyof typeof preferences.additionalTypes
                       ]
-                    }
-                    onCheckedChange={() =>
-                      setPreferences((prev) => ({
-                        ...prev,
-                        additionalTypes: {
-                          ...prev.additionalTypes,
-                          [type]: !prev.additionalTypes[type as keyof typeof preferences.additionalTypes],
-                        },
-                      }))
-                    }
-                  />
-                ) : (
-                  <span className="text-gray-300">
-                    {type.charAt(0).toUpperCase() + type.slice(1)}:{" "}
-                    {preferences.additionalTypes[
-                      type as keyof typeof preferences.additionalTypes
-                    ]
-                      ? "Yes"
-                      : "No"}
-                  </span>
-                )}
+                        ? "Yes"
+                        : "No"}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Locations Section */}
+      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+        <div className="col-span-2">
+          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Preferred Locations</h3>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+            Add your preferred work locations.
+          </p>
+        </div>
+        <div className="col-span-5">
+          <div className="flex flex-wrap gap-4 mb-4">
+            {locations.map((location) => (
+              <div
+                key={location}
+                className="bg-gray-700 px-4 py-2 rounded flex items-center gap-2 text-white font-inter border border-[#371b7e]"
+              >
+                {location}
                 {isEditing && (
-                  <Label htmlFor={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </Label>
+                  <button onClick={() => removeLocation(location)} className="text-red-400 hover:text-red-300">
+                    ✕
+                  </button>
                 )}
               </div>
             ))}
           </div>
-        </div>
 
-        <div className="flex flex-col gap-6">
-          <Label className="text-text-lg-semibold text-white font-inter">
-            Preferred Locations
-          </Label>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap gap-4">
-                {locations.map((location) => (
-                  <div
-                    key={location}
-                    className="bg-gray-700 px-4 py-2 rounded flex items-center gap-2 text-text-md-semibold text-white font-inter border border-[#371b7e]"
-                  >
-                    {location}
-                    {isEditing && (
-                      <button onClick={() => removeLocation(location)}>
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {isEditing && (
-                <Input
-                  value={locationInput}
-                  onChange={(e) => setLocationInput(e.target.value)}
-                  placeholder="Enter preferred Locations"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      addLocation();
-                    }
-                  }}
-                />
-              )}
+          {isEditing && (
+            <div className="flex gap-2">
+              <Input
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                placeholder="Enter preferred location"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    addLocation();
+                  }
+                }}
+                className="flex-1"
+              />
+              <Button
+                onClick={addLocation}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4"
+              >
+                Add
+              </Button>
             </div>
+          )}
 
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
+          {/* Remote Work Option */}
+          <div className="flex items-center gap-2 mt-4">
+            {isEditing ? (
+              <>
                 <Checkbox
                   id="opentoremote"
                   checked={preferences.openToRemote}
@@ -257,26 +271,33 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
                 />
                 <Label
                   htmlFor="opentoremote"
-                  className="font-inter text-text-md-semibold"
+                  className="font-inter text-white"
                 >
-                  open to working remotely
+                  Open to working remotely
                 </Label>
-              </div>
-            </div>
+              </>
+            ) : (
+              <span className="text-gray-300">
+                Open to remote work: {preferences.openToRemote ? "Yes" : "No"}
+              </span>
+            )}
           </div>
         </div>
+      </div>
 
-        {isEditing && (
+      {/* Save Button */}
+      {isEditing && (
+        <div className="flex justify-end mt-6 px-6">
           <Button
             onClick={handleSavePreferences}
-            className="w-fit px-8 bg-blue border border-gray hover:bg-gray-700"
+            className="w-fit px-8 bg-blue-600 hover:bg-blue-700 text-white"
             disabled={isSaving}
           >
             {isSaving ? "Saving..." : "Save Preferences"}
           </Button>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+    </div>
   );
 };
 
