@@ -1,4 +1,4 @@
-// components/sections/pricing/quarlerlyComponent/quarlerlyComponent.tsx (UPDATED)
+// components/sections/pricing/quarlerlyComponent/quarlerlyComponent.tsx (FEATURES ALWAYS VISIBLE)
 import PricingCard from '@/components/card/pricingCard/pricingCard';
 import CheckPointscard from '@/components/common/checkPointscard/checkPointscard';
 import React, { useEffect, useState } from 'react'
@@ -14,7 +14,6 @@ declare global {
 
 const QuarterlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
-  const [minimizeFeatures, setMinimizeFeatures] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
@@ -52,15 +51,9 @@ const QuarterlyComponent = () => {
       return;
     }
     setShowRazorpay(true);
-    setMinimizeFeatures(true);
   };
 
-  const handleMaximize = () => {
-    if (!isCreatingSubscription && !subscriptionCreated) {
-      setShowRazorpay(false);
-      setMinimizeFeatures(false);
-    }
-  };
+
 
   const handleRazorpayPayment = async () => {
     if (!razorpayLoaded || !user || isCreatingSubscription || subscriptionCreated) {
@@ -260,15 +253,6 @@ const QuarterlyComponent = () => {
                   Subscribing as: {user?.email}
                 </div>
                 
-                {!isCreatingSubscription && !subscriptionCreated && (
-                  <button
-                    onClick={handleMaximize}
-                    className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
-                  >
-                    ← Back to details
-                  </button>
-                )}
-                
                 {subscriptionCreated && !paymentSuccess && (
                   <div className="text-sm text-orange-300 text-center">
                     Subscription created! Complete payment in the popup.
@@ -288,50 +272,35 @@ const QuarterlyComponent = () => {
               Early-bird price
             </button>
           }
-          crossText="1998"
-          discount="25% Saved"
+          crossText="5961"
+          discount="75% Saved"
           checkpoints={
             <div className="flex flex-col gap-4">
-              {minimizeFeatures && (
-                <button
-                  onClick={handleMaximize}
-                  disabled={isCreatingSubscription || subscriptionCreated}
-                  className="font-manrope text-[14px] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 text-left disabled:opacity-30"
-                >
-                  Show all ↓
-                </button>
-              )}
-              <div className={`overflow-hidden ${
-                minimizeFeatures ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
-              }`}>
-                <div className="flex flex-col gap-4">
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="Everything in Free"
-                    opacity={true}
-                  />
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="Unlimited Job Listings"
-                    opacity={true}
-                  />
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="Auto Apply (100 jobs/month)"
-                    opacity={true}
-                  />
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="AI Resume Builder"
-                    opacity={true}
-                  />
-                  <CheckPointscard
-                    imageUrl={"/static/icons/checkpoint.svg"}
-                    text="AI Mock Interviews"
-                    opacity={true}
-                  />
-                </div>
-              </div>
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Everything in Free"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Unlimited Job Listings"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="Auto Apply (100 jobs/month)"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="AI Resume Builder"
+                opacity={true}
+              />
+              <CheckPointscard
+                imageUrl={"/static/icons/checkpoint.svg"}
+                text="AI Mock Interviews"
+                opacity={true}
+              />
             </div>
           }
         />
