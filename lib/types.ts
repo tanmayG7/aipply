@@ -75,7 +75,7 @@ export interface UserDetails {
   endDate?: string;
   firstName?: string;
   lastName?: string;
- platformCredentials?: PlatformCredentials;
+  platformCredentials?: PlatformCredentialsData;
 }
 
 export interface DashboardData {
@@ -170,7 +170,7 @@ export interface FeatureAccess {
   reason?: 'upgrade_required' | 'daily_limit_reached' | 'monthly_limit_reached' | 'unknown_error';
 }
 
-export interface PlatformCredentials {
+export interface PlatformCredentialsData {
   naukri?: {
     email: string;
     password: string;
