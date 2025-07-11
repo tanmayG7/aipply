@@ -54,6 +54,20 @@ const EditProfile: React.FC = () => {
       [tab]: !prev[tab as keyof typeof prev]
     }));
   };
+
+  const refreshUserDetails = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const details = await getUserProfile(user.uid);
+        setUserDetails(details || {});
+      } catch (error) {
+        console.error('Error refreshing user details:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
     const fetchUserDetails = async () => {
       const user = auth.currentUser;
       if (user) {
@@ -69,18 +83,6 @@ const EditProfile: React.FC = () => {
 
     fetchUserDetails();
   }, []);
-
-  useEffect(() => {
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        const details = await getUserProfile(user.uid);
-        setUserDetails(details || {});
-      } catch (error) {
-        console.error('Error refreshing user details:', error);
-      }
-    }
-  };
 
   const renderTabContent = () => {
     if (loading) {
