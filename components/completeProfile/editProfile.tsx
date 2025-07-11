@@ -16,7 +16,12 @@ interface Tab {
 
 const EditProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingStates, setEditingStates] = useState({
+    profile: false,
+    credentials: false,
+    preferences: false,
+    documents: false
+  });
   const [userDetails, setUserDetails] = useState<UserDetails>({} as UserDetails);
   const [loading, setLoading] = useState(true);
 
@@ -38,12 +43,17 @@ const EditProfile: React.FC = () => {
     },
     { 
       id: 'documents', 
-      label: 'Documents', 
+      label: 'Resume', 
       icon: '📄'
     }
   ];
 
-  useEffect(() => {
+  const toggleEditing = (tab: string) => {
+    setEditingStates(prev => ({
+      ...prev,
+      [tab]: !prev[tab as keyof typeof prev]
+    }));
+  };
     const fetchUserDetails = async () => {
       const user = auth.currentUser;
       if (user) {
@@ -60,7 +70,7 @@ const EditProfile: React.FC = () => {
     fetchUserDetails();
   }, []);
 
-  const refreshUserDetails = async () => {
+  useEffect(() => {
     const user = auth.currentUser;
     if (user) {
       try {
@@ -84,70 +94,70 @@ const EditProfile: React.FC = () => {
     switch (activeTab) {
       case 'profile':
         return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
+          <>
+            <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold text-white">Profile Information</h2>
               <button
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={() => toggleEditing('profile')}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
-                {isEditing ? 'View Mode' : 'Edit Mode'}
+                {editingStates.profile ? 'View Mode' : 'Edit Mode'}
               </button>
             </div>
-            <ProfileForm isEditing={isEditing} userDetails={userDetails} />
-          </div>
+            <ProfileForm isEditing={editingStates.profile} userDetails={userDetails} />
+          </>
         );
 
       case 'credentials':
         return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
+          <>
+            <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold text-white">Job Portal Credentials</h2>
               <button
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={() => toggleEditing('credentials')}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
-                {isEditing ? 'View Mode' : 'Edit Mode'}
+                {editingStates.credentials ? 'View Mode' : 'Edit Mode'}
               </button>
             </div>
             <PlatformCredentials 
-              isEditing={isEditing} 
+              isEditing={editingStates.credentials} 
               userDetails={userDetails} 
               onRefresh={refreshUserDetails}
             />
-          </div>
+          </>
         );
 
       case 'preferences':
         return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
+          <>
+            <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold text-white">Job Preferences</h2>
               <button
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={() => toggleEditing('preferences')}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
-                {isEditing ? 'View Mode' : 'Edit Mode'}
+                {editingStates.preferences ? 'View Mode' : 'Edit Mode'}
               </button>
             </div>
-            <PreferenceForm isEditing={isEditing} userDetails={userDetails} />
-          </div>
+            <PreferenceForm isEditing={editingStates.preferences} userDetails={userDetails} />
+          </>
         );
 
       case 'documents':
         return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">Documents</h2>
+          <>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-semibold text-white">Resume</h2>
               <button
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={() => toggleEditing('documents')}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
-                {isEditing ? 'Upload Mode' : 'View Mode'}
+                {editingStates.documents ? 'View Mode' : 'Edit Mode'}
               </button>
             </div>
-            <UploadCv isEditing={isEditing} userDetails={userDetails} />
-          </div>
+            <UploadCv isEditing={editingStates.documents} userDetails={userDetails} />
+          </>
         );
 
       default:
