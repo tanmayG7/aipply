@@ -110,12 +110,15 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
 
   const handleSave = async () => {
     setSaveStatus('saving');
+    console.log('Saving credentials:', credentials);
     try {
       const user = auth.currentUser;
+      console.log('Current user:', user?.uid);
       if (user) {
         await saveUserProfile(user.uid, { 
           platformCredentials: credentials 
         });
+        console.log('Save successful!');
         
         // Refresh user details in parent component
         if (onRefresh) {
@@ -175,13 +178,16 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                       Email/Username
                     </Label>
                     <Input
-  type="email"
-  value={credentials[platform.id]?.email || ''}
-  onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
-  className="w-full bg-gray-700 border border-gray-600 text-white placeholder:text-gray-400"
-  placeholder="Enter your email or username"
-  style={{ color: 'white' }}
-/>
+                      type="email"
+                      value={credentials[platform.id]?.email || ''}
+                      onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 text-white placeholder:text-gray-400"
+                      style={{ 
+                        color: 'white !important',
+                        backgroundColor: '#374151 !important'
+                      }}
+                      placeholder="Enter your email or username"
+                    />
                   </div>
 
                   {/* Password Field */}
@@ -190,14 +196,17 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                       Password
                     </Label>
                     <div className="relative">
-                     <Input
-  type={showPasswords[platform.id] ? 'text' : 'password'}
-  value={credentials[platform.id]?.password || ''}
-  onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
-  className="w-full bg-gray-700 border border-gray-600 text-white pr-10 placeholder:text-gray-400"
-  placeholder="Enter your password"
-  style={{ color: 'white' }}
-/>
+                      <Input
+                        type={showPasswords[platform.id] ? 'text' : 'password'}
+                        value={credentials[platform.id]?.password || ''}
+                        onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
+                        className="w-full bg-gray-700 border border-gray-600 text-white pr-10 placeholder:text-gray-400"
+                        style={{ 
+                          color: 'white !important',
+                          backgroundColor: '#374151 !important'
+                        }}
+                        placeholder="Enter your password"
+                      />
                       <button
                         type="button"
                         onClick={() => togglePasswordVisibility(platform.id)}
