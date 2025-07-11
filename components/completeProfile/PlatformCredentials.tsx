@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { auth, saveUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { UserDetails, PlatformCredentialsData } from '@/lib/types';
+import { auth, saveUserProfile, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 
 interface PlatformCredentialsProps {
   isEditing: boolean;
@@ -114,6 +115,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
         await saveUserProfile(user.uid, { 
           platformCredentials: credentials 
         });
+const updatedDetails = await getUserProfile(user.uid);
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 2000);
       }
