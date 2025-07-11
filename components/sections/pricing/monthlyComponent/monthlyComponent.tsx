@@ -53,11 +53,7 @@ const MonthlyComponent = () => {
     setShowRazorpay(true);
   };
 
-  const handleMaximize = () => {
-    if (!isCreatingSubscription && !subscriptionCreated) {
-      setShowRazorpay(false);
-    }
-  };
+
 
   const handleRazorpayPayment = async () => {
     if (!razorpayLoaded || !user || isCreatingSubscription || subscriptionCreated) {
@@ -266,15 +262,6 @@ const MonthlyComponent = () => {
                   Subscribing as: {user?.email}
                 </div>
                 
-                {!isCreatingSubscription && !subscriptionCreated && (
-                  <button
-                    onClick={handleMaximize}
-                    className="font-manrope w-full font-medium text-[16px] leading-[160%] text-white text-opacity-70 hover:text-opacity-100 transition-all duration-300 underline"
-                  >
-                    ← Back to details
-                  </button>
-                )}
-                
                 {subscriptionCreated && !paymentSuccess && (
                   <div className="text-sm text-orange-300 text-center">
                     Subscription created! Complete payment in the popup.
@@ -294,6 +281,8 @@ const MonthlyComponent = () => {
               Early-bird price
             </button>
           }
+          crossText="1998"
+          discount="66% Saved"
           checkpoints={
             <div className="flex flex-col gap-4">
               <CheckPointscard
