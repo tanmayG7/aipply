@@ -175,12 +175,13 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                       Email/Username
                     </Label>
                     <Input
-                      type="email"
-                      value={credentials[platform.id]?.email || ''}
-                      onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
-                      className="w-full bg-gray-700 border border-gray-600 text-white"
-                      placeholder="Enter your email or username"
-                    />
+  type="email"
+  value={credentials[platform.id]?.email || ''}
+  onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
+  className="w-full bg-gray-700 border border-gray-600 text-white placeholder:text-gray-400"
+  placeholder="Enter your email or username"
+  style={{ color: 'white' }}
+/>
                   </div>
 
                   {/* Password Field */}
@@ -189,13 +190,14 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                       Password
                     </Label>
                     <div className="relative">
-                      <Input
-                        type={showPasswords[platform.id] ? 'text' : 'password'}
-                        value={credentials[platform.id]?.password || ''}
-                        onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
-                        className="w-full bg-gray-700 border border-gray-600 text-white pr-10"
-                        placeholder="Enter your password"
-                      />
+                     <Input
+  type={showPasswords[platform.id] ? 'text' : 'password'}
+  value={credentials[platform.id]?.password || ''}
+  onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
+  className="w-full bg-gray-700 border border-gray-600 text-white pr-10 placeholder:text-gray-400"
+  placeholder="Enter your password"
+  style={{ color: 'white' }}
+/>
                       <button
                         type="button"
                         onClick={() => togglePasswordVisibility(platform.id)}
