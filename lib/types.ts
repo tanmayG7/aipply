@@ -75,6 +75,7 @@ export interface UserDetails {
   endDate?: string;
   firstName?: string;
   lastName?: string;
+ platformCredentials?: PlatformCredentials;
 }
 
 export interface DashboardData {
@@ -93,9 +94,6 @@ export interface DashboardData {
   totalJobsShown: number;
   updatedAt: string;
 }
-
-// ========== SUBSCRIPTION TYPES ==========
-// Add these interfaces to the end of your lib/types.ts file
 
 export interface UserSubscription {
   userId: string;
@@ -172,7 +170,24 @@ export interface FeatureAccess {
   reason?: 'upgrade_required' | 'daily_limit_reached' | 'monthly_limit_reached' | 'unknown_error';
 }
 
-// Update this in your lib/types.ts file - replace the existing RAZORPAY_PLAN_MAPPING
+export interface PlatformCredentials {
+  naukri?: {
+    email: string;
+    password: string;
+  };
+  hirist?: {
+    email: string;
+    password: string;
+  };
+  shine?: {
+    email: string;
+    password: string;
+  };
+  timesjobs?: {
+    email: string;
+    password: string;
+  };
+}
 
 export const RAZORPAY_PLAN_MAPPING: Record<string, PlanConfig> = {
   // Test mode plan IDs
@@ -183,7 +198,6 @@ export const RAZORPAY_PLAN_MAPPING: Record<string, PlanConfig> = {
     name: 'Premium Monthly'
   },
   
-  // Keep your old live mode plan IDs as well (for when you switch back)
   'pl_Qpqiazi0S9XVVD': { 
     type: 'monthly', 
     price: 666, 
