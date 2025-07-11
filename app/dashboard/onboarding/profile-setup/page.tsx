@@ -257,6 +257,12 @@ export default function ProfileSetup() {
                           placeholder="Enter your First Name"
                           value={formData.firstName}
                           onChange={handleChange}
+ onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
                           required
                           className={errors.firstName ? "border-red-500" : ""}
                         />
@@ -273,6 +279,12 @@ export default function ProfileSetup() {
                           placeholder="Enter your Last Name"
                           value={formData.lastName}
                           onChange={handleChange}
+ onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
                           required
                           className={errors.lastName ? "border-red-500" : ""}
                         />
@@ -290,6 +302,12 @@ export default function ProfileSetup() {
                         placeholder="Enter your Mobile Number"
                         value={formData.mobileNumber}
                         onChange={handleChange}
+ onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
                         required
                         className={errors.mobileNumber ? "border-red-500" : ""}
                       />
@@ -309,6 +327,12 @@ export default function ProfileSetup() {
                         placeholder="Enter your Email"
                         value={formData.email}
                         onChange={handleChange}
+ onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
                         required
                         className={errors.email ? "border-red-500" : ""}
                       />
@@ -348,6 +372,12 @@ export default function ProfileSetup() {
                               placeholder="Search job roles"
                               value={jobRoleSearch}
                               onChange={(e) => setJobRoleSearch(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
                               className="mb-2"
                             />
                             <div className="bg-[#4423a8] max-h-72 overflow-y-auto text-white w-full rounded-md shadow-lg">
@@ -445,6 +475,12 @@ export default function ProfileSetup() {
                         placeholder="Enter your Current CTC"
                         value={formData.currentCTC}
                         onChange={handleChange}
+ onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
                         required
                         className={errors.currentCTC ? "border-red-500" : ""}
                       />
@@ -471,6 +507,12 @@ export default function ProfileSetup() {
                         placeholder="Enter your Expected CTC"
                         value={formData.expectedCTC}
                         onChange={handleChange}
+ onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
                         required
                         className={errors.expectedCTC ? "border-red-500" : ""}
                       />
@@ -497,6 +539,12 @@ export default function ProfileSetup() {
                         placeholder="https://"
                         value={formData.linkedinProfile}
                         onChange={handleChange}
+ onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }}
                         required
                         className={
                           errors.linkedinProfile ? "border-red-500" : ""
