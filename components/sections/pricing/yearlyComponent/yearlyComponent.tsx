@@ -225,6 +225,7 @@ const YearlyComponent = () => {
           planName="Premium Plan"
           subtitle="Save 85% of your time and land interviews faster"
           price="4188"
+          timeline="/year"
           button={
             <div className="w-full">
               <div className={showRazorpay ? 'hidden' : 'block'}>
