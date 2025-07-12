@@ -123,14 +123,14 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
                   : "bg-gray-600 hover:bg-gray-500 w-fit border border-gray"
               }`}
             >
-              <p className="text-[16px] font-semibold font-inter opacity-70">
+              <p className="text-[16px] font-semibold font-inter opacity-70 text-white">
                 {preferences.jobSearchStatus
                   ? "Actively looking for a job"
                   : "Not actively looking"}
               </p>
             </Button>
           ) : (
-            <p className={`text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 ${
+            <p className={`text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 text-white ${
                 preferences.jobSearchStatus
                   ? "bg-green-600 hover:bg-green-500 w-fit"
                   : "bg-gray-600 hover:bg-gray-500 w-fit border border-gray"
