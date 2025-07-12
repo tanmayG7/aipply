@@ -147,12 +147,12 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
         </CardHeader>
         <CardContent className="col-span-5">
           {/* Security Note */}
-          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-6">
+          <div className="border border-[#371b7e] rounded-lg p-4 mb-6">
             <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4 text-gray-300" />
-              <span className="text-sm font-medium text-gray-300">Security Note</span>
+              <Shield className="w-4 h-4 text-slate-500" />
+              <span className="text-sm font-medium text-slate-500">Security Note</span>
             </div>
-            <p className="text-sm mt-1 text-gray-400">
+            <p className="text-sm mt-1 text-slate-400 opacity-70">
               Your credentials are stored securely in your profile.
             </p>
           </div>
@@ -160,14 +160,14 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
           {/* Platform Cards */}
           <div className="grid gap-6">
             {platforms.map((platform) => (
-              <div key={platform.id} className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+              <div key={platform.id} className="border border-[#371b7e] rounded-lg p-6">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className={`w-10 h-10 ${platform.color} rounded-lg flex items-center justify-center text-white font-bold text-lg`}>
                     {platform.icon}
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">{platform.name}</h3>
-                    <p className="text-sm text-gray-400">{platform.description}</p>
+                    <p className="text-sm text-slate-500">{platform.description}</p>
                   </div>
                 </div>
 
@@ -175,7 +175,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                   <div className="grid md:grid-cols-2 gap-4">
                     {/* Email/Username Field */}
                     <div>
-                      <Label className="block text-sm font-medium text-gray-300 mb-2">
+                      <Label className="block text-sm font-medium text-slate-500 mb-2">
                         Email/Username
                       </Label>
                       <Input
@@ -190,7 +190,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
 
                     {/* Password Field */}
                     <div>
-                      <Label className="block text-sm font-medium text-gray-300 mb-2">
+                      <Label className="block text-sm font-medium text-slate-500 mb-2">
                         Password
                       </Label>
                       <div className="relative">
@@ -216,15 +216,15 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                   <div className="space-y-2">
                     {credentials[platform.id]?.email ? (
                       <>
-                        <p className="text-gray-300">
+                        <p className="text-slate-300">
                           <span className="font-medium">Email:</span> {credentials[platform.id]?.email}
                         </p>
-                        <p className="text-gray-300">
+                        <p className="text-slate-300">
                           <span className="font-medium">Password:</span> {'•'.repeat(8)}
                         </p>
                       </>
                     ) : (
-                      <p className="text-gray-500 italic">No credentials saved</p>
+                      <p className="text-slate-500 italic opacity-70">No credentials saved</p>
                     )}
                   </div>
                 )}
