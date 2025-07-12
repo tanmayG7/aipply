@@ -83,7 +83,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
   };
 
   return (
-    <div className="py-6 border border-gray rounded-xl">
+    <>
       {/* Resume Upload Section */}
       <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
         <CardHeader className="col-span-2">
@@ -197,7 +197,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 };
 
