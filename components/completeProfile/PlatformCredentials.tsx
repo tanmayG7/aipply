@@ -146,6 +146,17 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
           </p>
         </CardHeader>
         <CardContent className="col-span-5">
+          {/* Security Note */}
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-6">
+            <div className="flex items-center space-x-2">
+              <Shield className="w-4 h-4 text-gray-300" />
+              <span className="text-sm font-medium text-gray-300">Security Note</span>
+            </div>
+            <p className="text-sm mt-1 text-gray-400">
+              Your credentials are stored securely in your profile.
+            </p>
+          </div>
+          
           {/* Platform Cards */}
           <div className="grid gap-6">
             {platforms.map((platform) => (
