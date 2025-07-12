@@ -256,7 +256,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
                     addLocation();
                   }
                 }}
-                className="flex-1"
+                className="flex-1 text-white"
               />
               <Button
                 onClick={addLocation}
