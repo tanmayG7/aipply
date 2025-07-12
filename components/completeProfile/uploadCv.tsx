@@ -5,6 +5,7 @@ import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Button } from "../ui/button";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { UserDetails } from "@/lib/types";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -82,18 +83,18 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
   };
 
   return (
-    <>
+    <div className="py-6 border border-gray rounded-xl">
       {/* Resume Upload Section */}
-      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none mt-6">
-        <div className="col-span-2">
-          <div className="text-[16px] font-inter font-semibold text-white">
+      <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+        <CardHeader className="col-span-2">
+          <CardTitle className="text-[16px] font-inter font-semibold text-white">
             Upload your resume or CV
-          </div>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mt-2">
+          </CardTitle>
+          <CardDescription className="font-inter text-[14px] leading-[20px]">
             Upload most up-to-date resume.
-          </p>
-        </div>
-        <div className="col-span-5">
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="col-span-5">
           {isEditing ? (
             <>
               <div className="bg-[#0C111D] px-6 py-4 rounded-xl">
@@ -125,13 +126,15 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
                   {fileName && <p className="mt-2 text-white">{fileName}</p>}
                 </label>
               </div>
-              <Button
-                onClick={handleSaveCvButtonClick}
-                className="mt-4 w-full text-white bg-blue-600 hover:bg-blue-700"
-                disabled={loading}
-              >
-                {loading ? "Saving..." : "Save Resume"}
-              </Button>
+              <div className="flex gap-4 mt-4">
+                <Button
+                  onClick={handleSaveCvButtonClick}
+                  className="w-fit px-8 text-white bg-transparent border border-gray"
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save Resume"}
+                </Button>
+              </div>
             </>
           ) : (
             <div className="space-y-2">
@@ -148,20 +151,20 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
               )}
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Cover Letter Section */}
-      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 rounded-none">
-        <div className="col-span-2">
-          <div className="text-[16px] font-inter font-semibold text-white">
+      <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 rounded-none">
+        <CardHeader className="col-span-2">
+          <CardTitle className="text-[16px] font-inter font-semibold text-white">
             Cover Letter
-          </div>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mt-2">
+          </CardTitle>
+          <CardDescription className="font-inter text-[14px] leading-[20px]">
             Write most updated cover letter
-          </p>
-        </div>
-        <div className="col-span-5">
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="col-span-5">
           {isEditing ? (
             <>
               <textarea
@@ -171,13 +174,15 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
                 className="bg-gray px-3 pt-3 pb-16 rounded-md w-full text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none"
                 rows={6}
               />
-              <Button
-                onClick={handleSaveCoverLetterButtonClick}
-                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white w-fit px-6"
-                disabled={loading}
-              >
-                {loading ? "Saving..." : "Save Cover Letter"}
-              </Button>
+              <div className="flex gap-4 mt-4">
+                <Button
+                  onClick={handleSaveCoverLetterButtonClick}
+                  className="w-fit px-8 text-white bg-transparent border border-gray"
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save Cover Letter"}
+                </Button>
+              </div>
             </>
           ) : (
             <div className="space-y-2">
@@ -190,9 +195,9 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
               )}
             </div>
           )}
-        </div>
-      </div>
-    </>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
