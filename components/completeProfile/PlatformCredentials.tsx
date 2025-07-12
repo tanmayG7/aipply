@@ -5,6 +5,7 @@ import { Eye, EyeOff, Save, Shield, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { auth, saveUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { UserDetails, PlatformCredentialsData } from '@/lib/types';
 
@@ -135,14 +136,16 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
 
   return (
     <div className="py-6 border border-gray rounded-xl">
-      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
-        <div className="col-span-2">
-          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Platform Credentials</h3>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+      <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+        <CardHeader className="col-span-2">
+          <CardTitle className="text-[16px] font-inter font-semibold text-white">
+            Platform Credentials
+          </CardTitle>
+          <CardDescription className="font-inter text-[14px] leading-[20px]">
             Store your job portal login credentials for easy access.
-          </p>
-        </div>
-        <div className="col-span-5">
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="col-span-5">
           {/* Security Note */}
           <div className="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4 mb-6">
             <div className="flex items-center space-x-2 text-blue-400">
@@ -229,33 +232,18 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
           
           {/* Save Button */}
           {isEditing && (
-            <div className="flex justify-end mt-6">
+            <div className="flex gap-4 mt-6">
               <Button
                 onClick={handleSave}
                 disabled={saveStatus === 'saving'}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white"
+                className="w-fit px-8 text-white bg-transparent border border-gray"
               >
-                {saveStatus === 'saving' ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Saving...
-                  </>
-                ) : saveStatus === 'saved' ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Saved!
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Credentials
-                  </>
-                )}
+                {saveStatus === 'saving' ? "Saving..." : saveStatus === 'saved' ? "Saved!" : "Save Credentials"}
               </Button>
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
