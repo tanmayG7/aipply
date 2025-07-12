@@ -149,8 +149,8 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
           {/* Security Note */}
           <div className="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4 mb-6">
             <div className="flex items-center space-x-2 text-blue-400">
-              <Shield className="w-4 h-4" />
-              <span className="text-sm font-medium">Security Note</span>
+              <Shield className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-medium text-blue-400">Security Note</span>
             </div>
             <p className="text-sm text-blue-300 mt-1">
               Your credentials are stored securely in your profile.
