@@ -184,6 +184,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                         onChange={(e) => handleCredentialChange(platform.id, 'email', e.target.value)}
                         placeholder="Enter your email or username"
                         required
+                        className="text-white"
                       />
                     </div>
 
@@ -199,6 +200,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                           onChange={(e) => handleCredentialChange(platform.id, 'password', e.target.value)}
                           placeholder="Enter your password"
                           required
+                          className="text-white pr-10"
                         />
                         <button
                           type="button"
