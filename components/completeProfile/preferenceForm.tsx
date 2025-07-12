@@ -96,12 +96,14 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
   };
 
   return (
-    <div className="py-6 border border-gray rounded-xl">
+    <>
       {/* Job Search Status Section */}
-      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none mt-6">
         <div className="col-span-2">
-          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Job Search Status</h3>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+          <div className="text-[16px] font-inter font-semibold text-white">
+            Job Search Status
+          </div>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mt-2">
             Set your current job search preferences.
           </p>
         </div>
@@ -143,8 +145,10 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
       {/* Job Type Section */}
       <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
         <div className="col-span-2">
-          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Preferred Job Type</h3>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+          <div className="text-[16px] font-inter font-semibold text-white">
+            Preferred Job Type
+          </div>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mt-2">
             Select your preferred employment type.
           </p>
         </div>
@@ -216,8 +220,10 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
       {/* Locations Section */}
       <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
         <div className="col-span-2">
-          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Preferred Locations</h3>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+          <div className="text-[16px] font-inter font-semibold text-white">
+            Preferred Locations
+          </div>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mt-2">
             Add your preferred work locations.
           </p>
         </div>
@@ -287,7 +293,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
 
       {/* Save Button */}
       {isEditing && (
-        <div className="flex justify-end mt-6 px-6">
+        <div className="flex justify-end mt-6">
           <Button
             onClick={handleSavePreferences}
             className="w-fit px-8 bg-blue-600 hover:bg-blue-700 text-white"
@@ -297,7 +303,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
           </Button>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
