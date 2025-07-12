@@ -141,22 +141,11 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
           <CardTitle className="text-[16px] font-inter font-semibold text-white">
             Platform Credentials
           </CardTitle>
-          <p className="font-inter text-[14px] leading-[20px]" style={{ color: '#FFFFFF' }}>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mb-6">
             Store your job portal login credentials for easy access.
           </p>
         </CardHeader>
         <CardContent className="col-span-5">
-          {/* Security Note */}
-          <div className="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4 mb-6">
-            <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4" style={{ color: '#60A5FA' }} />
-              <span className="text-sm font-medium" style={{ color: '#60A5FA' }}>Security Note</span>
-            </div>
-            <p className="text-sm mt-1" style={{ color: '#93C5FD' }}>
-              Your credentials are stored securely in your profile.
-            </p>
-          </div>
-          
           {/* Platform Cards */}
           <div className="grid gap-6">
             {platforms.map((platform) => (
