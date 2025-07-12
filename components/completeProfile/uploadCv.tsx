@@ -82,12 +82,14 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
   };
 
   return (
-    <div className="py-6 border border-gray rounded-xl">
+    <>
       {/* Resume Upload Section */}
-      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+      <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none mt-6">
         <div className="col-span-2">
-          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Upload your resume or CV</h3>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+          <div className="text-[16px] font-inter font-semibold text-white">
+            Upload your resume or CV
+          </div>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mt-2">
             Upload most up-to-date resume.
           </p>
         </div>
@@ -152,8 +154,10 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
       {/* Cover Letter Section */}
       <div className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 rounded-none">
         <div className="col-span-2">
-          <h3 className="text-[16px] font-inter font-semibold text-white mb-4">Cover Letter</h3>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+          <div className="text-[16px] font-inter font-semibold text-white">
+            Cover Letter
+          </div>
+          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mt-2">
             Write most updated cover letter
           </p>
         </div>
@@ -188,7 +192,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
