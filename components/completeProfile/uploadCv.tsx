@@ -84,6 +84,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
 
   return (
     <div className="py-6 border border-gray rounded-xl">
+      {/* Resume Upload Section */}
       <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
         <CardHeader className="col-span-2">
           <CardTitle className="text-[16px] font-inter font-semibold text-white">
@@ -94,107 +95,26 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="col-span-5">
-          {isEditing ? (
-            <>
-              <div className="bg-[#0C111D] px-6 py-4 rounded-xl">
-                <Input
-                  type="file"
-                  id="uploadFile"
-                  name="uploadFile"
-                  className="text-white bg-[#0C111D] py-6 px-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-gray hover:file:bg-violet-100"
-                  onChange={handleUploadCv}
-                  style={{ display: "none" }}
-                />
-                <label
-                  htmlFor="uploadFile"
-                  className="flex flex-col items-center cursor-pointer w-full px-8 py-4 rounded gap-3"
-                >
-                  <Image
-                    src={"/static/icons/uploadIcon.svg"}
-                    width={48}
-                    height={48}
-                    alt="Upload"
-                    className="w-12 h-12"
-                  />
-                  <p className="text-text-sm-semibold text-[#CECFD2] font-inter">
-                    Click to upload{" "}
-                    <span className="text-text-sm-regular text-[#94969C]">
-                      {" "}
-                      or drag and drop <br /> DOC, DOCX, PDF(max. 5Mb)
-                    </span>
-                  </p>
-                  {fileName && <p className="mt-2 text-white">{fileName}</p>}
-                </label>
-              </div>
-              <div className="flex gap-4 mt-4">
-                <Button
-                  onClick={handleSaveCvButtonClick}
-                  className="w-fit px-8 text-white bg-transparent border border-gray"
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save Resume"}
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="space-y-2">
-              {userDetails.cv ? (
-                <Link
-                  href={userDetails.cv}
-                  target="_blank"
-                  className="inline-block border px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-                >
-                  Open Your Resume
-                </Link>
-              ) : (
-                <p className="text-gray-500 italic">No resume uploaded</p>
-              )}
-            </div>
-          )}
-
-          {/* Cover Letter Section within same CardContent */}
-          <div className="mt-8 pt-8 border-t border-gray">
-            <div className="mb-4">
-              <h3 className="text-[16px] font-inter font-semibold text-white mb-2">
-                Cover Letter
-              </h3>
-              <p className="font-inter text-[14px] leading-[20px] text-gray-400">
-                Write most updated cover letter
-              </p>
-            </div>
-            
-            {isEditing ? (
-              <>
-                <textarea
-                  value={coverLetter}
-                  onChange={(e) => setCoverLetter(e.target.value)}
-                  placeholder="Write your cover letter here..."
-                  className="bg-gray px-3 pt-3 pb-16 rounded-md w-full text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none"
-                  rows={6}
-                />
-                <div className="flex gap-4 mt-4">
-                  <Button
-                    onClick={handleSaveCoverLetterButtonClick}
-                    className="w-fit px-8 text-white bg-transparent border border-gray"
-                    disabled={loading}
-                  >
-                    {loading ? "Saving..." : "Save Cover Letter"}
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="space-y-2">
-                {userDetails.coverLetter ? (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                    <p className="text-gray-300 whitespace-pre-wrap">{userDetails.coverLetter}</p>
-                  </div>
-                ) : (
-                  <p className="text-gray-500 italic">No cover letter written</p>
-                )}
-              </div>
-            )}
-          </div>
+          <p className="text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 text-white">
+            {isEditing ? "Upload Mode" : "View Mode"}
+          </p>
         </CardContent>
+      </Card>
+
+      {/* Cover Letter Section */}
+      <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 rounded-none">
+        <CardHeader className="col-span-2">
+          <CardTitle className="text-[16px] font-inter font-semibold text-white">
+            Cover Letter
+          </CardTitle>
+          <CardDescription className="font-inter text-[14px] leading-[20px]">
+            Write most updated cover letter
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="col-span-5">
+          <p className="text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 text-white">
+            {isEditing ? "Edit Cover Letter" : "View Cover Letter"}
+          </p>
       </Card>
     </div>
   );
