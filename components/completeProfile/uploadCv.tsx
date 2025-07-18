@@ -97,7 +97,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
         <CardContent className="col-span-5">
           {isEditing ? (
             <div>
-              <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center mb-4">
+              <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center mb-4 bg-gray-800/30">
                 <Input
                   type="file"
                   id="uploadFile"
@@ -107,8 +107,17 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
                   accept=".pdf,.doc,.docx"
                 />
                 <label htmlFor="uploadFile" className="cursor-pointer block">
-                  <div className="text-white font-medium mb-2">Click to upload file</div>
-                  <div className="text-gray-400 text-sm">PDF, DOC, DOCX up to 5MB</div>
+                  <div className="mb-4">
+                    <Image
+                      src="/static/icons/uploadIcon.svg"
+                      width={48}
+                      height={48}
+                      alt="Upload"
+                      className="mx-auto"
+                    />
+                  </div>
+                  <div className="text-white font-medium mb-2">Click to upload</div>
+                  <div className="text-slate-400 text-sm">or drag and drop <br /> DOC, DOCX, PDF (max. 5MB)</div>
                 </label>
               </div>
               {fileName && (
@@ -118,7 +127,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
               )}
               <Button
                 onClick={handleSaveCvButtonClick}
-                className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700"
+                className="w-fit px-8 text-white bg-transparent border border-gray"
                 disabled={loading}
               >
                 {loading ? "Saving..." : "Save Resume"}
@@ -127,10 +136,10 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           ) : (
             <div>
               {userDetails.cv ? (
-                <div className="flex items-center justify-between border border-gray-700 rounded-lg p-4">
+                <div className="flex items-center justify-between border border-[#371b7e] rounded-lg p-4">
                   <div>
                     <h4 className="text-white font-medium">Resume uploaded</h4>
-                    <p className="text-gray-400 text-sm">Your resume is ready</p>
+                    <p className="text-slate-400 text-sm">Your resume is ready</p>
                   </div>
                   <Link
                     href={userDetails.cv}
@@ -141,8 +150,8 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
                   </Link>
                 </div>
               ) : (
-                <div className="border border-gray-700 rounded-lg p-4 text-center">
-                  <p className="text-gray-400">No resume uploaded yet</p>
+                <div className="border border-[#371b7e] rounded-lg p-4 text-center">
+                  <p className="text-slate-500 italic opacity-70">No resume uploaded yet</p>
                 </div>
               )}
             </div>
@@ -167,12 +176,12 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
                 value={coverLetter}
                 onChange={(e) => setCoverLetter(e.target.value)}
                 placeholder="Write your cover letter here..."
-                className="w-full h-32 bg-gray-800 border border-gray-600 rounded-md px-3 py-3 text-white placeholder-gray-400 resize-none mb-4"
+                className="bg-gray px-3 pt-3 pb-16 rounded-md w-full text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none mb-4"
                 rows={6}
               />
               <Button
                 onClick={handleSaveCoverLetterButtonClick}
-                className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700"
+                className="w-fit px-8 text-white bg-transparent border border-gray"
                 disabled={loading}
               >
                 {loading ? "Saving..." : "Save Cover Letter"}
@@ -181,12 +190,12 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           ) : (
             <div>
               {userDetails.coverLetter ? (
-                <div className="border border-gray-700 rounded-lg p-4">
+                <div className="bg-gray-800/50 border border-[#371b7e] rounded-lg p-4">
                   <p className="text-gray-300 whitespace-pre-wrap">{userDetails.coverLetter}</p>
                 </div>
               ) : (
-                <div className="border border-gray-700 rounded-lg p-4 text-center">
-                  <p className="text-gray-400">No cover letter written yet</p>
+                <div className="border border-[#371b7e] rounded-lg p-4 text-center">
+                  <p className="text-slate-500 italic opacity-70">No cover letter written yet</p>
                 </div>
               )}
             </div>
