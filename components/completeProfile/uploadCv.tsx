@@ -84,7 +84,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
 
   return (
     <div className="py-6 border border-gray rounded-xl">
-      <Card className="grid grid-cols-7 gap-[52px] py-6 border-b border-gray rounded-none">
+      <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
         <CardHeader className="col-span-2">
           <CardTitle className="text-[16px] font-inter font-semibold text-white">
             Upload your resume or CV
@@ -137,7 +137,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
               </div>
             </>
           ) : (
-            <div className="bg-[#0C111D] px-6 py-4 rounded-xl min-h-[120px] flex items-center">
+            <div className="space-y-2">
               {userDetails.cv ? (
                 <Link
                   href={userDetails.cv}
@@ -151,49 +151,49 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
 
-      <Card className="grid grid-cols-7 gap-[52px] py-6 rounded-none">
-        <CardHeader className="col-span-2">
-          <CardTitle className="text-[16px] font-inter font-semibold text-white">
-            Cover Letter
-          </CardTitle>
-          <CardDescription className="font-inter text-[14px] leading-[20px]">
-            Write most updated cover letter
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="col-span-5">
-          {isEditing ? (
-            <>
-              <textarea
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                placeholder="Write your cover letter here..."
-                className="bg-gray px-3 pt-3 pb-16 rounded-md w-full text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none"
-                rows={6}
-              />
-              <div className="flex gap-4 mt-4">
-                <Button
-                  onClick={handleSaveCoverLetterButtonClick}
-                  className="w-fit px-8 text-white bg-transparent border border-gray"
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save Cover Letter"}
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="space-y-2">
-              {userDetails.coverLetter ? (
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-300 whitespace-pre-wrap">{userDetails.coverLetter}</p>
-                </div>
-              ) : (
-                <p className="text-gray-500 italic">No cover letter written</p>
-              )}
+          {/* Cover Letter Section within same CardContent */}
+          <div className="mt-8 pt-8 border-t border-gray">
+            <div className="mb-4">
+              <h3 className="text-[16px] font-inter font-semibold text-white mb-2">
+                Cover Letter
+              </h3>
+              <p className="font-inter text-[14px] leading-[20px] text-gray-400">
+                Write most updated cover letter
+              </p>
             </div>
-          )}
+            
+            {isEditing ? (
+              <>
+                <textarea
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
+                  placeholder="Write your cover letter here..."
+                  className="bg-gray px-3 pt-3 pb-16 rounded-md w-full text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  rows={6}
+                />
+                <div className="flex gap-4 mt-4">
+                  <Button
+                    onClick={handleSaveCoverLetterButtonClick}
+                    className="w-fit px-8 text-white bg-transparent border border-gray"
+                    disabled={loading}
+                  >
+                    {loading ? "Saving..." : "Save Cover Letter"}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-2">
+                {userDetails.coverLetter ? (
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-300 whitespace-pre-wrap">{userDetails.coverLetter}</p>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 italic">No cover letter written</p>
+                )}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -201,4 +201,3 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
 };
 
 export default UploadCv;
-//v20
