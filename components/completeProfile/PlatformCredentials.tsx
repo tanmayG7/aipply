@@ -216,10 +216,10 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                   <div className="space-y-2">
                     {credentials[platform.id]?.email ? (
                       <>
-                        <p className="text-slate-300">
+                        <p className="text-white opacity-70">
                           <span className="font-medium">Email:</span> {credentials[platform.id]?.email}
                         </p>
-                        <p className="text-slate-300">
+                        <p className="text-white opacity-70">
                           <span className="font-medium">Password:</span> {'•'.repeat(8)}
                         </p>
                       </>
