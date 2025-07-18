@@ -83,7 +83,10 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
   };
 
   return (
-    <div className="py-6 border border-gray rounded-xl">
+    <div style={{ border: '2px solid red', width: '100%', backgroundColor: 'blue', minHeight: '100px' }}>
+      DEBUG: This should be full width with red border and blue background
+    </div>
+  );
       {/* Resume Upload Section */}
       <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
         <CardHeader className="col-span-2">
