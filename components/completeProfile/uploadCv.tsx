@@ -114,6 +114,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
                     width={48}
                     height={48}
                     alt="Upload"
+                    className="w-12 h-12"
                   />
                   <p className="text-text-sm-semibold text-[#CECFD2] font-inter">
                     Click to upload{" "}
