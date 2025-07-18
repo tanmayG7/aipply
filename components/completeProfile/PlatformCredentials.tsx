@@ -141,9 +141,9 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
           <CardTitle className="text-[16px] font-inter font-semibold text-white">
             Platform Credentials
           </CardTitle>
-          <p className="font-inter text-[14px] leading-[20px] text-gray-400 mb-6">
+          <CardDescription className="font-inter text-[14px] leading-[20px]">
             Store your job portal login credentials for easy access.
-          </p>
+          </CardDescription>
         </CardHeader>
         <CardContent className="col-span-5">
           {/* Security Note */}
