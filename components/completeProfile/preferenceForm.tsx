@@ -130,10 +130,10 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
               </p>
             </Button>
           ) : (
-            <p className={`text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 text-white ${
+            <p className={`text-[16px] border border-[#371b7e] w-fit px-4 py-2 rounded font-semibold font-inter opacity-70 text-white ${
                 preferences.jobSearchStatus
                   ? "bg-green-600 hover:bg-green-500 w-fit"
-                  : "bg-gray-600 hover:bg-gray-500 w-fit border border-gray"
+                  : "bg-gray-600 hover:bg-gray-500 w-fit border border-[#371b7e]"
               }`}>
               {preferences.jobSearchStatus
                 ? "Actively looking for a job"
@@ -165,7 +165,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
               <option value="parttime">Part-time</option>
             </select>
           ) : (
-            <p className="text-[16px] font-semibold font-inter opacity-70 text-white border border-gray px-4 py-2 bg-black rounded">
+            <p className="text-[16px] font-semibold font-inter opacity-70 text-white border border-[#371b7e] px-4 py-2 rounded">
               {preferences.jobType === "fulltime" ? "Full-time" : "Part-time"}
             </p>
           )}
@@ -202,7 +202,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
                       </Label>
                     </>
                   ) : (
-                    <span className="text-gray-300">
+                    <span className="text-white opacity-70">
                       {type.charAt(0).toUpperCase() + type.slice(1)}:{" "}
                       {preferences.additionalTypes[
                         type as keyof typeof preferences.additionalTypes
@@ -284,7 +284,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
                 </Label>
               </>
             ) : (
-              <span className="text-gray-300">
+              <span className="text-white opacity-70">
                 Open to remote work: {preferences.openToRemote ? "Yes" : "No"}
               </span>
             )}
