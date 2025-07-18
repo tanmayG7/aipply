@@ -201,3 +201,4 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
 };
 
 export default UploadCv;
+//v20
