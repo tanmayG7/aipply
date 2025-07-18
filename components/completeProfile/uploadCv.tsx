@@ -190,8 +190,8 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           ) : (
             <div>
               {userDetails.coverLetter ? (
-                <div className="bg-gray-800/50 border border-[#371b7e] rounded-lg p-4">
-                  <p className="text-gray-300 whitespace-pre-wrap">{userDetails.coverLetter}</p>
+                <div className="border border-[#371b7e] rounded-lg p-4">
+                  <p className="text-text-lg-regular opacity-70 text-white whitespace-pre-wrap">{userDetails.coverLetter}</p>
                 </div>
               ) : (
                 <div className="border border-[#371b7e] rounded-lg p-4 text-center">
