@@ -107,9 +107,41 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="col-span-5">
-          <p className="text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 text-white">
-            {isEditing ? "Upload Mode" : "View Mode"}
-          </p>
+          {isEditing ? (
+            <>
+              <div className="border border-gray-700 rounded-lg p-4 mb-4">
+                <Input
+                  type="file"
+                  id="uploadFile"
+                  name="uploadFile"
+                  className="text-white"
+                  onChange={handleUploadCv}
+                />
+                {fileName && <p className="mt-2 text-white text-sm">{fileName}</p>}
+              </div>
+              <Button
+                onClick={handleSaveCvButtonClick}
+                className="w-fit px-8 text-white bg-transparent border border-gray"
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save Resume"}
+              </Button>
+            </>
+          ) : (
+            <div className="space-y-2">
+              {userDetails.cv ? (
+                <Link
+                  href={userDetails.cv}
+                  target="_blank"
+                  className="inline-block border px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                >
+                  Open Your Resume
+                </Link>
+              ) : (
+                <p className="text-gray-500 italic">No resume uploaded</p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -124,9 +156,34 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="col-span-5">
-          <p className="text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 text-white">
-            {isEditing ? "Edit Cover Letter" : "View Cover Letter"}
-          </p>
+          {isEditing ? (
+            <>
+              <textarea
+                value={coverLetter}
+                onChange={(e) => setCoverLetter(e.target.value)}
+                placeholder="Write your cover letter here..."
+                className="bg-gray px-3 pt-3 pb-16 rounded-md w-full text-white placeholder-gray-400"
+                rows={6}
+              />
+              <Button
+                onClick={handleSaveCoverLetterButtonClick}
+                className="w-fit px-8 text-white bg-transparent border border-gray mt-4"
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save Cover Letter"}
+              </Button>
+            </>
+          ) : (
+            <div className="space-y-2">
+              {userDetails.coverLetter ? (
+                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                  <p className="text-gray-300 whitespace-pre-wrap">{userDetails.coverLetter}</p>
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">No cover letter written</p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
