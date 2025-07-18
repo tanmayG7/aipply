@@ -137,7 +137,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
               </div>
             </>
           ) : (
-            <div className="space-y-2">
+            <div className="bg-[#0C111D] px-6 py-4 rounded-xl min-h-[120px] flex items-center">
               {userDetails.cv ? (
                 <Link
                   href={userDetails.cv}
