@@ -94,6 +94,18 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
             Upload most up-to-date resume.
           </CardDescription>
         </CardHeader>
+  return (
+    <div className="py-6 border border-gray rounded-xl">
+      {/* Resume Upload Section */}
+      <Card className="grid grid-cols-7 gap-[52px] max-w-[100%] py-6 border-b border-gray rounded-none">
+        <CardHeader className="col-span-2">
+          <CardTitle className="text-[16px] font-inter font-semibold text-white">
+            Upload your resume or CV
+          </CardTitle>
+          <CardDescription className="font-inter text-[14px] leading-[20px]">
+            Upload most up-to-date resume.
+          </CardDescription>
+        </CardHeader>
         <CardContent className="col-span-5">
           <p className="text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 text-white">
             {isEditing ? "Upload Mode" : "View Mode"}
@@ -115,6 +127,10 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
           <p className="text-[16px] border border-gray w-fit px-4 py-2 rounded bg-black font-semibold font-inter opacity-70 text-white">
             {isEditing ? "Edit Cover Letter" : "View Cover Letter"}
           </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
       </Card>
     </div>
   );
