@@ -31,15 +31,9 @@ const NavLink = ({
   children: any;
   className?: string;
 }) => {
-  const pathname = usePathname();
-
   return (
     <Link href={href}>
-      <div
-        className={`text-white font-manrope  ${
-          pathname === href ? "bg-[#351c98] border-none rounded-lg" : ""
-        } ${className}`}
-      >
+      <div className={`text-white font-manrope ${className}`}>
         {children}
       </div>
     </Link>
@@ -132,7 +126,7 @@ const Header = () => {
                 </button>
                 {isDropdownOpen && (
                   <div
-                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-opacity-[10%] mt-1 left-1/2 transform -translate-x-1/2 w-[215px] grid w-grid-cols-1"
+                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-opacity-[10%] mt-4 left-1/2 transform -translate-x-1/2 w-[215px] grid w-grid-cols-1"
                     onMouseEnter={handleDropdownEnter}
                     onMouseLeave={handleDropdownLeave}
                   >
