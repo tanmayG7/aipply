@@ -1,134 +1,224 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { usePathname } from "next/navigation";
+import { ResponsivePageContainer } from "../responsivePageContainer/responsivePageContainer";
+import { HamburgerMenu } from "./hamburgerMenu";
+import { features } from "@/lib/staticData";
+import { Button } from "@/components/ui/button";
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
+const resources = [
+  {
+    name: "Linkedin Optimization Template",
+    redirectUrl: "/resources/LinkedIn",
+  },
+  {
+    name: "ATS Friendly CV Template",
+    redirectUrl: "/resources/ats",
+  },
+  { name: "Tips for Interview", redirectUrl: "/resources/interview" },
+];
 
-/* HTML: <div class="loader"></div> */
-.loader {    
-  --r1: 154%;
-  --r2: 68.5%;
-  aspect-ratio: 1;
-  background:
-    radial-gradient(var(--r1) var(--r2) at top   ,#0000 79.5%,#269af2 80%),
-    radial-gradient(var(--r1) var(--r2) at bottom,#269af2 79.5%,#0000 80%),
-    radial-gradient(var(--r1) var(--r2) at top   ,#0000 79.5%,#269af2 80%),
-    #ccc;
-  background-size: 50.5% 220%;
-  background-position: -100% 0%,0% 0%,100% 0%;
-  background-repeat:no-repeat;
-  animation: l9 2s infinite linear;
-}
-@keyframes l9 {
-    33%  {background-position:    0% 33% ,100% 33% ,200% 33% }
-    66%  {background-position: -100%  66%,0%   66% ,100% 66% }
-    100% {background-position:    0% 100%,100% 100%,200% 100%}
-}
+const NavLink = ({
+  href,
+  children,
+  className = "",
+}: {
+  href: any;
+  children: any;
+  className?: string;
+}) => {
+  return (
+    <Link href={href}>
+      <div className={`text-white font-manrope ${className}`}>
+        {children}
+      </div>
+    </Link>
+  );
+};
 
-/* Header z-index fix for all pages */
-header {
-  position: relative;
-  z-index: 9998;
-}
+const Header = () => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isResourcesDropdownOpen, setIsResourcesDropdownOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [resourcesTimeout, setResourcesTimeout] = useState<NodeJS.Timeout | null>(null);
 
-/* Fix for backdrop blur elements that create stacking contexts on all pages */
-.absolute[style*="blur"] {
-  z-index: 1 !important;
-}
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-/* Additional fix for backdrop blur elements */
-[style*="backdrop-blur"] {
-  z-index: 1 !important;
-}
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeout) clearTimeout(dropdownTimeout);
+      if (resourcesTimeout) clearTimeout(resourcesTimeout);
+    };
+  }, [dropdownTimeout, resourcesTimeout]);
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
+  if (!isMounted) return null;
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+  const handleDropdownEnter = () => {
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+    // Close resources dropdown immediately when hovering features
+    if (resourcesTimeout) {
+      clearTimeout(resourcesTimeout);
+      setResourcesTimeout(null);
+    }
+    setIsResourcesDropdownOpen(false);
+    setIsDropdownOpen(true);
+  };
 
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+  const handleDropdownLeave = () => {
+    const timeout = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 200);
+    setDropdownTimeout(timeout);
+  };
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+  const handleResourcesEnter = () => {
+    if (resourcesTimeout) {
+      clearTimeout(resourcesTimeout);
+      setResourcesTimeout(null);
+    }
+    // Close features dropdown immediately when hovering resources
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+    setIsDropdownOpen(false);
+    setIsResourcesDropdownOpen(true);
+  };
+
+  const handleResourcesLeave = () => {
+    const timeout = setTimeout(() => {
+      setIsResourcesDropdownOpen(false);
+    }, 200);
+    setResourcesTimeout(timeout);
+  };
+
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+  const toggleResourcesDropdown = () =>
+    setIsResourcesDropdownOpen(!isResourcesDropdownOpen);
+
+  return (
+    <header className="flex flex-row w-full relative z-[9998]">
+      <ResponsivePageContainer>
+        <div className="flex flex-row justify-between">
+          <Link href="/">
+            <Image
+              src={"/static/icons/aipplyLogo.svg"}
+              alt="AiPly logo"
+              width={121}
+              height={41}
+            />
+          </Link>
+
+          <div className="flex flex-row items-center gap-10">
+            <nav className="flex items-center gap-10">
+              <div
+                className="relative hidden custom-md:flex"
+                onMouseEnter={handleDropdownEnter}
+                onMouseLeave={handleDropdownLeave}
+              >
+                <button
+                  className="text-white flex items-center gap-1 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200"
+                  onClick={toggleDropdown}
+                >
+                  <p className="text-white text-text-md-medium">
+                    Features
+                  </p>
+                  <ChevronDownIcon className="w-[20px] h-[20px] text-white" />
+                </button>
+                
+                {isDropdownOpen && (
+                  <div
+                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] top-full mt-1 left-1/2 transform -translate-x-1/2 w-[215px] grid w-grid-cols-1"
+                    onMouseEnter={handleDropdownEnter}
+                    onMouseLeave={handleDropdownLeave}
+                  >
+                    {features.map((feature, index) => (
+                      <NavLink
+                        key={index}
+                        href={feature.redirectUrl}
+                        className={`block p-4 font-manrope text-[16px] leading-[160%] font-[500] text-white hover:bg-white hover:bg-opacity-15 active:bg-white active:bg-opacity-20 transition-colors duration-150 ${
+                          index !== features.length - 1
+                            ? "border-b border-white border-opacity-20"
+                            : ""
+                        } ${index === 0 ? "rounded-t-lg" : ""} ${
+                          index === features.length - 1 ? "rounded-b-lg" : ""
+                        }`}
+                      >
+                        {feature.name}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div
+                className="relative hidden custom-md:flex"
+                onMouseEnter={handleResourcesEnter}
+                onMouseLeave={handleResourcesLeave}
+              >
+                <button
+                  className="text-white items-center gap-1 flex px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200"
+                  onClick={toggleResourcesDropdown}
+                >
+                  <p className="text-white text-text-md-medium">
+                    Resources
+                  </p>
+                  <ChevronDownIcon className="w-[20px] h-[20px] text-white" />
+                </button>
+                
+                {isResourcesDropdownOpen && (
+                  <div
+                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] top-full mt-1 left-1/2 transform -translate-x-1/2 w-[275px] grid w-grid-cols-1"
+                    onMouseEnter={handleResourcesEnter}
+                    onMouseLeave={handleResourcesLeave}
+                  >
+                    {resources.map((resource, index) => (
+                      <NavLink
+                        key={index}
+                        href={resource.redirectUrl}
+                        className={`block p-4 text-white font-manrope leading-[160%] text-[16px] font-[500] hover:bg-white hover:bg-opacity-15 active:bg-white active:bg-opacity-20 transition-colors duration-150 ${
+                          index !== resources.length - 1
+                            ? "border-b border-white border-opacity-20"
+                            : ""
+                        } ${index === 0 ? "rounded-t-lg" : ""} ${
+                          index === resources.length - 1 ? "rounded-b-lg" : ""
+                        }`}
+                      >
+                        {resource.name}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="hidden custom-md:flex flex-row gap-6">
+                <Link href="/dashboard/onboarding/login">
+                  <Button type="button" className="text-white">
+                    Join Now
+                  </Button>
+                </Link>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </ResponsivePageContainer>
+      <div className="custom-md:hidden block">
+        <HamburgerMenu
+          subPages={{ features: features, resources: resources }}
+        />
+      </div>
+    </header>
+  );
+};
+
+export default Header;
