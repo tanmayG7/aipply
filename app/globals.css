@@ -27,6 +27,28 @@ body {
     100% {background-position:    0% 100%,100% 100%,200% 100%}
 }
 
+/* Header dropdown z-index fix */
+header {
+  position: relative;
+  z-index: 9998;
+}
+
+/* Ensure dropdowns appear above all backdrop effects and blurred elements */
+.dropdown-menu {
+  z-index: 9999 !important;
+  position: absolute !important;
+}
+
+/* Fix for backdrop blur elements that create stacking contexts */
+[style*="backdrop-blur"] {
+  z-index: 1 !important;
+}
+
+/* Ensure header dropdowns work properly on feature pages */
+.absolute[style*="blur"] {
+  z-index: 1 !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -107,7 +129,6 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
 
 .scrollbar-hide {
   -ms-overflow-style: none;
