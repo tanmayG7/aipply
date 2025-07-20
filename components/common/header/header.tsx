@@ -124,6 +124,12 @@ const Header = () => {
                   </p>
                   <ChevronDownIcon className="w-[20px] h-[20px] text-white" />
                 </button>
+                
+                {/* Invisible bridge to cover the gap */}
+                {isDropdownOpen && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-[215px] h-12 bg-transparent z-[9999]" />
+                )}
+                
                 {isDropdownOpen && (
                   <div
                     className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-opacity-[10%] mt-12 left-1/2 transform -translate-x-1/2 w-[215px] grid w-grid-cols-1"
@@ -163,6 +169,12 @@ const Header = () => {
                   </p>
                   <ChevronDownIcon className="w-[20px] h-[20px] text-white" />
                 </button>
+                
+                {/* Invisible bridge to cover the gap */}
+                {isResourcesDropdownOpen && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-[275px] h-12 bg-transparent z-[9999]" />
+                )}
+                
                 {isResourcesDropdownOpen && (
                   <div
                     className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-opacity-[10%] mt-1 left-1/2 transform -translate-x-1/2 w-[275px] grid w-grid-cols-1"
