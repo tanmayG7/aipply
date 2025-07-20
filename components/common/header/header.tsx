@@ -66,6 +66,12 @@ const Header = () => {
       clearTimeout(dropdownTimeout);
       setDropdownTimeout(null);
     }
+    // Close resources dropdown immediately when hovering features
+    if (resourcesTimeout) {
+      clearTimeout(resourcesTimeout);
+      setResourcesTimeout(null);
+    }
+    setIsResourcesDropdownOpen(false);
     setIsDropdownOpen(true);
   };
 
@@ -81,6 +87,12 @@ const Header = () => {
       clearTimeout(resourcesTimeout);
       setResourcesTimeout(null);
     }
+    // Close features dropdown immediately when hovering resources
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+    setIsDropdownOpen(false);
     setIsResourcesDropdownOpen(true);
   };
 
