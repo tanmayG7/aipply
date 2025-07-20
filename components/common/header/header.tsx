@@ -127,12 +127,12 @@ const Header = () => {
                 
                 {/* Invisible bridge to cover the gap */}
                 {isDropdownOpen && (
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-[215px] h-12 bg-transparent z-[9999]" />
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-[215px] h-12 bg-transparent z-[9998]" />
                 )}
                 
                 {isDropdownOpen && (
                   <div
-                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-opacity-[10%] mt-12 left-1/2 transform -translate-x-1/2 w-[215px] grid w-grid-cols-1"
+                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-opacity-[10%] top-full mt-12 left-1/2 transform -translate-x-1/2 w-[215px] grid w-grid-cols-1"
                     onMouseEnter={handleDropdownEnter}
                     onMouseLeave={handleDropdownLeave}
                   >
@@ -172,7 +172,7 @@ const Header = () => {
                 
                 {/* Invisible bridge to cover the gap */}
                 {isResourcesDropdownOpen && (
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-[275px] h-12 bg-transparent z-[9999]" />
+                  <div className="absolute top-full left-0 w-[275px] h-12 bg-transparent z-[9999]" />
                 )}
                 
                 {isResourcesDropdownOpen && (
