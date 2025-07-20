@@ -125,14 +125,9 @@ const Header = () => {
                   <ChevronDownIcon className="w-[20px] h-[20px] text-white" />
                 </button>
                 
-                {/* Invisible bridge to cover the gap */}
-                {isDropdownOpen && (
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-[215px] h-12 bg-transparent z-[9998]" />
-                )}
-                
                 {isDropdownOpen && (
                   <div
-                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-opacity-[10%] top-full mt-12 left-1/2 transform -translate-x-1/2 w-[215px] grid w-grid-cols-1"
+                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] top-full mt-1 left-1/2 transform -translate-x-1/2 w-[215px] grid w-grid-cols-1"
                     onMouseEnter={handleDropdownEnter}
                     onMouseLeave={handleDropdownLeave}
                   >
@@ -142,7 +137,7 @@ const Header = () => {
                         href={feature.redirectUrl}
                         className={`block p-4 font-manrope text-[16px] leading-[160%] font-[500] text-white hover:bg-white hover:bg-opacity-15 active:bg-white active:bg-opacity-20 transition-colors duration-150 ${
                           index !== features.length - 1
-                            ? "border-b border-[#8148979e]"
+                            ? "border-b border-white border-opacity-20"
                             : ""
                         } ${index === 0 ? "rounded-t-lg" : ""} ${
                           index === features.length - 1 ? "rounded-b-lg" : ""
@@ -170,14 +165,9 @@ const Header = () => {
                   <ChevronDownIcon className="w-[20px] h-[20px] text-white" />
                 </button>
                 
-                {/* Invisible bridge to cover the gap */}
-                {isResourcesDropdownOpen && (
-                  <div className="absolute top-full left-0 w-[275px] h-12 bg-transparent z-[9999]" />
-                )}
-                
                 {isResourcesDropdownOpen && (
                   <div
-                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-opacity-[10%] mt-1 left-1/2 transform -translate-x-1/2 w-[275px] grid w-grid-cols-1"
+                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] top-full mt-1 left-1/2 transform -translate-x-1/2 w-[275px] grid w-grid-cols-1"
                     onMouseEnter={handleResourcesEnter}
                     onMouseLeave={handleResourcesLeave}
                   >
@@ -187,7 +177,7 @@ const Header = () => {
                         href={resource.redirectUrl}
                         className={`block p-4 text-white font-manrope leading-[160%] text-[16px] font-[500] hover:bg-white hover:bg-opacity-15 active:bg-white active:bg-opacity-20 transition-colors duration-150 ${
                           index !== resources.length - 1
-                            ? "border-b border-[#2A6D5B]"
+                            ? "border-b border-white border-opacity-20"
                             : ""
                         } ${index === 0 ? "rounded-t-lg" : ""} ${
                           index === resources.length - 1 ? "rounded-b-lg" : ""
@@ -220,4 +210,3 @@ const Header = () => {
 };
 
 export default Header;
-//fexed overlap issue
