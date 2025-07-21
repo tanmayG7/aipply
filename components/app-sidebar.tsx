@@ -65,7 +65,7 @@ const data = {
     // },
     {
       title: "Community",
-      url: "/features/join-community",
+      url: "/dashboard/community",
       image: "/static/sidebarIcons/community.svg",
       onClick: handleCommunityJoin,
     },
