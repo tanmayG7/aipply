@@ -1,4 +1,59 @@
-// app/free-me/page.tsx
+const TestimonialCard = ({ image, name, position, comment, linkedinProfileUrl }: {
+    image: string;
+    name: string;
+    position: string;
+    comment: string;
+    linkedinProfileUrl: string;
+  }) => (
+    <div className="bg-[#111111] bg-opacity-30 border border-white border-opacity-10 rounded-[20px] p-6">
+      <div className="flex items-center mb-4">
+        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+          <Image
+            src={image}
+            alt={name}
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="ml-3">
+          <h4 className="font-manrope font-semibold text-[#F5F5F6]">{name}</h4>
+          <p className="font-manrope text-sm text-[#B0B0B0]">{position}</p>
+        </div>
+      </div>
+      <p className="font-manrope text-[#B0B0B0] italic mb-4">
+        {comment}
+      </p>
+      <div className="flex items-center justify-between">
+        <div className="flex">
+          <span className="text-yellow-400">⭐⭐⭐⭐⭐</span>
+        </div>
+        <Link href={linkedinProfileUrl} target="_blank" className="text-[#20CEB6] hover:underline text-sm">
+          View Profile
+        </Link>
+      </div>
+    </div>
+  );  // Use testimonials matching your existing component structure
+  const localTestimonials = [
+    {
+      name: "Sabya Sachi Mishra",
+      designation: "Data Scientist, BEACON Consulting", 
+      review: "AiPply.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!",
+      image: "/static/images/testimonialsabya2.png"
+    },
+    {
+      name: "Kartikeya Madnani",
+      designation: "Sales Development Representative, CultureX",
+      review: "AiPply.io took away my stress and manual effort. The tool is trustworthy and gives actual trackable results.",
+      image: "/static/images/testimonialkartikeya2.png"
+    },
+    {
+      name: "Kunal Gupta", 
+      designation: "Sales Manager, InfoEdge",
+      review: "Not only I landed a great company, but also in my choice of location and range. Thanks a ton!",
+      image: "/static/images/testimonialkunal2.png"
+    }
+  ];// app/free-me/page.tsx
 "use client";
 import Footer from "@/components/common/footer/footer";
 import Header from "@/components/common/header/header";
@@ -7,7 +62,7 @@ import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import Link from "next/link";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
-import { testimonials } from "@/lib/staticData";
+import TestimonialsCard from "@/components/card/testimonialsCard/testimonialsCard";
 
 const IndependenceDaySpecial = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -375,14 +430,13 @@ const IndependenceDaySpecial = () => {
             </h2>
             
             <div className="grid custom-md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {testimonials.map((testimonial, index) => (
-                <TestimonialCard
+              {localTestimonials.map((testimonial, index) => (
+                <TestimonialsCard
                   key={index}
-                  image={testimonial.image}
                   name={testimonial.name}
-                  position={testimonial.position}
-                  comment={testimonial.comment}
-                  linkedinProfileUrl={testimonial.linkedinProfileUrl}
+                  designation={testimonial.designation}
+                  review={testimonial.review}
+                  image={testimonial.image}
                 />
               ))}
             </div>
