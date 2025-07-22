@@ -1,59 +1,4 @@
-const TestimonialCard = ({ image, name, position, comment, linkedinProfileUrl }: {
-    image: string;
-    name: string;
-    position: string;
-    comment: string;
-    linkedinProfileUrl: string;
-  }) => (
-    <div className="bg-[#111111] bg-opacity-30 border border-white border-opacity-10 rounded-[20px] p-6">
-      <div className="flex items-center mb-4">
-        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-          <Image
-            src={image}
-            alt={name}
-            width={48}
-            height={48}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="ml-3">
-          <h4 className="font-manrope font-semibold text-[#F5F5F6]">{name}</h4>
-          <p className="font-manrope text-sm text-[#B0B0B0]">{position}</p>
-        </div>
-      </div>
-      <p className="font-manrope text-[#B0B0B0] italic mb-4">
-        {comment}
-      </p>
-      <div className="flex items-center justify-between">
-        <div className="flex">
-          <span className="text-yellow-400">⭐⭐⭐⭐⭐</span>
-        </div>
-        <Link href={linkedinProfileUrl} target="_blank" className="text-[#20CEB6] hover:underline text-sm">
-          View Profile
-        </Link>
-      </div>
-    </div>
-  );  // Use testimonials matching your existing component structure
-  const localTestimonials = [
-    {
-      name: "Sabya Sachi Mishra",
-      designation: "Data Scientist, BEACON Consulting", 
-      review: "AiPply.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!",
-      image: "/static/images/testimonialsabya2.png"
-    },
-    {
-      name: "Kartikeya Madnani",
-      designation: "Sales Development Representative, CultureX",
-      review: "AiPply.io took away my stress and manual effort. The tool is trustworthy and gives actual trackable results.",
-      image: "/static/images/testimonialkartikeya2.png"
-    },
-    {
-      name: "Kunal Gupta", 
-      designation: "Sales Manager, InfoEdge",
-      review: "Not only I landed a great company, but also in my choice of location and range. Thanks a ton!",
-      image: "/static/images/testimonialkunal2.png"
-    }
-  ];// app/free-me/page.tsx
+// app/free-me/page.tsx
 "use client";
 import Footer from "@/components/common/footer/footer";
 import Header from "@/components/common/header/header";
@@ -92,6 +37,28 @@ const IndependenceDaySpecial = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Use testimonials matching your existing component structure
+  const localTestimonials = [
+    {
+      name: "Sabya Sachi Mishra",
+      designation: "Data Scientist, BEACON Consulting", 
+      review: "AiPply.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!",
+      image: "/static/images/testimonialsabya2.png"
+    },
+    {
+      name: "Kartikeya Madnani",
+      designation: "Sales Development Representative, CultureX",
+      review: "AiPply.io took away my stress and manual effort. The tool is trustworthy and gives actual trackable results.",
+      image: "/static/images/testimonialkartikeya2.png"
+    },
+    {
+      name: "Kunal Gupta", 
+      designation: "Sales Manager, InfoEdge",
+      review: "Not only I landed a great company, but also in my choice of location and range. Thanks a ton!",
+      image: "/static/images/testimonialkunal2.png"
+    }
+  ];
 
   const painPoints = [
     {
@@ -136,27 +103,6 @@ const IndependenceDaySpecial = () => {
       icon: "⚡",
       title: "Lightning Speed",
       description: "Apply to 100s of jobs in minutes, not weeks - be first in line"
-    }
-  ];
-
-  const testimonials = [
-    {
-      initial: "P",
-      name: "Priya Sharma",
-      role: "Final Year CSE, Delhi",
-      text: "Went from 2 applications per day to 50+ with aipply.io. Got 3 interview calls in my first week! Finally have time to focus on interview prep instead of filling forms."
-    },
-    {
-      initial: "R",
-      name: "Rahul Kumar",
-      role: "MBA Student, Mumbai",
-      text: "The transparency is amazing! I can see exactly which companies my AI applied to and when. Got my first job offer within 2 weeks. Worth every rupee!"
-    },
-    {
-      initial: "A",
-      name: "Ananya Patel",
-      role: "Commerce Graduate, Bangalore",
-      text: "As a fresher, I was overwhelmed by job hunting. aipply.io made it so simple! The AI handles everything while I prepare for interviews. Already got 2 offers!"
     }
   ];
 
@@ -221,43 +167,6 @@ const IndependenceDaySpecial = () => {
       </div>
     );
   };
-
-  const TestimonialCard = ({ image, name, position, comment, linkedinProfileUrl }: {
-    image: string;
-    name: string;
-    position: string;
-    comment: string;
-    linkedinProfileUrl: string;
-  }) => (
-    <div className="bg-[#111111] bg-opacity-30 border border-white border-opacity-10 rounded-[20px] p-6">
-      <div className="flex items-center mb-4">
-        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-          <Image
-            src={image}
-            alt={name}
-            width={48}
-            height={48}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="ml-3">
-          <h4 className="font-manrope font-semibold text-[#F5F5F6]">{name}</h4>
-          <p className="font-manrope text-sm text-[#B0B0B0]">{position}</p>
-        </div>
-      </div>
-      <p className="font-manrope text-[#B0B0B0] italic mb-4">
-        {comment}
-      </p>
-      <div className="flex items-center justify-between">
-        <div className="flex">
-          <span className="text-yellow-400">⭐⭐⭐⭐⭐</span>
-        </div>
-        <Link href={linkedinProfileUrl} target="_blank" className="text-[#20CEB6] hover:underline text-sm">
-          View Profile
-        </Link>
-      </div>
-    </div>
-  );
 
   const CountdownDigit = ({ value, label }: { value: number; label: string }) => (
     <div className="text-center">
