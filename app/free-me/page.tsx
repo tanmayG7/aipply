@@ -1,23 +1,4 @@
-const testimonials = [
-    {
-      initial: "P",
-      name: "Priya Sharma",
-      role: "Final Year CSE, Delhi",
-      text: "Went from 2 applications per day to 50+ with aipply.io. Got 3 interview calls in my first week! Finally have time to focus on interview prep instead of filling forms."
-    },
-    {
-      initial: "R",
-      name: "Rahul Kumar",
-      role: "MBA Student, Mumbai",
-      text: "The transparency is amazing! I can see exactly which companies my AI applied to and when. Got my first job offer within 2 weeks. Worth every rupee!"
-    },
-    {
-      initial: "A",
-      name: "Ananya Patel",
-      role: "Commerce Graduate, Bangalore",
-      text: "As a fresher, I was overwhelmed by job hunting. aipply.io made it so simple! The AI handles everything while I prepare for interviews. Already got 2 offers!"
-    }
-  ];// app/free-me/page.tsx
+// app/free-me/page.tsx
 "use client";
 import Footer from "@/components/common/footer/footer";
 import Header from "@/components/common/header/header";
