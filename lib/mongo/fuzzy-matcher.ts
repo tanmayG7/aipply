@@ -596,6 +596,19 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
     }));
 
     console.log(`✅ Fuzzy matching returned ${mappedJobs.length} scored jobs`);
+    // Calculate debug stats for fuzzy scoring
+    const debugStats = {
+      exactMatches: mappedJobs.filter(job => job.matchType === 'exact').length,
+      fuzzyMatches: mappedJobs.filter(job => job.matchType === 'fuzzy').length,
+      titleMatches: mappedJobs.filter(job => job.matchType === 'title').length,
+      enhancedMatches: mappedJobs.filter(job => job.matchType === 'enhanced').length
+    };
+    
+    const fuzzyDistribution = {
+      high: mappedJobs.filter(job => job.fuzzyScore >= 0.8).length,
+      medium: mappedJobs.filter(job => job.fuzzyScore >= 0.5 && job.fuzzyScore < 0.8).length,
+      low: mappedJobs.filter(job => job.fuzzyScore < 0.5).length
+    };
 
     return {
       jobs: mappedJobs,
@@ -645,6 +658,19 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
       id: job._id?.toString() || job.id,
       jobId: job.id,
     }));
+
+    const debugStats = {
+      exactMatches: mappedJobs.filter(job => job.matchType === 'exact').length,
+      fuzzyMatches: mappedJobs.filter(job => job.matchType === 'fuzzy').length,
+      titleMatches: mappedJobs.filter(job => job.matchType === 'title').length,
+      enhancedMatches: mappedJobs.filter(job => job.matchType === 'enhanced').length
+    };
+    
+    const fuzzyDistribution = {
+      high: mappedJobs.filter(job => job.fuzzyScore >= 0.8).length,
+      medium: mappedJobs.filter(job => job.fuzzyScore >= 0.5 && job.fuzzyScore < 0.8).length,
+      low: mappedJobs.filter(job => job.fuzzyScore < 0.5).length
+    };
 
     return {
       jobs: mappedJobs,
