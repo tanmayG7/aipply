@@ -438,7 +438,28 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
         totalCount: totalFromJobMap,
         currentPage: page,
         totalPages: Math.ceil(totalFromJobMap / limit),
-        searchMethod: 'jobMap'
+        searchMethod: 'jobMap',
+        debugInfo: {
+          primaryMethod: 'jobMap',
+          distribution: {
+            jobMap: mappedJobs.length,
+            textSearch: 0,
+            skillsMatching: 0,
+            fuzzyScoring: 0,
+            lastResort: 0
+          },
+          matchingStats: {
+            exactMatches: 0,
+            fuzzyMatches: 0,
+            titleMatches: 0,
+            enhancedMatches: 0
+          },
+          fuzzyScoreDistribution: {
+            high: 0,  // score >= 0.8
+            medium: 0, // score 0.5-0.8
+            low: 0    // score < 0.5
+          }
+        }
       };
     }
   }
@@ -520,7 +541,28 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
         totalCount: skillsTotal,
         currentPage: page,
         totalPages: Math.ceil(skillsTotal / limit),
-        searchMethod: 'enhanced_skills'
+        searchMethod: 'enhanced_skills',
+        debugInfo: {
+          primaryMethod: 'enhanced_skills',
+          distribution: {
+            jobMap: 0,
+            textSearch: 0,
+            skillsMatching: mappedJobs.length,
+            fuzzyScoring: 0,
+            lastResort: 0
+          },
+          matchingStats: {
+            exactMatches: 0,
+            fuzzyMatches: 0,
+            titleMatches: 0,
+            enhancedMatches: mappedJobs.length
+          },
+          fuzzyScoreDistribution: {
+            high: 0,
+            medium: 0,
+            low: 0
+          }
+        }
       };
     }
   }
@@ -561,7 +603,19 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
       totalCount: scoredJobs.length,
       currentPage: page,
       totalPages: Math.ceil(scoredJobs.length / limit),
-      searchMethod: 'fuzzy_enhanced'
+      searchMethod: 'fuzzy_enhanced',
+      debugInfo: {
+        primaryMethod: 'fuzzy_enhanced',
+        distribution: {
+          jobMap: 0,
+          textSearch: candidates.filter(job => searchStrategy === 'text_search').length,
+          skillsMatching: candidates.filter(job => searchStrategy === 'enhanced_skills').length,
+          fuzzyScoring: mappedJobs.length,
+          lastResort: 0
+        },
+        matchingStats: debugStats,
+        fuzzyScoreDistribution: fuzzyDistribution
+      }
     };
   }
 
@@ -598,7 +652,19 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
       totalCount: scoredJobs.length,
       currentPage: page,
       totalPages: Math.ceil(scoredJobs.length / limit),
-      searchMethod: 'fuzzy_last_resort'
+      searchMethod: 'fuzzy_last_resort',
+      debugInfo: {
+        primaryMethod: 'fuzzy_last_resort',
+        distribution: {
+          jobMap: 0,
+          textSearch: 0,
+          skillsMatching: 0,
+          fuzzyScoring: 0,
+          lastResort: mappedJobs.length
+        },
+        matchingStats: debugStats,
+        fuzzyScoreDistribution: fuzzyDistribution
+      }
     };
   }
 
@@ -610,7 +676,28 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
     totalCount: 0,
     currentPage: page,
     totalPages: 0,
-    searchMethod: 'no_matches'
+    searchMethod: 'no_matches',
+    debugInfo: {
+      primaryMethod: 'no_matches',
+      distribution: {
+        jobMap: 0,
+        textSearch: 0,
+        skillsMatching: 0,
+        fuzzyScoring: 0,
+        lastResort: 0
+      },
+      matchingStats: {
+        exactMatches: 0,
+        fuzzyMatches: 0,
+        titleMatches: 0,
+        enhancedMatches: 0
+      },
+      fuzzyScoreDistribution: {
+        high: 0,
+        medium: 0,
+        low: 0
+      }
+    }
   };
 };
 
