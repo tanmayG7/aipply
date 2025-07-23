@@ -1,407 +1,382 @@
-// app/free-me/page.tsx
-"use client";
-import Footer from "@/components/common/footer/footer";
-import Header from "@/components/common/header/header";
-import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
-import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
-import Link from "next/link";
-import React, { useState, useEffect } from "react";
-import TestimonialsCard from "@/components/card/testimonialsCard/testimonialsCard";
-
-const FreeMeSpecial = () => {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 23,
-    hours: 20,
-    minutes: 0
-  });
-
-  useEffect(() => {
-    const targetDate = new Date('2025-08-15T23:59:59').getTime();
-    
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const difference = targetDate - now;
-
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
-        });
-      }
-    };
-
-    const timer = setInterval(updateCountdown, 60000);
-    updateCountdown();
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const testimonials = [
-    {
-      name: "Sabya Sachi Mishra",
-      designation: "Data Scientist, BEACON Consulting", 
-      review: "AiPply.io made my job search effortless! The automated matches and tracking saved me hours, and I never missed an opportunity. Highly recommend!",
-      image: "/static/images/testimonialsabya2.png"
-    },
-    {
-      name: "Kartikeya Madnani",
-      designation: "Sales Development Representative, CultureX",
-      review: "AiPply.io took away my stress and manual effort. The tool is trustworthy and gives actual trackable results.",
-      image: "/static/images/testimonialkartikeya2.png"
-    },
-    {
-      name: "Kunal Gupta", 
-      designation: "Sales Manager, InfoEdge",
-      review: "Not only I landed a great company, but also in my choice of location and range. Thanks a ton!",
-      image: "/static/images/testimonialkunal2.png"
-    }
-  ];
-
-  const problems = [
-    {
-      icon: "⏰",
-      title: "Endless Hours Wasted",
-      description: "Spending 3+ hours daily filling repetitive application forms instead of preparing for interviews"
-    },
-    {
-      icon: "👻",
-      title: "Getting Ghosted",
-      description: "Companies ignoring your applications, leaving you wondering what went wrong"
-    },
-    {
-      icon: "🏃‍♂️",
-      title: "Missing Opportunities",
-      description: "Great jobs getting filled while you're stuck with manual applications"
-    },
-    {
-      icon: "😵",
-      title: "Application Burnout",
-      description: "Feeling drained from the soul-crushing, repetitive job application process"
-    }
-  ];
-
-  const solutions = [
-    {
-      icon: "🤖",
-      title: "Smart AI Agent",
-      description: "Applies to 50+ relevant jobs daily while you sleep"
-    },
-    {
-      icon: "📊",
-      title: "Live Dashboard",
-      description: "Watch your AI work - every application tracked in real-time"
-    },
-    {
-      icon: "🎯",
-      title: "Perfect Targeting",
-      description: "AI matches your skills to ideal roles automatically"
-    },
-    {
-      icon: "⚡",
-      title: "Lightning Speed",
-      description: "Apply to 100s of jobs in minutes, be first in line"
-    }
-  ];
-
-  const features = [
-    "50+ daily job applications",
-    "Live application tracking",
-    "CAPTCHA solving included",
-    "Skill-based job matching",
-    "24/7 automated applying"
-  ];
-
-  const CountdownDigit = ({ value, label }: { value: number; label: string }) => (
-    <div className="text-center">
-      <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[15px]">
-        <div className="bg-black text-white rounded-[12px] p-4 font-manrope font-black text-[32px] min-w-[80px]">
-          {String(value).padStart(2, '0')}
-        </div>
-      </div>
-      <p className="font-manrope text-sm text-[#B0B0B0] mt-2">{label}</p>
-    </div>
-  );
-
-  const FeatureCard = ({ icon, title, description, variant }: {
-    icon: string;
-    title: string;
-    description: string;
-    variant: "problem" | "solution";
-  }) => (
-    <div className={`bg-[#111111] bg-opacity-50 border ${variant === "problem" ? "border-red-500" : "border-green-500"} border-opacity-20 rounded-[20px] p-6 transition-all duration-300 hover:border-opacity-40 hover:transform hover:-translate-y-1`}>
-      <div className="flex items-start gap-4">
-        <span className="text-3xl">{icon}</span>
-        <div className="flex flex-col gap-3">
-          <h3 className={`font-manrope text-[20px] font-semibold ${variant === "problem" ? "text-red-400" : "text-green-400"}`}>
-            {title}
-          </h3>
-          <p className="font-manrope text-[16px] text-[#B0B0B0] leading-[150%]">
-            {description}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="relative min-h-screen">
-      {/* Background */}
-      <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
-        <div className="absolute w-[800px] h-[800px] top-[200px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-30 blur-[200px] rounded-full"></div>
-      </div>
-
-      <div className="relative z-10">
-        <div className="pt-7">
-          <Header />
-        </div>
-
-        {/* Hero Section */}
-        <ResponsivePageContainer>
-          <div className="py-16 relative z-20">
-            <div className="text-center">
-              {/* Flag */}
-              <div className="text-8xl mb-8 animate-pulse">🇮🇳</div>
-              
-              {/* Badge */}
-              <div className="inline-block bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-full mb-8">
-                <div className="bg-black text-white py-2 px-6 rounded-full font-manrope font-medium text-sm">
-                  ✨ Free-me Independence Special
-                </div>
-              </div>
-
-              {/* Main Headline */}
-              <h1 className="font-manrope text-[48px] custom-md:text-[72px] font-bold text-[#F5F5F6] mb-6 leading-tight">
-                Free-me from<br />
-                <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
-                  Job Application Hell!
-                </span>
-              </h1>
-              
-              <p className="font-manrope text-[24px] text-[#CECFD2] max-w-4xl mx-auto mb-12 leading-relaxed">
-                This Independence Day, break free from endless job rejections. Our AI applies to 50+ jobs daily while you focus on what matters - interview prep and skill building.
-              </p>
-
-              {/* Pricing Card */}
-              <div className="max-w-lg mx-auto mb-12">
-                <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px]">
-                  <div className="bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] rounded-[20px] p-8 text-center">
-                    <h3 className="font-manrope text-3xl font-bold text-white mb-6">🎯 Free-me Special</h3>
-                    
-                    <div className="flex items-center justify-center gap-6 mb-6">
-                      <div className="text-center">
-                        <p className="font-manrope text-red-300 line-through text-lg">₹999</p>
-                        <p className="font-manrope text-red-300 line-through text-xl">Regular</p>
-                      </div>
-                      <div className="text-6xl text-white">→</div>
-                      <div className="text-center">
-                        <p className="font-manrope text-6xl font-black text-yellow-300">₹194.7</p>
-                        <p className="font-manrope text-white text-xl">First Month</p>
-                      </div>
-                    </div>
-
-                    <div className="bg-white bg-opacity-20 rounded-[16px] p-6 mb-8 backdrop-blur-sm">
-                      <h4 className="font-manrope text-xl font-bold text-white mb-4">What You Get:</h4>
-                      <div className="grid grid-cols-1 gap-3 text-left">
-                        {features.map((feature, index) => (
-                          <div key={index} className="flex items-center gap-3 text-white">
-                            <span className="text-green-300 text-lg">✓</span>
-                            <span className="font-manrope">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <Link href="/pricing">
-                      <button className="w-full bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg">
-                        🚀 Free-me Now - ₹194.7
-                      </button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              {/* Countdown */}
-              <div className="mb-16">
-                <h3 className="font-manrope text-2xl font-semibold text-[#F5F5F6] mb-6">⏰ Offer Ends In:</h3>
-                <div className="flex justify-center gap-6">
-                  <CountdownDigit value={timeLeft.days} label="Days" />
-                  <CountdownDigit value={timeLeft.hours} label="Hours" />
-                  <CountdownDigit value={timeLeft.minutes} label="Minutes" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </ResponsivePageContainer>
-
-        {/* Problems vs Solutions */}
-        <ResponsivePageContainer>
-          <div className="py-20 relative z-20">
-            <div className="grid custom-lg:grid-cols-2 gap-16 max-w-7xl mx-auto">
-              
-              {/* Problems */}
-              <div>
-                <h2 className="font-manrope text-4xl font-bold text-red-400 mb-8 text-center">
-                  😤 Job Hunt Struggles
-                </h2>
-                <div className="space-y-6">
-                  {problems.map((problem, index) => (
-                    <FeatureCard
-                      key={index}
-                      icon={problem.icon}
-                      title={problem.title}
-                      description={problem.description}
-                      variant="problem"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Solutions */}
-              <div>
-                <h2 className="font-manrope text-4xl font-bold text-green-400 mb-8 text-center">
-                  🚀 AI-Powered Freedom
-                </h2>
-                <div className="space-y-6">
-                  {solutions.map((solution, index) => (
-                    <FeatureCard
-                      key={index}
-                      icon={solution.icon}
-                      title={solution.title}
-                      description={solution.description}
-                      variant="solution"
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Differentiator */}
-            <div className="mt-20">
-              <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px] max-w-5xl mx-auto">
-                <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-10 rounded-[20px] p-8 text-center">
-                  <h3 className="font-manrope text-3xl font-bold text-[#F5F5F6] mb-4">🔥 Why Choose aipply.io?</h3>
-                  <p className="font-manrope text-xl text-[#CECFD2] max-w-4xl mx-auto leading-relaxed">
-                    While competitors offer "black box" automation, we provide <strong className="text-[#20CEB6]">complete transparency</strong>. 
-                    Watch every action, every application, every success. Plus, we're priced for students at ₹194.7/month instead of ₹3000+.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ResponsivePageContainer>
-
-        {/* Success Stories */}
-        <ResponsivePageContainer>
-          <div className="py-20 relative z-20">
-            <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-16">
-              💬 <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
-                Success Stories
-              </span>
-            </h2>
+.flag {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇮🇳 Free-me Independence Special - 80% OFF</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Manrope', Arial, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 33%, #FFFFFF 66%, #138808 100%);
+            padding: 2px;
+        }
+        
+        .email-content {
+            background-color: #000000;
+            padding: 32px 24px;
+            border-radius: 8px;
+        }
+        
+        .flag {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .badge {
+            background: linear-gradient(135deg, #FF9933, #FFFFFF, #138808);
+            color: #000000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin: 0 auto 20px;
+            display: inline-block;
+            width: fit-content;
+        }
+        
+        .headline {
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #20CEB6, #2E2ADC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #CECFD2;
+            text-align: center;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        
+        .pricing-card {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 32px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 2px;
+            background: linear-gradient(135deg, #FF9933, #FFFFFF, #138808);
+            border-radius: inherit;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+        }
+        
+        .price-comparison {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .old-price {
+            color: #ff6b6b;
+            text-decoration: line-through;
+            font-size: 18px;
+        }
+        
+        .new-price {
+            font-size: 48px;
+            font-weight: 900;
+            color: #ffd43b;
+        }
+        
+        .arrow {
+            font-size: 32px;
+            color: #ffffff;
+        }
+        
+        .features {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .checkmark {
+            color: #4ade80;
+            font-weight: bold;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 18px;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .urgency {
+            background: rgba(255, 165, 0, 0.2);
+            border: 1px solid #ffa500;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #ffd700;
+        }
+        
+        .countdown {
+            text-align: center;
+            margin: 24px 0;
+        }
+        
+        .countdown-digits {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 12px;
+        }
+        
+        .countdown-digit {
+            background: linear-gradient(135deg, #FF9933, #138808);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 24px;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .countdown-label {
+            font-size: 12px;
+            color: #B0B0B0;
+            margin-top: 4px;
+        }
+        
+        .benefits {
+            display: flex;
+            justify-content: space-around;
+            margin: 24px 0;
+            font-size: 13px;
+            color: #B0B0B0;
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #333;
+        }
+        
+        .unsubscribe {
+            font-size: 12px;
+            color: #666;
+            margin-top: 16px;
+        }
+        
+        .unsubscribe a {
+            color: #20CEB6;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .email-content {
+                padding: 24px 16px;
+            }
             
-            <div className="grid custom-lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {testimonials.map((testimonial, index) => (
-                <TestimonialsCard
-                  key={index}
-                  name={testimonial.name}
-                  designation={testimonial.designation}
-                  review={testimonial.review}
-                  image={testimonial.image}
-                />
-              ))}
+            .headline {
+                font-size: 28px;
+            }
+            
+            .new-price {
+                font-size: 36px;
+            }
+            
+            .countdown-digits {
+                gap: 8px;
+            }
+            
+            .countdown-digit {
+                padding: 8px;
+                font-size: 18px;
+                min-width: 40px;
+            }
+            
+            .benefits {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-content">
+            <!-- Badge -->
+            <div style="text-align: center;">
+                <div class="badge">Free-me Independence Special</div>
             </div>
-          </div>
-        </ResponsivePageContainer>
-
-        {/* Pricing Comparison */}
-        <ResponsivePageContainer>
-          <div className="py-20 relative z-20">
-            <div className="max-w-5xl mx-auto">
-              <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-16">
-                💰 <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
-                  Student-Friendly Pricing
-                </span>
-              </h2>
-
-              <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px]">
-                <div className="bg-[#111111] rounded-[20px] p-8">
-                  <div className="grid custom-md:grid-cols-3 gap-8 text-center">
-                    <div className="p-6">
-                      <h4 className="font-manrope font-bold text-red-400 mb-3 text-xl">Other Platforms</h4>
-                      <p className="font-manrope text-4xl font-black text-red-400 mb-2">₹3000+</p>
-                      <p className="font-manrope text-[#B0B0B0]">per month</p>
-                      <p className="font-manrope text-red-300 mt-3">❌ No transparency</p>
+            
+            <!-- Headline -->
+            <h1 class="headline">
+                Free-me from<br>
+                <span class="gradient-text">Job Application Hell!</span>
+            </h1>
+            
+            <!-- Subtitle -->
+            <p class="subtitle">
+                This Independence Day, break free from endless rejections. Our AI applies to 50+ jobs daily while you focus on interviews.
+            </p>
+            
+            <!-- Pricing Card -->
+                            <div class="pricing-card" style="position: relative;">
+                <h3 style="margin: 0 0 16px 0; font-size: 24px;">Free-me Special</h3>
+                
+                <div class="price-comparison">
+                    <div>
+                        <div class="old-price">₹999</div>
+                        <div style="font-size: 14px; color: #ff6b6b;">Regular</div>
                     </div>
-                    
-                    <div className="p-6 border-l border-r border-white border-opacity-20">
-                      <h4 className="font-manrope font-bold text-yellow-400 mb-3 text-xl">Manual Process</h4>
-                      <p className="font-manrope text-4xl font-black text-yellow-400 mb-2">FREE</p>
-                      <p className="font-manrope text-[#B0B0B0]">but 3+ hrs daily</p>
-                      <p className="font-manrope text-yellow-300 mt-3">⚠️ Time = Money</p>
+                    <div class="arrow">→</div>
+                    <div>
+                        <div class="new-price">₹194.7</div>
+                        <div style="font-size: 16px;">First Month</div>
                     </div>
-                    
-                    <div className="p-6">
-                      <h4 className="font-manrope font-bold text-green-400 mb-3 text-xl">aipply.io</h4>
-                      <p className="font-manrope text-4xl font-black text-green-400 mb-2">₹194.7</p>
-                      <p className="font-manrope text-[#B0B0B0]">first month</p>
-                      <p className="font-manrope text-green-300 mt-3">✅ Full transparency</p>
-                    </div>
-                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </ResponsivePageContainer>
-
-        {/* Final CTA */}
-        <ResponsivePageContainer>
-          <div className="py-20 relative z-20">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-2 rounded-[32px]">
-                <div className="bg-black rounded-[28px] p-12">
-                  <div className="text-8xl mb-8 animate-pulse">🇮🇳</div>
-                  <h2 className="font-manrope text-5xl font-bold text-[#F5F5F6] mb-8 leading-tight">
-                    This Independence Day,<br />
-                    <span className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] bg-clip-text text-transparent">
-                      Free-me from Job Hunt Hell!
-                    </span>
-                  </h2>
-                  <p className="font-manrope text-2xl text-[#CECFD2] mb-12 leading-relaxed">
-                    Your dream job is waiting. Let AI handle applications while you master interviews and build skills.
-                  </p>
-                  
-                  <Link href="/pricing">
-                    <button className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-6 px-16 rounded-full font-manrope font-bold text-3xl hover:scale-105 transition-all shadow-2xl mb-8">
-                      🚀 Free-me for ₹194.7
-                    </button>
-                  </Link>
-                  
-                  <div className="flex justify-center gap-12 text-lg text-[#B0B0B0]">
-                    <span>✓ No Setup Required</span>
-                    <span>✓ Cancel Anytime</span>
-                    <span>✓ Results in 7 Days</span>
-                  </div>
+                
+                <div class="features">
+                    <div class="feature-item">
+                        <span class="checkmark">✓</span>
+                        <span>50+ daily job applications</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="checkmark">✓</span>
+                        <span>Live application tracking</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="checkmark">✓</span>
+                        <span>CAPTCHA solving included</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="checkmark">✓</span>
+                        <span>24/7 automated applying</span>
+                    </div>
                 </div>
-              </div>
-              
-              <p className="font-manrope text-[#B0B0B0] mt-8 text-lg">
-                Questions? Email <span className="text-[#20CEB6]">support@aipply.io</span>
-              </p>
+                
+                <a href="https://aipply.io/free-me" class="cta-button">
+                    Free-me Now - ₹194.7
+                </a>
             </div>
-          </div>
-        </ResponsivePageContainer>
-
-        <div className="relative z-20">
-          <Footer />
+            
+            <!-- Countdown -->
+            <div class="countdown">
+                <h3 style="margin: 0 0 12px 0; font-size: 18px;">Offer Ends In:</h3>
+                <div class="countdown-digits">
+                    <div style="text-align: center;">
+                        <div class="countdown-digit">18</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="countdown-digit">00</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="countdown-digit">00</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Urgency -->
+            <div class="urgency">
+                <strong>Limited Time:</strong> Offer expires August 15th, 2025 - Independence Day!
+            </div>
+            
+            <!-- Benefits -->
+            <div class="benefits">
+                <span>✓ No Setup Required</span>
+                <span>✓ Cancel Anytime</span>
+                <span>✓ Results in 7 Days</span>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                <p>Questions? Email <span style="color: #20CEB6;">support@aipply.io</span></p>
+                
+                <div class="unsubscribe">
+                    <p>You're receiving this because you signed up for aipply.io updates.</p>
+                    <p><a href="#">Unsubscribe</a> | <a href="#">Update Preferences</a></p>
+                </div>
+            </div>
         </div>
-
-        <div className="relative z-30">
-          <ScrollToTopBtn />
-        </div>
-      </div>
     </div>
-  );
-};
-
-export default FreeMeSpecial;
+</body>
+</html>
