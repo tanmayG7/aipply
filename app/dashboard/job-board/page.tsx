@@ -138,6 +138,7 @@ export default function Page() {
   const [experience, setExperience] = useState<[number, number][]>([]);
   const [jobType, setJobType] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -183,6 +184,7 @@ export default function Page() {
         throw new Error('Invalid response from getUpdatedJobsPaginated');
       }
 
+      setDebugInfo(result.debugInfo || null);
       setJobs(result.jobs || []);
       setCurrentPage(result.currentPage || page);
       setTotalPages(result.totalPages || 0);
