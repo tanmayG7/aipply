@@ -920,7 +920,8 @@ const getUpdatedJobsPaginated = async (
         currentPage: page,
         totalPages: totalPages,
         totalJobs: totalAvailableJobs,
-        hasMore: false
+        hasMore: false,
+        debugInfo: debugInfo || null
       };
     }
 
