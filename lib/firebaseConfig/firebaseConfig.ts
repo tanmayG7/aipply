@@ -867,6 +867,7 @@ const getUpdatedJobsPaginated = async (
         throw new Error('Invalid response from job search service');
       }
 
+      const fuzzyDebugInfo = result.debugInfo;
       const fetchedJobs = result.jobs;
       allJobIds = fetchedJobs.map((job: any) => job.jobId).filter(Boolean); // Filter out null/undefined jobIds
       
@@ -1033,7 +1034,8 @@ const getUpdatedJobsPaginated = async (
       currentPage: page,
       totalPages: Math.ceil(totalJobsAfterFilter / pageSize),
       totalJobs: Math.min(totalJobsAfterFilter, maxTotalJobs), // Ensure we don't exceed the limit
-      hasMore: (page * pageSize) < Math.min(totalJobsAfterFilter, maxTotalJobs)
+      hasMore: (page * pageSize) < Math.min(totalJobsAfterFilter, maxTotalJobs),
+      debugInfo: (result as any).debugInfo || null
     };
 
     console.log(`[getUpdatedJobsPaginated] Final result:`, {
@@ -1041,7 +1043,8 @@ const getUpdatedJobsPaginated = async (
       currentPage: result.currentPage,
       totalPages: result.totalPages,
       totalJobs: result.totalJobs,
-      hasMore: result.hasMore
+      hasMore: result.hasMore,
+      debugInfo: result.debugInfo
     });
 
     return result;
