@@ -532,11 +532,9 @@ export default function Page() {
                   />
                 </div>
               )}
-            </>
-          )}
-          {/* Debug Panel */}
-              {/* {debugInfo && (
 
+              {/* Debug Panel */}
+              {debugInfo && (
                 <div className="mt-8 p-4 bg-gray-900 border border-gray-700 rounded-lg">
                   <h3 className="text-lg font-semibold text-yellow-400 mb-4">🐛 Debug Information</h3>
                   
@@ -627,7 +625,7 @@ export default function Page() {
                     </button>
                   </div>
                 </div>
-              )} */}
+              )}
             </>
           )}
         </div>
