@@ -532,21 +532,6 @@ export default function Page() {
                   />
                 </div>
               )}
-
-              {/* Simple Debug Panel - Test */}
-              {debugInfo && (
-                <div className="mt-8 p-4 bg-gray-900 border border-gray-700 rounded-lg">
-                  <h3 className="text-lg font-semibold text-yellow-400 mb-4">🐛 Debug Test</h3>
-                  <p className="text-white">Debug info exists: {debugInfo ? 'Yes' : 'No'}</p>
-                  <p className="text-white">Method: {debugInfo.primaryMethod || 'Unknown'}</p>
-                  <button 
-                    onClick={() => setDebugInfo(null)}
-                    className="mt-2 px-3 py-1 bg-gray-700 text-white rounded text-sm"
-                  >
-                    Hide
-                  </button>
-                </div>
-              )}
               
             </>
           )}
