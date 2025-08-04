@@ -14,6 +14,7 @@ const FreeMeSpecial = () => {
     hours: 0,
     minutes: 0
   });
+  const [paymentButtonLoaded, setPaymentButtonLoaded] = useState(false);
 
   useEffect(() => {
     const targetDate = new Date('2025-08-15T23:59:59').getTime();
@@ -35,6 +36,29 @@ const FreeMeSpecial = () => {
     updateCountdown();
 
     return () => clearInterval(timer);
+  }, []);
+
+  // Load Razorpay payment button script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
+    script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
+    script.async = true;
+    script.onload = () => setPaymentButtonLoaded(true);
+    script.onerror = () => console.error('Failed to load Razorpay payment button');
+    
+    // Append to a specific container instead of body
+    const buttonContainer = document.getElementById('razorpay-button-container');
+    if (buttonContainer) {
+      buttonContainer.appendChild(script);
+    }
+
+    return () => {
+      // Cleanup on unmount
+      if (buttonContainer && buttonContainer.contains(script)) {
+        buttonContainer.removeChild(script);
+      }
+    };
   }, []);
 
   const testimonials = [
@@ -212,11 +236,23 @@ const FreeMeSpecial = () => {
                       </div>
                     </div>
 
-                    <Link href="/pricing">
-                      <button className="w-full bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg">
-                        🚀 Free-me Now - ₹194.7
-                      </button>
-                    </Link>
+                    {/* Razorpay Payment Button Container */}
+                    <div id="razorpay-button-container" className="w-full">
+                      {!paymentButtonLoaded && (
+                        <div className="w-full bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl">
+                          Loading Payment...
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Fallback button if Razorpay fails to load */}
+                    {!paymentButtonLoaded && (
+                      <Link href="/pricing" className="block mt-4">
+                        <button className="w-full bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg">
+                          🚀 Free-me Now - ₹194.7
+                        </button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
@@ -371,11 +407,16 @@ const FreeMeSpecial = () => {
                     Your dream job is waiting. Let AI handle applications while you master interviews and build skills.
                   </p>
                   
-                  <Link href="/pricing">
-                    <button className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-6 px-16 rounded-full font-manrope font-bold text-3xl hover:scale-105 transition-all shadow-2xl mb-8">
-                      🚀 Free-me for ₹194.7
-                    </button>
-                  </Link>
+                  {/* Second Razorpay Payment Button */}
+                  <div className="mb-8">
+                    <div id="razorpay-button-container-2">
+                      <script 
+                        src="https://checkout.razorpay.com/v1/payment-button.js" 
+                        data-payment_button_id="pl_R1GlgQGQ7K8z2R" 
+                        async
+                      ></script>
+                    </div>
+                  </div>
                   
                   <div className="flex justify-center gap-12 text-lg text-[#B0B0B0]">
                     <span>✓ No Setup Required</span>
