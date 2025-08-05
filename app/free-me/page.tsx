@@ -14,7 +14,6 @@ const FreeMeSpecial = () => {
     hours: 0,
     minutes: 0
   });
-  const [paymentButtonLoaded, setPaymentButtonLoaded] = useState(false);
 
   useEffect(() => {
     const targetDate = new Date('2025-08-15T23:59:59').getTime();
@@ -38,7 +37,24 @@ const FreeMeSpecial = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Load Razorpay payment button script
+  useEffect(() => {
+    // Create script element
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
+    script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
+    script.async = true;
 
+    // Append to body
+    document.body.appendChild(script);
+
+    // Cleanup function
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
 
   const testimonials = [
     {
@@ -215,13 +231,7 @@ const FreeMeSpecial = () => {
                       </div>
                     </div>
 
-                  <form className="w-full">
-  <script 
-    src="https://checkout.razorpay.com/v1/payment-button.js" 
-    data-payment_button_id="pl_R1GlgQGQ7K8z2R" 
-    async
-  ></script>
-</form>
+                    <div className="w-full" id="razorpay-payment-button"></div>
                   </div>
                 </div>
               </div>
@@ -376,13 +386,7 @@ const FreeMeSpecial = () => {
                     Your dream job is waiting. Let AI handle applications while you master interviews and build skills.
                   </p>
                   
-                 <form className="mb-8">
-  <script 
-    src="https://checkout.razorpay.com/v1/payment-button.js" 
-    data-payment_button_id="pl_R1GlgQGQ7K8z2R" 
-    async
-  ></script>
-</form>
+                  <div className="mb-8" id="razorpay-payment-button-2"></div>
                   
                   <div className="flex justify-center gap-12 text-lg text-[#B0B0B0]">
                     <span>✓ No Setup Required</span>
