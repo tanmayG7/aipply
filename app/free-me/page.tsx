@@ -1,43 +1,4 @@
-// Load Razorpay payment button script
-  useEffect(() => {
-    // Remove any existing Razorpay forms first
-    const existingForms = document.querySelectorAll('form[data-razorpay="true"]');
-    existingForms.forEach(form => form.remove());
-
-    // Function to create payment button
-    const createPaymentButton = (containerId: string) => {
-      const container = document.getElementById(containerId);
-      if (container) {
-        // Clear container
-        container.innerHTML = '';
-        
-        // Create form element
-        const form = document.createElement('form');
-        form.setAttribute('data-razorpay', 'true');
-        form.className = containerId === 'razorpay-container-1' ? 'w-full' : 'mb-8';
-        
-        // Create script element
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
-        script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
-        script.async = true;
-        
-        // Append script to form, then form to container
-        form.appendChild(script);
-        container.appendChild(form);
-      }
-    };
-
-    // Create both payment buttons
-    createPaymentButton('razorpay-container-1');
-    createPaymentButton('razorpay-container-2');
-
-    // Cleanup function
-    return () => {
-      const forms = document.querySelectorAll('form[data-razorpay="true"]');
-      forms.forEach(form => form.remove());
-    };
-  }, []);// app/free-me/page.tsx
+// app/free-me/page.tsx
 "use client";
 import Footer from "@/components/common/footer/footer";
 import Header from "@/components/common/header/header";
@@ -76,7 +37,46 @@ const FreeMeSpecial = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Load Razorpay payment button script
+  useEffect(() => {
+    // Remove any existing Razorpay forms first
+    const existingForms = document.querySelectorAll('form[data-razorpay="true"]');
+    existingForms.forEach(form => form.remove());
 
+    // Function to create payment button
+    const createPaymentButton = (containerId: string) => {
+      const container = document.getElementById(containerId);
+      if (container) {
+        // Clear container
+        container.innerHTML = '';
+        
+        // Create form element
+        const form = document.createElement('form');
+        form.setAttribute('data-razorpay', 'true');
+        form.className = containerId === 'razorpay-container-1' ? 'w-full' : 'mb-8';
+        
+        // Create script element
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
+        script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
+        script.async = true;
+        
+        // Append script to form, then form to container
+        form.appendChild(script);
+        container.appendChild(form);
+      }
+    };
+
+    // Create both payment buttons
+    createPaymentButton('razorpay-container-1');
+    createPaymentButton('razorpay-container-2');
+
+    // Cleanup function
+    return () => {
+      const forms = document.querySelectorAll('form[data-razorpay="true"]');
+      forms.forEach(form => form.remove());
+    };
+  }, []);
 
   const testimonials = [
     {
@@ -438,4 +438,3 @@ const FreeMeSpecial = () => {
 };
 
 export default FreeMeSpecial;
-//forcepush
