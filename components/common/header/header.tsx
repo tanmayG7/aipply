@@ -20,7 +20,7 @@ const resources = [
     redirectUrl: "/resources/LinkedIn",
   },
   {
-    name: "ATS Friendly CV Template",
+    name: "ATS-Friendly CV Template",
     redirectUrl: "/resources/ats",
   },
   { name: "Tips for Interview", redirectUrl: "/resources/interview" },
