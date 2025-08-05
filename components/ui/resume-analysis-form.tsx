@@ -147,7 +147,7 @@ export default function ResumeAnalysisForm() {
       formDataToSend.append('file', file);
 
       // Get webhook URL from environment variable
-      const webhookUrl = process.env.N8N_WEBHOOK_URL;
+      const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
       
       if (!webhookUrl) {
         throw new Error('Webhook URL not configured');
