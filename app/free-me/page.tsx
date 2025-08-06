@@ -7,6 +7,12 @@ import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import TestimonialsCard from "@/components/card/testimonialsCard/testimonialsCard";
+// Declare Razorpay for TypeScript
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const FreeMeSpecial = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -54,52 +60,52 @@ useEffect(() => {
 }, []);
 
 const openRazorpayPayment = () => {
-  // Create the elements dynamically
-  const form = document.createElement('form');
-  form.style.position = 'fixed';
-  form.style.top = '-9999px';
-  form.style.left = '-9999px';
-  
-  // Create script element
-  const script = document.createElement('script');
-  script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
-  script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
-  script.async = true;
-  
-  // Append script to form, form to body
-  form.appendChild(script);
-  document.body.appendChild(form);
-  
-  // Wait for script to load and button to appear, then click it
-  let attempts = 0;
-  const maxAttempts = 100; // 10 seconds max
-  
-  const interval = setInterval(() => {
-    const button = form.querySelector('button');
-    attempts++;
-    
-    if (button) {
-      // Found the button, click it
-      setTimeout(() => button.click(), 100);
-      clearInterval(interval);
-      
-      // Clean up after 5 seconds
-      setTimeout(() => {
-        if (document.body.contains(form)) {
-          document.body.removeChild(form);
-        }
-      }, 5000);
-    } else if (attempts >= maxAttempts) {
-      // Give up after max attempts
-      clearInterval(interval);
-      alert('Payment system is loading. Please try again in a moment.');
-      if (document.body.contains(form)) {
-        document.body.removeChild(form);
-      }
-    }
-  }, 100);
+  // Load Razorpay checkout script if not already loaded
+  if (!window.Razorpay) {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => initializePayment();
+    document.head.appendChild(script);
+  } else {
+    initializePayment();
+  }
 };
 
+const initializePayment = () => {
+  const options = {
+    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Your Razorpay key
+    amount: 19470, // Amount in paisa (₹194.7)
+    currency: 'INR',
+    name: 'AiPply',
+    description: 'Free-me Independence Special - 1 Month Trial',
+    image: '/favicon.ico', // Your logo
+    handler: function (response: any) {
+      console.log('✅ Payment successful:', response);
+      setPaymentSuccess(true);
+    },
+    prefill: {
+      name: '',
+      email: '',
+      contact: ''
+    },
+    theme: {
+      color: '#20CEB6'
+    },
+    modal: {
+      ondismiss: function() {
+        console.log('❌ Payment cancelled by user');
+      }
+    }
+  };
+
+  const rzp = new window.Razorpay(options);
+  rzp.on('payment.failed', function (response: any) {
+    console.error('❌ Payment failed:', response.error);
+    alert('Payment failed: ' + response.error.description);
+  });
+  
+  rzp.open();
+};
   const testimonials = [
     {
       name: "Sabya Sachi Mishra",
