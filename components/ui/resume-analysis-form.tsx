@@ -86,12 +86,27 @@ export default function ResumeAnalysisForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
+    // Email and phone format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+?[0-9\s\-().]{7,20}$/;
+
     if (!file || !formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
       setSubmissionStatus('error');
       setSubmissionMessage('Please fill in all required fields and upload a resume.');
       return;
     }
 
+    if (!emailRegex.test(formData.email)) {
+      setSubmissionStatus('error');
+      setSubmissionMessage('Please enter a valid email address.');
+      return;
+    }
+
+    if (!phoneRegex.test(formData.phone)) {
+      setSubmissionStatus('error');
+      setSubmissionMessage('Please enter a valid phone number.');
+      return;
+    }
     setSubmissionStatus('submitting');
     setSubmissionMessage('Analyzing your resume...');
 
