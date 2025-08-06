@@ -54,36 +54,37 @@ useEffect(() => {
 }, []);
 
 const openRazorpayPayment = () => {
-  // Create a temporary container
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'fixed';
-  tempContainer.style.top = '-1000px';
-  tempContainer.style.left = '-1000px';
+  // Create a temporary form with the payment button and auto-submit
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = `
+    <form style="display: none;">
+      <script 
+        src="https://checkout.razorpay.com/v1/payment-button.js" 
+        data-payment_button_id="pl_R1GlgQGQ7K8z2R" 
+        async>
+      </script>
+    </form>
+  `;
   
-  // Create the form with Razorpay script
-  const form = document.createElement('form');
-  const script = document.createElement('script');
-  script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
-  script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
-  script.async = true;
+  document.body.appendChild(tempDiv);
   
-  form.appendChild(script);
-  tempContainer.appendChild(form);
-  document.body.appendChild(tempContainer);
-  
-  // Wait for the script to load and then trigger click
-  setTimeout(() => {
-    const button = tempContainer.querySelector('button');
+  // Wait and click the generated button
+  const checkForButton = setInterval(() => {
+    const button = tempDiv.querySelector('button');
     if (button) {
       button.click();
+      clearInterval(checkForButton);
+      setTimeout(() => document.body.removeChild(tempDiv), 5000);
     }
-    // Clean up after a delay
-    setTimeout(() => {
-      if (document.body.contains(tempContainer)) {
-        document.body.removeChild(tempContainer);
-      }
-    }, 1000);
-  }, 2000); // Increased delay to ensure script loads
+  }, 100);
+  
+  // Cleanup after 10 seconds if button not found
+  setTimeout(() => {
+    clearInterval(checkForButton);
+    if (document.body.contains(tempDiv)) {
+      document.body.removeChild(tempDiv);
+    }
+  }, 10000);
 };
 
   const testimonials = [
