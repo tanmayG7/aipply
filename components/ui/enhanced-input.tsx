@@ -8,7 +8,7 @@ export interface EnhancedInputProps
 
 const EnhancedInput = React.forwardRef<HTMLInputElement, EnhancedInputProps>(
   ({ className, type, ...props }, ref) => {
-    const radius = 100; // change this to increase the rdaius of the hover effect
+    const radius = 100; // change this to increase the radius of the hover effect
     const [visible, setVisible] = React.useState(false);
 
     let mouseX = useMotionValue(0);
