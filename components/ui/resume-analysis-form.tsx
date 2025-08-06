@@ -96,7 +96,7 @@ export default function ResumeAnalysisForm() {
     setSubmissionMessage('Analyzing your resume...');
 
     try {
-      // Prepare data for n8n webhook - send JSON data separately from file
+      // Prepare data for n8n webhook - append individual fields and file to FormData
       const webhookData = {
         personalInfo: {
           firstName: formData.firstName,
