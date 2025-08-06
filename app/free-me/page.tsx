@@ -157,7 +157,7 @@ const FreeMeSpecial = () => {
   ];
 
   const features = [
-    "50+ daily job applications",
+    "20+ daily job applications",
     "Live application tracking",
     "CAPTCHA solving included",
     "Skill-based job matching",
@@ -347,13 +347,13 @@ const FreeMeSpecial = () => {
             {/* Why Choose AiPply */}
             <div className="mt-12">
               <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px] max-w-6xl mx-auto">
-                <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-10 rounded-[20px] p-6">
-                  <h3 className="font-manrope text-3xl font-bold text-[#F5F5F6] mb-6 text-center">Why Job Seekers Trust AiPply</h3>
+               <div className="bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] border border-white border-opacity-10 rounded-[20px] p-6">
+                  <h3 className="font-manrope text-3xl font-bold text-white mb-6 text-center">Why Job Seekers Trust AiPply</h3>
                   <div className="grid custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                     <div className="text-center">
                       <div className="text-4xl mb-3">⏳</div>
-                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Saves 2+ hours every day</h4>
-                      <p className="font-manrope text-[#CECFD2] text-sm">No more manual job applying</p>
+                      <h4 className="font-manrope text-lg font-bold text-yellow-300 mb-2">Saves 2+ hours every day</h4>
+                      <p className="font-manrope text-gray-200 text-sm">No more manual job applying</p>
                     </div>
                     <div className="text-center">
                       <div className="text-4xl mb-3">📄</div>
