@@ -38,56 +38,46 @@ const FreeMeSpecial = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Load Razorpay payment button script
-  useEffect(() => {
-    // Remove any existing Razorpay forms first
-    const existingForms = document.querySelectorAll('form[data-razorpay="true"]');
-    existingForms.forEach(form => form.remove());
+useEffect(() => {
+  // Listen for Razorpay payment success
+  const handlePaymentSuccess = (event: any) => {
+    if (event.data && event.data.action === 'payment_success') {
+      setPaymentSuccess(true);
+    }
+  };
 
-    // Function to create payment button
-    const createPaymentButton = (containerId: string) => {
-      const container = document.getElementById(containerId);
-      if (container) {
-        // Clear container
-        container.innerHTML = '';
-        
-        // Create form element
-        const form = document.createElement('form');
-        form.setAttribute('data-razorpay', 'true');
-        form.className = containerId === 'razorpay-container-1' ? 'w-full' : 'mb-8';
-        
-        // Create script element
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
-        script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
-        script.async = true;
-        
-        // Append script to form, then form to container
-        form.appendChild(script);
-        container.appendChild(form);
-      }
-    };
+  window.addEventListener('message', handlePaymentSuccess);
 
-    // Create both payment buttons
-    createPaymentButton('razorpay-container-1');
-    createPaymentButton('razorpay-container-2');
+  return () => {
+    window.removeEventListener('message', handlePaymentSuccess);
+  };
+}, []);
 
-    // Listen for Razorpay payment success
-    const handlePaymentSuccess = (event: any) => {
-      if (event.data && event.data.action === 'payment_success') {
-        setPaymentSuccess(true);
-      }
-    };
-
-    window.addEventListener('message', handlePaymentSuccess);
-
-    // Cleanup function
-    return () => {
-      const forms = document.querySelectorAll('form[data-razorpay="true"]');
-      forms.forEach(form => form.remove());
-      window.removeEventListener('message', handlePaymentSuccess);
-    };
-  }, []);
+const openRazorpayPayment = () => {
+  // Create a temporary form and submit it to trigger Razorpay
+  const form = document.createElement('form');
+  form.style.display = 'none';
+  
+  const script = document.createElement('script');
+  script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
+  script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
+  script.async = true;
+  
+  form.appendChild(script);
+  document.body.appendChild(form);
+  
+  // Trigger the payment after a short delay
+  setTimeout(() => {
+    const razorpayButton = form.querySelector('button');
+    if (razorpayButton) {
+      razorpayButton.click();
+    }
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(form);
+    }, 100);
+  }, 500);
+};
 
   const testimonials = [
     {
@@ -260,7 +250,7 @@ const FreeMeSpecial = () => {
                       </div>
                     </div>
 
-                    <div id="razorpay-container-1" className="w-full border-2 border-white border-opacity-30 rounded-[12px] p-4 bg-white bg-opacity-10 backdrop-blur-sm shadow-lg hover:border-opacity-50 hover:shadow-xl transition-all duration-300"></div>
+                    <button    onClick={() => openRazorpayPayment()}   className="w-full bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg" >   🚀 Free-me Now - ₹194.7 </button>
                     
                     {/* Payment Success Message */}
                     {paymentSuccess && (
@@ -461,7 +451,7 @@ const FreeMeSpecial = () => {
                     Your dream job is waiting. Let AI handle applications while you master interviews and build skills.
                   </p>
                   
-                  <div id="razorpay-container-2" className="border-2 border-white border-opacity-30 rounded-[12px] p-4 bg-white bg-opacity-10 backdrop-blur-sm shadow-lg hover:border-opacity-50 hover:shadow-xl transition-all duration-300"></div>
+                  <button    onClick={() => openRazorpayPayment()}   className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-12 rounded-full font-manrope font-bold text-2xl hover:scale-105 transition-all shadow-lg mb-4" >   🚀 Free-me for ₹194.7 </button>
                   
                   {/* Payment Success Message for Final CTA */}
                   {paymentSuccess && (
