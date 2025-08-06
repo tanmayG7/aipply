@@ -221,14 +221,13 @@ const FreeMeSpecial = () => {
 
               {/* Main Headline */}
               <h1 className="font-manrope text-[48px] custom-md:text-[72px] font-bold text-[#F5F5F6] mb-4 leading-tight">
-                Free-me from<br />
                 <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
-                  Job Application Hell!
+                  Free Me From Job Hunting
                 </span>
               </h1>
               
               <p className="font-manrope text-[24px] text-[#CECFD2] max-w-4xl mx-auto mb-8 leading-relaxed">
-                This Independence Day, break free from endless job rejections. Our AI applies to 50+ jobs daily while you focus on what matters - interview prep and skill building.
+                Save 2 hours daily. Apply to 600+ jobs monthly. Let recruiters call you.
               </p>
 
               {/* Pricing Card */}
@@ -345,15 +344,38 @@ const FreeMeSpecial = () => {
               </div>
             </div>
 
-            {/* Differentiator */}
+            {/* Why Choose AiPply */}
             <div className="mt-12">
-              <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px] max-w-5xl mx-auto">
-                <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-10 rounded-[20px] p-6 text-center">
-                  <h3 className="font-manrope text-3xl font-bold text-[#F5F5F6] mb-3">🔥 Why Choose aipply.io?</h3>
-                  <p className="font-manrope text-xl text-[#CECFD2] max-w-4xl mx-auto leading-relaxed">
-                    While competitors offer "black box" automation, we provide <strong className="text-[#20CEB6]">complete transparency</strong>. 
-                    Watch every action, every application, every success. Plus, we're priced for students at ₹194.7/month instead of ₹3000+.
-                  </p>
+              <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px] max-w-6xl mx-auto">
+                <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-10 rounded-[20px] p-6">
+                  <h3 className="font-manrope text-3xl font-bold text-[#F5F5F6] mb-6 text-center">Why Job Seekers Trust AiPply</h3>
+                  <div className="grid custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">⏳</div>
+                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Saves 2+ hours every day</h4>
+                      <p className="font-manrope text-[#CECFD2] text-sm">No more manual job applying</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">📄</div>
+                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Applies to 600+ jobs/month</h4>
+                      <p className="font-manrope text-[#CECFD2] text-sm">Across top job boards</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">📞</div>
+                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Get recruiter calls directly</h4>
+                      <p className="font-manrope text-[#CECFD2] text-sm">With optimized resumes & smart targeting</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">🎯</div>
+                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Higher interview chances</h4>
+                      <p className="font-manrope text-[#CECFD2] text-sm">ATS-optimized, role-relevant applications</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">🔒</div>
+                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Private & secure</h4>
+                      <p className="font-manrope text-[#CECFD2] text-sm">Your data, always encrypted</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
