@@ -54,29 +54,36 @@ useEffect(() => {
 }, []);
 
 const openRazorpayPayment = () => {
-  // Create a temporary form and submit it to trigger Razorpay
-  const form = document.createElement('form');
-  form.style.display = 'none';
+  // Create a temporary container
+  const tempContainer = document.createElement('div');
+  tempContainer.style.position = 'fixed';
+  tempContainer.style.top = '-1000px';
+  tempContainer.style.left = '-1000px';
   
+  // Create the form with Razorpay script
+  const form = document.createElement('form');
   const script = document.createElement('script');
   script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
   script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
   script.async = true;
   
   form.appendChild(script);
-  document.body.appendChild(form);
+  tempContainer.appendChild(form);
+  document.body.appendChild(tempContainer);
   
-  // Trigger the payment after a short delay
+  // Wait for the script to load and then trigger click
   setTimeout(() => {
-    const razorpayButton = form.querySelector('button');
-    if (razorpayButton) {
-      razorpayButton.click();
+    const button = tempContainer.querySelector('button');
+    if (button) {
+      button.click();
     }
-    // Clean up
+    // Clean up after a delay
     setTimeout(() => {
-      document.body.removeChild(form);
-    }, 100);
-  }, 500);
+      if (document.body.contains(tempContainer)) {
+        document.body.removeChild(tempContainer);
+      }
+    }, 1000);
+  }, 2000); // Increased delay to ensure script loads
 };
 
   const testimonials = [
@@ -250,7 +257,7 @@ const openRazorpayPayment = () => {
                       </div>
                     </div>
 
-                    <button    onClick={() => openRazorpayPayment()}   className="w-full bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg" >   🚀 Free-me Now - ₹194.7 </button>
+                    <button onClick={() => openRazorpayPayment()} className="w-full bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg">1 month Trial</button>
                     
                     {/* Payment Success Message */}
                     {paymentSuccess && (
@@ -451,7 +458,7 @@ const openRazorpayPayment = () => {
                     Your dream job is waiting. Let AI handle applications while you master interviews and build skills.
                   </p>
                   
-                  <button    onClick={() => openRazorpayPayment()}   className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-12 rounded-full font-manrope font-bold text-2xl hover:scale-105 transition-all shadow-lg mb-4" >   🚀 Free-me for ₹194.7 </button>
+                  <button onClick={() => openRazorpayPayment()} className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-4 px-12 rounded-full font-manrope font-bold text-2xl hover:scale-105 transition-all shadow-lg mb-4"> 1 Month Trial </button>
                   
                   {/* Payment Success Message for Final CTA */}
                   {paymentSuccess && (
