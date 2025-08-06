@@ -7,6 +7,12 @@ import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import TestimonialsCard from "@/components/card/testimonialsCard/testimonialsCard";
+// Declare Razorpay for TypeScript
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const FreeMeSpecial = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -54,31 +60,52 @@ useEffect(() => {
 }, []);
 
 const openRazorpayPayment = () => {
-  // Create a temporary form and submit it to trigger Razorpay
-  const form = document.createElement('form');
-  form.style.display = 'none';
-  
-  const script = document.createElement('script');
-  script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
-  script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
-  script.async = true;
-  
-  form.appendChild(script);
-  document.body.appendChild(form);
-  
-  // Trigger the payment after a short delay
-  setTimeout(() => {
-    const razorpayButton = form.querySelector('button');
-    if (razorpayButton) {
-      razorpayButton.click();
-    }
-    // Clean up
-    setTimeout(() => {
-      document.body.removeChild(form);
-    }, 100);
-  }, 500);
+  // Load Razorpay checkout script if not already loaded
+  if (!window.Razorpay) {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => initializePayment();
+    document.head.appendChild(script);
+  } else {
+    initializePayment();
+  }
 };
 
+const initializePayment = () => {
+  const options = {
+    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Your Razorpay key
+    amount: 19470, // Amount in paisa (₹194.7)
+    currency: 'INR',
+    name: 'AiPply',
+    description: 'Free-me Independence Special - 1 Month Trial',
+    image: '/favicon.ico', // Your logo
+    handler: function (response: any) {
+      console.log('✅ Payment successful:', response);
+      setPaymentSuccess(true);
+    },
+    prefill: {
+      name: '',
+      email: '',
+      contact: ''
+    },
+    theme: {
+      color: '#20CEB6'
+    },
+    modal: {
+      ondismiss: function() {
+        console.log('❌ Payment cancelled by user');
+      }
+    }
+  };
+
+  const rzp = new window.Razorpay(options);
+  rzp.on('payment.failed', function (response: any) {
+    console.error('❌ Payment failed:', response.error);
+    alert('Payment failed: ' + response.error.description);
+  });
+  
+  rzp.open();
+};
   const testimonials = [
     {
       name: "Sabya Sachi Mishra",
@@ -250,7 +277,7 @@ const openRazorpayPayment = () => {
                       </div>
                     </div>
 
-                    <button    onClick={() => openRazorpayPayment()}   className="w-full bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg" >   🚀 Free-me Now - ₹194.7 </button>
+                    <button onClick={() => openRazorpayPayment()} className="w-full bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg">1 month Trial</button>
                     
                     {/* Payment Success Message */}
                     {paymentSuccess && (
@@ -451,7 +478,7 @@ const openRazorpayPayment = () => {
                     Your dream job is waiting. Let AI handle applications while you master interviews and build skills.
                   </p>
                   
-                  <button    onClick={() => openRazorpayPayment()}   className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-12 rounded-full font-manrope font-bold text-2xl hover:scale-105 transition-all shadow-lg mb-4" >   🚀 Free-me for ₹194.7 </button>
+                  <button onClick={() => openRazorpayPayment()} className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-4 px-12 rounded-full font-manrope font-bold text-2xl hover:scale-105 transition-all shadow-lg mb-4"> 1 Month Trial </button>
                   
                   {/* Payment Success Message for Final CTA */}
                   {paymentSuccess && (
