@@ -75,7 +75,7 @@ export default function RootLayout({
         </Script>
         
         {/* Environment Checker Component - Only in development */}
-        {process.env.NODE_ENV === 'development' && <EnvironmentChecker />}
+        <EnvironmentChecker />
         
         {children}
       </body>

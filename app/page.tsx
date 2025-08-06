@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import Button from "@/components/common/button/button";
@@ -44,6 +45,18 @@ export default function Home() {
                   Automate your job search with customized jobs from top portals
                   that your AI agent can apply on your behalf.
                 </p>
+
+                {/* Resume Analysis CTA */}
+                <div className="flex flex-col custom-md:flex-row gap-4 items-center mt-8">
+                  <Link href="/dashboard/onboarding/login">
+                    <Button text="Start Job Search" />
+                  </Link>
+                  <Link href="/resume-analysis">
+                    <button className="px-6 py-3 border border-[#AE94FF] text-[#AE94FF] rounded-lg hover:bg-[#AE94FF] hover:text-white transition-all duration-200 font-manrope font-medium">
+                      Analyze Your Resume
+                    </button>
+                  </Link>
+                </div>
               </div>
             </div>
 
