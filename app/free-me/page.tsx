@@ -260,7 +260,7 @@ const FreeMeSpecial = () => {
                       </div>
                     </div>
 
-                    <div id="razorpay-container-1" className="w-full"></div>
+                    <div id="razorpay-container-1" className="w-full border-2 border-white border-opacity-30 rounded-[12px] p-4 bg-white bg-opacity-10 backdrop-blur-sm shadow-lg hover:border-opacity-50 hover:shadow-xl transition-all duration-300"></div>
                     
                     {/* Payment Success Message */}
                     {paymentSuccess && (
@@ -347,33 +347,33 @@ const FreeMeSpecial = () => {
             {/* Why Choose AiPply */}
             <div className="mt-12">
               <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px] max-w-6xl mx-auto">
-               <div className="bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] border border-white border-opacity-10 rounded-[20px] p-6">
+               <div className="bg-gradient-to-br from-[#4C1D95] to-[#6B21A8] border border-white border-opacity-10 rounded-[20px] p-6">
                   <h3 className="font-manrope text-3xl font-bold text-white mb-6 text-center">Why Job Seekers Trust AiPply</h3>
                   <div className="grid custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                     <div className="text-center">
                       <div className="text-4xl mb-3">⏳</div>
-                      <h4 className="font-manrope text-lg font-bold text-yellow-300 mb-2">Saves 2+ hours every day</h4>
-                      <p className="font-manrope text-gray-200 text-sm">No more manual job applying</p>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Saves 2+ hours every day</h4>
+                      <p className="font-manrope text-white text-sm">No more manual job applying</p>
                     </div>
                     <div className="text-center">
                       <div className="text-4xl mb-3">📄</div>
-                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Applies to 600+ jobs/month</h4>
-                      <p className="font-manrope text-[#CECFD2] text-sm">Across top job boards</p>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Applies to 600+ jobs/month</h4>
+                      <p className="font-manrope text-white text-sm">Across top job boards</p>
                     </div>
                     <div className="text-center">
                       <div className="text-4xl mb-3">📞</div>
-                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Get recruiter calls directly</h4>
-                      <p className="font-manrope text-[#CECFD2] text-sm">With optimized resumes & smart targeting</p>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Get recruiter calls directly</h4>
+                      <p className="font-manrope text-white text-sm">With optimized resumes & smart targeting</p>
                     </div>
                     <div className="text-center">
                       <div className="text-4xl mb-3">🎯</div>
-                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Higher interview chances</h4>
-                      <p className="font-manrope text-[#CECFD2] text-sm">ATS-optimized, role-relevant applications</p>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Higher interview chances</h4>
+                      <p className="font-manrope text-white text-sm">ATS-optimized, role-relevant applications</p>
                     </div>
                     <div className="text-center">
                       <div className="text-4xl mb-3">🔒</div>
-                      <h4 className="font-manrope text-lg font-bold text-[#20CEB6] mb-2">Private & secure</h4>
-                      <p className="font-manrope text-[#CECFD2] text-sm">Your data, always encrypted</p>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Private & secure</h4>
+                      <p className="font-manrope text-white text-sm">Your data, always encrypted</p>
                     </div>
                   </div>
                 </div>
@@ -461,7 +461,7 @@ const FreeMeSpecial = () => {
                     Your dream job is waiting. Let AI handle applications while you master interviews and build skills.
                   </p>
                   
-                  <div id="razorpay-container-2"></div>
+                  <div id="razorpay-container-2" className="border-2 border-white border-opacity-30 rounded-[12px] p-4 bg-white bg-opacity-10 backdrop-blur-sm shadow-lg hover:border-opacity-50 hover:shadow-xl transition-all duration-300"></div>
                   
                   {/* Payment Success Message for Final CTA */}
                   {paymentSuccess && (
@@ -487,7 +487,7 @@ const FreeMeSpecial = () => {
                   <div className="flex justify-center gap-8 text-base text-[#B0B0B0] mt-6">
                     <span>✓ No Setup Required</span>
                     <span>✓ Cancel Anytime</span>
-                    <span>✓ Results in 7 Days</span>
+                    <span>✓ Money Back Guarantee</span>
                   </div>
                 </div>
               </div>
