@@ -5,6 +5,11 @@ import { useEffect } from 'react';
 
 export const EnvironmentChecker = () => {
   useEffect(() => {
+    // Only run in development mode
+    if (process.env.NODE_ENV !== 'development') {
+      return;
+    }
+    
     console.log('🔧 Environment Check Starting...');
     
     // Check Firebase vars (client-side accessible)
