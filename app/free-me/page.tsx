@@ -295,7 +295,7 @@ const initializePayment = () => {
                         <p className="font-manrope text-white mb-4">
                           Ready to get started? Register with the same email ID you used for payment.
                         </p>
-                        <Link href="/auth/login">
+                        <Link href="dashboard/onboarding/login">
                           <button className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-3 px-8 rounded-full font-manrope font-bold text-lg hover:scale-105 transition-all shadow-lg">
                             Login / Register Now
                           </button>
@@ -493,7 +493,7 @@ const initializePayment = () => {
                       <p className="font-manrope text-green-200 mb-3 text-xs">
                         🗓️ Active from <strong>August 16th, 2025</strong> for 1 month
                       </p>
-                      <Link href="/auth/login">
+                      <Link href="dashboard/onboarding/login">
                         <button className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-2 px-6 rounded-full font-manrope font-bold text-sm hover:scale-105 transition-all shadow-lg">
                           Login / Register Now
                         </button>
