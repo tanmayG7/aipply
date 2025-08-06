@@ -54,37 +54,50 @@ useEffect(() => {
 }, []);
 
 const openRazorpayPayment = () => {
-  // Create a temporary form with the payment button and auto-submit
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = `
-    <form style="display: none;">
-      <script 
-        src="https://checkout.razorpay.com/v1/payment-button.js" 
-        data-payment_button_id="pl_R1GlgQGQ7K8z2R" 
-        async>
-      </script>
-    </form>
-  `;
+  // Create the elements dynamically
+  const form = document.createElement('form');
+  form.style.position = 'fixed';
+  form.style.top = '-9999px';
+  form.style.left = '-9999px';
   
-  document.body.appendChild(tempDiv);
+  // Create script element
+  const script = document.createElement('script');
+  script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
+  script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
+  script.async = true;
   
-  // Wait and click the generated button
-  const checkForButton = setInterval(() => {
-    const button = tempDiv.querySelector('button');
+  // Append script to form, form to body
+  form.appendChild(script);
+  document.body.appendChild(form);
+  
+  // Wait for script to load and button to appear, then click it
+  let attempts = 0;
+  const maxAttempts = 100; // 10 seconds max
+  
+  const interval = setInterval(() => {
+    const button = form.querySelector('button');
+    attempts++;
+    
     if (button) {
-      button.click();
-      clearInterval(checkForButton);
-      setTimeout(() => document.body.removeChild(tempDiv), 5000);
+      // Found the button, click it
+      setTimeout(() => button.click(), 100);
+      clearInterval(interval);
+      
+      // Clean up after 5 seconds
+      setTimeout(() => {
+        if (document.body.contains(form)) {
+          document.body.removeChild(form);
+        }
+      }, 5000);
+    } else if (attempts >= maxAttempts) {
+      // Give up after max attempts
+      clearInterval(interval);
+      alert('Payment system is loading. Please try again in a moment.');
+      if (document.body.contains(form)) {
+        document.body.removeChild(form);
+      }
     }
   }, 100);
-  
-  // Cleanup after 10 seconds if button not found
-  setTimeout(() => {
-    clearInterval(checkForButton);
-    if (document.body.contains(tempDiv)) {
-      document.body.removeChild(tempDiv);
-    }
-  }, 10000);
 };
 
   const testimonials = [
