@@ -14,7 +14,7 @@ const FreeMeSpecial = () => {
     hours: 0,
     minutes: 0
   });
-  const [paymentButtonLoaded, setPaymentButtonLoaded] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     const targetDate = new Date('2025-08-15T23:59:59').getTime();
@@ -38,7 +38,46 @@ const FreeMeSpecial = () => {
     return () => clearInterval(timer);
   }, []);
 
+useEffect(() => {
+  // Listen for Razorpay payment success
+  const handlePaymentSuccess = (event: any) => {
+    if (event.data && event.data.action === 'payment_success') {
+      setPaymentSuccess(true);
+    }
+  };
 
+  window.addEventListener('message', handlePaymentSuccess);
+
+  return () => {
+    window.removeEventListener('message', handlePaymentSuccess);
+  };
+}, []);
+
+const openRazorpayPayment = () => {
+  // Create a temporary form and submit it to trigger Razorpay
+  const form = document.createElement('form');
+  form.style.display = 'none';
+  
+  const script = document.createElement('script');
+  script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
+  script.setAttribute('data-payment_button_id', 'pl_R1GlgQGQ7K8z2R');
+  script.async = true;
+  
+  form.appendChild(script);
+  document.body.appendChild(form);
+  
+  // Trigger the payment after a short delay
+  setTimeout(() => {
+    const razorpayButton = form.querySelector('button');
+    if (razorpayButton) {
+      razorpayButton.click();
+    }
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(form);
+    }, 100);
+  }, 500);
+};
 
   const testimonials = [
     {
@@ -108,7 +147,7 @@ const FreeMeSpecial = () => {
   ];
 
   const features = [
-    "50+ daily job applications",
+    "20+ daily job applications",
     "Live application tracking",
     "CAPTCHA solving included",
     "Skill-based job matching",
@@ -161,37 +200,33 @@ const FreeMeSpecial = () => {
 
         {/* Hero Section */}
         <ResponsivePageContainer>
-          <div className="py-16 relative z-20">
+          <div className="py-8 relative z-20">
             <div className="text-center">
-              {/* Flag */}
-              <div className="text-8xl mb-8 animate-pulse">🇮🇳</div>
-              
               {/* Badge */}
-              <div className="inline-block bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-full mb-8">
+              <div className="inline-block bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-full mb-6">
                 <div className="bg-black text-white py-2 px-6 rounded-full font-manrope font-medium text-sm">
                   ✨ Free-me Independence Special
                 </div>
               </div>
 
               {/* Main Headline */}
-              <h1 className="font-manrope text-[48px] custom-md:text-[72px] font-bold text-[#F5F5F6] mb-6 leading-tight">
-                Free-me from<br />
+              <h1 className="font-manrope text-[48px] custom-md:text-[72px] font-bold text-[#F5F5F6] mb-4 leading-tight">
                 <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
-                  Job Application Hell!
+                  Free Me From Job Hunting
                 </span>
               </h1>
               
-              <p className="font-manrope text-[24px] text-[#CECFD2] max-w-4xl mx-auto mb-12 leading-relaxed">
-                This Independence Day, break free from endless job rejections. Our AI applies to 50+ jobs daily while you focus on what matters - interview prep and skill building.
+              <p className="font-manrope text-[24px] text-[#CECFD2] max-w-4xl mx-auto mb-8 leading-relaxed">
+                Save 2 hours daily. Apply to 600+ jobs monthly. Let recruiters call you.
               </p>
 
               {/* Pricing Card */}
-              <div className="max-w-lg mx-auto mb-12">
+              <div className="max-w-lg mx-auto mb-8">
                 <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px]">
-                  <div className="bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] rounded-[20px] p-8 text-center">
-                    <h3 className="font-manrope text-3xl font-bold text-white mb-6">🎯 Free-me Special</h3>
+                  <div className="bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] rounded-[20px] p-6 text-center">
+                    <h3 className="font-manrope text-3xl font-bold text-white mb-4">🎯 Free-me Special</h3>
                     
-                    <div className="flex items-center justify-center gap-6 mb-6">
+                    <div className="flex items-center justify-center gap-6 mb-4">
                       <div className="text-center">
                         <p className="font-manrope text-red-300 line-through text-lg">₹999</p>
                         <p className="font-manrope text-red-300 line-through text-xl">Regular</p>
@@ -203,9 +238,9 @@ const FreeMeSpecial = () => {
                       </div>
                     </div>
 
-                    <div className="bg-white bg-opacity-20 rounded-[16px] p-6 mb-8 backdrop-blur-sm">
-                      <h4 className="font-manrope text-xl font-bold text-white mb-4">What You Get:</h4>
-                      <div className="grid grid-cols-1 gap-3 text-left">
+                    <div className="bg-white bg-opacity-20 rounded-[16px] p-4 mb-6 backdrop-blur-sm">
+                      <h4 className="font-manrope text-xl font-bold text-white mb-3">What You Get:</h4>
+                      <div className="grid grid-cols-1 gap-2 text-left">
                         {features.map((feature, index) => (
                           <div key={index} className="flex items-center gap-3 text-white">
                             <span className="text-green-300 text-lg">✓</span>
@@ -215,20 +250,38 @@ const FreeMeSpecial = () => {
                       </div>
                     </div>
 
-                  <form className="w-full">
-  <script 
-    src="https://checkout.razorpay.com/v1/payment-button.js" 
-    data-payment_button_id="pl_R1GlgQGQ7K8z2R" 
-    async
-  ></script>
-</form>
+                    <button    onClick={() => openRazorpayPayment()}   className="w-full bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-8 rounded-full font-manrope font-bold text-xl hover:scale-105 transition-all shadow-lg" >   🚀 Free-me Now - ₹194.7 </button>
+                    
+                    {/* Payment Success Message */}
+                    {paymentSuccess && (
+                      <div className="mt-6 bg-green-600 bg-opacity-20 border border-green-500 border-opacity-40 rounded-[16px] p-6 text-center backdrop-blur-sm">
+                        <div className="text-4xl mb-3">🎉</div>
+                        <h4 className="font-manrope text-xl font-bold text-green-300 mb-3">
+                          Payment Successful!
+                        </h4>
+                        <p className="font-manrope text-white mb-4 leading-relaxed">
+                          Thank you for your purchase! Your payment receipt will be sent to your email shortly. 
+                        </p>
+                        <p className="font-manrope text-green-200 mb-4 text-sm">
+                          🗓️ Your subscription will be active from <strong>August 16th, 2025</strong> for 1 month
+                        </p>
+                        <p className="font-manrope text-white mb-4">
+                          Ready to get started? Register with the same email ID you used for payment.
+                        </p>
+                        <Link href="/auth/login">
+                          <button className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-3 px-8 rounded-full font-manrope font-bold text-lg hover:scale-105 transition-all shadow-lg">
+                            Login / Register Now
+                          </button>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Countdown */}
-              <div className="mb-16">
-                <h3 className="font-manrope text-2xl font-semibold text-[#F5F5F6] mb-6">⏰ Offer Ends In:</h3>
+              <div className="mb-12">
+                <h3 className="font-manrope text-2xl font-semibold text-[#F5F5F6] mb-4">⏰ Offer Ends In:</h3>
                 <div className="flex justify-center gap-6">
                   <CountdownDigit value={timeLeft.days} label="Days" />
                   <CountdownDigit value={timeLeft.hours} label="Hours" />
@@ -241,15 +294,15 @@ const FreeMeSpecial = () => {
 
         {/* Problems vs Solutions */}
         <ResponsivePageContainer>
-          <div className="py-20 relative z-20">
-            <div className="grid custom-lg:grid-cols-2 gap-16 max-w-7xl mx-auto">
+          <div className="py-12 relative z-20">
+            <div className="grid custom-lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
               
               {/* Problems */}
               <div>
-                <h2 className="font-manrope text-4xl font-bold text-red-400 mb-8 text-center">
+                <h2 className="font-manrope text-4xl font-bold text-red-400 mb-6 text-center">
                   😤 Job Hunt Struggles
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {problems.map((problem, index) => (
                     <FeatureCard
                       key={index}
@@ -264,10 +317,10 @@ const FreeMeSpecial = () => {
 
               {/* Solutions */}
               <div>
-                <h2 className="font-manrope text-4xl font-bold text-green-400 mb-8 text-center">
+                <h2 className="font-manrope text-4xl font-bold text-green-400 mb-6 text-center">
                   🚀 AI-Powered Freedom
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {solutions.map((solution, index) => (
                     <FeatureCard
                       key={index}
@@ -281,15 +334,38 @@ const FreeMeSpecial = () => {
               </div>
             </div>
 
-            {/* Differentiator */}
-            <div className="mt-20">
-              <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px] max-w-5xl mx-auto">
-                <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-10 rounded-[20px] p-8 text-center">
-                  <h3 className="font-manrope text-3xl font-bold text-[#F5F5F6] mb-4">🔥 Why Choose aipply.io?</h3>
-                  <p className="font-manrope text-xl text-[#CECFD2] max-w-4xl mx-auto leading-relaxed">
-                    While competitors offer "black box" automation, we provide <strong className="text-[#20CEB6]">complete transparency</strong>. 
-                    Watch every action, every application, every success. Plus, we're priced for students at ₹194.7/month instead of ₹3000+.
-                  </p>
+            {/* Why Choose AiPply */}
+            <div className="mt-12">
+              <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px] max-w-6xl mx-auto">
+               <div className="bg-gradient-to-br from-[#4C1D95] to-[#6B21A8] border border-white border-opacity-10 rounded-[20px] p-6">
+                  <h3 className="font-manrope text-3xl font-bold text-white mb-6 text-center">Why Job Seekers Trust AiPply</h3>
+                  <div className="grid custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">⏳</div>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Saves 2+ hours every day</h4>
+                      <p className="font-manrope text-white text-sm">No more manual job applying</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">📄</div>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Applies to 600+ jobs/month</h4>
+                      <p className="font-manrope text-white text-sm">Across top job boards</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">📞</div>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Get recruiter calls directly</h4>
+                      <p className="font-manrope text-white text-sm">With optimized resumes & smart targeting</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">🎯</div>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Higher interview chances</h4>
+                      <p className="font-manrope text-white text-sm">ATS-optimized, role-relevant applications</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">🔒</div>
+                      <h4 className="font-manrope text-lg font-bold text-white mb-2">Private & secure</h4>
+                      <p className="font-manrope text-white text-sm">Your data, always encrypted</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -298,14 +374,14 @@ const FreeMeSpecial = () => {
 
         {/* Success Stories */}
         <ResponsivePageContainer>
-          <div className="py-20 relative z-20">
-            <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-16">
+          <div className="py-12 relative z-20">
+            <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-10">
               💬 <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
                 Success Stories
               </span>
             </h2>
             
-            <div className="grid custom-lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="grid custom-lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {testimonials.map((testimonial, index) => (
                 <TestimonialsCard
                   key={index}
@@ -321,36 +397,36 @@ const FreeMeSpecial = () => {
 
         {/* Pricing Comparison */}
         <ResponsivePageContainer>
-          <div className="py-20 relative z-20">
+          <div className="py-12 relative z-20">
             <div className="max-w-5xl mx-auto">
-              <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-16">
+              <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-10">
                 💰 <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
                   Student-Friendly Pricing
                 </span>
               </h2>
 
               <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px]">
-                <div className="bg-[#111111] rounded-[20px] p-8">
-                  <div className="grid custom-md:grid-cols-3 gap-8 text-center">
-                    <div className="p-6">
-                      <h4 className="font-manrope font-bold text-red-400 mb-3 text-xl">Other Platforms</h4>
-                      <p className="font-manrope text-4xl font-black text-red-400 mb-2">₹3000+</p>
+                <div className="bg-[#111111] rounded-[20px] p-6">
+                  <div className="grid custom-md:grid-cols-3 gap-6 text-center">
+                    <div className="p-4">
+                      <h4 className="font-manrope font-bold text-red-400 mb-2 text-xl">Other Platforms</h4>
+                      <p className="font-manrope text-4xl font-black text-red-400 mb-1">₹3000+</p>
                       <p className="font-manrope text-[#B0B0B0]">per month</p>
-                      <p className="font-manrope text-red-300 mt-3">❌ No transparency</p>
+                      <p className="font-manrope text-red-300 mt-2">❌ No transparency</p>
                     </div>
                     
-                    <div className="p-6 border-l border-r border-white border-opacity-20">
-                      <h4 className="font-manrope font-bold text-yellow-400 mb-3 text-xl">Manual Process</h4>
-                      <p className="font-manrope text-4xl font-black text-yellow-400 mb-2">FREE</p>
+                    <div className="p-4 border-l border-r border-white border-opacity-20">
+                      <h4 className="font-manrope font-bold text-yellow-400 mb-2 text-xl">Manual Process</h4>
+                      <p className="font-manrope text-4xl font-black text-yellow-400 mb-1">FREE</p>
                       <p className="font-manrope text-[#B0B0B0]">but 3+ hrs daily</p>
-                      <p className="font-manrope text-yellow-300 mt-3">⚠️ Time = Money</p>
+                      <p className="font-manrope text-yellow-300 mt-2">⚠️ Time = Money</p>
                     </div>
                     
-                    <div className="p-6">
-                      <h4 className="font-manrope font-bold text-green-400 mb-3 text-xl">aipply.io</h4>
-                      <p className="font-manrope text-4xl font-black text-green-400 mb-2">₹194.7</p>
+                    <div className="p-4">
+                      <h4 className="font-manrope font-bold text-green-400 mb-2 text-xl">aipply.io</h4>
+                      <p className="font-manrope text-4xl font-black text-green-400 mb-1">₹194.7</p>
                       <p className="font-manrope text-[#B0B0B0]">first month</p>
-                      <p className="font-manrope text-green-300 mt-3">✅ Full transparency</p>
+                      <p className="font-manrope text-green-300 mt-2">✅ Full transparency</p>
                     </div>
                   </div>
                 </div>
@@ -361,38 +437,52 @@ const FreeMeSpecial = () => {
 
         {/* Final CTA */}
         <ResponsivePageContainer>
-          <div className="py-20 relative z-20">
+          <div className="py-12 relative z-20">
             <div className="max-w-4xl mx-auto text-center">
               <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-2 rounded-[32px]">
-                <div className="bg-black rounded-[28px] p-12">
-                  <div className="text-8xl mb-8 animate-pulse">🇮🇳</div>
-                  <h2 className="font-manrope text-5xl font-bold text-[#F5F5F6] mb-8 leading-tight">
+                <div className="bg-black rounded-[28px] p-8">
+                  <h2 className="font-manrope text-4xl font-bold text-[#F5F5F6] mb-6 leading-tight">
                     This Independence Day,<br />
                     <span className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] bg-clip-text text-transparent">
                       Free-me from Job Hunt Hell!
                     </span>
                   </h2>
-                  <p className="font-manrope text-2xl text-[#CECFD2] mb-12 leading-relaxed">
+                  <p className="font-manrope text-xl text-[#CECFD2] mb-8 leading-relaxed">
                     Your dream job is waiting. Let AI handle applications while you master interviews and build skills.
                   </p>
                   
-                 <form className="mb-8">
-  <script 
-    src="https://checkout.razorpay.com/v1/payment-button.js" 
-    data-payment_button_id="pl_R1GlgQGQ7K8z2R" 
-    async
-  ></script>
-</form>
+                  <button    onClick={() => openRazorpayPayment()}   className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-4 px-12 rounded-full font-manrope font-bold text-2xl hover:scale-105 transition-all shadow-lg mb-4" >   🚀 Free-me for ₹194.7 </button>
                   
-                  <div className="flex justify-center gap-12 text-lg text-[#B0B0B0]">
+                  {/* Payment Success Message for Final CTA */}
+                  {paymentSuccess && (
+                    <div className="mt-6 bg-green-600 bg-opacity-20 border border-green-500 border-opacity-40 rounded-[16px] p-6 text-center backdrop-blur-sm">
+                      <div className="text-3xl mb-2">🎉</div>
+                      <h4 className="font-manrope text-lg font-bold text-green-300 mb-2">
+                        Payment Successful!
+                      </h4>
+                      <p className="font-manrope text-white mb-3 text-sm leading-relaxed">
+                        Thank you for your purchase! Check your email for the receipt.
+                      </p>
+                      <p className="font-manrope text-green-200 mb-3 text-xs">
+                        🗓️ Active from <strong>August 16th, 2025</strong> for 1 month
+                      </p>
+                      <Link href="/auth/login">
+                        <button className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-2 px-6 rounded-full font-manrope font-bold text-sm hover:scale-105 transition-all shadow-lg">
+                          Login / Register Now
+                        </button>
+                      </Link>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-center gap-8 text-base text-[#B0B0B0] mt-6">
                     <span>✓ No Setup Required</span>
                     <span>✓ Cancel Anytime</span>
-                    <span>✓ Results in 7 Days</span>
+                    <span>✓ Money Back Guarantee</span>
                   </div>
                 </div>
               </div>
               
-              <p className="font-manrope text-[#B0B0B0] mt-8 text-lg">
+              <p className="font-manrope text-[#B0B0B0] mt-6 text-lg">
                 Questions? Email <span className="text-[#20CEB6]">support@aipply.io</span>
               </p>
             </div>
