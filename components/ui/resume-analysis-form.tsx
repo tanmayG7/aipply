@@ -1,8 +1,10 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { EnhancedLabel } from "@/components/ui/enhanced-label";
 import { EnhancedInput } from "@/components/ui/enhanced-input";
 import { cn } from "@/lib/utils";
+import { auth, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
+import { UserDetails } from '@/lib/types';
 import {
   DocumentTextIcon,
   CloudArrowUpIcon,
@@ -21,12 +23,45 @@ export default function ResumeAnalysisForm() {
     focusAreas: [] as string[],
   });
   
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
+  
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(1);
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [submissionMessage, setSubmissionMessage] = useState('');
+
+  // Load user data on component mount for autofill
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const userData = await getUserProfile(user.uid);
+          if (userData) {
+            setUserDetails(userData);
+            
+            // Autofill form data from user profile
+            setFormData(prev => ({
+              ...prev,
+              firstName: userData.firstName || prev.firstName,
+              lastName: userData.lastName || prev.lastName,
+              email: userData.email || user.email || prev.email,
+              phone: prev.phone, // Keep empty unless specifically saved in profile
+            }));
+          }
+        }
+      } catch (error) {
+        console.log('User not logged in or profile not found:', error);
+      } finally {
+        setIsLoadingUserData(false);
+      }
+    };
+
+    loadUserData();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -421,6 +456,18 @@ export default function ResumeAnalysisForm() {
         {/* Step 3: Contact Information */}
         {currentStep === 3 && (
           <div className="space-y-6">
+            {/* Autofill indicator */}
+            {userDetails && (userDetails.firstName || userDetails.lastName || userDetails.email) && (
+              <div className="bg-[#AE94FF] bg-opacity-10 border border-[#AE94FF] rounded-lg p-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="w-4 h-4 text-[#AE94FF] flex-shrink-0" />
+                  <p className="text-[#AE94FF] text-sm">
+                    Some fields have been pre-filled from your account. You can modify them as needed.
+                  </p>
+                </div>
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <LabelInputContainer>
                 <EnhancedLabel htmlFor="firstName">First Name *</EnhancedLabel>
@@ -432,6 +479,7 @@ export default function ResumeAnalysisForm() {
                   required
                   value={formData.firstName}
                   onChange={handleInputChange}
+                  autoComplete="given-name"
                 />
               </LabelInputContainer>
               <LabelInputContainer>
@@ -444,6 +492,7 @@ export default function ResumeAnalysisForm() {
                   required
                   value={formData.lastName}
                   onChange={handleInputChange}
+                  autoComplete="family-name"
                 />
               </LabelInputContainer>
             </div>
@@ -458,6 +507,7 @@ export default function ResumeAnalysisForm() {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
+                autoComplete="email"
               />
             </LabelInputContainer>
 
@@ -471,6 +521,7 @@ export default function ResumeAnalysisForm() {
                 required
                 value={formData.phone}
                 onChange={handleInputChange}
+                autoComplete="tel"
               />
             </LabelInputContainer>
 
