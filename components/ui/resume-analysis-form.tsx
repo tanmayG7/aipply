@@ -12,6 +12,7 @@ import {
   CloudArrowUpIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 
 export default function ResumeAnalysisForm() {
@@ -33,6 +34,8 @@ export default function ResumeAnalysisForm() {
   const [dragActive, setDragActive] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(1);
+  const [hasSelectedPreferences, setHasSelectedPreferences] = useState(false);
+  const [showAdvancedPreferences, setShowAdvancedPreferences] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [submissionMessage, setSubmissionMessage] = useState('');
 
@@ -76,6 +79,7 @@ export default function ResumeAnalysisForm() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    checkPreferencesSelected();
   };
 
   const handleFocusAreaChange = (area: string) => {
@@ -85,6 +89,7 @@ export default function ResumeAnalysisForm() {
         ? prev.focusAreas.filter(a => a !== area)
         : [...prev.focusAreas, area]
     }));
+    checkPreferencesSelected();
   };
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -261,6 +266,16 @@ export default function ResumeAnalysisForm() {
     if (currentStep < 3) setCurrentStep(currentStep + 1);
   };
 
+  const skipToContact = () => {
+    setCurrentStep(3); // Skip to contact information
+  };
+
+  // Check if user has selected any preferences
+  const checkPreferencesSelected = () => {
+    const hasPreferences = formData.targetRole || formData.experienceLevel || formData.focusAreas.length > 0;
+    setHasSelectedPreferences(hasPreferences);
+  };
+
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
@@ -270,7 +285,7 @@ export default function ResumeAnalysisForm() {
       {/* Progress Indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          {[1, 2, 3].map((step) => (
+          {[1, 2].map((step) => (
             <div key={step} className="flex items-center">
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors",
@@ -280,7 +295,7 @@ export default function ResumeAnalysisForm() {
               )}>
                 {step}
               </div>
-              {step < 3 && (
+              {step < 2 && (
                 <div className={cn(
                   "w-16 h-1 mx-2 rounded transition-colors",
                   currentStep > step ? "bg-[#AE94FF]" : "bg-[#333741]"
@@ -290,11 +305,13 @@ export default function ResumeAnalysisForm() {
           ))}
         </div>
         <div className="text-[#CECFD2] text-sm text-center">
-          Step {currentStep} of 3: {
+          Step {currentStep === 2 ? 2 : currentStep > 2 ? 2 : 1} of 2: {
             currentStep === 1 ? "Upload Resume" : 
-            currentStep === 2 ? "Analysis Preferences" : 
-            "Contact Information"
+            currentStep >= 2 ? "Contact Information" : ""
           }
+          {currentStep === 2 && (
+            <div className="text-xs text-[#AE94FF] mt-1">Optional preferences can be customized below</div>
+          )}
         </div>
       </div>
 
@@ -385,15 +402,107 @@ export default function ResumeAnalysisForm() {
                   : "bg-[#333741] text-[#CECFD2] cursor-not-allowed"
               )}
             >
-              Continue to Preferences
+              Continue to Contact Info
             </button>
           </div>
         )}
 
-        {/* Step 2: Analysis Preferences */}
+        {/* Step 2: Contact Information with Optional Preferences */}
         {currentStep === 2 && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Contact Information Section */}
+            <div className="bg-[#0f0f0f] border border-[#333741] rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-[#F5F5F6] mb-4">Contact Information</h3>
+              
+              {/* Autofill indicator */}
+              {userDetails && (userDetails.firstName || userDetails.lastName || userDetails.email || userDetails.phone) && (
+                <div className="bg-[#AE94FF] bg-opacity-10 border border-[#AE94FF] rounded-lg p-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <CheckCircleIcon className="w-4 h-4 text-[#AE94FF] flex-shrink-0" />
+                    <p className="text-[#AE94FF] text-sm">
+                      Some fields have been pre-filled from your account. You can modify them as needed.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <LabelInputContainer>
+                  <EnhancedLabel htmlFor="firstName">First Name *</EnhancedLabel>
+                  <EnhancedInput 
+                    id="firstName" 
+                    name="firstName"
+                    placeholder="John" 
+                    type="text" 
+                    required
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    autoComplete="given-name"
+                  />
+                </LabelInputContainer>
+                <LabelInputContainer>
+                  <EnhancedLabel htmlFor="lastName">Last Name *</EnhancedLabel>
+                  <EnhancedInput 
+                    id="lastName" 
+                    name="lastName"
+                    placeholder="Doe" 
+                    type="text" 
+                    required
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    autoComplete="family-name"
+                  />
+                </LabelInputContainer>
+              </div>
+              
+              <LabelInputContainer className="mb-4">
+                <EnhancedLabel htmlFor="email">Email Address *</EnhancedLabel>
+                <EnhancedInput 
+                  id="email" 
+                  name="email"
+                  placeholder="john.doe@example.com" 
+                  type="email" 
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  autoComplete="email"
+                />
+              </LabelInputContainer>
+              
+              <LabelInputContainer>
+                <EnhancedLabel htmlFor="phone">Phone Number *</EnhancedLabel>
+                <PhoneInput
+                  countryCode={formData.countryCode}
+                  phoneNumber={formData.phoneNumber}
+                  onCountryCodeChange={(code) => setFormData(prev => ({ ...prev, countryCode: code }))}
+                  onPhoneNumberChange={(number) => setFormData(prev => ({ ...prev, phoneNumber: number }))}
+                  required
+                />
+              </LabelInputContainer>
+            </div>
+
+            {/* Advanced Preferences - Collapsible */}
+            <div className="border-t border-[#333741] pt-6">
+              <button
+                type="button"
+                onClick={() => setShowAdvancedPreferences(!showAdvancedPreferences)}
+                className="flex items-center justify-between w-full text-left p-4 bg-[#1a1a1a] border border-[#333741] rounded-lg hover:bg-[#222222] transition-all duration-200"
+              >
+                <div>
+                  <h3 className="text-[#F5F5F6] font-medium">Advanced Analysis Preferences</h3>
+                  <p className="text-[#CECFD2] text-sm mt-1">Customize your analysis (Optional)</p>
+                </div>
+                <ChevronDownIcon 
+                  className={cn(
+                    "w-5 h-5 text-[#AE94FF] transition-transform duration-200",
+                    showAdvancedPreferences && "rotate-180"
+                  )} 
+                />
+              </button>
+              
+              {showAdvancedPreferences && (
+                <div className="mt-4 p-4 bg-[#0f0f0f] border border-[#333741] rounded-lg space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <LabelInputContainer>
                 <EnhancedLabel htmlFor="targetRole">Target Role (Optional)</EnhancedLabel>
                 <select
@@ -415,7 +524,7 @@ export default function ResumeAnalysisForm() {
               </LabelInputContainer>
 
               <LabelInputContainer>
-                <EnhancedLabel htmlFor="experienceLevel">Experience Level</EnhancedLabel>
+                <EnhancedLabel htmlFor="experienceLevel">Experience Level (Optional)</EnhancedLabel>
                 <select
                   id="experienceLevel"
                   name="experienceLevel"
@@ -452,94 +561,11 @@ export default function ResumeAnalysisForm() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="flex-1 py-3 px-4 rounded-lg border border-[#333741] text-[#CECFD2] hover:border-[#AE94FF] hover:text-[#AE94FF] transition-all duration-200"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={nextStep}
-                className="flex-1 py-3 px-4 rounded-lg bg-[#AE94FF] text-white hover:bg-opacity-90 transition-all duration-200"
-              >
-                Continue
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Contact Information */}
-        {currentStep === 3 && (
-          <div className="space-y-6">
-            {/* Autofill indicator */}
-            {userDetails && (userDetails.firstName || userDetails.lastName || userDetails.email || userDetails.phone) && (
-              <div className="bg-[#AE94FF] bg-opacity-10 border border-[#AE94FF] rounded-lg p-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircleIcon className="w-4 h-4 text-[#AE94FF] flex-shrink-0" />
-                  <p className="text-[#AE94FF] text-sm">
-                    Some fields have been pre-filled from your account. You can modify them as needed.
-                  </p>
                 </div>
-              </div>
-            )}
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <LabelInputContainer>
-                <EnhancedLabel htmlFor="firstName">First Name *</EnhancedLabel>
-                <EnhancedInput 
-                  id="firstName" 
-                  name="firstName"
-                  placeholder="John" 
-                  type="text" 
-                  required
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  autoComplete="given-name"
-                />
-              </LabelInputContainer>
-              <LabelInputContainer>
-                <EnhancedLabel htmlFor="lastName">Last Name *</EnhancedLabel>
-                <EnhancedInput 
-                  id="lastName" 
-                  name="lastName"
-                  placeholder="Doe" 
-                  type="text" 
-                  required
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  autoComplete="family-name"
-                />
-              </LabelInputContainer>
+              )}
             </div>
 
-            <LabelInputContainer>
-              <EnhancedLabel htmlFor="email">Email Address *</EnhancedLabel>
-              <EnhancedInput 
-                id="email" 
-                name="email"
-                placeholder="john.doe@example.com" 
-                type="email" 
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                autoComplete="email"
-              />
-            </LabelInputContainer>
-
-            <LabelInputContainer>
-              <EnhancedLabel htmlFor="phone">Phone Number *</EnhancedLabel>
-              <PhoneInput
-                countryCode={formData.countryCode}
-                phoneNumber={formData.phoneNumber}
-                onCountryCodeChange={(code) => setFormData(prev => ({ ...prev, countryCode: code }))}
-                onPhoneNumberChange={(number) => setFormData(prev => ({ ...prev, phoneNumber: number }))}
-                required
-              />
-            </LabelInputContainer>
-
+            {/* Privacy Statement */}
             <div className="bg-[#1a1a1a] border border-[#333741] rounded-lg p-4">
               <div className="flex items-start gap-2">
                 <CheckCircleIcon className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
@@ -550,6 +576,7 @@ export default function ResumeAnalysisForm() {
               </div>
             </div>
 
+            {/* Action Buttons */}
             <div className="flex gap-3">
               <button
                 type="button"
@@ -560,10 +587,10 @@ export default function ResumeAnalysisForm() {
               </button>
               <button
                 type="submit"
-                disabled={submissionStatus === 'submitting'}
+                disabled={submissionStatus === 'submitting' || !formData.firstName || !formData.lastName || !formData.email || !formData.phoneNumber}
                 className={cn(
                   "flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200 relative group overflow-hidden flex items-center justify-center gap-2",
-                  submissionStatus === 'submitting'
+                  submissionStatus === 'submitting' || !formData.firstName || !formData.lastName || !formData.email || !formData.phoneNumber
                     ? "bg-[#666] cursor-not-allowed"
                     : "bg-gradient-to-r from-[#AE94FF] to-[#7030ca] text-white hover:from-[#9d7fff] hover:to-[#5f1fb8]"
                 )}
@@ -581,6 +608,8 @@ export default function ResumeAnalysisForm() {
             </div>
           </div>
         )}
+
+        {/* This step is now integrated into Step 2 */}
       </form>
 
       {/* Submission Status Display */}
