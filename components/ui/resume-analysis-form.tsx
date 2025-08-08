@@ -5,6 +5,8 @@ import { EnhancedInput } from "@/components/ui/enhanced-input";
 import { cn } from "@/lib/utils";
 import { auth, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { UserDetails } from '@/lib/types';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { parsePhoneNumber, formatPhoneNumber } from '@/lib/countryCodes';
 import {
   DocumentTextIcon,
   CloudArrowUpIcon,
@@ -17,7 +19,8 @@ export default function ResumeAnalysisForm() {
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
+    countryCode: "+91", // Default to India
+    phoneNumber: "",
     targetRole: "",
     experienceLevel: "",
     focusAreas: [] as string[],
@@ -43,13 +46,20 @@ export default function ResumeAnalysisForm() {
           if (userData) {
             setUserDetails(userData);
             
+            // Parse phone number if available
+            let parsedPhone = { countryCode: "+91", phoneNumber: "" };
+            if (userData.phone) {
+              parsedPhone = parsePhoneNumber(userData.phone);
+            }
+            
             // Autofill form data from user profile
             setFormData(prev => ({
               ...prev,
               firstName: userData.firstName || prev.firstName,
               lastName: userData.lastName || prev.lastName,
               email: userData.email || user.email || prev.email,
-              phone: prev.phone, // Keep empty unless specifically saved in profile
+              countryCode: parsedPhone.countryCode,
+              phoneNumber: parsedPhone.phoneNumber,
             }));
           }
         }
@@ -123,9 +133,17 @@ export default function ResumeAnalysisForm() {
     
     // Email and phone format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\+?[0-9\s\-().]{7,20}$/;
+    
+    // More robust phone validation - ensure we have country code and reasonable number length
+    const validatePhoneNumber = (fullPhone: string): boolean => {
+      if (!fullPhone.startsWith('+')) return false;
+      const cleanPhone = fullPhone.replace(/[\s\-().]/g, '');
+      return cleanPhone.length >= 8 && cleanPhone.length <= 18 && /^\+\d+$/.test(cleanPhone);
+    };
 
-    if (!file || !formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+    const fullPhone = formatPhoneNumber(formData.countryCode, formData.phoneNumber);
+    
+    if (!file || !formData.firstName || !formData.lastName || !formData.email || !formData.phoneNumber) {
       setSubmissionStatus('error');
       setSubmissionMessage('Please fill in all required fields and upload a resume.');
       return;
@@ -137,7 +155,7 @@ export default function ResumeAnalysisForm() {
       return;
     }
 
-    if (!phoneRegex.test(formData.phone)) {
+    if (!validatePhoneNumber(fullPhone)) {
       setSubmissionStatus('error');
       setSubmissionMessage('Please enter a valid phone number.');
       return;
@@ -152,7 +170,7 @@ export default function ResumeAnalysisForm() {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
-          phone: formData.phone,
+          phone: fullPhone,
         },
         preferences: {
           targetRole: formData.targetRole || 'Not specified',
@@ -177,7 +195,7 @@ export default function ResumeAnalysisForm() {
       formDataToSend.append('firstName', formData.firstName);
       formDataToSend.append('lastName', formData.lastName);
       formDataToSend.append('email', formData.email);
-      formDataToSend.append('phone', formData.phone);
+      formDataToSend.append('phone', fullPhone);
       
       // Append preferences
       formDataToSend.append('targetRole', formData.targetRole || 'Not specified');
@@ -457,7 +475,7 @@ export default function ResumeAnalysisForm() {
         {currentStep === 3 && (
           <div className="space-y-6">
             {/* Autofill indicator */}
-            {userDetails && (userDetails.firstName || userDetails.lastName || userDetails.email) && (
+            {userDetails && (userDetails.firstName || userDetails.lastName || userDetails.email || userDetails.phone) && (
               <div className="bg-[#AE94FF] bg-opacity-10 border border-[#AE94FF] rounded-lg p-3">
                 <div className="flex items-center gap-2">
                   <CheckCircleIcon className="w-4 h-4 text-[#AE94FF] flex-shrink-0" />
@@ -513,15 +531,12 @@ export default function ResumeAnalysisForm() {
 
             <LabelInputContainer>
               <EnhancedLabel htmlFor="phone">Phone Number *</EnhancedLabel>
-              <EnhancedInput 
-                id="phone" 
-                name="phone"
-                placeholder="+1 (555) 123-4567" 
-                type="tel" 
+              <PhoneInput
+                countryCode={formData.countryCode}
+                phoneNumber={formData.phoneNumber}
+                onCountryCodeChange={(code) => setFormData(prev => ({ ...prev, countryCode: code }))}
+                onPhoneNumberChange={(number) => setFormData(prev => ({ ...prev, phoneNumber: number }))}
                 required
-                value={formData.phone}
-                onChange={handleInputChange}
-                autoComplete="tel"
               />
             </LabelInputContainer>
 
