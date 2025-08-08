@@ -21,17 +21,15 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
   onRefresh
 }) => {
   const [showPasswords, setShowPasswords] = useState({
-    naukri: false,
+    foundit: false,
     hirist: false,
-    shine: false,
-    timesjobs: false
+    cutshort: false
   });
   
   const [credentials, setCredentials] = useState<PlatformCredentialsData>({
-    naukri: { email: '', password: '' },
+    foundit: { email: '', password: '' },
     hirist: { email: '', password: '' },
-    shine: { email: '', password: '' },
-    timesjobs: { email: '', password: '' }
+    cutshort: { email: '', password: '' }
   });
 
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
@@ -40,21 +38,17 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
   useEffect(() => {
     if (userDetails.platformCredentials) {
       setCredentials({
-        naukri: {
-          email: userDetails.platformCredentials.naukri?.email || '',
-          password: userDetails.platformCredentials.naukri?.password || ''
+        foundit: {
+          email: userDetails.platformCredentials.foundit?.email || '',
+          password: userDetails.platformCredentials.foundit?.password || ''
         },
         hirist: {
           email: userDetails.platformCredentials.hirist?.email || '',
           password: userDetails.platformCredentials.hirist?.password || ''
         },
-        shine: {
-          email: userDetails.platformCredentials.shine?.email || '',
-          password: userDetails.platformCredentials.shine?.password || ''
-        },
-        timesjobs: {
-          email: userDetails.platformCredentials.timesjobs?.email || '',
-          password: userDetails.platformCredentials.timesjobs?.password || ''
+        cutshort: {
+          email: userDetails.platformCredentials.cutshort?.email || '',
+          password: userDetails.platformCredentials.cutshort?.password || ''
         }
       });
     }
@@ -62,11 +56,11 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
 
   const platforms = [
     { 
-      id: 'naukri' as keyof PlatformCredentialsData, 
-      name: 'Naukri.com', 
-      color: 'bg-blue-600', 
-      icon: '🔍',
-      description: 'India\'s leading job portal'
+      id: 'foundit' as keyof PlatformCredentialsData, 
+      name: 'Foundit.in', 
+      color: 'bg-red-600', 
+      icon: '📰',
+      description: 'Times Group job portal (formerly Monster)'
     },
     { 
       id: 'hirist' as keyof PlatformCredentialsData, 
@@ -76,18 +70,11 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
       description: 'Tech jobs and IT careers'
     },
     { 
-      id: 'shine' as keyof PlatformCredentialsData, 
-      name: 'Shine.com', 
-      color: 'bg-orange-600', 
-      icon: '✨',
-      description: 'Career opportunities and jobs'
-    },
-    { 
-      id: 'timesjobs' as keyof PlatformCredentialsData, 
-      name: 'TimesJobs.com', 
-      color: 'bg-red-600', 
-      icon: '📰',
-      description: 'Times Group job portal'
+      id: 'cutshort' as keyof PlatformCredentialsData, 
+      name: 'Cutshort.io', 
+      color: 'bg-green-600', 
+      icon: '⚡',
+      description: 'Tech startup jobs and opportunities'
     }
   ];
 
