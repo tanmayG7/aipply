@@ -1,13 +1,12 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import Button from "@/components/common/button/button";
-import FrequentlyAskedQuestionSection from "@/components/common/frequentlyAskedQuestionSection/frequentlyAskedQuestionSection";
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import Footer from "@/components/common/footer/footer";
 import Image from "next/image";
-import { CheckIcon, ClockIcon, DocumentTextIcon, SparklesIcon, UserGroupIcon, ChartBarIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, ClockIcon, DocumentTextIcon, SparklesIcon, UserGroupIcon, ChartBarIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import ResumeAnalysisForm from "@/components/ui/resume-analysis-form";
 
 export default function ResumeAnalysis() {
@@ -42,11 +41,11 @@ export default function ResumeAnalysis() {
               <div className="flex flex-col custom-md:flex-row items-center gap-4 mt-6">
                 <div className="flex items-center gap-2">
                   <UserGroupIcon className="w-5 h-5 text-[#AE94FF]" />
-                  <span className="text-[#CECFD2] text-sm">Join 50,000+ job seekers</span>
+                  <span className="text-[#CECFD2] text-sm">Join 1000+ job seekers</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <ClockIcon className="w-5 h-5 text-[#AE94FF]" />
-                  <span className="text-[#CECFD2] text-sm">Analysis ready in 2 minutes</span>
+                  <span className="text-[#CECFD2] text-sm">Analysis ready in 60 seconds</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckIcon className="w-5 h-5 text-[#AE94FF]" />
@@ -54,8 +53,16 @@ export default function ResumeAnalysis() {
                 </div>
               </div>
 
-              {/* Privacy Statement */}
-              <div className="bg-[#1a1a1a] border border-[#333741] rounded-lg p-4 mt-4 max-w-2xl">
+            </div>
+
+            {/* Resume Analysis Form */}
+            <div className="flex justify-center">
+              <ResumeAnalysisForm />
+            </div>
+
+            {/* Privacy Statement */}
+            <div className="flex justify-center">
+              <div className="bg-[#1a1a1a] border border-[#333741] rounded-lg p-4 max-w-2xl">
                 <div className="flex items-center gap-2">
                   <CheckIcon className="w-4 h-4 text-green-400 flex-shrink-0" />
                   <p className="text-[#CECFD2] text-sm">
@@ -63,11 +70,6 @@ export default function ResumeAnalysis() {
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Resume Analysis Form */}
-            <div className="flex justify-center">
-              <ResumeAnalysisForm />
             </div>
           </div>
         </div>
@@ -143,7 +145,7 @@ export default function ResumeAnalysis() {
               <div className="bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#333741] rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-[#AE94FF] bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <SparklesIcon className="w-6 h-6 text-[#AE94FF]" />
+                    <MagnifyingGlassIcon className="w-6 h-6 text-[#AE94FF]" />
                   </div>
                   <h3 className="text-[#F5F5F6] text-xl font-semibold">Keyword Optimization</h3>
                 </div>
@@ -171,24 +173,7 @@ export default function ResumeAnalysis() {
 
       {/* FAQ Section */}
       <div className="pt-[100px]">
-        <ResponsivePageContainer>
-          <div className="px-[20px] custom-lg:px-[58px]">
-            <div className="text-center mb-16">
-              <h2 className="font-manrope text-[32px] custom-md:text-[48px] font-bold text-[#F5F5F6] mb-4">
-                Frequently Asked Questions
-              </h2>
-            </div>
-
-            <div className="max-w-4xl mx-auto space-y-6">
-              {resumeAnalysisFAQs.map((faq, index) => (
-                <div key={index} className="bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#333741] rounded-xl p-6">
-                  <h3 className="text-[#F5F5F6] text-lg font-semibold mb-3">{faq.question}</h3>
-                  <p className="text-[#CECFD2] text-sm leading-relaxed">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </ResponsivePageContainer>
+        <ResumeAnalysisFAQSection />
       </div>
 
       <Footer />
@@ -208,7 +193,7 @@ const resumeAnalysisFAQs = [
   },
   {
     question: "How long does the analysis take?",
-    answer: "Most analyses are completed within 60-120 seconds. Complex resumes with multiple pages may take slightly longer."
+    answer: "Most analyses are completed within 60 seconds. Complex resumes with multiple pages may take slightly longer."
   },
   {
     question: "Is my resume data secure?",
@@ -227,3 +212,74 @@ const resumeAnalysisFAQs = [
     answer: "Our AI provides data-driven suggestions, but you should always use your judgment. Consider the recommendations as guidance while keeping your unique situation and career goals in mind."
   }
 ];
+
+const ResumeAnalysisFAQSection: React.FC = () => {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  return (
+    <ResponsivePageContainer>
+      <div className="grid grid-cols-1 gap-12 custom-lg:gap-16 w-full py-24">
+        <h1 className="text-[36px] font-semibold leading-[44px] font-manrope text-[#F5F5F6] text-center">
+          Frequently asked questions
+        </h1>
+        <div className="flex flex-col gap-8">
+          {resumeAnalysisFAQs.map((faqItem, index) => (
+            <div key={index}>
+              <div
+                className={`flex flex-col ${
+                  activeIndex === index ? "bg-primary-25 " : ""
+                }`}
+              >
+                <div
+                  key={index}
+                  className={`flex flex-row justify-between text-left items-start w-full gap-2 pt-6 ${
+                    index !== 0 ? "border-t border-[#1F242F]" : ""
+                  }`}
+                  onClick={() => toggleFAQ(index)}
+                >
+                  <h2
+                    className="text-[18px] font-[500px] text-[#F5F5F6] cursor-pointer font-manrope"
+                    onClick={() => toggleFAQ(index)}
+                  >
+                    {faqItem.question}
+                  </h2>
+                  <button
+                    className="items-start w-6 h-6 flex-shrink-0"
+                    onClick={() => toggleFAQ(index)}
+                  >
+                    {activeIndex === index ? (
+                      <Image
+                        src="/static/icons/faqMinusBtn.svg"
+                        alt="Collapse"
+                        width={24}
+                        height={24}
+                      />
+                    ) : (
+                      <Image
+                        src="/static/icons/faqPlusBtn.svg"
+                        alt="Expand"
+                        width={24}
+                        height={24}
+                      />
+                    )}
+                  </button>
+                </div>
+                <div>
+                  {activeIndex === index && (
+                    <div className="text-[16px] font-normal font-manrope text-[#94969C] mt-2 text-start">
+                      {faqItem.answer}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </ResponsivePageContainer>
+  );
+};

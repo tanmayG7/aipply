@@ -171,7 +171,7 @@ export interface FeatureAccess {
 }
 
 export interface PlatformCredentialsData {
-  naukri?: {
+  foundit?: {
     email: string;
     password: string;
   };
@@ -179,11 +179,7 @@ export interface PlatformCredentialsData {
     email: string;
     password: string;
   };
-  shine?: {
-    email: string;
-    password: string;
-  };
-  timesjobs?: {
+  cutshort?: {
     email: string;
     password: string;
   };

@@ -46,15 +46,9 @@ export default function Home() {
                   that your AI agent can apply on your behalf.
                 </p>
 
-                {/* Resume Analysis CTA */}
-                <div className="flex flex-col custom-md:flex-row gap-4 items-center mt-8">
+                <div className="flex justify-center mt-8">
                   <Link href="/dashboard/onboarding/login">
                     <Button text="Start Job Search" />
-                  </Link>
-                  <Link href="/resume-analysis">
-                    <button className="px-6 py-3 border border-[#AE94FF] text-[#AE94FF] rounded-lg hover:bg-[#AE94FF] hover:text-white transition-all duration-200 font-manrope font-medium">
-                      Analyze Your Resume
-                    </button>
                   </Link>
                 </div>
               </div>
