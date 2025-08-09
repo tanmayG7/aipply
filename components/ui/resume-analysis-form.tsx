@@ -7,6 +7,7 @@ import { auth, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { UserDetails } from '@/lib/types';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { parsePhoneNumber, formatPhoneNumber } from '@/lib/countryCodes';
+import { AnimatedProductShowcase } from '@/components/ui/animated-product-showcase';
 import {
   DocumentTextIcon,
   CloudArrowUpIcon,
@@ -281,7 +282,13 @@ export default function ResumeAnalysisForm() {
   };
 
   return (
-    <div className="shadow-input mx-auto w-full max-w-2xl rounded-2xl bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#333741] p-8">
+    <>
+      {/* Animated Product Showcase - Shows during processing */}
+      <AnimatedProductShowcase 
+        isVisible={submissionStatus === 'submitting'}
+      />
+      
+      <div className="shadow-input mx-auto w-full max-w-2xl rounded-2xl bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#333741] p-8">
       {/* Progress Indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
@@ -679,6 +686,7 @@ export default function ResumeAnalysisForm() {
         </div>
       )}
     </div>
+    </>
   );
 }
 
