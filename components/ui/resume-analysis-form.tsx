@@ -614,24 +614,68 @@ export default function ResumeAnalysisForm() {
 
       {/* Submission Status Display */}
       {submissionStatus !== 'idle' && (
-        <div className={cn(
-          "mt-6 p-4 rounded-lg border flex items-center gap-3",
-          submissionStatus === 'success' 
-            ? "bg-green-900 bg-opacity-20 border-green-500 text-green-400"
-            : submissionStatus === 'error'
-            ? "bg-red-900 bg-opacity-20 border-red-500 text-red-400" 
-            : "bg-[#AE94FF] bg-opacity-20 border-[#AE94FF] text-[#AE94FF]"
-        )}>
-          {submissionStatus === 'submitting' && (
-            <div className="w-5 h-5 border-2 border-[#AE94FF] border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
-          )}
+        <div className="mt-6 space-y-4">
+          <div className={cn(
+            "p-4 rounded-lg border flex items-center gap-3",
+            submissionStatus === 'success' 
+              ? "bg-green-900 bg-opacity-20 border-green-500 text-green-400"
+              : submissionStatus === 'error'
+              ? "bg-red-900 bg-opacity-20 border-red-500 text-red-400" 
+              : "bg-[#AE94FF] bg-opacity-20 border-[#AE94FF] text-[#AE94FF]"
+          )}>
+            {submissionStatus === 'submitting' && (
+              <div className="w-5 h-5 border-2 border-[#AE94FF] border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+            )}
+            {submissionStatus === 'success' && (
+              <CheckCircleIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
+            )}
+            {submissionStatus === 'error' && (
+              <ExclamationTriangleIcon className="w-5 h-5 text-red-400 flex-shrink-0" />
+            )}
+            <p className="text-sm">{submissionMessage}</p>
+          </div>
+
+          {/* Community CTA - Only show after successful submission */}
           {submissionStatus === 'success' && (
-            <CheckCircleIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
+            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#333741] rounded-xl p-6 text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-[#AE94FF] bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🎉</span>
+                </div>
+                <h3 className="text-[#F5F5F6] text-lg font-semibold">
+                  Join Our Community!
+                </h3>
+              </div>
+              
+              <p className="text-[#CECFD2] text-sm mb-4 leading-relaxed">
+                Get exclusive job tips, networking opportunities, and early access to new features. 
+                Connect with 1000+ professionals advancing their careers.
+              </p>
+              
+              <a 
+                href="https://www.tinyurl.com/aipplyjobcommunity" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-block"
+              >
+                <button className="font-medium text-[16px] border-[#5D29FF] text-white border rounded-full px-6 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:from-[#4A9FEF] hover:to-[#5323EF] transition-all duration-200 shadow-lg">
+                  Join the AiPply Community
+                </button>
+              </a>
+              
+              <div className="flex items-center justify-center gap-6 mt-4 text-xs text-[#94969C]">
+                <span className="flex items-center gap-1">
+                  ✨ Insider Tips
+                </span>
+                <span className="flex items-center gap-1">
+                  🤝 Networking
+                </span>
+                <span className="flex items-center gap-1">
+                  🚀 Early Access
+                </span>
+              </div>
+            </div>
           )}
-          {submissionStatus === 'error' && (
-            <ExclamationTriangleIcon className="w-5 h-5 text-red-400 flex-shrink-0" />
-          )}
-          <p className="text-sm">{submissionMessage}</p>
         </div>
       )}
     </div>
