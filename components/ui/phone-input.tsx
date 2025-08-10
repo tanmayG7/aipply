@@ -4,6 +4,9 @@ import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
 import { countryCodes, CountryCode } from "@/lib/countryCodes";
 
+// Pattern to allow only digits, spaces, hyphens, parentheses
+const PHONE_NUMBER_PATTERN = /[^0-9\s\-()]/g;
+
 interface PhoneInputProps {
   countryCode: string;
   phoneNumber: string;
