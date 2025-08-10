@@ -35,11 +35,10 @@ const whyAutomateData = [
 const AutoApply = () => {
   return (
     <div>
-      <div className="pt-7">
-        <Header />
-      </div>
-
-      <div className="pt-[51px]">
+      <Header />
+      
+      <main className="pt-20 md:pt-24">
+        <div className="pt-[31px]">
         <div className="absolute w-full h-[1022px] top-[134px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-50 blur-[300px] backdrop-blur-[400px] rounded-full"></div>
         <HeroSection
           image="/static/images/autoapply.jpeg"
@@ -147,9 +146,10 @@ const AutoApply = () => {
         </div>
       </ResponsivePageContainer>
 
-      <div className="mt-[215px] bg-[#111111]">
-        <FrequentlyAskedQuestionSection />
-      </div>
+        <div className="mt-[215px] bg-[#111111]">
+          <FrequentlyAskedQuestionSection />
+        </div>
+      </main>
 
       <Footer />
 
