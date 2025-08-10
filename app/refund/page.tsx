@@ -4,7 +4,7 @@ import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import Footer from "@/components/common/footer/footer";
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
-
+{/* Baads */}
 export default function CancellationAndRefundPolicy() {
   useEffect(() => {
     // Scroll to top when component mounts
