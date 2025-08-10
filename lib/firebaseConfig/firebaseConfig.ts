@@ -818,7 +818,7 @@ const getUpdatedJobsPaginated = async (
     // const currentJobsData = await getCurrentJobs(userId);
     // let allJobIds: string[] = [];
     // let useCache = false;
-    // let debugInfo = null;
+    let debugInfo = null;
 
     // console.log(`[getUpdatedJobsPaginated] Cached data exists: ${!!currentJobsData}`);
 
