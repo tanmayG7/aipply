@@ -15,8 +15,10 @@ const HomePage: React.FC = () => {
     >
       <AppSidebar />
       <SidebarInset className="flex flex-col">
-        <div className="flex flex-1 flex-col p-6 relative bg-[#020218] text-white">
-          <EditProfile />
+        <div className="flex flex-1 flex-col p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <EditProfile />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

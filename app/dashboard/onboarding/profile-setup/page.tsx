@@ -211,43 +211,44 @@ export default function ProfileSetup() {
           content="Set up your profile to apply for jobs on Aipply."
         />
       </Head>
-      <div className="h-screen flex items-center justify-center bg-[#020218]">
-        <div className="flex flex-col gap-[60px]">
+      <div className="min-h-screen flex items-center justify-center bg-[#020218] p-4 overflow-x-hidden">
+        <div className="flex flex-col gap-8 sm:gap-12 lg:gap-[60px] w-full max-w-4xl mx-auto">
           <div
-            className={`flex gap-4 relative left-1/2 transform -translate-x-1/2 items-center justify-center md:max-w-[520px] w-full ${getTopPosition()}`}
+            className={`flex gap-2 sm:gap-4 relative left-1/2 transform -translate-x-1/2 items-center justify-center max-w-[320px] sm:max-w-[400px] lg:max-w-[520px] w-full ${getTopPosition()}`}
           >
             {[...Array(6)].map((_, index) => (
               <div
                 key={index}
-                className={`w-[10%] p-[2px] ${
+                className={`w-[10%] p-[1px] sm:p-[2px] ${
                   page - 1 > index ? "bg-[#5D29FF]" : "bg-white"
                 }`}
               ></div>
             ))}
           </div>
-          <Card className="text-white flex flex-col md:gap-[80px] gap-10">
-            <CardHeader className="flex flex-col gap-10 text-center items-center md:min-w-[594px] w-full">
+          <Card className="text-white flex flex-col gap-6 sm:gap-10 lg:gap-[80px] w-full">
+            <CardHeader className="flex flex-col gap-6 sm:gap-10 text-center items-center w-full px-4 sm:px-6">
               <Image
                 src={"/static/icons/aipplyLogo.svg"}
                 alt="Aipply Logo"
-                width={224}
-                height={76}
+                width={168}
+                height={57}
+                className="sm:w-[200px] sm:h-[68px] lg:w-[224px] lg:h-[76px]"
               />
               <div className="grid grid-cols-1 gap-3">
-                <CardTitle className="text-display-sm-semibold font-inter">
-                  {" Welcome! Let's create your profile"}
+                <CardTitle className="text-lg sm:text-xl lg:text-display-sm-semibold font-inter">
+                  Welcome! Let's create your profile
                 </CardTitle>
-                <div className="text-text-md-regular font-inter text-[#94969C]">
+                <div className="text-sm sm:text-base lg:text-text-md-regular font-inter text-[#94969C]">
                   Apply privately to thousands of tech companies and start-ups
                   with one profile.
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="md:w-[80%] w-full m-auto">
+            <CardContent className="w-full px-4 sm:px-6 lg:w-[80%] lg:mx-auto">
               <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                 {page === 1 && (
                   <div className="grid gap-6">
-                    <div className="grid grid-cols-2 md:gap-6 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div className="grid gap-2">
                         <Label htmlFor="firstName">First Name</Label>
                         <Input
@@ -559,9 +560,9 @@ export default function ProfileSetup() {
                     </div>
                   </div>
                 )}
-                <div className="flex justify-between gap-16">
+                <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-16">
                   {page > 1 && (
-                    <Button type="button" onClick={handleBack}>
+                    <Button type="button" onClick={handleBack} className="w-full sm:w-auto h-12">
                       <Image
                         src="/static/icons/arrow-left.svg"
                         alt="Back"
@@ -572,17 +573,17 @@ export default function ProfileSetup() {
                     </Button>
                   )}
                   {page < 6 ? (
-                    <Button type="button" onClick={handleNext}>
+                    <Button type="button" onClick={handleNext} className="w-full sm:w-auto h-12">
                       Next
                       <Image
                         src="/static/icons/arrow-right.svg"
-                        alt="Back"
+                        alt="Next"
                         width={24}
                         height={24}
                       />
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} className="w-full sm:w-auto h-12">
                       {loading ? "Submitting..." : "Submit"}
                     </Button>
                   )}

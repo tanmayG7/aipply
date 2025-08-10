@@ -128,37 +128,39 @@ const JobTrackerPage: React.FC = () => {
       }
     >
       <AppSidebar />
-      <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden">
+      <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden bg-[#020218] text-white">
         {loading ? ( // Conditionally render loading message
           <JobTrackerShimmer />
         ) : (
-          <div className="flex flex-1 flex-col gap-4 pl-6 pr-14 pt-4 relative text-white">
-            <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-4">
-              <div className="gap-2">
-                <h1 className="font-inter text-[#ECECED] font-bold text-[40px]">
-                  Tracker
-                </h1>
-                <p className="font-inter text-[#ECECED] text-[14px] font-normal text-text-sm-semibold">
-                  All your applied jobs will appear here for you to track every
-                  step.
-                </p>
-              </div>
+          <div className="flex flex-1 flex-col gap-4 p-4 lg:pl-6 lg:pr-14 lg:pt-4 relative">
+            <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-0 items-start lg:items-center">
+                <div className="gap-2">
+                  <h1 className="font-inter text-[#ECECED] font-bold text-2xl sm:text-3xl lg:text-[40px]">
+                    Tracker
+                  </h1>
+                  <p className="font-inter text-[#ECECED] text-[14px] font-normal text-text-sm-semibold">
+                    All your applied jobs will appear here for you to track every
+                    step.
+                  </p>
+                </div>
 
-              <div className="flex flex-row gap-2 justify-start lg:justify-end">
-                <input
-                  type="text"
-                  className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
-                  placeholder="Search jobs"
-                />
-                <button className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit">
-                  <Image
-                    src="/static/icons/filter.svg"
-                    alt="Search"
-                    width={20}
-                    height={20}
+                <div className="flex flex-col sm:flex-row gap-2 justify-start lg:justify-end w-full lg:w-auto">
+                  <input
+                    type="text"
+                    className="border border-[#454545] bg-[#020218] text-white w-full sm:w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-0 sm:min-w-[280px]"
+                    placeholder="Search jobs"
                   />
-                  Filter
-                </button>
+                  <button className="flex bg-blue-500 text-white py-1 px-6 sm:px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit flex-shrink-0">
+                    <Image
+                      src="/static/icons/filter.svg"
+                      alt="Search"
+                      width={20}
+                      height={20}
+                    />
+                    <span className="hidden sm:inline">Filter</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -166,9 +168,9 @@ const JobTrackerPage: React.FC = () => {
         <div
           {...events}
           ref={ref} // add reference and events to the wrapping div
-          className="flex h-full m-4 overflow-x-scroll scrollbar-hide"
+          className="flex h-full m-2 lg:m-4 overflow-x-auto scrollbar-hide"
         >
-          <div className="flex flex-nowrap gap-6">
+          <div className="flex flex-nowrap gap-3 sm:gap-4 lg:gap-6">
             {[
               {
                 columnId: "personalArchive",
@@ -199,18 +201,18 @@ const JobTrackerPage: React.FC = () => {
               .map(({ title, jobs, icon, columnId }) => (
                 <section
                   key={title}
-                  className="flex flex-col p-3 rounded-lg"
+                  className="flex flex-col p-2 sm:p-3 rounded-lg min-w-[280px] sm:min-w-[320px] lg:min-w-[360px] flex-shrink-0"
                   style={{ height: `${columnHeight}px` }}
                 >
-                  <div className="flex items-center gap-3 border-b border-[#454545] pb-2">
-                    <Image src={icon} alt={title} width={24} height={24} />
-                    <h2 className="text-[#ECECED] text-text-md-semibold ">
+                  <div className="flex items-center gap-2 sm:gap-3 border-b border-[#454545] pb-2">
+                    <Image src={icon} alt={title} width={20} height={20} className="sm:w-6 sm:h-6" />
+                    <h2 className="text-[#ECECED] text-sm sm:text-text-md-semibold font-semibold truncate">
                       {title} ({jobs.length})
                     </h2>
                   </div>
 
-                  <div className="overflow-y-auto scrollbar-hide mt-4">
-                    <div className=" space-y-4">
+                  <div className="overflow-y-auto scrollbar-hide mt-3 sm:mt-4">
+                    <div className="space-y-3 sm:space-y-4">
                       {jobs.map((job: Job) => (
                         <JobTrackerGridCard
                           key={job.id}
