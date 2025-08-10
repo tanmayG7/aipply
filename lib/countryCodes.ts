@@ -118,7 +118,7 @@ export const parsePhoneNumber = (fullNumber: string): { countryCode: string; pho
   }
 
   // Default to India if no match found
-  return { countryCode: "+91", phoneNumber: fullNumber.substring(1) };
+  return { countryCode: DEFAULT_COUNTRY_CODE, phoneNumber: fullNumber.substring(1) };
 };
 
 // Helper function to format phone number
