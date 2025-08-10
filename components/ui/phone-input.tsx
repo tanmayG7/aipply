@@ -59,7 +59,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^\d\s\-().]/g, ''); // Allow only digits, spaces, hyphens, parentheses
+    const value = e.target.value.replace(PHONE_NUMBER_PATTERN, ''); // Allow only digits, spaces, hyphens, parentheses
     onPhoneNumberChange(value);
   };
 

@@ -75,6 +75,7 @@ export interface UserDetails {
   endDate?: string;
   firstName?: string;
   lastName?: string;
+  phone?: string;
   platformCredentials?: PlatformCredentialsData;
 }
 

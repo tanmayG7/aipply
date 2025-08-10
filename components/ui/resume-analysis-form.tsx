@@ -273,7 +273,7 @@ export default function ResumeAnalysisForm() {
 
   // Check if user has selected any preferences
   const checkPreferencesSelected = () => {
-    const hasPreferences = formData.targetRole || formData.experienceLevel || formData.focusAreas.length > 0;
+    const hasPreferences = !!formData.targetRole || !!formData.experienceLevel || formData.focusAreas.length > 0;
     setHasSelectedPreferences(hasPreferences);
   };
 
