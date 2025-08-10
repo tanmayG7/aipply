@@ -870,7 +870,15 @@ const getUpdatedJobsPaginated = async (
 
       debugInfo = result.debugInfo;
       const fetchedJobs = result.jobs;
-      allJobIds = fetchedJobs.map((job: any) => job.jobId).filter(Boolean); // Filter out null/undefined jobIds
+      allJobIds = fetchedJobs.map((job: any) => {
+        const jobId = job.jobId || job.id || job._id?.toString();
+        if (!jobId) {
+          console.warn('Job missing ID:', job);
+        }
+        return jobId;
+      }).filter(Boolean);
+      
+      console.log(`[DEBUG] Extracted ${allJobIds.length} job IDs from ${fetchedJobs.length} jobs`);
       
       console.log(`[getUpdatedJobsPaginated] Fetched ${fetchedJobs.length} jobs, got ${allJobIds.length} job IDs`);
       
