@@ -6,7 +6,7 @@ import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-
+/*fdskfldsk;fl*/
 const AboutUsPage = () => {
   return (
     <div className="bg-[#000000] relative overflow-hidden">
