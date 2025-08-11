@@ -40,7 +40,7 @@ export default function Home() {
                   <h1 className="font-manrope text-[40px] custom-md:text-[60px] custom-md:leading-[72px] font-bold custom-md:font-semibold text-[#F5F5F6] text-center">
                     Find Jobs with the power of AI!
                   </h1>
-                  <p className="font-manrope font-normal text-[20px] laeding[30px] text-[#CECFD2] text-center">
+                  <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[28px] custom-md:leading-[30px] text-[#CECFD2] text-center px-4">
                     Automate your job search with customized jobs from top portals
                     that your AI agent can apply on your behalf.
                   </p>

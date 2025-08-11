@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter, Manrope } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -29,6 +29,12 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "Aipply - Your Job Search Companion",
   description: "Aipply helps you apply privately to thousands of tech companies and start-ups with one profile.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
