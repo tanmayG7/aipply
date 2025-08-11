@@ -440,31 +440,30 @@ export const getJobsByIds = async (
  }
 
   return jobs.slice(0, 20).map((job) => ({
-    _id: job._id.toString(),
-    id: job.id.toString(),
-    jobId: job.id,
-    title: job.title,
-    company: job.company,
-    salary: job.salary,
-    location: job.location,
-    role: job.role,
-    description: job.description,
-    requirements: job.requirements,
-    benefits: job.benefits,
-    postedDate: job.postedDate,
-    applyLink: job.applyLink,
-    experience: job.experience,
-    recruiter: job.recruiter,
-    jobUrl: job.jobUrl,
-    platform: job.platform,
-    logoUrl: job.logoUrl,
-    tags: job.tags,
-    type: job.type,
-    // Add these fuzzy properties to prevent server errors
+    _id: job._id?.toString() || '',
+    id: job.id?.toString() || job._id?.toString() || '',
+    jobId: job.id || job._id?.toString() || '',
+    title: job.title || 'No Title',
+    company: job.company || 'Unknown Company',
+    salary: job.salary || [],
+    location: job.location || 'Remote',
+    role: job.role || '',
+    description: job.description || '',
+    requirements: job.requirements || [],
+    benefits: job.benefits || [],
+    postedDate: job.postedDate || new Date().toISOString(),
+    applyLink: job.applyLink || '',
+    experience: job.experience || [],
+    recruiter: job.recruiter || '',
+    jobUrl: job.jobUrl || '',
+    platform: job.platform || 'Unknown',
+    logoUrl: job.logoUrl || '',
+    tags: job.tags || [],
+    type: job.type || 'Full-time',
     fuzzyScore: job.fuzzyScore || 0,
     matchedSkills: job.matchedSkills || [],
     matchType: job.matchType || 'exact'
-  })) as Job[];
+  })).filter(job => job.id && job.jobId); // Remove jobs with missing IDs
 };
 
 // NEW PAGINATED VERSION OF getJobsByIds
