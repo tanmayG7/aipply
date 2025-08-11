@@ -806,9 +806,9 @@ const getUpdatedJobsPaginated = async (
     const currentDate = new Date().toISOString().split("T")[0];
     
     // TEMPORARY: Force cache clear to fix 500 error
-    console.log('🔧 Temporarily forcing cache clear');
-    const currentJobsData = await getCurrentJobs(userId);
-    let useCache = false;
+    // console.log('🔧 Temporarily forcing cache clear');
+    // const currentJobsData = await getCurrentJobs(userId);
+    // let useCache = false;
     
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found in user profile");
