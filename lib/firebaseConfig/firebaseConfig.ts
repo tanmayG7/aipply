@@ -805,30 +805,35 @@ const getUpdatedJobsPaginated = async (
     
     const currentDate = new Date().toISOString().split("T")[0];
     
+    // TEMPORARY: Force cache clear to fix 500 error
+    console.log('🔧 Temporarily forcing cache clear');
+    const currentJobsData = null;
+    let useCache = false;
+    
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found in user profile");
     }
 
-    // Get cached jobs data
-    const currentJobsData = await getCurrentJobs(userId);
-    let allJobIds: string[] = [];
-    let useCache = false;
+    // // Get cached jobs data
+    // const currentJobsData = await getCurrentJobs(userId);
+    // let allJobIds: string[] = [];
+    // let useCache = false;
     let debugInfo = null;
 
-    console.log(`[getUpdatedJobsPaginated] Cached data exists: ${!!currentJobsData}`);
+    // console.log(`[getUpdatedJobsPaginated] Cached data exists: ${!!currentJobsData}`);
 
-    // Check if we can use cached data (from today)
-    if (
-      currentJobsData &&
-      currentJobsData.jobs &&
-      currentJobsData.jobs.length > 0 &&
-      currentJobsData.lastFetchedDate &&
-      currentJobsData.lastFetchedDate.split("T")[0] === currentDate
-    ) {
-      allJobIds = currentJobsData.jobs;
-      useCache = true;
-      console.log(`[getUpdatedJobsPaginated] Using cached data with ${allJobIds.length} jobs`);
-    }
+    // // Check if we can use cached data (from today)
+    // if (
+    //   currentJobsData &&
+    //   currentJobsData.jobs &&
+    //   currentJobsData.jobs.length > 0 &&
+    //   currentJobsData.lastFetchedDate &&
+    //   currentJobsData.lastFetchedDate.split("T")[0] === currentDate
+    // ) {
+    //   allJobIds = currentJobsData.jobs;
+    //   useCache = true;
+    //   console.log(`[getUpdatedJobsPaginated] Using cached data with ${allJobIds.length} jobs`);
+    // }
 
     // If no cache or cache is old, fetch new jobs
     if (!useCache) {
@@ -870,7 +875,15 @@ const getUpdatedJobsPaginated = async (
 
       debugInfo = result.debugInfo;
       const fetchedJobs = result.jobs;
-      allJobIds = fetchedJobs.map((job: any) => job.jobId).filter(Boolean); // Filter out null/undefined jobIds
+      allJobIds = fetchedJobs.map((job: any) => {
+        const jobId = job.jobId || job.id || job._id?.toString();
+        if (!jobId) {
+          console.warn('Job missing ID:', job);
+        }
+        return jobId;
+      }).filter(Boolean);
+      
+      console.log(`[DEBUG] Extracted ${allJobIds.length} job IDs from ${fetchedJobs.length} jobs`);
       
       console.log(`[getUpdatedJobsPaginated] Fetched ${fetchedJobs.length} jobs, got ${allJobIds.length} job IDs`);
       

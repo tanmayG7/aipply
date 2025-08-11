@@ -460,6 +460,10 @@ export const getJobsByIds = async (
     logoUrl: job.logoUrl,
     tags: job.tags,
     type: job.type,
+    // Add these fuzzy properties to prevent server errors
+    fuzzyScore: job.fuzzyScore || 0,
+    matchedSkills: job.matchedSkills || [],
+    matchType: job.matchType || 'exact'
   })) as Job[];
 };
 
