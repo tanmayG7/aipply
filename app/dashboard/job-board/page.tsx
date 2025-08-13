@@ -502,18 +502,23 @@ export default function Page() {
               )}
 
                 {showFilterCard && (
-                  <div className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm">
-                    <FilterCard
-                      jobs={jobs}
-                      setFilteredJobs={handleFilterApplied}
-                      salaryRange={salaryRange}
-                      setSalaryRange={setSalaryRange}
-                      experience={experience}
-                      setExperience={setExperience}
-                      jobType={jobType}
-                      setJobType={setJobType}
-                      onClose={handleFilterCancel}
-                    />
+                  <div 
+                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex justify-end"
+                    onClick={handleFilterCancel}
+                  >
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <FilterCard
+                        jobs={jobs}
+                        setFilteredJobs={handleFilterApplied}
+                        salaryRange={salaryRange}
+                        setSalaryRange={setSalaryRange}
+                        experience={experience}
+                        setExperience={setExperience}
+                        jobType={jobType}
+                        setJobType={setJobType}
+                        onClose={handleFilterCancel}
+                      />
+                    </div>
                   </div>
                 )}
 
