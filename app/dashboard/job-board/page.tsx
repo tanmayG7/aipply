@@ -445,38 +445,41 @@ export default function Page() {
             {/* Show main content when no error */}
             {!error && (
               <>
-                <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-0 items-start lg:items-center">
-                  <h1 className="text-inter font-bold text-2xl sm:text-3xl lg:text-[40px] text-[#ECECED]">
-                    {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
-                  </h1>
-                  <div className="flex flex-col sm:flex-row gap-2 justify-start lg:justify-end w-full lg:w-auto">
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h1 className="text-inter font-bold text-xl sm:text-2xl lg:text-[40px] text-[#ECECED]">
+                      {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
+                    </h1>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full">
                     <input
                       type="text"
-                      className="border border-[#454545] bg-[#020218] text-white w-full sm:w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-0 sm:min-w-[280px]"
+                      className="border border-[#454545] bg-[#020218] text-white w-full py-2 px-4 text-start rounded-md h-11 text-sm sm:text-base"
                       value={filter}
                       onChange={handleFilterChange}
                       placeholder="Search jobs (debounced)"
                     />
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 sm:gap-3">
                       <button
                         onClick={handleFilterClick}
-                        className="flex bg-blue-500 text-white py-1 px-6 sm:px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit flex-shrink-0"
+                        className="flex bg-blue-500 text-white py-2 px-4 sm:px-6 rounded-md justify-center items-center gap-2 border border-[#454545] h-11 flex-1 sm:flex-initial min-w-[80px]"
                       >
                         <Image
                           src="/static/icons/filter.svg"
-                          alt="Search"
-                          width={20}
-                          height={20}
+                          alt="Filter"
+                          width={18}
+                          height={18}
+                          className="sm:w-5 sm:h-5"
                         />
-                        <span className="hidden sm:inline">Filter</span>
+                        <span className="text-sm sm:text-base">Filter</span>
                       </button>
                       <button
                         onClick={forceRestart}
-                        className="flex bg-gray-600 text-white py-1 px-4 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit flex-shrink-0"
+                        className="flex bg-gray-600 text-white py-2 px-3 sm:px-4 rounded-md justify-center items-center border border-[#454545] h-11 w-11 flex-shrink-0"
                         title="Force restart if jobs don't load"
                         disabled={loading || pageLoading}
                       >
-                        🔄
+                        <span className="text-sm">🔄</span>
                       </button>
                     </div>
                   </div>
@@ -484,7 +487,7 @@ export default function Page() {
 
               {/* Page info */}
               {totalJobs > 0 && (
-                <div className="text-sm text-white">
+                <div className="text-xs sm:text-sm text-white opacity-80">
                   Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
                 </div>
               )}
