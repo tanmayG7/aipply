@@ -2,7 +2,7 @@
 
 import { AppSidebar } from "@/components/app-sidebar";
 import JobCard from "@/components/card/jobCard/jobCard";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Job, UserDetails } from "@/lib/types";
@@ -24,6 +24,20 @@ import withReactContent from 'sweetalert2-react-content'
 
 const JOBS_PER_PAGE = 20;
 const MAX_TOTAL_JOBS = 100;
+
+const MobileTrigger = () => {
+  const { openMobile } = useSidebar();
+  
+  if (openMobile) return null; // Hide when mobile sidebar is open
+  
+  return (
+    <div className="lg:hidden fixed top-6 right-4 z-50">
+      <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
+        <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
+      </div>
+    </div>
+  );
+};
 
 // Pagination component
 const PaginationControls: React.FC<{
@@ -403,12 +417,7 @@ export default function Page() {
       <AppSidebar />
       <SidebarInset>
         <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 pt-4 relative overflow-x-hidden bg-[#020218] text-white">
-          {/* Mobile Navigation Trigger */}
-          <div className="lg:hidden fixed top-6 right-4 z-50">
-            <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
-              <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
-            </div>
-          </div>
+          <MobileTrigger />
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Show error with retry option */}
             {error && (
@@ -493,7 +502,7 @@ export default function Page() {
               )}
 
                 {showFilterCard && (
-                  <div className="fixed inset-0 z-60 flex justify-center items-center opacity-100 lg:absolute">
+                  <div className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm">
                     <FilterCard
                       jobs={jobs}
                       setFilteredJobs={handleFilterApplied}
@@ -508,7 +517,7 @@ export default function Page() {
                   </div>
                 )}
 
-                <div className={`flex flex-col gap-4 cursor-pointer ${showFilterCard ? "opacity-20" : ""} ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
+                <div className={`flex flex-col gap-4 cursor-pointer ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
                   {pageLoading ? (
                     <div className="flex justify-center items-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>

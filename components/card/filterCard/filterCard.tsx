@@ -160,11 +160,11 @@ const FilterCard: React.FC<FilterCardProps> = ({
   return (
     <div>
       <div
-        className="fixed top-0 right-0 w-[300px] h-full bg-[#0C111D] shadow-lg min-w-[443px] px-8 py-8 z-50 flex flex-col gap-8"
+        className="fixed top-0 right-0 w-[90vw] sm:w-[400px] lg:w-[443px] h-full bg-[#0C111D] shadow-2xl px-4 sm:px-8 py-6 sm:py-8 z-50 flex flex-col gap-6 sm:gap-8 border-l-2 border-gray-600"
         style={{
-          borderTopLeftRadius: "40px",
-          borderBottomLeftRadius: "40px",
-          borderLeft: "2px solid rgba(255, 255, 255, 0.6)",
+          borderTopLeftRadius: "20px",
+          borderBottomLeftRadius: "20px",
+          background: "linear-gradient(135deg, #0C111D 0%, #1a1f2e 100%)",
         }}
       >
         <div className="flex justify-between items-center">

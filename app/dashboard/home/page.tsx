@@ -3,7 +3,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import DashboardCard from "@/components/card/DashboardCard/DashboardCard";
 import { DashboardChart } from "@/components/charts/pieCharts";
 import { Button } from "@/components/ui/button";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
@@ -20,6 +20,20 @@ const debugLog = (message: string, data?: any) => {
   if (DEBUG) {
     console.log(`🏠 HomePage: ${message}`, data || '');
   }
+};
+
+const MobileTrigger = () => {
+  const { openMobile } = useSidebar();
+  
+  if (openMobile) return null; // Hide when mobile sidebar is open
+  
+  return (
+    <div className="lg:hidden fixed top-6 right-4 z-50">
+      <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
+        <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
+      </div>
+    </div>
+  );
 };
 
 const HomePage: React.FC = () => {
@@ -118,12 +132,7 @@ useEffect(() => {
           <AppSidebar />
           <SidebarInset>
             <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
-              {/* Mobile Navigation Trigger */}
-              <div className="lg:hidden fixed top-6 right-4 z-50">
-                <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
-                  <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
-                </div>
-              </div>
+              <MobileTrigger />
               <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="text-center py-8">
                   <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
@@ -161,12 +170,7 @@ useEffect(() => {
         
         <SidebarInset>
           <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
-            {/* Mobile Navigation Trigger */}
-            <div className="lg:hidden fixed top-6 right-4 z-50">
-              <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
-                <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
-              </div>
-            </div>
+            <MobileTrigger />
             <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               {loading ? (
                 <HomeShimmer />

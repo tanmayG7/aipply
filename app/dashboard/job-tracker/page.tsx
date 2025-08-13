@@ -1,7 +1,7 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import JobTrackerGridCard from "@/components/card/jobTrackerCard/jobTrackerGridCard";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import { useDraggable } from "react-use-draggable-scroll";
@@ -14,6 +14,20 @@ import { getJobsByIds } from "@/lib/mongo/mongo";
 import { Job } from "@/lib/types";
 import { onAuthStateChanged } from "firebase/auth"; // Import onAuthStateChanged
 import { JobTrackerShimmer } from "@/components/loaders/loader";
+
+const MobileTrigger = () => {
+  const { openMobile } = useSidebar();
+  
+  if (openMobile) return null; // Hide when mobile sidebar is open
+  
+  return (
+    <div className="lg:hidden fixed top-6 right-4 z-50">
+      <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
+        <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
+      </div>
+    </div>
+  );
+};
 
 const JobTrackerPage: React.FC = () => {
   const [appliedJobs, setAppliedJobs] = useState<Job[]>([]);
@@ -130,12 +144,7 @@ const JobTrackerPage: React.FC = () => {
       <AppSidebar />
       <SidebarInset>
         <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden bg-[#020218] text-white">
-          {/* Mobile Navigation Trigger */}
-          <div className="lg:hidden fixed top-6 right-4 z-50">
-            <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
-              <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
-            </div>
-          </div>
+          <MobileTrigger />
         {loading ? ( // Conditionally render loading message
           <JobTrackerShimmer />
         ) : (
