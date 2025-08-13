@@ -806,34 +806,45 @@ const getUpdatedJobsPaginated = async (
     const currentDate = new Date().toISOString().split("T")[0];
     
     // TEMPORARY: Force cache clear to fix 500 error
-    console.log('🔧 Temporarily forcing cache clear');
-    const currentJobsData = null;
-    let useCache = false;
+    // console.log('🔧 Temporarily forcing cache clear');
+    // const currentJobsData = await getCurrentJobs(userId);
+    // let useCache = false;
     
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found in user profile");
     }
 
     // // Get cached jobs data
-    // const currentJobsData = await getCurrentJobs(userId);
-    // let allJobIds: string[] = [];
-    // let useCache = false;
+    const currentJobsData = await getCurrentJobs(userId);
+    let allJobIds: string[] = [];
+    let useCache = false;
     let debugInfo = null;
 
-    // console.log(`[getUpdatedJobsPaginated] Cached data exists: ${!!currentJobsData}`);
+    console.log(`[getUpdatedJobsPaginated] Cached data exists: ${!!currentJobsData}`);
 
-    // // Check if we can use cached data (from today)
-    // if (
-    //   currentJobsData &&
-    //   currentJobsData.jobs &&
-    //   currentJobsData.jobs.length > 0 &&
-    //   currentJobsData.lastFetchedDate &&
-    //   currentJobsData.lastFetchedDate.split("T")[0] === currentDate
-    // ) {
-    //   allJobIds = currentJobsData.jobs;
-    //   useCache = true;
-    //   console.log(`[getUpdatedJobsPaginated] Using cached data with ${allJobIds.length} jobs`);
-    // }
+    // Check if we can use cached data (from today)
+    if (
+      currentJobsData &&
+      currentJobsData.jobs &&
+      currentJobsData.jobs.length > 0 &&
+      currentJobsData.lastFetchedDate &&
+      currentJobsData.lastFetchedDate.split("T")[0] === currentDate
+    ) {
+      // ADD THIS VALIDATION:
+      const hasValidJobIds = currentJobsData.jobs.every((jobId: string) => 
+        jobId && typeof jobId === 'string' && jobId.length > 0
+      );
+      
+      if (hasValidJobIds) {
+        allJobIds = currentJobsData.jobs;
+        useCache = true;
+        console.log(`[getUpdatedJobsPaginated] Using validated cached data with ${allJobIds.length} jobs`);
+      } else {
+        console.log(`[getUpdatedJobsPaginated] Cache has corrupted job IDs, fetching fresh data`);
+        useCache = false;
+      }
+    }
+
 
     // If no cache or cache is old, fetch new jobs
     if (!useCache) {
