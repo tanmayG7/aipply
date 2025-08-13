@@ -154,6 +154,17 @@ export default function Page() {
   const [jobType, setJobType] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
+
+  // Count active filters for badge
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (salaryRange.length > 0) count++;
+    if (experience.length > 0) count++;
+    if (jobType.length > 0) count++;
+    return count;
+  };
+
+  const activeFilterCount = getActiveFilterCount();
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -471,7 +482,7 @@ export default function Page() {
                     <div className="flex gap-2 sm:gap-3">
                       <button
                         onClick={handleFilterClick}
-                        className="flex bg-blue-500 text-white py-2 px-4 sm:px-6 rounded-md justify-center items-center gap-2 border border-[#454545] h-11 flex-1 sm:flex-initial min-w-[80px]"
+                        className="relative flex bg-blue-500 text-white py-2 px-4 sm:px-6 rounded-md justify-center items-center gap-2 border border-[#454545] h-11 flex-1 sm:flex-initial min-w-[80px]"
                       >
                         <Image
                           src="/static/icons/filter.svg"
@@ -481,6 +492,11 @@ export default function Page() {
                           className="sm:w-5 sm:h-5"
                         />
                         <span className="text-sm sm:text-base">Filter</span>
+                        {activeFilterCount > 0 && (
+                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                            {activeFilterCount}
+                          </span>
+                        )}
                       </button>
                       <button
                         onClick={forceRestart}
@@ -502,24 +518,17 @@ export default function Page() {
               )}
 
                 {showFilterCard && (
-                  <div 
-                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex justify-end"
-                    onClick={handleFilterCancel}
-                  >
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <FilterCard
-                        jobs={jobs}
-                        setFilteredJobs={handleFilterApplied}
-                        salaryRange={salaryRange}
-                        setSalaryRange={setSalaryRange}
-                        experience={experience}
-                        setExperience={setExperience}
-                        jobType={jobType}
-                        setJobType={setJobType}
-                        onClose={handleFilterCancel}
-                      />
-                    </div>
-                  </div>
+                  <FilterCard
+                    jobs={jobs}
+                    setFilteredJobs={handleFilterApplied}
+                    salaryRange={salaryRange}
+                    setSalaryRange={setSalaryRange}
+                    experience={experience}
+                    setExperience={setExperience}
+                    jobType={jobType}
+                    setJobType={setJobType}
+                    onClose={handleFilterCancel}
+                  />
                 )}
 
                 <div className={`flex flex-col gap-4 cursor-pointer ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>

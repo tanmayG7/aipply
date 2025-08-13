@@ -153,14 +153,15 @@ const FilterCard: React.FC<FilterCardProps> = ({
     });
   };
 
-  const handleFilterSubmit = () => {
+  // Auto-apply filters when any filter value changes
+  useEffect(() => {
     applyFilters();
-  };
+  }, [salaryRange, experience, jobType]);
 
   return (
     <div>
       <div
-        className="w-[320px] sm:w-[400px] h-full bg-[#0C111D] shadow-xl px-6 py-8 flex flex-col gap-6 border-l border-[#454545]"
+        className="fixed top-0 right-0 w-[320px] sm:w-[400px] h-full bg-[#0C111D] shadow-xl px-6 py-8 flex flex-col gap-6 border-l border-[#454545] z-[9999]"
         style={{
           borderTopLeftRadius: "24px",
           borderBottomLeftRadius: "24px",
@@ -261,22 +262,6 @@ const FilterCard: React.FC<FilterCardProps> = ({
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-          <div className="absolute z-50 bottom-7 justify-end gap-2 w-full">
-            <div className="flex flex-row gap-4 mr-16">
-              <Button
-                onClick={onClose}
-                className="bg-gray text-white py-1 px-4 rounded-md w-full"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleFilterSubmit}
-                className="bg-gradient-to-b from-[#6033F5] to-[#A061F1] text-white py-1 px-4 rounded-md w-full"
-              >
-                Submit
-              </Button>
             </div>
           </div>
         </div>
