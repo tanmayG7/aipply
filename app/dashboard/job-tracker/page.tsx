@@ -131,9 +131,9 @@ const JobTrackerPage: React.FC = () => {
       <SidebarInset>
         <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden bg-[#020218] text-white">
           {/* Mobile Navigation Trigger */}
-          <div className="lg:hidden fixed top-4 left-4 z-50">
-            <div className="bg-gradient-to-r from-[#8F63CC] to-[#9164CF] p-2 rounded-lg shadow-lg border border-[#454545] backdrop-blur-sm">
-              <SidebarTrigger className="text-white hover:text-gray-200" />
+          <div className="lg:hidden fixed top-6 right-4 z-50">
+            <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
+              <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
             </div>
           </div>
         {loading ? ( // Conditionally render loading message
