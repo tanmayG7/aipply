@@ -56,7 +56,10 @@ const JobCard =  ({
   //     : getKeywordsFromDescription(stripHtmlTags(job.description));
   const jobTags = job.tags;
 
-  const mergedSalary = mergeSalaryRanges(job.salary);
+  // Display raw salary data as-is (no processing)
+  const displaySalary = job.salary && job.salary.length > 0 
+    ? job.salary.join(" | ") // Use | separator for better readability
+    : "Not Disclosed";
 
   return (
     <div
@@ -127,7 +130,7 @@ const JobCard =  ({
               height={16}
               className="sm:w-5 sm:h-5"
             />
-            <span className="truncate">{mergedSalary}</span>
+            <span className="truncate">{displaySalary}</span>
           </div>
           <div className="flex items-center gap-2">
             <Image
