@@ -481,6 +481,7 @@ export default function Page() {
                     />
                     <div className="flex gap-2 sm:gap-3">
                       <button
+                        type="button"
                         onClick={handleFilterClick}
                         className="relative flex bg-blue-500 text-white py-2 px-4 sm:px-6 rounded-md justify-center items-center gap-2 border border-[#454545] h-11 flex-1 sm:flex-initial min-w-[80px]"
                       >
@@ -499,6 +500,7 @@ export default function Page() {
                         )}
                       </button>
                       <button
+                        type="button"
                         onClick={forceRestart}
                         className="flex bg-gray-600 text-white py-2 px-3 sm:px-4 rounded-md justify-center items-center border border-[#454545] h-11 w-11 flex-shrink-0"
                         title="Force restart if jobs don't load"
