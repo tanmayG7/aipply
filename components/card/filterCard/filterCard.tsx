@@ -125,7 +125,6 @@ const FilterCard: React.FC<FilterCardProps> = ({
     } else {
       setNoJobsFound(false);
       setFilteredJobs(filteredJobs);
-      onClose();
     }
   };
 
@@ -277,6 +276,14 @@ const FilterCard: React.FC<FilterCardProps> = ({
             </p>
           </div>
         )}
+        <div className="mt-auto pt-4">
+          <Button 
+            onClick={onClose}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-inter"
+          >
+            Apply Filters & Close
+          </Button>
+        </div>
       </div>
     </div>
   );
