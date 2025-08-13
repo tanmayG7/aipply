@@ -59,6 +59,11 @@ const data = {
       url: "/dashboard/job-board",
       image: "/static/sidebarIcons/jobBoard.svg",
     },
+    {
+      title: "Job Credentials",
+      url: "/dashboard/job-credentials",
+      image: "/static/sidebarIcons/credentials.svg",
+    },
     // {
     //   title: "Reminder",
     //   url: "/dashboard/reminder",

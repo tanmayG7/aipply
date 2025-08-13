@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
 import { experienceOptions, jobTypes, salaryRanges } from "@/lib/staticData";
 import { Job } from "@/lib/types";
 import { determineJobType } from "@/lib/utils";
@@ -43,6 +42,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
   const [isJobTypeChecked, setIsJobTypeChecked] = useState(false);
   const [noJobsFound, setNoJobsFound] = useState(false);
   const didMount = useRef(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Update state variables based on the current filter arrays
   useEffect(() => {
@@ -56,6 +56,20 @@ const FilterCard: React.FC<FilterCardProps> = ({
   useEffect(() => {
     setIsJobTypeChecked(jobType.length > 0);
   }, [jobType]);
+
+  // Handle click outside to close modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
 
   const applyFilters = () => {
     // Dynamically adjust salaryRange and experience based on checked ranges
@@ -165,6 +179,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
   return (
     <div>
       <div
+        ref={modalRef}
         className="fixed top-0 right-0 w-[320px] sm:w-[400px] h-full bg-[#0C111D] shadow-xl px-6 py-8 flex flex-col gap-6 border-l border-[#454545] z-[9999]"
         style={{
           borderTopLeftRadius: "24px",
@@ -276,14 +291,6 @@ const FilterCard: React.FC<FilterCardProps> = ({
             </p>
           </div>
         )}
-        <div className="mt-auto pt-4">
-          <Button 
-            onClick={onClose}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-inter"
-          >
-            Apply Filters & Close
-          </Button>
-        </div>
       </div>
     </div>
   );

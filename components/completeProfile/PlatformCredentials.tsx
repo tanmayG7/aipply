@@ -23,34 +23,18 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
   const [showPasswords, setShowPasswords] = useState({
     foundit: false,
     hirist: false,
-    cutshort: false
+    shine: false,
+    timesjob: false
   });
   
-  const [credentials, setCredentials] = useState<PlatformCredentialsData>({
-    foundit: { email: '', password: '' },
-    hirist: { email: '', password: '' },
-    cutshort: { email: '', password: '' }
-  });
+  const [credentials, setCredentials] = useState<PlatformCredentialsData>({});
 
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   // Load existing credentials
   useEffect(() => {
     if (userDetails.platformCredentials) {
-      setCredentials({
-        foundit: {
-          email: userDetails.platformCredentials.foundit?.email || '',
-          password: userDetails.platformCredentials.foundit?.password || ''
-        },
-        hirist: {
-          email: userDetails.platformCredentials.hirist?.email || '',
-          password: userDetails.platformCredentials.hirist?.password || ''
-        },
-        cutshort: {
-          email: userDetails.platformCredentials.cutshort?.email || '',
-          password: userDetails.platformCredentials.cutshort?.password || ''
-        }
-      });
+      setCredentials(userDetails.platformCredentials);
     }
   }, [userDetails]);
 
@@ -70,11 +54,18 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
       description: 'Tech jobs and IT careers'
     },
     { 
-      id: 'cutshort' as keyof PlatformCredentialsData, 
-      name: 'Cutshort.io', 
+      id: 'shine' as keyof PlatformCredentialsData, 
+      name: 'Shine.com', 
+      color: 'bg-blue-600', 
+      icon: '⭐',
+      description: 'Career acceleration platform'
+    },
+    { 
+      id: 'timesjob' as keyof PlatformCredentialsData, 
+      name: 'TimesJobs.com', 
       color: 'bg-green-600', 
       icon: '⚡',
-      description: 'Tech startup jobs and opportunities'
+      description: 'Times Group comprehensive job portal'
     }
   ];
 
@@ -86,10 +77,16 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
   };
 
   const handleCredentialChange = (platform: keyof PlatformCredentialsData, field: 'email' | 'password', value: string) => {
+    const currentTime = new Date().toISOString();
     setCredentials(prev => ({
       ...prev,
       [platform]: {
-        ...prev[platform]!,
+        email: prev[platform]?.email || '',
+        password: prev[platform]?.password || '',
+        isActive: prev[platform]?.isActive ?? true,
+        createdAt: prev[platform]?.createdAt || currentTime,
+        updatedAt: currentTime,
+        ...prev[platform],
         [field]: value
       }
     }));
