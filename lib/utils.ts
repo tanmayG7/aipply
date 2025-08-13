@@ -73,41 +73,81 @@ function getGeneralExperienceRange(experienceValue: number): string[] {
 }
 
 export const mergeSalaryRanges = (salaries: string[]): string => {
-  
+  if (!salaries || salaries.length === 0) {
+    return "Not Disclosed";
+  }
+
   const ranges = salaries.map((salary) => {
-    let min, max;
+    let min = 0, max = 0;
     const cleanSalary = salary.toLowerCase().trim();
     
+    // Helper function to extract first number from text
+    const extractNumber = (text: string): number => {
+      const match = text.match(/\d+\.?\d*/);
+      return match ? parseFloat(match[0]) : 0;
+    };
+    
+    // Helper function to extract two numbers from text
+    const extractTwoNumbers = (text: string): [number, number] => {
+      const matches = text.match(/\d+\.?\d*/g);
+      if (matches && matches.length >= 2) {
+        return [parseFloat(matches[0]), parseFloat(matches[1])];
+      } else if (matches && matches.length === 1) {
+        const num = parseFloat(matches[0]);
+        return [num, num];
+      }
+      return [0, 0];
+    };
+    
     if (cleanSalary.includes("up to")) {
-      max = parseInt(salary.replace(/[^0-9]/g, ""));
+      max = extractNumber(salary);
       min = 0;
-    } else if (cleanSalary.includes("to")) {
-      [min, max] = salary
-        .toLowerCase()
-        .split("to")
-        .map((s) => parseInt(s.trim().replace(/[^0-9]/g, "")));
+    } else if (cleanSalary.includes(" to ")) {
+      [min, max] = extractTwoNumbers(salary);
     } else if (cleanSalary.includes(">")) {
-      // Handle cases like ">25 Lakhs" or ">25Lakhs"
-      min = parseInt(salary.replace(/[^0-9]/g, ""));
+      min = extractNumber(salary);
       max = Infinity;
     } else if (cleanSalary.includes("+")) {
-      // Handle cases like "25 Lakhs+" or "25Lakhs+"
-      min = parseInt(salary.replace(/[^0-9]/g, ""));
+      min = extractNumber(salary);
       max = Infinity;
+    } else if (cleanSalary.includes("-")) {
+      [min, max] = extractTwoNumbers(salary);
     } else {
-      [min, max] = salary
-        .split("-")
-        .map((s) => parseInt(s.trim().replace(/[^0-9]/g, "")));
+      // Single number
+      min = max = extractNumber(salary);
     }
+    
+    // Validation: Ensure realistic salary ranges
+    if (min > 500 || max > 500) {
+      console.warn(`Unrealistic salary detected: "${salary}" -> min:${min}, max:${max}. Capping values.`);
+      // If values seem to be in thousands, convert to lakhs
+      if (min >= 100000) min = min / 100000;
+      if (max >= 100000 && max !== Infinity) max = max / 100000;
+      // Cap at reasonable maximum (50 lakhs)
+      if (min > 50) min = 50;
+      if (max > 50 && max !== Infinity) max = 50;
+    }
+    
     return { min, max };
   });
   
-  const minSalary = Math.min(...ranges.map((range) => range.min));
-  const maxSalary = Math.max(...ranges.map((range) => range.max));
+  const validRanges = ranges.filter(range => range.min >= 0 && (range.max >= 0 || range.max === Infinity));
+  
+  if (validRanges.length === 0) {
+    return "Not Disclosed";
+  }
+  
+  const minSalary = Math.min(...validRanges.map((range) => range.min));
+  const maxSalary = Math.max(...validRanges.map((range) => range.max === Infinity ? range.min : range.max));
   
   // Handle the case where maximum is infinity
-  if (maxSalary === Infinity) {
+  if (validRanges.some(range => range.max === Infinity)) {
     return `${minSalary}+ Lakhs`;
+  }
+  
+  // Format the result
+  if (minSalary === maxSalary) {
+    return `${minSalary} Lakhs`;
   }
   
   return `${minSalary}-${maxSalary} Lakhs`;
