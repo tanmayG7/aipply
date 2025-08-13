@@ -846,10 +846,23 @@ const getUpdatedJobsPaginated = async (
       console.log(`[getUpdatedJobsPaginated] Database returned: ${result.jobs.length} jobs, total: ${result.totalCount || 'unknown'}`);
 
       // Sanitize and return jobs
+      console.log(`[DEBUG] Before sanitization: ${result.jobs.length} jobs`);
+      result.jobs.forEach((job: any, index: number) => {
+        console.log(`[DEBUG] Job ${index}: jobId="${job.jobId}", _id="${job._id}", hasJobId=${!!job.jobId}`);
+      });
+      
       const sanitizedJobs = result.jobs.map((job: any) => ({
         ...job,
         _id: job._id?.toString(),
-      })).filter(job => job && job.jobId);
+      })).filter(job => {
+        const isValid = job && job.jobId;
+        if (!isValid) {
+          console.log(`[DEBUG] Filtered out job: jobId="${job?.jobId}", _id="${job?._id}"`);
+        }
+        return isValid;
+      });
+      
+      console.log(`[DEBUG] After sanitization: ${sanitizedJobs.length} jobs`);
 
       // Calculate pagination info
       const totalJobs = result.totalCount || 0;
@@ -871,6 +884,12 @@ const getUpdatedJobsPaginated = async (
         totalJobs: finalResult.totalJobs,
         hasMore: finalResult.hasMore
       });
+      
+      console.log(`[DEBUG] Final jobs sample:`, finalResult.jobs.slice(0, 2).map(j => ({ 
+        jobId: j.jobId, 
+        title: j.title, 
+        _id: j._id 
+      })));
 
       // Update dashboard with jobs shown
       if (sanitizedJobs.length > 0 && page === 1) {
