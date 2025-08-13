@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Settings, ChevronRight, Edit3 } from "lucide-react";
 import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
@@ -139,7 +139,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarHeader className="border-b-[2px] border-[#1F242F]">
           {isMobile && (
             <div className="flex justify-between items-center py-2">
-              <Link href="/dashboard/home">
+              <Link href="/">
                 <Image
                   src={"/static/icons/aipplyLogo.svg"}
                   alt="Aipply Logo"
@@ -154,7 +154,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <>
               <SidebarTrigger />
               <div className="flex items-center justify-center py-6">
-                <Link href="/dashboard/home">
+                <Link href="/">
                   <Image
                     src={"/static/icons/aipplyLogo.svg"}
                     alt="Aipply Logo"
@@ -167,40 +167,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           )}
           <SidebarMenu>
             <SidebarMenuItem className={`flex flex-col gap-4 ${isMobile ? 'mb-3' : 'mb-6'}`}>
-              <SidebarMenuButton size={isMobile ? "default" : "lg"} asChild className={isMobile ? "py-2" : "py-4"}>
+              <SidebarMenuButton size={isMobile ? "default" : "lg"} asChild className={`${isMobile ? "py-2" : "py-4"} transition-all duration-200 hover:bg-white/5 hover:border-white/10 border border-transparent rounded-lg group`}>
                 <Link
                   href="/dashboard/complete-profile"
-                  className="flex flex-row"
+                  className="flex flex-row items-center justify-between w-full"
                 >
-                  {userProfile?.profileImage ? (
-                    <div className={`flex rounded-full ${isMobile ? 'size-8' : 'size-12'} items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground`}>
-                      <Image
-                        src={userProfile?.profileImage || ""}
-                        alt="User Image"
-                        width={isMobile ? 32 : 48}
-                        height={isMobile ? 32 : 48}
-                        className="rounded-full"
-                      />
+                  <div className="flex items-center gap-3">
+                    {userProfile?.profileImage ? (
+                      <div className={`flex rounded-full ${isMobile ? 'size-8' : 'size-12'} items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground relative`}>
+                        <Image
+                          src={userProfile?.profileImage || ""}
+                          alt="User Image"
+                          width={isMobile ? 32 : 48}
+                          height={isMobile ? 32 : 48}
+                          className="rounded-full"
+                        />
+                        <div className={`absolute -bottom-0.5 -right-0.5 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'} bg-blue-600 rounded-full flex items-center justify-center`}>
+                          <Edit3 className={`${isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'} text-white`} />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={`flex rounded-full ${isMobile ? 'size-8' : 'size-12'} items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground ${isMobile ? 'text-sm' : 'text-text-xl-semibold'} relative`}>
+                        {userProfile?.firstName && userProfile?.lastName ? (
+                          (userProfile.firstName.charAt(0) || "") +
+                          (userProfile.lastName.charAt(0) || "")
+                        ) : (
+                          <UserIcon className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} />
+                        )}
+                        <div className={`absolute -bottom-0.5 -right-0.5 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'} bg-blue-600 rounded-full flex items-center justify-center`}>
+                          <Edit3 className={`${isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'} text-white`} />
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-0.5 leading-none">
+                      <span className={`font-semibold ${isMobile ? 'text-sm' : ''} text-white`}>
+                        {`${userProfile?.firstName} ${userProfile?.lastName}` ||
+                          "Loading..."}
+                      </span>
+                      <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-300 flex items-center gap-1`}>
+                        <Settings className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                        Profile Settings
+                      </span>
                     </div>
-                  ) : (
-                    <div className={`flex rounded-full ${isMobile ? 'size-8' : 'size-12'} items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground ${isMobile ? 'text-sm' : 'text-text-xl-semibold'}`}>
-                      {userProfile?.firstName && userProfile?.lastName ? (
-                        (userProfile.firstName.charAt(0) || "") +
-                        (userProfile.lastName.charAt(0) || "")
-                      ) : (
-                        <UserIcon className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} />
-                      )}
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-0.5 leading-none">
-                    <span className={`font-semibold ${isMobile ? 'text-sm' : ''}`}>
-                      {`${userProfile?.firstName} ${userProfile?.lastName}` ||
-                        "Loading..."}
-                    </span>
-                    <span className={`${isMobile ? 'text-xs' : ''}`}>
-                      {userProfile?.email || "Loading..."}
-                    </span>
                   </div>
+                  <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-gray-400 group-hover:text-white transition-colors duration-200 group-hover:translate-x-1 transition-transform`} />
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
