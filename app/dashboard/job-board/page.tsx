@@ -23,7 +23,6 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
 const JOBS_PER_PAGE = 20;
-const MAX_TOTAL_JOBS = 100;
 
 const MobileTrigger = () => {
   const { openMobile } = useSidebar();
@@ -199,8 +198,7 @@ export default function Page() {
           salaryRange,
           experience,
           jobType
-        },
-        MAX_TOTAL_JOBS
+        }
       );
 
       if (!result || typeof result !== 'object') {

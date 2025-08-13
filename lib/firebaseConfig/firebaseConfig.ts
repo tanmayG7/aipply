@@ -780,7 +780,7 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
   }
 };
 
-// IMPROVED PAGINATED VERSION WITH EXACT FILTERING AND BETTER ERROR HANDLING
+// IMPROVED PAGINATED VERSION FOR INFINITE JOBS WITH ACCURATE FILTERING
 const getUpdatedJobsPaginated = async (
   userId: string, 
   userProfile: UserDetails,
@@ -792,135 +792,129 @@ const getUpdatedJobsPaginated = async (
     experience?: [number, number][];
     jobType?: string[];
     platform?: string[]; 
-  },
-  maxTotalJobs: number = 100 // NEW: Job limit parameter
+  }
 ) => {
   try {
-    console.log(`[getUpdatedJobsPaginated] Starting fetch - Page: ${page}, PageSize: ${pageSize}, MaxJobs: ${maxTotalJobs}`);
-    
-    const currentDate = new Date().toISOString().split("T")[0];
+    console.log(`[getUpdatedJobsPaginated] Starting infinite pagination - Page: ${page}, PageSize: ${pageSize}`);
     
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found in user profile");
     }
 
-    // Get cached jobs data
-    const currentJobsData = await getCurrentJobs(userId);
-    let allJobIds: string[] = [];
-    let useCache = false;
-    let debugInfo = null;
+    // Get excluded jobs
+    const archivedJobs = await getArchivedJobs(userId);
+    const hiddenJobs = await getHiddenJobs(userId);
+    const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
 
-    console.log(`[getUpdatedJobsPaginated] Cached data exists: ${!!currentJobsData}`);
+    console.log(`[getUpdatedJobsPaginated] Excluded jobs - Archived: ${archivedJobs.length}, Hidden: ${hiddenJobs.length}`);
 
-    // Check if we can use cached data (from today)
-    if (
-      currentJobsData &&
-      currentJobsData.jobs &&
-      currentJobsData.jobs.length > 0 &&
-      currentJobsData.lastFetchedDate &&
-      currentJobsData.lastFetchedDate.split("T")[0] === currentDate
-    ) {
-      // ADD THIS VALIDATION:
-      const hasValidJobIds = currentJobsData.jobs.every((jobId: string) => 
-        jobId && typeof jobId === 'string' && jobId.length > 0
-      );
+    // Check if we have filters/search applied
+    const hasFilters = (searchTerm && searchTerm.trim()) || 
+                      (filters?.salaryRange && filters.salaryRange.length > 0) ||
+                      (filters?.experience && filters.experience.length > 0) ||
+                      (filters?.jobType && filters.jobType.length > 0) ||
+                      (filters?.platform && filters.platform.length > 0);
+
+    console.log(`[getUpdatedJobsPaginated] Has filters/search: ${hasFilters}`);
+
+    if (!hasFilters) {
+      // NO FILTERS: Use database-level pagination for infinite jobs
+      console.log(`[getUpdatedJobsPaginated] No filters - using direct database pagination`);
       
-      if (hasValidJobIds) {
-        allJobIds = currentJobsData.jobs;
-        useCache = true;
-        console.log(`[getUpdatedJobsPaginated] Using validated cached data with ${allJobIds.length} jobs`);
-      } else {
-        console.log(`[getUpdatedJobsPaginated] Cache has corrupted job IDs, fetching fresh data`);
-        useCache = false;
-      }
-    }
-
-    // If no cache or cache is old, fetch new jobs
-    if (!useCache) {
-      console.log(`[getUpdatedJobsPaginated] Fetching fresh jobs from database`);
-      
-      const archivedJobs = await getArchivedJobs(userId);
-      const hiddenJobs = await getHiddenJobs(userId);
-      const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
-
-      console.log(`[getUpdatedJobsPaginated] Excluded jobs - Archived: ${archivedJobs.length}, Hidden: ${hiddenJobs.length}`);
-
+      // Get jobs directly from database with pagination
       const result = await getFilteredJobsByTitlePaginatedWithFuzzy(
         userProfile.jobTitle,
         excludedJobs,
         userProfile,
-        1, // Always start from page 1 when fetching fresh data
-        maxTotalJobs, // Use the job limit here instead of 1000
-        0.6 // minSimilarity - adjust between 0.5-0.8 as needed
+        page,
+        pageSize,
+        0.6 // minSimilarity
       );
-      
-      console.log(`Search completed using: ${result.searchMethod}`);
-      console.log('[getUpdatedJobsPaginated] Result from getFilteredJobsByTitlePaginated:', result);
 
       if (!result || !result.jobs) {
-        console.error(`[getUpdatedJobsPaginated] Invalid result from getFilteredJobsByTitlePaginated:`, result);
-        throw new Error('Invalid response from job search service');
+        console.error(`[getUpdatedJobsPaginated] Invalid result from database:`, result);
+        return {
+          jobs: [],
+          currentPage: page,
+          totalPages: 0,
+          totalJobs: 0,
+          hasMore: false,
+          debugInfo: null
+        };
       }
 
-      debugInfo = result.debugInfo;
-      const fetchedJobs = result.jobs;
-      allJobIds = fetchedJobs.map((job: any) => {
-        const jobId = job.jobId || job.id || job._id?.toString();
-        if (!jobId) {
-          console.warn('Job missing ID:', job);
-        }
-        return jobId;
-      }).filter(Boolean);
-      
-      console.log(`[DEBUG] Extracted ${allJobIds.length} job IDs from ${fetchedJobs.length} jobs`);
-      console.log(`[getUpdatedJobsPaginated] Fetched ${fetchedJobs.length} jobs, got ${allJobIds.length} job IDs`);
-      
-      // Limit the job IDs to maxTotalJobs
-      if (allJobIds.length > maxTotalJobs) {
-        allJobIds = allJobIds.slice(0, maxTotalJobs);
-        console.log(`[getUpdatedJobsPaginated] Limited job IDs to ${maxTotalJobs}`);
-      }
-      
-      // Save to cache only if we have jobs
-      if (allJobIds.length > 0) {
-        await saveCurrentJobs(userId, allJobIds);
-        await saveArchivedJobs(userId, allJobIds);
-        
-        // Update dashboard
+      console.log(`[getUpdatedJobsPaginated] Database returned: ${result.jobs.length} jobs, total: ${result.totalCount || 'unknown'}`);
+
+      // Sanitize and return jobs
+      const sanitizedJobs = result.jobs.map((job: any) => ({
+        ...job,
+        _id: job._id?.toString(),
+      })).filter(job => job && job.jobId);
+
+      // Calculate pagination info
+      const totalJobs = result.totalCount || 0;
+      const totalPages = totalJobs > 0 ? Math.ceil(totalJobs / pageSize) : 0;
+
+      const finalResult = {
+        jobs: sanitizedJobs,
+        currentPage: page,
+        totalPages: totalPages,
+        totalJobs: totalJobs,
+        hasMore: page < totalPages,
+        debugInfo: result.debugInfo || null
+      };
+
+      console.log(`[getUpdatedJobsPaginated] No-filter result:`, {
+        jobCount: finalResult.jobs.length,
+        currentPage: finalResult.currentPage,
+        totalPages: finalResult.totalPages,
+        totalJobs: finalResult.totalJobs,
+        hasMore: finalResult.hasMore
+      });
+
+      // Update dashboard with jobs shown
+      if (sanitizedJobs.length > 0 && page === 1) {
         const dashboardData = await getDashboardData(userId);
-        dashboardData.totalJobsShown += allJobIds.length;
+        dashboardData.totalJobsShown += sanitizedJobs.length;
         await updateDashboardData(userId, dashboardData);
-        
-        console.log(`[getUpdatedJobsPaginated] Saved ${allJobIds.length} jobs to cache`);
-      } else {
-        console.warn(`[getUpdatedJobsPaginated] No jobs to cache`);
       }
+
+      return finalResult;
     }
 
-    // Apply job limit to cached data as well
-    if (allJobIds.length > maxTotalJobs) {
-      allJobIds = allJobIds.slice(0, maxTotalJobs);
-      console.log(`[getUpdatedJobsPaginated] Limited cached job IDs to ${maxTotalJobs}`);
-    }
-
-    console.log(`[getUpdatedJobsPaginated] Fetching details for ALL ${allJobIds.length} jobs to apply exact filtering`);
+    // WITH FILTERS: We need to fetch more data and apply client-side filtering
+    console.log(`[getUpdatedJobsPaginated] Filters detected - fetching larger dataset for accurate filtering`);
     
-    // CRITICAL CHANGE: Fetch details for ALL jobs to apply exact filtering
-    let allJobs = await getJobsByIds(
-      allJobIds,
+    // For filtering, we need to fetch a larger batch to ensure we can fill a page after filtering
+    // We'll fetch multiple pages worth of data and filter client-side
+    const batchSize = pageSize * 10; // Fetch 10 pages worth to increase chances of filling current page
+    const batchPage = 1; // Always start from page 1 when filtering
+
+    const result = await getFilteredJobsByTitlePaginatedWithFuzzy(
       userProfile.jobTitle,
-      userProfile.expectedCTC,
-      userProfile.workexperience
+      excludedJobs,
+      userProfile,
+      batchPage,
+      batchSize,
+      0.6 // minSimilarity
     );
 
-    if (!allJobs || !Array.isArray(allJobs)) {
-      console.error(`[getUpdatedJobsPaginated] Invalid jobs response:`, allJobs);
-      allJobs = [];
+    if (!result || !result.jobs) {
+      console.error(`[getUpdatedJobsPaginated] Invalid result for filtering:`, result);
+      return {
+        jobs: [],
+        currentPage: page,
+        totalPages: 0,
+        totalJobs: 0,
+        hasMore: false,
+        debugInfo: null
+      };
     }
 
-    console.log(`[getUpdatedJobsPaginated] Retrieved ${allJobs.length} job details`);
+    let allJobs = result.jobs;
+    console.log(`[getUpdatedJobsPaginated] Retrieved ${allJobs.length} jobs for filtering`);
 
-    // Apply search filter if provided
+    // Apply search filter
     if (searchTerm && searchTerm.trim()) {
       const originalLength = allJobs.length;
       allJobs = allJobs.filter((job: Job) => {
@@ -928,7 +922,6 @@ const getUpdatedJobsPaginated = async (
         
         const searchLower = searchTerm.toLowerCase();
         
-        // Handle location - check if it's array or string
         const locationMatch = Array.isArray(job.location) 
           ? job.location.some((loc: string) => loc && loc.toLowerCase().includes(searchLower))
           : job.location?.toLowerCase().includes(searchLower);
@@ -943,7 +936,7 @@ const getUpdatedJobsPaginated = async (
         );
       });
       
-      console.log(`[getUpdatedJobsPaginated] Search filtered jobs from ${originalLength} to ${allJobs.length}`);
+      console.log(`[getUpdatedJobsPaginated] Search filtered: ${originalLength} -> ${allJobs.length}`);
     }
 
     // Apply salary filter
@@ -952,26 +945,20 @@ const getUpdatedJobsPaginated = async (
       allJobs = allJobs.filter((job: Job) => {
         if (!job.salary || !Array.isArray(job.salary)) return false;
         
-        // Parse job salary ranges
         const jobSalaryRanges = job.salary.map((salaryStr: string) => {
           const cleanSalary = salaryStr.toLowerCase().trim();
           let min = 0, max = 0;
           
-          // Handle different salary formats
           if (cleanSalary.includes('lakhs') || cleanSalary.includes('lacs') || cleanSalary.includes('lpa')) {
-            // Extract numbers from salary string
             const numbers = cleanSalary.match(/\d+\.?\d*/g);
             if (numbers) {
               if (cleanSalary.includes('+') || cleanSalary.includes('above') || cleanSalary.includes('>')) {
-                // Handle "25+ Lakhs" or ">25 Lakhs"
                 min = parseFloat(numbers[0]) * 100000;
                 max = Infinity;
               } else if (numbers.length >= 2) {
-                // Handle "5-8 Lakhs" or "12-18 Lacs PA"
                 min = parseFloat(numbers[0]) * 100000;
                 max = parseFloat(numbers[1]) * 100000;
               } else {
-                // Single number like "15 Lakhs"
                 min = parseFloat(numbers[0]) * 100000;
                 max = min;
               }
@@ -981,15 +968,13 @@ const getUpdatedJobsPaginated = async (
           return [min, max] as [number, number];
         });
         
-        // Check if any job salary range intersects with any selected filter range
         return jobSalaryRanges.some(([jobMin, jobMax]) => 
           filters.salaryRange!.some(([filterMin, filterMax]) => {
-            // Range intersection logic
             return (jobMin <= filterMax && jobMax >= filterMin);
           })
         );
       });
-      console.log(`[getUpdatedJobsPaginated] Salary filter applied: ${originalLength} -> ${allJobs.length}`);
+      console.log(`[getUpdatedJobsPaginated] Salary filter: ${originalLength} -> ${allJobs.length}`);
     }
 
     // Apply experience filter
@@ -998,48 +983,41 @@ const getUpdatedJobsPaginated = async (
       allJobs = allJobs.filter((job: Job) => {
         if (!job.experience) return false;
         
-        // Parse job experience range
         const expStr = job.experience.toLowerCase().trim();
         let jobExpMin = 0, jobExpMax = 0;
         
-        // Extract numbers from experience string
         const numbers = expStr.match(/\d+\.?\d*/g);
         if (numbers) {
           if (numbers.length >= 2) {
-            // Handle "3-5 Years" format
             jobExpMin = parseFloat(numbers[0]);
             jobExpMax = parseFloat(numbers[1]);
           } else {
-            // Handle single number like "5 Years"
             jobExpMin = parseFloat(numbers[0]);
             jobExpMax = jobExpMin;
           }
         }
         
-        // Check if job experience range intersects with any selected filter range
         return filters.experience!.some(([filterMin, filterMax]) => {
           return (jobExpMin <= filterMax && jobExpMax >= filterMin);
         });
       });
-      console.log(`[getUpdatedJobsPaginated] Experience filter applied: ${originalLength} -> ${allJobs.length}`);
+      console.log(`[getUpdatedJobsPaginated] Experience filter: ${originalLength} -> ${allJobs.length}`);
     }
 
     // Apply job type filter
     if (filters?.jobType && filters.jobType.length > 0) {
       const originalLength = allJobs.length;
       allJobs = allJobs.filter((job: Job) => {
-        // Normalize job type with fallback to determineJobType
         let normalizedJobType = '';
         if (job.type) {
           normalizedJobType = job.type.toLowerCase().trim();
         } else {
-          // Use determineJobType as fallback and normalize to lowercase
           normalizedJobType = determineJobType(job.description || '').toLowerCase().trim();
         }
         
         return filters.jobType!.includes(normalizedJobType);
       });
-      console.log(`[getUpdatedJobsPaginated] Job type filter applied: ${originalLength} -> ${allJobs.length}`);
+      console.log(`[getUpdatedJobsPaginated] Job type filter: ${originalLength} -> ${allJobs.length}`);
     }
     
     // Apply platform filter
@@ -1048,48 +1026,44 @@ const getUpdatedJobsPaginated = async (
       allJobs = allJobs.filter((job: Job) => {
         return filters.platform?.includes(job.platform || 'Unknown');
       });
-      console.log(`[getUpdatedJobsPaginated] Platform filter applied: ${originalLength} -> ${allJobs.length}`);
+      console.log(`[getUpdatedJobsPaginated] Platform filter: ${originalLength} -> ${allJobs.length}`);
     }
 
-    // NOW we have the exact filtered dataset - calculate totals
+    // Calculate pagination from filtered results
     const totalFiltered = allJobs.length;
     const totalPages = Math.ceil(totalFiltered / pageSize);
     
-    console.log(`[getUpdatedJobsPaginated] Exact totals after all filters - Total: ${totalFiltered}, Pages: ${totalPages}`);
-
-    // Slice the current page from filteredJobs
+    // Get current page slice
     const start = (page - 1) * pageSize;
     const end = Math.min(start + pageSize, totalFiltered);
     const pageJobs = allJobs.slice(start, end);
 
-    console.log(`[getUpdatedJobsPaginated] Page slice - Start: ${start}, End: ${end}, Page jobs: ${pageJobs.length}`);
+    console.log(`[getUpdatedJobsPaginated] Filtered pagination - Total: ${totalFiltered}, Pages: ${totalPages}, Current: ${pageJobs.length}`);
 
-    // Sanitize jobs before returning
+    // Sanitize jobs
     const sanitizedJobs = pageJobs.map((job: any) => ({
       ...job,
       _id: job._id?.toString(),
-    })).filter(job => job && job.jobId); // Remove any null/undefined jobs
+    })).filter(job => job && job.jobId);
 
-    console.log(`[getUpdatedJobsPaginated] Returning ${sanitizedJobs.length} sanitized jobs`);
-
-    const result = {
+    const finalResult = {
       jobs: sanitizedJobs,
       currentPage: page,
       totalPages: totalPages,
-      totalJobs: totalFiltered, // Now exact, not estimated
+      totalJobs: totalFiltered,
       hasMore: page < totalPages,
-      debugInfo: debugInfo || null
+      debugInfo: result.debugInfo || null
     };
 
-    console.log(`[getUpdatedJobsPaginated] Final result:`, {
-      jobCount: result.jobs.length,
-      currentPage: result.currentPage,
-      totalPages: result.totalPages,
-      totalJobs: result.totalJobs,
-      hasMore: result.hasMore
+    console.log(`[getUpdatedJobsPaginated] Filtered result:`, {
+      jobCount: finalResult.jobs.length,
+      currentPage: finalResult.currentPage,
+      totalPages: finalResult.totalPages,
+      totalJobs: finalResult.totalJobs,
+      hasMore: finalResult.hasMore
     });
 
-    return result;
+    return finalResult;
 
   } catch (error: any) {
     console.error(`[getUpdatedJobsPaginated] Error:`, error);
