@@ -41,31 +41,31 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
   const platforms = [
     { 
       id: 'foundit' as keyof PlatformCredentialsData, 
-      name: 'Foundit.in', 
+      name: 'Foundit', 
       color: 'bg-red-600', 
       icon: '📰',
-      description: 'Times Group job portal (formerly Monster)'
+      description: 'India\'s leading job portal with millions of job opportunities'
     },
     { 
       id: 'hirist' as keyof PlatformCredentialsData, 
-      name: 'Hirist.com', 
+      name: 'Hirist', 
       color: 'bg-purple-600', 
       icon: '💼',
-      description: 'Tech jobs and IT careers'
+      description: 'Premier platform for tech professionals and startups'
     },
     { 
       id: 'shine' as keyof PlatformCredentialsData, 
-      name: 'Shine.com', 
+      name: 'Shine', 
       color: 'bg-blue-600', 
       icon: '⭐',
-      description: 'Career acceleration platform'
+      description: 'Career acceleration platform with personalized job recommendations'
     },
     { 
       id: 'timesjob' as keyof PlatformCredentialsData, 
-      name: 'TimesJobs.com', 
+      name: 'Timesjob', 
       color: 'bg-green-600', 
       icon: '⚡',
-      description: 'Times Group comprehensive job portal'
+      description: 'Comprehensive job search platform by Times Group'
     }
   ];
 
