@@ -7,7 +7,6 @@ import { auth, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { UserDetails } from '@/lib/types';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { parsePhoneNumber, formatPhoneNumber } from '@/lib/countryCodes';
-import { AnimatedProductShowcase } from '@/components/ui/animated-product-showcase';
 import {
   DocumentTextIcon,
   CloudArrowUpIcon,
@@ -239,7 +238,7 @@ export default function ResumeAnalysisForm() {
         // Check if workflow completed successfully
         if (result.includes('Workflow Completed!')) {
           setSubmissionStatus('success');
-          setSubmissionMessage('Success! Your resume analysis will be sent to your email within 5 minutes.');
+          setSubmissionMessage('Success! Your resume analysis will be in your email inbox lightning fast');
         } else {
           setSubmissionStatus('success');
           setSubmissionMessage('Your resume has been submitted for analysis. Check your email for results.');
@@ -282,13 +281,7 @@ export default function ResumeAnalysisForm() {
   };
 
   return (
-    <>
-      {/* Animated Product Showcase - Shows during processing */}
-      <AnimatedProductShowcase 
-        isVisible={submissionStatus === 'submitting'}
-      />
-      
-      <div className="shadow-input mx-auto w-full max-w-2xl rounded-2xl bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#333741] p-8">
+    <div className="shadow-input mx-auto w-full max-w-2xl rounded-2xl bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#333741] p-8">
       {/* Progress Indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
@@ -317,7 +310,7 @@ export default function ResumeAnalysisForm() {
             currentStep >= 2 ? "Contact Information" : ""
           }
           {currentStep === 2 && (
-            <div className="text-xs text-[#AE94FF] mt-1">Optional preferences can be customized below</div>
+            <div className="text-xs text-[#AE94FF] mt-1">Preferences can be customized below</div>
           )}
         </div>
       </div>
@@ -497,7 +490,7 @@ export default function ResumeAnalysisForm() {
               >
                 <div>
                   <h3 className="text-[#F5F5F6] font-medium">Advanced Analysis Preferences</h3>
-                  <p className="text-[#CECFD2] text-sm mt-1">Customize your analysis (Optional)</p>
+                  <p className="text-[#CECFD2] text-sm mt-1">Customize your analysis</p>
                 </div>
                 <ChevronDownIcon 
                   className={cn(
@@ -511,7 +504,7 @@ export default function ResumeAnalysisForm() {
                 <div className="mt-4 p-4 bg-[#0f0f0f] border border-[#333741] rounded-lg space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <LabelInputContainer>
-                <EnhancedLabel htmlFor="targetRole">Target Role (Optional)</EnhancedLabel>
+                <EnhancedLabel htmlFor="targetRole">Target Role</EnhancedLabel>
                 <select
                   id="targetRole"
                   name="targetRole"
@@ -531,7 +524,7 @@ export default function ResumeAnalysisForm() {
               </LabelInputContainer>
 
               <LabelInputContainer>
-                <EnhancedLabel htmlFor="experienceLevel">Experience Level (Optional)</EnhancedLabel>
+                <EnhancedLabel htmlFor="experienceLevel">Experience Level</EnhancedLabel>
                 <select
                   id="experienceLevel"
                   name="experienceLevel"
@@ -548,7 +541,7 @@ export default function ResumeAnalysisForm() {
             </div>
 
             <div>
-              <EnhancedLabel className="mb-3 block">Focus Areas (Optional)</EnhancedLabel>
+              <EnhancedLabel className="mb-3 block">Focus Areas</EnhancedLabel>
               <div className="grid grid-cols-2 gap-2">
                 {focusAreaOptions.map((area) => (
                   <button
@@ -656,7 +649,7 @@ export default function ResumeAnalysisForm() {
               
               <p className="text-[#CECFD2] text-sm mb-4 leading-relaxed">
                 Get exclusive job tips, networking opportunities, and early access to new features. 
-                Connect with 1000+ professionals advancing their careers.
+                Connect with 500+ professionals advancing their careers.
               </p>
               
               <a 
@@ -686,7 +679,6 @@ export default function ResumeAnalysisForm() {
         </div>
       )}
     </div>
-    </>
   );
 }
 

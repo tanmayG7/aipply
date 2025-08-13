@@ -805,11 +805,16 @@ const getUpdatedJobsPaginated = async (
     
     const currentDate = new Date().toISOString().split("T")[0];
     
+    // TEMPORARY: Force cache clear to fix 500 error
+    // console.log('🔧 Temporarily forcing cache clear');
+    // const currentJobsData = await getCurrentJobs(userId);
+    // let useCache = false;
+    
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found in user profile");
     }
 
-    // Get cached jobs data
+    // // Get cached jobs data
     const currentJobsData = await getCurrentJobs(userId);
     let allJobIds: string[] = [];
     let useCache = false;
@@ -825,10 +830,21 @@ const getUpdatedJobsPaginated = async (
       currentJobsData.lastFetchedDate &&
       currentJobsData.lastFetchedDate.split("T")[0] === currentDate
     ) {
-      allJobIds = currentJobsData.jobs;
-      useCache = true;
-      console.log(`[getUpdatedJobsPaginated] Using cached data with ${allJobIds.length} jobs`);
+      // ADD THIS VALIDATION:
+      const hasValidJobIds = currentJobsData.jobs.every((jobId: string) => 
+        jobId && typeof jobId === 'string' && jobId.length > 0
+      );
+      
+      if (hasValidJobIds) {
+        allJobIds = currentJobsData.jobs;
+        useCache = true;
+        console.log(`[getUpdatedJobsPaginated] Using validated cached data with ${allJobIds.length} jobs`);
+      } else {
+        console.log(`[getUpdatedJobsPaginated] Cache has corrupted job IDs, fetching fresh data`);
+        useCache = false;
+      }
     }
+
 
     // If no cache or cache is old, fetch new jobs
     if (!useCache) {
@@ -870,7 +886,15 @@ const getUpdatedJobsPaginated = async (
 
       debugInfo = result.debugInfo;
       const fetchedJobs = result.jobs;
-      allJobIds = fetchedJobs.map((job: any) => job.jobId).filter(Boolean); // Filter out null/undefined jobIds
+      allJobIds = fetchedJobs.map((job: any) => {
+        const jobId = job.jobId || job.id || job._id?.toString();
+        if (!jobId) {
+          console.warn('Job missing ID:', job);
+        }
+        return jobId;
+      }).filter(Boolean);
+      
+      console.log(`[DEBUG] Extracted ${allJobIds.length} job IDs from ${fetchedJobs.length} jobs`);
       
       console.log(`[getUpdatedJobsPaginated] Fetched ${fetchedJobs.length} jobs, got ${allJobIds.length} job IDs`);
       

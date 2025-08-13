@@ -4,6 +4,9 @@ import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
 import { countryCodes, CountryCode } from "@/lib/countryCodes";
 
+// Pattern to allow only digits, spaces, hyphens, parentheses
+const PHONE_NUMBER_PATTERN = /[^0-9\s\-()]/g;
+
 interface PhoneInputProps {
   countryCode: string;
   phoneNumber: string;
@@ -71,7 +74,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="shadow-input flex items-center h-10 px-3 rounded-l-md border-none bg-gray-50 text-sm transition duration-400 focus-visible:ring-[2px] focus-visible:ring-neutral-400 focus-visible:outline-none dark:bg-zinc-800 dark:text-white dark:shadow-[0px_0px_1px_1px_#404040] dark:focus-visible:ring-neutral-600 min-w-[120px]"
+            className="shadow-input flex items-center h-10 px-3 rounded-l-md border border-[#333741] bg-gray-50 text-sm transition duration-400 focus-visible:ring-[2px] focus-visible:ring-neutral-400 focus-visible:outline-none dark:bg-zinc-800 dark:text-white dark:shadow-[0px_0px_1px_1px_#404040] dark:focus-visible:ring-neutral-600 min-w-[120px]"
           >
             <span className="mr-2">{selectedCountry.flag}</span>
             <span className="text-xs font-medium">{selectedCountry.dialCode}</span>

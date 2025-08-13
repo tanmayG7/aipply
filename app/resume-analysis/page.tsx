@@ -41,7 +41,7 @@ export default function ResumeAnalysis() {
               <div className="flex flex-col custom-md:flex-row items-center gap-4 mt-6">
                 <div className="flex items-center gap-2">
                   <UserGroupIcon className="w-5 h-5 text-[#AE94FF]" />
-                  <span className="text-[#CECFD2] text-sm">Join 1000+ job seekers</span>
+                  <span className="text-[#CECFD2] text-sm">Join 500+ job seekers</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <ClockIcon className="w-5 h-5 text-[#AE94FF]" />
