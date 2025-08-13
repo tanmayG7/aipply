@@ -1,7 +1,7 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import JobTrackerGridCard from "@/components/card/jobTrackerCard/jobTrackerGridCard";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import { useDraggable } from "react-use-draggable-scroll";
@@ -128,7 +128,12 @@ const JobTrackerPage: React.FC = () => {
       }
     >
       <AppSidebar />
-      <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden bg-[#020218] text-white">
+      <SidebarInset>
+        <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden bg-[#020218] text-white">
+          {/* Mobile Navigation Trigger */}
+          <div className="lg:hidden fixed top-4 left-4 z-50">
+            <SidebarTrigger />
+          </div>
         {loading ? ( // Conditionally render loading message
           <JobTrackerShimmer />
         ) : (
@@ -228,6 +233,7 @@ const JobTrackerPage: React.FC = () => {
           </div>
         </div>
       </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 };

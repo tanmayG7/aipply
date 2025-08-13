@@ -2,7 +2,7 @@
 
 import { AppSidebar } from "@/components/app-sidebar";
 import JobCard from "@/components/card/jobCard/jobCard";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Job, UserDetails } from "@/lib/types";
@@ -403,6 +403,10 @@ export default function Page() {
       <AppSidebar />
       <SidebarInset>
         <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 pt-4 relative overflow-x-hidden bg-[#020218] text-white">
+          {/* Mobile Navigation Trigger */}
+          <div className="lg:hidden fixed top-4 left-4 z-50">
+            <SidebarTrigger />
+          </div>
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Show error with retry option */}
             {error && (
