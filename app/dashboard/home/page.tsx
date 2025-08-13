@@ -120,7 +120,9 @@ useEffect(() => {
             <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
               {/* Mobile Navigation Trigger */}
               <div className="lg:hidden fixed top-4 left-4 z-50">
-                <SidebarTrigger />
+                <div className="bg-gradient-to-r from-[#8F63CC] to-[#9164CF] p-2 rounded-lg shadow-lg border border-[#454545] backdrop-blur-sm">
+                  <SidebarTrigger className="text-white hover:text-gray-200" />
+                </div>
               </div>
               <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="text-center py-8">
@@ -161,7 +163,9 @@ useEffect(() => {
           <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
             {/* Mobile Navigation Trigger */}
             <div className="lg:hidden fixed top-4 left-4 z-50">
-              <SidebarTrigger />
+              <div className="bg-gradient-to-r from-[#8F63CC] to-[#9164CF] p-2 rounded-lg shadow-lg border border-[#454545] backdrop-blur-sm">
+                <SidebarTrigger className="text-white hover:text-gray-200" />
+              </div>
             </div>
             <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               {loading ? (

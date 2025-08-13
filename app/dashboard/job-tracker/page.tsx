@@ -132,7 +132,9 @@ const JobTrackerPage: React.FC = () => {
         <div className="flex flex-col w-full overflow-x-hidden overflow-y-hidden bg-[#020218] text-white">
           {/* Mobile Navigation Trigger */}
           <div className="lg:hidden fixed top-4 left-4 z-50">
-            <SidebarTrigger />
+            <div className="bg-gradient-to-r from-[#8F63CC] to-[#9164CF] p-2 rounded-lg shadow-lg border border-[#454545] backdrop-blur-sm">
+              <SidebarTrigger className="text-white hover:text-gray-200" />
+            </div>
           </div>
         {loading ? ( // Conditionally render loading message
           <JobTrackerShimmer />
