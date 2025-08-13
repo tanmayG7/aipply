@@ -204,7 +204,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         {`${userProfile?.firstName} ${userProfile?.lastName}` ||
                           "Loading..."}
                       </span>
-                      <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-300 flex items-center gap-1`}>
+                      <span className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-300 group-hover:text-[#B692F6] flex items-center gap-1 transition-colors duration-200`}>
                         <Settings className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                         Profile Settings
                       </span>
