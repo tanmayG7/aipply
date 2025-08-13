@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
   const [isExperienceChecked, setIsExperienceChecked] = useState(false);
   const [isJobTypeChecked, setIsJobTypeChecked] = useState(false);
   const [noJobsFound, setNoJobsFound] = useState(false);
+  const didMount = useRef(false);
 
   // Update state variables based on the current filter arrays
   useEffect(() => {
@@ -153,8 +154,12 @@ const FilterCard: React.FC<FilterCardProps> = ({
     });
   };
 
-  // Auto-apply filters when any filter value changes
+  // Auto-apply filters when any filter value changes (skip first mount)
   useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
     applyFilters();
   }, [salaryRange, experience, jobType]);
 

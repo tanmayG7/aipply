@@ -483,6 +483,7 @@ export default function Page() {
                       <button
                         type="button"
                         onClick={handleFilterClick}
+                        data-testid="open-filter"
                         className="relative flex bg-blue-500 text-white py-2 px-4 sm:px-6 rounded-md justify-center items-center gap-2 border border-[#454545] h-11 flex-1 sm:flex-initial min-w-[80px]"
                       >
                         <Image
