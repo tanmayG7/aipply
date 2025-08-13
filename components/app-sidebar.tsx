@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -102,6 +103,7 @@ const NavLink = ({
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const isMobile = useIsMobile();
   const [userProfile, setUserProfile] = React.useState<{
     firstName: string;
     lastName: string;
@@ -133,53 +135,69 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
       className="bg-background z-40"
     >
-      <div className="bg-gradient-to-b from-[#020217] from-60% to-[#9164CF] text-[#CECFD2] h-screen rounded-2xl border-[#454545] border-[2px] ">
+      <div className={`bg-gradient-to-b from-[#020217] from-60% to-[#9164CF] text-[#CECFD2] h-screen ${isMobile ? 'rounded-none' : 'rounded-2xl'} ${isMobile ? 'border-0' : 'border-[#454545] border-[2px]'}`}>
         <SidebarHeader className="border-b-[2px] border-[#1F242F]">
-          <SidebarTrigger />
-          <div className="flex items-center justify-center py-6">
-            <Link href="/dashboard/home">
-              <Image
-                src={"/static/icons/aipplyLogo.svg"}
-                alt="Aipply Logo"
-                width={142}
-                height={48}
-              />
-            </Link>
-          </div>
+          {isMobile && (
+            <div className="flex justify-between items-center py-2">
+              <Link href="/dashboard/home">
+                <Image
+                  src={"/static/icons/aipplyLogo.svg"}
+                  alt="Aipply Logo"
+                  width={100}
+                  height={34}
+                />
+              </Link>
+              <SidebarTrigger />
+            </div>
+          )}
+          {!isMobile && (
+            <>
+              <SidebarTrigger />
+              <div className="flex items-center justify-center py-6">
+                <Link href="/dashboard/home">
+                  <Image
+                    src={"/static/icons/aipplyLogo.svg"}
+                    alt="Aipply Logo"
+                    width={142}
+                    height={48}
+                  />
+                </Link>
+              </div>
+            </>
+          )}
           <SidebarMenu>
-            <SidebarMenuItem className="flex flex-col gap-4 mb-6">
-              <SidebarMenuButton size="lg" asChild className="py-4">
+            <SidebarMenuItem className={`flex flex-col gap-4 ${isMobile ? 'mb-3' : 'mb-6'}`}>
+              <SidebarMenuButton size={isMobile ? "default" : "lg"} asChild className={isMobile ? "py-2" : "py-4"}>
                 <Link
                   href="/dashboard/complete-profile"
                   className="flex flex-row"
                 >
                   {userProfile?.profileImage ? (
-                    <div className="flex rounded-full size-12 items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground">
-                      {/* <UserRound className="size-8" /> */}
+                    <div className={`flex rounded-full ${isMobile ? 'size-8' : 'size-12'} items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground`}>
                       <Image
                         src={userProfile?.profileImage || ""}
                         alt="User Image"
-                        width={48}
-                        height={48}
+                        width={isMobile ? 32 : 48}
+                        height={isMobile ? 32 : 48}
                         className="rounded-full"
                       />
                     </div>
                   ) : (
-                    <div className="flex rounded-full size-12 items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground text-text-xl-semibold">
+                    <div className={`flex rounded-full ${isMobile ? 'size-8' : 'size-12'} items-center justify-center bg-sidebar-primary text-sidebar-primary-foreground ${isMobile ? 'text-sm' : 'text-text-xl-semibold'}`}>
                       {userProfile?.firstName && userProfile?.lastName ? (
                         (userProfile.firstName.charAt(0) || "") +
                         (userProfile.lastName.charAt(0) || "")
                       ) : (
-                        <UserIcon className="w-6 h-6 text-white" /> // Display HeroIcon UserIcon
+                        <UserIcon className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-white`} />
                       )}
                     </div>
                   )}
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold">
+                    <span className={`font-semibold ${isMobile ? 'text-sm' : ''}`}>
                       {`${userProfile?.firstName} ${userProfile?.lastName}` ||
                         "Loading..."}
                     </span>
-                    <span className="">
+                    <span className={`${isMobile ? 'text-xs' : ''}`}>
                       {userProfile?.email || "Loading..."}
                     </span>
                   </div>
@@ -190,20 +208,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarHeader>
         <SidebarContent className="">
           <SidebarGroup>
-            <SidebarMenu className="gap-3  text-[#CECFD2]">
+            <SidebarMenu className={`${isMobile ? 'gap-2' : 'gap-3'} text-[#CECFD2]`}>
               {data.navMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       href={item.url}
-                      className={`font-medium text-text-md-semibold font-inter gap-3`}
+                      className={`font-medium ${isMobile ? 'text-sm' : 'text-text-md-semibold'} font-inter ${isMobile ? 'gap-2' : 'gap-3'}`}
                       onClick={item.onClick}
                     >
                       <Image
                         src={item.image}
                         alt={item.title}
-                        width={24}
-                        height={24}
+                        width={isMobile ? 20 : 24}
+                        height={isMobile ? 20 : 24}
                         className={`hover:text-black ${
                           item.title === "Home" ? "opacity-70" : ""
                         }`}
@@ -215,12 +233,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ))}
             </SidebarMenu>
           </SidebarGroup>
-          <SidebarMenu className="flex absolute bottom-6 w-[90%] rounded py-2 hover:bg-white hover:text-black text-[#CECFD2]">
+          <SidebarMenu className={`flex absolute ${isMobile ? 'bottom-4' : 'bottom-6'} w-[90%] rounded ${isMobile ? 'py-1' : 'py-2'} hover:bg-white hover:text-black text-[#CECFD2]`}>
             <button
               onClick={handleLogout}
-              className="px-6 cursor-pointer flex flex-row gap-3 text-text-md-semibold font-inter"
+              className={`${isMobile ? 'px-4' : 'px-6'} cursor-pointer flex flex-row ${isMobile ? 'gap-2' : 'gap-3'} ${isMobile ? 'text-sm' : 'text-text-md-semibold'} font-inter`}
             >
-              <LogOut className="size-6" />
+              <LogOut className={`${isMobile ? 'size-4' : 'size-6'}`} />
               Logout
             </button>
           </SidebarMenu>
