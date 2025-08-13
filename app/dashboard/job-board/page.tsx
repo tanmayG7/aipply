@@ -153,8 +153,6 @@ export default function Page() {
   const [experience, setExperience] = useState<[number, number][]>([]);
   const [jobType, setJobType] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
-
   // Count active filters for badge
   const getActiveFilterCount = () => {
     let count = 0;
@@ -170,7 +168,6 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalJobs, setTotalJobs] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
   
   // Simplified state management
   const [isInitialized, setIsInitialized] = useState(false);
@@ -210,12 +207,10 @@ export default function Page() {
         throw new Error('Invalid response from getUpdatedJobsPaginated');
       }
 
-      setDebugInfo(result.debugInfo || null);
       setJobs(result.jobs || []);
       setCurrentPage(result.currentPage || page);
       setTotalPages(result.totalPages || 0);
       setTotalJobs(result.totalJobs || 0);
-      setHasMore(result.hasMore || false);
 
       console.log(`Successfully fetched ${(result.jobs || []).length} jobs`);
 
