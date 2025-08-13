@@ -145,6 +145,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   alt="Aipply Logo"
                   width={100}
                   height={34}
+                  priority
+                  className="object-contain"
+                  onError={() => console.log('Mobile logo failed to load')}
                 />
               </Link>
               <SidebarTrigger />
@@ -160,6 +163,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     alt="Aipply Logo"
                     width={142}
                     height={48}
+                    priority
+                    className="object-contain"
+                    onError={() => console.log('Logo failed to load')}
                   />
                 </Link>
               </div>

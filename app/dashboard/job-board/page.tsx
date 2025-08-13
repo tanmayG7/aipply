@@ -152,12 +152,12 @@ export default function Page() {
   const [experience, setExperience] = useState<[number, number][]>([]);
   const [jobType, setJobType] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  // Count active filters for badge
+  // Count active filters for badge - counts individual selections, not categories
   const getActiveFilterCount = () => {
     let count = 0;
-    if (salaryRange.length > 0) count++;
-    if (experience.length > 0) count++;
-    if (jobType.length > 0) count++;
+    count += salaryRange.length; // Count each salary range selection
+    count += experience.length;  // Count each experience range selection  
+    count += jobType.length;     // Count each job type selection
     return count;
   };
 
