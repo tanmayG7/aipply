@@ -23,7 +23,7 @@ import { getStorage } from "firebase/storage";
 import { Job, UserDetails, DashboardData } from "../types";
 import { getFilteredJobsByTitlePaginatedWithFuzzy } from "@/lib/mongo/fuzzy-matcher";
 import { getJobsByIds, getFilteredJobsByTitle, getJobByTitleandSkills, getFilteredJobsByTitlePaginated } from "@/lib/mongo/mongo";
-import { mapSalaryToRange, mapExperienceToRange } from "../utils";
+import { mapSalaryToRange, mapExperienceToRange, determineJobType } from "../utils";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -996,9 +996,44 @@ const getUpdatedJobsPaginated = async (
     if (filters?.salaryRange && filters.salaryRange.length > 0) {
       const originalLength = jobs.length;
       jobs = jobs.filter((job: Job) => {
-        // Implement salary filtering logic based on your salary structure
-        // This is a placeholder - you'll need to implement based on your data structure
-        return true; 
+        if (!job.salary || !Array.isArray(job.salary)) return false;
+        
+        // Parse job salary ranges
+        const jobSalaryRanges = job.salary.map((salaryStr: string) => {
+          const cleanSalary = salaryStr.toLowerCase().trim();
+          let min = 0, max = 0;
+          
+          // Handle different salary formats
+          if (cleanSalary.includes('lakhs') || cleanSalary.includes('lacs') || cleanSalary.includes('lpa')) {
+            // Extract numbers from salary string
+            const numbers = cleanSalary.match(/\d+\.?\d*/g);
+            if (numbers) {
+              if (cleanSalary.includes('+') || cleanSalary.includes('above') || cleanSalary.includes('>')) {
+                // Handle "25+ Lakhs" or ">25 Lakhs"
+                min = parseFloat(numbers[0]) * 100000;
+                max = Infinity;
+              } else if (numbers.length >= 2) {
+                // Handle "5-8 Lakhs" or "12-18 Lacs PA"
+                min = parseFloat(numbers[0]) * 100000;
+                max = parseFloat(numbers[1]) * 100000;
+              } else {
+                // Single number like "15 Lakhs"
+                min = parseFloat(numbers[0]) * 100000;
+                max = min;
+              }
+            }
+          }
+          
+          return [min, max] as [number, number];
+        });
+        
+        // Check if any job salary range intersects with any selected filter range
+        return jobSalaryRanges.some(([jobMin, jobMax]) => 
+          filters.salaryRange!.some(([filterMin, filterMax]) => {
+            // Range intersection logic
+            return (jobMin <= filterMax && jobMax >= filterMin);
+          })
+        );
       });
       console.log(`[getUpdatedJobsPaginated] Salary filter applied: ${originalLength} -> ${jobs.length}`);
     }
@@ -1006,9 +1041,30 @@ const getUpdatedJobsPaginated = async (
     if (filters?.experience && filters.experience.length > 0) {
       const originalLength = jobs.length;
       jobs = jobs.filter((job: Job) => {
-        // Implement experience filtering logic
-        // This is a placeholder - you'll need to implement based on your data structure
-        return true;
+        if (!job.experience) return false;
+        
+        // Parse job experience range
+        const expStr = job.experience.toLowerCase().trim();
+        let jobExpMin = 0, jobExpMax = 0;
+        
+        // Extract numbers from experience string
+        const numbers = expStr.match(/\d+\.?\d*/g);
+        if (numbers) {
+          if (numbers.length >= 2) {
+            // Handle "3-5 Years" format
+            jobExpMin = parseFloat(numbers[0]);
+            jobExpMax = parseFloat(numbers[1]);
+          } else {
+            // Handle single number like "5 Years"
+            jobExpMin = parseFloat(numbers[0]);
+            jobExpMax = jobExpMin;
+          }
+        }
+        
+        // Check if job experience range intersects with any selected filter range
+        return filters.experience!.some(([filterMin, filterMax]) => {
+          return (jobExpMin <= filterMax && jobExpMax >= filterMin);
+        });
       });
       console.log(`[getUpdatedJobsPaginated] Experience filter applied: ${originalLength} -> ${jobs.length}`);
     }
@@ -1016,7 +1072,16 @@ const getUpdatedJobsPaginated = async (
     if (filters?.jobType && filters.jobType.length > 0) {
       const originalLength = jobs.length;
       jobs = jobs.filter((job: Job) => {
-        return filters.jobType?.includes(job.type || 'Full-time');
+        // Normalize job type with fallback to determineJobType
+        let normalizedJobType = '';
+        if (job.type) {
+          normalizedJobType = job.type.toLowerCase().trim();
+        } else {
+          // Use determineJobType as fallback and normalize to lowercase
+          normalizedJobType = determineJobType(job.description || '').toLowerCase().trim();
+        }
+        
+        return filters.jobType!.includes(normalizedJobType);
       });
       console.log(`[getUpdatedJobsPaginated] Job type filter applied: ${originalLength} -> ${jobs.length}`);
     }

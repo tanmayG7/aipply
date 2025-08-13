@@ -1,14 +1,12 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { experienceOptions, jobTypes, salaryRanges } from "@/lib/staticData";
-import { Job } from "@/lib/types";
-import { determineJobType } from "@/lib/utils";
 
 interface FilterCardProps {
-  jobs: Job[];
-  setFilteredJobs: (jobs: Job[]) => void;
+  onApply: () => void;
+  onClear: () => void;
   salaryRange: [number, number][];
   setSalaryRange: (
     range:
@@ -27,8 +25,8 @@ interface FilterCardProps {
 }
 
 const FilterCard: React.FC<FilterCardProps> = ({
-  jobs,
-  setFilteredJobs,
+  onApply,
+  onClear,
   salaryRange,
   setSalaryRange,
   experience,
@@ -37,25 +35,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
   setJobType,
   onClose,
 }) => {
-  const [isSalaryChecked, setIsSalaryChecked] = useState(false);
-  const [isExperienceChecked, setIsExperienceChecked] = useState(false);
-  const [isJobTypeChecked, setIsJobTypeChecked] = useState(false);
-  const [noJobsFound, setNoJobsFound] = useState(false);
-  const didMount = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  // Update state variables based on the current filter arrays
-  useEffect(() => {
-    setIsSalaryChecked(salaryRange.length > 0);
-  }, [salaryRange]);
-
-  useEffect(() => {
-    setIsExperienceChecked(experience.length > 0);
-  }, [experience]);
-
-  useEffect(() => {
-    setIsJobTypeChecked(jobType.length > 0);
-  }, [jobType]);
 
   // Handle click outside to close modal
   useEffect(() => {
@@ -71,75 +51,15 @@ const FilterCard: React.FC<FilterCardProps> = ({
     };
   }, [onClose]);
 
-  const applyFilters = () => {
-    // Dynamically adjust salaryRange and experience based on checked ranges
-    if (!isSalaryChecked) setSalaryRange([]);
-    if (!isExperienceChecked) setExperience([]);
-    if (!isJobTypeChecked) setJobType([]);
+  const handleApply = () => {
+    onApply();
+  };
 
-    const filteredJobs = jobs.filter((job) => {
-      const jobSalaryRanges: [number, number][] = job.salary?.map(
-        (value: string) => {
-          const [minStr, maxStr] = value
-            .replace(/\s*Lakhs\s*/gi, "")
-            .split("-")
-            .map((v) => parseFloat(v));
-          return [minStr * 100000, maxStr * 100000];
-        }
-      ) || [[0, 0]];
-
-      const isWithinSalaryRange =
-        !isSalaryChecked ||
-        jobSalaryRanges.some(([jobMin, jobMax]) =>
-          salaryRange.some(([filterMin, filterMax]) => {
-            return (
-              (jobMin >= filterMin && jobMin <= filterMax) ||
-              (jobMax >= filterMin && jobMax <= filterMax) ||
-              (jobMin <= filterMin && jobMax >= filterMax)
-            );
-          })
-        );
-
-      const [jobExpMin, jobExpMax] = job.experience
-        ? job.experience
-            .replace(/[^\d\-]/g, "")
-            .split("-")
-            .map((v) => parseInt(v, 10))
-        : [0, 0];
-
-      const isWithinExperience =
-        !isExperienceChecked ||
-        experience.some(([filterMin, filterMax]) => {
-          return (
-            (jobExpMin >= filterMin && jobExpMin <= filterMax) ||
-            (jobExpMax >= filterMin && jobExpMax <= filterMax) ||
-            (jobExpMin <= filterMin && jobExpMax >= filterMax)
-          );
-        });
-
-      // Determine the job type based on the description
-      const jobTypeFromDescription = determineJobType(job.description)
-        .toLowerCase()
-        .trim();
-
-      const isJobTypeMatch =
-        jobType.length === 0 || jobType.includes(jobTypeFromDescription);
-
-      const conditions = [];
-      if (isSalaryChecked) conditions.push(isWithinSalaryRange);
-      if (isExperienceChecked) conditions.push(isWithinExperience);
-      if (isJobTypeChecked) conditions.push(isJobTypeMatch);
-
-      // Ensure all conditions are true
-      return conditions.length === 0 || conditions.every((condition) => condition);
-    });
-
-    if (filteredJobs.length === 0) {
-      setNoJobsFound(true);
-    } else {
-      setNoJobsFound(false);
-      setFilteredJobs(filteredJobs);
-    }
+  const handleClear = () => {
+    setSalaryRange([]);
+    setExperience([]);
+    setJobType([]);
+    onClear();
   };
 
   const handleSalaryCheckboxChange = (range: [number, number]) => {
@@ -167,14 +87,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
     });
   };
 
-  // Auto-apply filters when any filter value changes (skip first mount)
-  useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true;
-      return;
-    }
-    applyFilters();
-  }, [salaryRange, experience, jobType]);
+  // Remove auto-apply effect - now using explicit Apply button
 
   return (
     <div>
@@ -284,13 +197,21 @@ const FilterCard: React.FC<FilterCardProps> = ({
             </div>
           </div>
         </div>
-        {noJobsFound && (
-          <div className="text-center text-red-600/90 mt-4">
-            <p className="text-text-lg-semibold font-inter">
-              No jobs found matching your criteria. Please try adjusting the filters.
-            </p>
-          </div>
-        )}
+        {/* Action buttons */}
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={handleClear}
+            className="flex-1 px-4 py-3 text-gray-400 bg-gray-800 hover:bg-gray-700 rounded-md font-medium transition-colors"
+          >
+            Clear
+          </button>
+          <button
+            onClick={handleApply}
+            className="flex-1 px-4 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition-colors"
+          >
+            Apply
+          </button>
+        </div>
       </div>
     </div>
   );

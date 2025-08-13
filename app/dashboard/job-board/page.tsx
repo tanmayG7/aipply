@@ -357,7 +357,16 @@ export default function Page() {
     setShowFilterCard(false);
   };
 
-  const handleFilterApplied = () => {
+  const handleFilterApply = () => {
+    setCurrentPage(1);
+    fetchJobsWithPagination(1, filter);
+    setShowFilterCard(false);
+  };
+
+  const handleFilterClear = () => {
+    setSalaryRange([]);
+    setExperience([]);
+    setJobType([]);
     setCurrentPage(1);
     fetchJobsWithPagination(1, filter);
     setShowFilterCard(false);
@@ -522,8 +531,8 @@ export default function Page() {
 
                 {showFilterCard && (
                   <FilterCard
-                    jobs={jobs}
-                    setFilteredJobs={handleFilterApplied}
+                    onApply={handleFilterApply}
+                    onClear={handleFilterClear}
                     salaryRange={salaryRange}
                     setSalaryRange={setSalaryRange}
                     experience={experience}
@@ -553,7 +562,8 @@ export default function Page() {
                     ))
                   ) : !pageLoading && isInitialized ? (
                     <div className="text-center py-8 text-gray-400">
-                      {filter ? "No jobs found matching your search." : 
+                      {activeFilterCount > 0 ? "No jobs match your current filters. Try adjusting or clearing your criteria." :
+                       filter ? "No jobs found matching your search." : 
                        !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
                        "No jobs available for your profile."}
                     </div>
