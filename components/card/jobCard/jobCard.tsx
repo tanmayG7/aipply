@@ -28,6 +28,7 @@ const JobCard =  ({
 }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [platformLogoError, setPlatformLogoError] = useState(false);
 
 
 
@@ -43,10 +44,18 @@ const JobCard =  ({
     Shine: "/static/images/shineLogo.png",
     Hirist: "/static/images/hiristLogo.webp",
     TimesJob: "/static/images/timesJobLogo.png",
+    Foundit: "/static/images/timesJobLogo.png",
+    "Times Job": "/static/images/timesJobLogo.png",
+    Monster: "/static/images/timesJobLogo.png",
+    Cutshort: "/static/icons/building.svg",
+    Indeed: "/static/icons/building.svg",
+    LinkedIn: "/static/icons/building.svg",
   };
 
   const platformKey = Object.keys(jobPlatformMap).find(
-    (key) => key.toLowerCase() === job.platform.toLowerCase()
+    (key) => key.toLowerCase() === job.platform.toLowerCase() ||
+             job.platform.toLowerCase().includes(key.toLowerCase()) ||
+             key.toLowerCase().includes(job.platform.toLowerCase())
   );
 
   // Use job.tags if available, otherwise extract from the description.
@@ -181,13 +190,16 @@ const JobCard =  ({
         <div className="relative w-[45px] sm:w-[55px] h-[12px] sm:h-[16px] overflow-hidden">
           <Image
             src={
-              platformKey
+              platformLogoError
+                ? "/static/icons/building.svg"
+                : platformKey
                 ? jobPlatformMap[platformKey]
-                : "/static/images/defaultLogo.png"
+                : "/static/icons/building.svg"
             }
             alt="Platform Logo"
             fill
             className="object-contain"
+            onError={() => setPlatformLogoError(true)}
           />
         </div>
       </div>
