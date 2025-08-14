@@ -904,9 +904,9 @@ const getUpdatedJobsPaginated = async (
     // WITH FILTERS: We need to fetch more data and apply client-side filtering
     console.log(`[getUpdatedJobsPaginated] Filters detected - fetching larger dataset for accurate filtering`);
     
-    // For filtering, we need to fetch a larger batch to ensure we can fill a page after filtering
-    // We'll fetch multiple pages worth of data and filter client-side
-    const batchSize = pageSize * 10; // Fetch 10 pages worth to increase chances of filling current page
+    // TODO: Implement server-side filtering to avoid large client-side batches.
+    // For now, reduce batch size to 2 pages worth to reduce client-side load
+    const batchSize = pageSize * 2; // Fetch 2 pages worth to reduce client-side load
     const batchPage = 1; // Always start from page 1 when filtering
 
     const result = await getFilteredJobsByTitlePaginatedWithFuzzy(
