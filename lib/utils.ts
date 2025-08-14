@@ -117,15 +117,23 @@ export const mergeSalaryRanges = (salaries: string[]): string => {
       min = max = extractNumber(salary);
     }
     
+    // Salary validation thresholds and conversion factors
+    // MAX_REASONABLE_SALARY_K: Maximum reasonable salary in thousands (used to detect unrealistic values)
+    const MAX_REASONABLE_SALARY_K = 500; // 500k (i.e., 5 lakhs) is considered a threshold for unrealistic salary input
+    // SALARY_CONVERSION_THRESHOLD: If salary is >= 100,000, assume it's in rupees and convert to lakhs
+    const SALARY_CONVERSION_THRESHOLD = 100000; // 100,000 rupees = 1 lakh
+    // MAX_SALARY_LAKHS: Maximum allowed salary in lakhs
+    const MAX_SALARY_LAKHS = 50; // 50 lakhs is the upper cap for salary
+    
     // Validation: Ensure realistic salary ranges
-    if (min > 500 || max > 500) {
+    if (min > MAX_REASONABLE_SALARY_K || max > MAX_REASONABLE_SALARY_K) {
       console.warn(`Unrealistic salary detected: "${salary}" -> min:${min}, max:${max}. Capping values.`);
       // If values seem to be in thousands, convert to lakhs
-      if (min >= 100000) min = min / 100000;
-      if (max >= 100000 && max !== Infinity) max = max / 100000;
+      if (min >= SALARY_CONVERSION_THRESHOLD) min = min / SALARY_CONVERSION_THRESHOLD;
+      if (max >= SALARY_CONVERSION_THRESHOLD && max !== Infinity) max = max / SALARY_CONVERSION_THRESHOLD;
       // Cap at reasonable maximum (50 lakhs)
-      if (min > 50) min = 50;
-      if (max > 50 && max !== Infinity) max = 50;
+      if (min > MAX_SALARY_LAKHS) min = MAX_SALARY_LAKHS;
+      if (max > MAX_SALARY_LAKHS && max !== Infinity) max = MAX_SALARY_LAKHS;
     }
     
     return { min, max };
