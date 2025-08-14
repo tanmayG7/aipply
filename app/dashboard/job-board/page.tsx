@@ -2,7 +2,7 @@
 
 import { AppSidebar } from "@/components/app-sidebar";
 import JobCard from "@/components/card/jobCard/jobCard";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Job, UserDetails } from "@/lib/types";
@@ -23,7 +23,20 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
 const JOBS_PER_PAGE = 20;
-const MAX_TOTAL_JOBS = 100;
+
+const MobileTrigger = () => {
+  const { openMobile } = useSidebar();
+  
+  if (openMobile) return null; // Hide when mobile sidebar is open
+  
+  return (
+    <div className="lg:hidden fixed top-6 right-4 z-50">
+      <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
+        <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
+      </div>
+    </div>
+  );
+};
 
 // Pagination component
 const PaginationControls: React.FC<{
@@ -76,13 +89,14 @@ const PaginationControls: React.FC<{
   };
 
   return (
-    <div className="flex justify-center items-center space-x-2 mt-8 mb-8 py-6">
+    <div className="flex flex-wrap justify-center items-center gap-2 mt-8 mb-8 py-6">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1 || loading}
-        className="px-4 py-2 text-sm font-medium text-white bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-3 sm:px-4 py-2 text-sm font-medium text-white bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-11"
       >
-        Previous
+        <span className="hidden sm:inline">Previous</span>
+        <span className="sm:hidden">Prev</span>
       </button>
 
       {getPageNumbers().map((page, index) => {
@@ -99,7 +113,7 @@ const PaginationControls: React.FC<{
             key={page}
             onClick={() => onPageChange(page)}
             disabled={loading}
-            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors h-11 min-w-[44px] ${
               currentPage === page
                 ? "bg-blue-600 text-white border border-blue-600 font-semibold"
                 : "text-white bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e] hover:text-white"
@@ -113,12 +127,12 @@ const PaginationControls: React.FC<{
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages || loading}
-        className="px-4 py-2 text-sm font-medium text-white bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-3 sm:px-4 py-2 text-sm font-medium text-white bg-[#020218] border border-[#454545] rounded-md hover:bg-[#1a1a2e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-11"
       >
         Next
       </button>
 
-      <span className="ml-4 text-sm text-white font-medium">
+      <span className="text-sm text-white font-medium w-full sm:w-auto text-center sm:text-left mt-2 sm:mt-0 sm:ml-4">
         Page {currentPage} of {totalPages}
       </span>
     </div>
@@ -138,13 +152,21 @@ export default function Page() {
   const [experience, setExperience] = useState<[number, number][]>([]);
   const [jobType, setJobType] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  // Count active filters for badge - counts individual selections, not categories
+  const getActiveFilterCount = () => {
+    let count = 0;
+    count += salaryRange.length; // Count each salary range selection
+    count += experience.length;  // Count each experience range selection  
+    count += jobType.length;     // Count each job type selection
+    return count;
+  };
+
+  const activeFilterCount = getActiveFilterCount();
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalJobs, setTotalJobs] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
   
   // Simplified state management
   const [isInitialized, setIsInitialized] = useState(false);
@@ -176,20 +198,17 @@ export default function Page() {
           salaryRange,
           experience,
           jobType
-        },
-        MAX_TOTAL_JOBS
+        }
       );
 
       if (!result || typeof result !== 'object') {
         throw new Error('Invalid response from getUpdatedJobsPaginated');
       }
 
-      setDebugInfo(result.debugInfo || null);
       setJobs(result.jobs || []);
       setCurrentPage(result.currentPage || page);
       setTotalPages(result.totalPages || 0);
       setTotalJobs(result.totalJobs || 0);
-      setHasMore(result.hasMore || false);
 
       console.log(`Successfully fetched ${(result.jobs || []).length} jobs`);
 
@@ -331,7 +350,16 @@ export default function Page() {
     setShowFilterCard(false);
   };
 
-  const handleFilterApplied = () => {
+  const handleFilterApply = () => {
+    setCurrentPage(1);
+    fetchJobsWithPagination(1, filter);
+    setShowFilterCard(false);
+  };
+
+  const handleFilterClear = () => {
+    setSalaryRange([]);
+    setExperience([]);
+    setJobType([]);
     setCurrentPage(1);
     fetchJobsWithPagination(1, filter);
     setShowFilterCard(false);
@@ -401,89 +429,103 @@ export default function Page() {
     <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
       <AppSidebar />
       <SidebarInset>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-4 relative">
-          {/* Show error with retry option */}
-          {error && (
-            <div className="text-center py-8">
-              <div className="bg-yellow-900/20 border border-yellow-500 rounded-lg p-6 max-w-md mx-auto">
-                <h2 className="text-yellow-400 text-xl font-semibold mb-2">
-                  Error Loading Jobs
-                </h2>
-                <p className="text-yellow-300 mb-4">
-                  {error}
-                </p>
-                <div className="space-x-2">
-                  <button 
-                    onClick={forceRestart}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md font-semibold"
-                    disabled={loading || pageLoading}
-                  >
-                    🔄 Force Restart
-                  </button>
-                  <button 
-                    onClick={() => window.location.href = '/dashboard/complete-profile'}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-                  >
-                    Complete Profile
-                  </button>
+        <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 pt-4 relative overflow-x-hidden bg-[#020218] text-white">
+          <MobileTrigger />
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {/* Show error with retry option */}
+            {error && (
+              <div className="text-center py-8">
+                <div className="bg-yellow-900/20 border border-yellow-500 rounded-lg p-6 max-w-md mx-auto">
+                  <h2 className="text-yellow-400 text-xl font-semibold mb-2">
+                    Error Loading Jobs
+                  </h2>
+                  <p className="text-yellow-300 mb-4">
+                    {error}
+                  </p>
+                  <div className="space-y-2 sm:space-y-0 sm:space-x-2 flex flex-col sm:flex-row">
+                    <button 
+                      onClick={forceRestart}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md font-semibold h-11"
+                      disabled={loading || pageLoading}
+                    >
+                      🔄 Force Restart
+                    </button>
+                    <button 
+                      onClick={() => window.location.href = '/dashboard/complete-profile'}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md h-11"
+                    >
+                      Complete Profile
+                    </button>
+                  </div>
+                  <p className="text-xs text-yellow-400 mt-3">
+                    If the page doesn't load initially, try "Force Restart" - this usually fixes the issue.
+                  </p>
                 </div>
-                <p className="text-xs text-yellow-400 mt-3">
-                  If the page doesn't load initially, try "Force Restart" - this usually fixes the issue.
-                </p>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Show main content when no error */}
-          {!error && (
-            <>
-              <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
-                <h1 className="text-inter font-bold text-[35px] lg:text-[40px] text-[#ECECED]">
-                  {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
-                </h1>
-                <div className="flex flex-row gap-2 justify-start lg:justify-end">
-                  <input
-                    type="text"
-                    className="border border-[#454545] bg-[#020218] text-white w-[280px] py-1 px-4 text-start rounded-md h-11 min-w-[280px]"
-                    value={filter}
-                    onChange={handleFilterChange}
-                    placeholder="Search jobs (debounced)"
-                  />
-                  <button
-                    onClick={handleFilterClick}
-                    className="flex bg-blue-500 text-white py-1 px-8 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
-                  >
-                    <Image
-                      src="/static/icons/filter.svg"
-                      alt="Search"
-                      width={20}
-                      height={20}
+            {/* Show main content when no error */}
+            {!error && (
+              <>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h1 className="text-inter font-bold text-xl sm:text-2xl lg:text-[40px] text-[#ECECED]">
+                      {totalJobs > 0 ? `Job Board (${totalJobs})` : "Job Board"}
+                    </h1>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full">
+                    <input
+                      type="text"
+                      className="border border-[#454545] bg-[#020218] text-white w-full py-2 px-4 text-start rounded-md h-11 text-sm sm:text-base"
+                      value={filter}
+                      onChange={handleFilterChange}
+                      placeholder="Search jobs (debounced)"
                     />
-                    Filter
-                  </button>
-                  <button
-                    onClick={forceRestart}
-                    className="flex bg-gray-600 text-white py-1 px-4 rounded-md justify-center items-center gap-1 border border-[#454545] h-11 w-fit"
-                    title="Force restart if jobs don't load"
-                    disabled={loading || pageLoading}
-                  >
-                    🔄
-                  </button>
+                    <div className="flex gap-2 sm:gap-3">
+                      <button
+                        type="button"
+                        onClick={handleFilterClick}
+                        data-testid="open-filter"
+                        className="relative flex bg-blue-500 text-white py-2 px-4 sm:px-6 rounded-md justify-center items-center gap-2 border border-[#454545] h-11 flex-1 sm:flex-initial min-w-[80px]"
+                      >
+                        <Image
+                          src="/static/icons/filter.svg"
+                          alt="Filter"
+                          width={18}
+                          height={18}
+                          className="sm:w-5 sm:h-5"
+                        />
+                        <span className="text-sm sm:text-base">Filter</span>
+                        {activeFilterCount > 0 && (
+                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                            {activeFilterCount}
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={forceRestart}
+                        className="flex bg-gray-600 text-white py-2 px-3 sm:px-4 rounded-md justify-center items-center border border-[#454545] h-11 w-11 flex-shrink-0"
+                        title="Force restart if jobs don't load"
+                        disabled={loading || pageLoading}
+                      >
+                        <span className="text-sm">🔄</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
               {/* Page info */}
               {totalJobs > 0 && (
-                <div className="text-sm text-white">
+                <div className="text-xs sm:text-sm text-white opacity-80">
                   Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
                 </div>
               )}
 
-              {showFilterCard && (
-                <div className="absolute inset-0 z-60 flex justify-center items-center opacity-100">
+                {showFilterCard && (
                   <FilterCard
-                    jobs={jobs}
-                    setFilteredJobs={handleFilterApplied}
+                    onApply={handleFilterApply}
+                    onClear={handleFilterClear}
                     salaryRange={salaryRange}
                     setSalaryRange={setSalaryRange}
                     experience={experience}
@@ -492,49 +534,50 @@ export default function Page() {
                     setJobType={setJobType}
                     onClose={handleFilterCancel}
                   />
-                </div>
-              )}
+                )}
 
-              <div className={`flex flex-col gap-4 cursor-pointer ${showFilterCard ? "opacity-20" : ""} ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
-                {pageLoading ? (
-                  <div className="flex justify-center items-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    <span className="ml-3 text-gray-400">Loading jobs...</span>
-                  </div>
-                ) : jobs.length > 0 ? (
-                  jobs.map((job: Job) => (
-                    <div key={job.jobId}>
-                      <JobCard
-                        job={job}
-                        userProfile={userProfileValue || {} as UserDetails}
-                        handleHideJob={() => handleHideJob(job.jobId)}
-                        handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
-                      />
+                <div className={`flex flex-col gap-4 cursor-pointer ${pageLoading ? "opacity-50 pointer-events-none" : ""}`}>
+                  {pageLoading ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                      <span className="ml-3 text-gray-400">Loading jobs...</span>
                     </div>
-                  ))
-                ) : !pageLoading && isInitialized ? (
-                  <div className="text-center py-8 text-gray-400">
-                    {filter ? "No jobs found matching your search." : 
-                     !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
-                     "No jobs available for your profile."}
-                  </div>
-                ) : null}
-              </div>
-
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="mt-8 mb-4">
-                  <PaginationControls
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                    loading={pageLoading}
-                  />
+                  ) : jobs.length > 0 ? (
+                    jobs.map((job: Job) => (
+                      <div key={job.jobId}>
+                        <JobCard
+                          job={job}
+                          userProfile={userProfileValue || {} as UserDetails}
+                          handleHideJob={() => handleHideJob(job.jobId)}
+                          handleAppliedJob={() => handleAppliedJob(job.jobId, job)}
+                        />
+                      </div>
+                    ))
+                  ) : !pageLoading && isInitialized ? (
+                    <div className="text-center py-8 text-gray-400">
+                      {activeFilterCount > 0 ? "No jobs match your current filters. Try adjusting or clearing your criteria." :
+                       filter ? "No jobs found matching your search." : 
+                       !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
+                       "No jobs available for your profile."}
+                    </div>
+                  ) : null}
                 </div>
-              )}
-              
-            </>
-          )}
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="mt-8 mb-4">
+                    <PaginationControls
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      loading={pageLoading}
+                    />
+                  </div>
+                )}
+                
+              </>
+            )}
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

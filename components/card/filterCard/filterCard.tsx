@@ -1,15 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
 import { experienceOptions, jobTypes, salaryRanges } from "@/lib/staticData";
-import { Job } from "@/lib/types";
-import { determineJobType } from "@/lib/utils";
 
 interface FilterCardProps {
-  jobs: Job[];
-  setFilteredJobs: (jobs: Job[]) => void;
+  onApply: () => void;
+  onClear: () => void;
   salaryRange: [number, number][];
   setSalaryRange: (
     range:
@@ -28,8 +25,8 @@ interface FilterCardProps {
 }
 
 const FilterCard: React.FC<FilterCardProps> = ({
-  jobs,
-  setFilteredJobs,
+  onApply,
+  onClear,
   salaryRange,
   setSalaryRange,
   experience,
@@ -38,94 +35,31 @@ const FilterCard: React.FC<FilterCardProps> = ({
   setJobType,
   onClose,
 }) => {
-  const [isSalaryChecked, setIsSalaryChecked] = useState(false);
-  const [isExperienceChecked, setIsExperienceChecked] = useState(false);
-  const [isJobTypeChecked, setIsJobTypeChecked] = useState(false);
-  const [noJobsFound, setNoJobsFound] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // Update state variables based on the current filter arrays
+  // Handle click outside to close modal
   useEffect(() => {
-    setIsSalaryChecked(salaryRange.length > 0);
-  }, [salaryRange]);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
 
-  useEffect(() => {
-    setIsExperienceChecked(experience.length > 0);
-  }, [experience]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
 
-  useEffect(() => {
-    setIsJobTypeChecked(jobType.length > 0);
-  }, [jobType]);
+  const handleApply = () => {
+    onApply();
+  };
 
-  const applyFilters = () => {
-    // Dynamically adjust salaryRange and experience based on checked ranges
-    if (!isSalaryChecked) setSalaryRange([]);
-    if (!isExperienceChecked) setExperience([]);
-    if (!isJobTypeChecked) setJobType([]);
-
-    const filteredJobs = jobs.filter((job) => {
-      const jobSalaryRanges: [number, number][] = job.salary?.map(
-        (value: string) => {
-          const [minStr, maxStr] = value
-            .replace(/\s*Lakhs\s*/gi, "")
-            .split("-")
-            .map((v) => parseFloat(v));
-          return [minStr * 100000, maxStr * 100000];
-        }
-      ) || [[0, 0]];
-
-      const isWithinSalaryRange =
-        !isSalaryChecked ||
-        jobSalaryRanges.some(([jobMin, jobMax]) =>
-          salaryRange.some(([filterMin, filterMax]) => {
-            return (
-              (jobMin >= filterMin && jobMin <= filterMax) ||
-              (jobMax >= filterMin && jobMax <= filterMax) ||
-              (jobMin <= filterMin && jobMax >= filterMax)
-            );
-          })
-        );
-
-      const [jobExpMin, jobExpMax] = job.experience
-        ? job.experience
-            .replace(/[^\d\-]/g, "")
-            .split("-")
-            .map((v) => parseInt(v, 10))
-        : [0, 0];
-
-      const isWithinExperience =
-        !isExperienceChecked ||
-        experience.some(([filterMin, filterMax]) => {
-          return (
-            (jobExpMin >= filterMin && jobExpMin <= filterMax) ||
-            (jobExpMax >= filterMin && jobExpMax <= filterMax) ||
-            (jobExpMin <= filterMin && jobExpMax >= filterMax)
-          );
-        });
-
-      // Determine the job type based on the description
-      const jobTypeFromDescription = determineJobType(job.description)
-        .toLowerCase()
-        .trim();
-
-      const isJobTypeMatch =
-        jobType.length === 0 || jobType.includes(jobTypeFromDescription);
-
-      const conditions = [];
-      if (isSalaryChecked) conditions.push(isWithinSalaryRange);
-      if (isExperienceChecked) conditions.push(isWithinExperience);
-      if (isJobTypeChecked) conditions.push(isJobTypeMatch);
-
-      // Ensure all conditions are true
-      return conditions.length === 0 || conditions.every((condition) => condition);
-    });
-
-    if (filteredJobs.length === 0) {
-      setNoJobsFound(true);
-    } else {
-      setNoJobsFound(false);
-      setFilteredJobs(filteredJobs);
-      onClose();
-    }
+  const handleClear = () => {
+    setSalaryRange([]);
+    setExperience([]);
+    setJobType([]);
+    onClear();
   };
 
   const handleSalaryCheckboxChange = (range: [number, number]) => {
@@ -153,18 +87,16 @@ const FilterCard: React.FC<FilterCardProps> = ({
     });
   };
 
-  const handleFilterSubmit = () => {
-    applyFilters();
-  };
+  // Remove auto-apply effect - now using explicit Apply button
 
   return (
     <div>
       <div
-        className="fixed top-0 right-0 w-[300px] h-full bg-[#0C111D] shadow-lg min-w-[443px] px-8 py-8 z-50 flex flex-col gap-8"
+        ref={modalRef}
+        className="fixed top-0 right-0 w-[320px] sm:w-[400px] h-full bg-[#0C111D] shadow-xl px-6 py-8 flex flex-col gap-6 border-l border-[#454545] z-50"
         style={{
-          borderTopLeftRadius: "40px",
-          borderBottomLeftRadius: "40px",
-          borderLeft: "2px solid rgba(255, 255, 255, 0.6)",
+          borderTopLeftRadius: "24px",
+          borderBottomLeftRadius: "24px",
         }}
       >
         <div className="flex justify-between items-center">
@@ -264,30 +196,22 @@ const FilterCard: React.FC<FilterCardProps> = ({
               </div>
             </div>
           </div>
-          <div className="absolute z-50 bottom-7 justify-end gap-2 w-full">
-            <div className="flex flex-row gap-4 mr-16">
-              <Button
-                onClick={onClose}
-                className="bg-gray text-white py-1 px-4 rounded-md w-full"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleFilterSubmit}
-                className="bg-gradient-to-b from-[#6033F5] to-[#A061F1] text-white py-1 px-4 rounded-md w-full"
-              >
-                Submit
-              </Button>
-            </div>
-          </div>
         </div>
-        {noJobsFound && (
-          <div className="text-center text-red-600/90 mt-4">
-            <p className="text-text-lg-semibold font-inter">
-              No jobs found matching your criteria. Please try adjusting the filters.
-            </p>
-          </div>
-        )}
+        {/* Action buttons */}
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={handleClear}
+            className="flex-1 px-4 py-3 text-gray-400 bg-gray-800 hover:bg-gray-700 rounded-md font-medium transition-colors"
+          >
+            Clear
+          </button>
+          <button
+            onClick={handleApply}
+            className="flex-1 px-4 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition-colors"
+          >
+            Apply
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import DashboardCard from "@/components/card/DashboardCard/DashboardCard";
 import { DashboardChart } from "@/components/charts/pieCharts";
 import { Button } from "@/components/ui/button";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
@@ -20,6 +20,20 @@ const debugLog = (message: string, data?: any) => {
   if (DEBUG) {
     console.log(`🏠 HomePage: ${message}`, data || '');
   }
+};
+
+const MobileTrigger = () => {
+  const { openMobile } = useSidebar();
+  
+  if (openMobile) return null; // Hide when mobile sidebar is open
+  
+  return (
+    <div className="lg:hidden fixed top-6 right-4 z-50">
+      <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
+        <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
+      </div>
+    </div>
+  );
 };
 
 const HomePage: React.FC = () => {
@@ -117,22 +131,25 @@ useEffect(() => {
         <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
           <AppSidebar />
           <SidebarInset>
-            <div className="flex flex-1 flex-col gap-4 p-4 relative bg-[#020218] text-white">
-              <div className="text-center py-8">
-                <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
-                  <h2 className="text-red-400 text-xl font-semibold mb-2">Error Loading Dashboard</h2>
-                  <p className="text-red-300 mb-4">{error}</p>
-                  <button 
-                    onClick={() => {
-                      setError(null);
-                      if (auth.currentUser) {
-                        fetchDashboardData(auth.currentUser.uid);
-                      }
-                    }}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
-                  >
-                    Try Again
-                  </button>
+            <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
+              <MobileTrigger />
+              <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="text-center py-8">
+                  <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
+                    <h2 className="text-red-400 text-xl font-semibold mb-2">Error Loading Dashboard</h2>
+                    <p className="text-red-300 mb-4">{error}</p>
+                    <button 
+                      onClick={() => {
+                        setError(null);
+                        if (auth.currentUser) {
+                          fetchDashboardData(auth.currentUser.uid);
+                        }
+                      }}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md h-11"
+                    >
+                      Try Again
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -152,126 +169,129 @@ useEffect(() => {
         <AppSidebar />
         
         <SidebarInset>
-          <div className="flex flex-1 flex-col gap-4 p-4 relative bg-[#020218] text-white">
-            {loading ? (
-              <HomeShimmer />
-            ) : (
-              <div className="flex flex-col gap-6">
-                {/* Debug info in development */}
-                {DEBUG && (
-                  <div className="bg-gray-800 p-2 rounded text-xs text-gray-300">
-                    Debug: Data loaded: {!!dashboardData} | Jobs Applied: {dashboardData?.jobsApplied}
+          <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
+            <MobileTrigger />
+            <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              {loading ? (
+                <HomeShimmer />
+              ) : (
+                <div className="flex flex-col gap-6">
+                  {/* Debug info in development */}
+                  {DEBUG && (
+                    <div className="bg-gray-800 p-2 rounded text-xs text-gray-300">
+                      Debug: Data loaded: {!!dashboardData} | Jobs Applied: {dashboardData?.jobsApplied}
+                    </div>
+                  )}
+                  
+                  <div className="gap-3">
+                    <h1 className="font-inter text-[#ECECED] font-bold text-2xl sm:text-3xl lg:text-[40px]">
+                      Home
+                    </h1>
+                    <p className="font-inter text-[#F5F5F6] text-text-sm-semibold">
+                      Today we have curated {dashboardData?.totalJobsShown || 0} jobs for you.
+                    </p>
                   </div>
-                )}
-                
-                <div className="gap-3">
-                  <h1 className="font-inter text-[#ECECED] font-bold text-[40px]">
-                    Home
-                  </h1>
-                  <p className="font-inter text-[#F5F5F6] text-text-sm-semibold">
-                    Today we have curated {dashboardData?.totalJobsShown || 0} jobs for you.
-                  </p>
-                </div>
-                
-                <div className="w-[50%]">
-                  <GetStartedCard appliedJoblength={dashboardData?.jobsApplied ? parseInt(dashboardData.jobsApplied.toString()) : 0}/>
-                </div>
-                
-                <div className="grid grid-cols-4 gap-4">
-                  {dashboardData && (
-                    <>
-                      <DashboardCard
-                        id="2"
-                        title="Total Jobs Shown"
-                        totalNumber={dashboardData.totalJobsShown.toString()}
-                      />
-                      <DashboardCard
-                        id="3"
-                        title="Jobs Applied"
-                        totalNumber={dashboardData.jobsApplied.toString()}
-                      />
-                      <DashboardCard
-                        id="1"
-                        title="Avg. Experience (Years)"
-                        totalNumber={dashboardData.averageExperience.toString()}
-                      />
-                      <DashboardCard
-                        id="4"
-                        title="Avg. Package (LPA)"
-                        totalNumber={dashboardData.averagePackage.toFixed(1)}
-                      />
-                    </>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-2 gap-8">
-                  {dashboardData && (
-                    <DashboardBarChart locationData={dashboardData.location} />
-                  )}
-                  {dashboardData && (
-                    <DashboardChart packageAppliedTo={dashboardData.packageAppliedTo} />
-                  )}
-                </div>
-
-                <div>
-                  <div className="flex flex-col gap-6">
-                    <h2 className="text-display-xs-semibold font-inter">
-                      Recommended actions
-                    </h2>
-                    <div className="flex flex-row justify-between w-[80%]">
-                      <div className="flex flex-row items-start gap-4">
-                        <Image
-                          src="/static/icons/layers-three.svg"
-                          alt="Arrow"
-                          width={40}
-                          height={40}
-                          className="border p-1 rounded-lg"
+                  
+                  <div className="w-full lg:w-[50%]">
+                    <GetStartedCard appliedJoblength={dashboardData?.jobsApplied ? parseInt(dashboardData.jobsApplied.toString()) : 0}/>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {dashboardData && (
+                      <>
+                        <DashboardCard
+                          id="2"
+                          title="Total Jobs Shown"
+                          totalNumber={dashboardData.totalJobsShown.toString()}
                         />
-                        <div className="flex flex-col gap-2">
-                          <h3 className="text-text-lg-semibold font-inter">
-                            Find more jobs
-                          </h3>
-                          <p className="text-text-md-medium font-inter text-[#94969C]">
-                            Discover opportunities that match your skills
-                          </p>
-                          <Button
-                            variant={"secondary"}
-                            className="bg-background text-white border hover:bg-blue text-text-sm-medium w-fit font-inter"
-                            onClick={() => window.location.href = '/dashboard/job-board'}
-                          >
-                            Find more jobs
-                          </Button>
+                        <DashboardCard
+                          id="3"
+                          title="Jobs Applied"
+                          totalNumber={dashboardData.jobsApplied.toString()}
+                        />
+                        <DashboardCard
+                          id="1"
+                          title="Avg. Experience (Years)"
+                          totalNumber={dashboardData.averageExperience.toString()}
+                        />
+                        <DashboardCard
+                          id="4"
+                          title="Avg. Package (LPA)"
+                          totalNumber={dashboardData.averagePackage.toFixed(1)}
+                        />
+                      </>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                    {dashboardData && (
+                      <DashboardBarChart locationData={dashboardData.location} />
+                    )}
+                    {dashboardData && (
+                      <DashboardChart packageAppliedTo={dashboardData.packageAppliedTo} />
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex flex-col gap-6">
+                      <h2 className="text-lg sm:text-xl lg:text-display-xs-semibold font-inter">
+                        Recommended actions
+                      </h2>
+                      <div className="flex flex-col lg:flex-row lg:justify-between gap-6 lg:gap-4 w-full lg:w-[80%]">
+                        <div className="flex flex-row items-start gap-4">
+                          <Image
+                            src="/static/icons/layers-three.svg"
+                            alt="Arrow"
+                            width={40}
+                            height={40}
+                            className="border p-1 rounded-lg flex-shrink-0"
+                          />
+                          <div className="flex flex-col gap-2">
+                            <h3 className="text-text-lg-semibold font-inter">
+                              Find more jobs
+                            </h3>
+                            <p className="text-text-md-medium font-inter text-[#94969C]">
+                              Discover opportunities that match your skills
+                            </p>
+                            <Button
+                              variant={"secondary"}
+                              className="bg-background text-white border hover:bg-blue text-text-sm-medium w-fit font-inter h-11"
+                              onClick={() => window.location.href = '/dashboard/job-board'}
+                            >
+                              Find more jobs
+                            </Button>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex flex-row items-start gap-4">
-                        <Image
-                          src="/static/icons/layers-three.svg"
-                          alt="Arrow"
-                          width={40}
-                          height={40}
-                          className="border p-1 rounded-lg"
-                        />
-                        <div className="flex flex-col gap-2">
-                          <h3 className="text-text-lg-semibold font-inter">
-                            Need Help?
-                          </h3>
-                          <p className="text-text-md-medium font-inter text-[#94969C]">
-                            Contact support or check out our help guide!
-                          </p>
-                          <Button
-                            variant={"secondary"}
-                            className="bg-background text-white border hover:bg-blue text-text-sm-medium w-fit font-inter"
-                          >
-                            Contact Support
-                          </Button>
+                        <div className="flex flex-row items-start gap-4">
+                          <Image
+                            src="/static/icons/layers-three.svg"
+                            alt="Arrow"
+                            width={40}
+                            height={40}
+                            className="border p-1 rounded-lg flex-shrink-0"
+                          />
+                          <div className="flex flex-col gap-2">
+                            <h3 className="text-text-lg-semibold font-inter">
+                              Need Help?
+                            </h3>
+                            <p className="text-text-md-medium font-inter text-[#94969C]">
+                              Contact support or check out our help guide!
+                            </p>
+                            <Button
+                              variant={"secondary"}
+                              className="bg-background text-white border hover:bg-blue text-text-sm-medium w-fit font-inter h-11"
+                            >
+                              Contact Support
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </SidebarInset>
       </SidebarProvider>

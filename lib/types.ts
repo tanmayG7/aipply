@@ -171,19 +171,28 @@ export interface FeatureAccess {
   reason?: 'upgrade_required' | 'daily_limit_reached' | 'monthly_limit_reached' | 'unknown_error';
 }
 
+export interface PlatformCredential {
+  email: string;
+  password: string;
+  isActive: boolean;
+  lastUsed?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PlatformCredentialsData {
-  foundit?: {
-    email: string;
-    password: string;
-  };
-  hirist?: {
-    email: string;
-    password: string;
-  };
-  cutshort?: {
-    email: string;
-    password: string;
-  };
+  foundit?: PlatformCredential;
+  hirist?: PlatformCredential;
+  shine?: PlatformCredential;
+  timesjob?: PlatformCredential;
+}
+
+export interface JobPortal {
+  id: string;
+  name: string;
+  logo: string;
+  description: string;
+  features: string[];
 }
 
 export const RAZORPAY_PLAN_MAPPING: Record<string, PlanConfig> = {

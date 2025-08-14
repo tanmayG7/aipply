@@ -64,16 +64,16 @@ export default function LoginPage() {
           content="Login to your Aipply account to start applying for jobs."
         />
       </Head>
-      <div className="flex w-full h-full bg-[#020218]">
-        <div className="grid grid-cols-1 md:grid-cols-2 items-center justify-center w-full">
-          <div className="md:w-[60%] w-fit m-auto items-center justify-center pt-14 custom-md:pt-0">
+      <div className="flex w-full min-h-screen bg-[#020218] overflow-x-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-center justify-center w-full px-4 sm:px-6 lg:px-8">
+          <div className="lg:w-[60%] w-full max-w-md mx-auto items-center justify-center pt-14 lg:pt-0">
             <LoginForm
               onLogin={handleLogin}
               loading={loading}
               errorText={error}
             />
           </div>
-          <div className="md:flex hidden">
+          <div className="lg:flex hidden">
             <TestimonialsCard
               image={currentTestimonial.image}
               comment={currentTestimonial.comment}

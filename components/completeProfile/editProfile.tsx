@@ -97,11 +97,11 @@ const EditProfile: React.FC = () => {
       case 'profile':
         return (
           <>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-semibold text-white">Profile Information</h2>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-white">Profile Information</h2>
               <button
                 onClick={() => toggleEditing('profile')}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors h-11 w-full sm:w-auto"
               >
                 {editingStates.profile ? 'View Mode' : 'Edit Mode'}
               </button>
@@ -113,11 +113,11 @@ const EditProfile: React.FC = () => {
       case 'credentials':
         return (
           <>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-semibold text-white">Job Portal Credentials</h2>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-white">Job Portal Credentials</h2>
               <button
                 onClick={() => toggleEditing('credentials')}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors h-11 w-full sm:w-auto"
               >
                 {editingStates.credentials ? 'View Mode' : 'Edit Mode'}
               </button>
@@ -133,11 +133,11 @@ const EditProfile: React.FC = () => {
       case 'preferences':
         return (
           <>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-semibold text-white">Job Preferences</h2>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-white">Job Preferences</h2>
               <button
                 onClick={() => toggleEditing('preferences')}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors h-11 w-full sm:w-auto"
               >
                 {editingStates.preferences ? 'View Mode' : 'Edit Mode'}
               </button>
@@ -149,11 +149,11 @@ const EditProfile: React.FC = () => {
       case 'documents':
         return (
           <>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-semibold text-white">Resume</h2>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-white">Resume</h2>
               <button
                 onClick={() => toggleEditing('documents')}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors h-11 w-full sm:w-auto"
               >
                 {editingStates.documents ? 'View Mode' : 'Edit Mode'}
               </button>
@@ -170,26 +170,26 @@ const EditProfile: React.FC = () => {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-white">Complete Your Profile</h1>
-        <p className="text-gray-400">Manage your profile information and job portal credentials</p>
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-white">Complete Your Profile</h1>
+        <p className="text-sm sm:text-base text-gray-400">Manage your profile information and job portal credentials</p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-700 mb-8">
-        <div className="flex space-x-8 overflow-x-auto">
+      <div className="border-b border-gray-700 mb-6 lg:mb-8">
+        <div className="flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 pb-4 px-1 border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex items-center space-x-2 pb-3 sm:pb-4 px-1 border-b-2 transition-colors whitespace-nowrap min-w-fit ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-400'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span className="text-lg">{tab.icon}</span>
-              <span className="font-medium">{tab.label}</span>
+              <span className="text-base sm:text-lg">{tab.icon}</span>
+              <span className="font-medium text-sm sm:text-base">{tab.label}</span>
             </button>
           ))}
         </div>
