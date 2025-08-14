@@ -56,9 +56,9 @@ const JobCard =  ({
   //     : getKeywordsFromDescription(stripHtmlTags(job.description));
   const jobTags = job.tags;
 
-  // Display raw salary data as-is (no processing)
-  const displaySalary = job.salary && job.salary.length > 0 
-    ? job.salary.join(" | ") // Use | separator for better readability
+  // Display salary using mergeSalaryRanges for consistent formatting
+  const displaySalary = job.salary && job.salary.length > 0
+    ? mergeSalaryRanges(job.salary)
     : "Not Disclosed";
 
   return (
