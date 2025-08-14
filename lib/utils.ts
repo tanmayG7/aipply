@@ -127,7 +127,9 @@ export const mergeSalaryRanges = (salaries: string[]): string => {
     
     // Validation: Ensure realistic salary ranges
     if (min > MAX_REASONABLE_SALARY_K || max > MAX_REASONABLE_SALARY_K) {
-      console.warn(`Unrealistic salary detected: "${salary}" -> min:${min}, max:${max}. Capping values.`);
+      if (typeof process !== "undefined" && process.env && process.env.NODE_ENV !== "production") {
+        console.warn(`Unrealistic salary detected: "${salary}" -> min:${min}, max:${max}. Capping values.`);
+      }
       // If values seem to be in thousands, convert to lakhs
       if (min >= SALARY_CONVERSION_THRESHOLD) min = min / SALARY_CONVERSION_THRESHOLD;
       if (max >= SALARY_CONVERSION_THRESHOLD && max !== Infinity) max = max / SALARY_CONVERSION_THRESHOLD;
