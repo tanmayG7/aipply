@@ -4,7 +4,10 @@ import { PlatformCredentialsData } from '../types';
 
 const CREDENTIALS_COLLECTION = 'userCredentials';
 
-// Simple encryption/decryption functions
+// TODO: SECURITY RISK - Replace with proper AES encryption before production
+// Base64 encoding is NOT secure and is easily reversible
+// This poses a significant security risk for user credentials
+// Consider implementing AES-256 encryption with proper key management
 const encrypt = (text: string): string => {
   // In a production app, use proper encryption like AES
   // For now, using base64 encoding as placeholder
