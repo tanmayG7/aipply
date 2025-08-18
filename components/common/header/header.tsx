@@ -259,12 +259,14 @@ const Header = () => {
                 {isDropdownOpen && (
                   <div
                     id="features-dropdown"
-                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] top-full mt-1 left-1/2 transform -translate-x-1/2 w-[215px]"
+                    className="absolute z-[9999] top-full left-1/2 transform -translate-x-1/2 w-[215px]"
+                    style={{ marginTop: '-2px' }}
                     onMouseEnter={handleDropdownEnter}
                     onMouseLeave={handleDropdownLeave}
                     role="menu"
                     aria-orientation="vertical"
                   >
+                    <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] mt-2">
                     {features.map((feature, index) => (
                       <NavLink
                         key={feature.redirectUrl}
@@ -285,6 +287,7 @@ const Header = () => {
                         {feature.name}
                       </NavLink>
                     ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -315,12 +318,14 @@ const Header = () => {
                 {isResourcesDropdownOpen && (
                   <div
                     id="resources-dropdown"
-                    className="absolute z-[9999] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] top-full mt-1 left-1/2 transform -translate-x-1/2 w-[275px]"
+                    className="absolute z-[9999] top-full left-1/2 transform -translate-x-1/2 w-[275px]"
+                    style={{ marginTop: '-2px' }}
                     onMouseEnter={handleResourcesEnter}
                     onMouseLeave={handleResourcesLeave}
                     role="menu"
                     aria-orientation="vertical"
                   >
+                    <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] mt-2">
                     {resources.map((resource, index) => (
                       <NavLink
                         key={resource.redirectUrl}
@@ -341,6 +346,7 @@ const Header = () => {
                         {resource.name}
                       </NavLink>
                     ))}
+                    </div>
                   </div>
                 )}
               </div>
