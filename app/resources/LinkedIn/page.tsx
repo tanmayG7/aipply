@@ -4,48 +4,49 @@ import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import HeroSection from "@/components/sections/heroSection/heroSection";
+import { Icon } from "@/components/ui/Icon";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const webinarHighlights = [
   {
-    icon: "💼",
+    iconName: "briefcase" as const,
     title: "Your LinkedIn profile is your digital CV",
     description: "Optimize your banner, headline, about section, and featured projects to clearly communicate your value."
   },
   {
-    icon: "📝",
+    iconName: "notebook-pen" as const,
     title: "Use the AIDA framework",
     description: "Apply Attention, Interest, Desire, Action in your About section to make it engaging and recruiter-friendly."
   },
   {
-    icon: "🔍",
+    iconName: "search" as const,
     title: "SEO matters!",
     description: "Optimize your LinkedIn profile with relevant keywords to rank higher in searches and attract the right opportunities."
   },
   {
-    icon: "🎓",
+    iconName: "graduation-cap" as const,
     title: "Freshers should build their presence",
     description: "Share college projects, extracurriculars, and post consistently to gain visibility."
   },
   {
-    icon: "🤝",
+    iconName: "handshake" as const,
     title: "Networking is key!",
     description: "Connecting with decision-makers, messaging recruiters, and engaging with professionals increases your chances of getting hired."
   },
   {
-    icon: "🚫",
+    iconName: "circle-slash" as const,
     title: "Easy Apply alone won't work",
     description: "Direct outreach and referrals make a significant difference in standing out."
   },
   {
-    icon: "⚡",
+    iconName: "zap" as const,
     title: "Personal branding is long-term",
     description: "Start today, stay consistent, and expect results in 4-5 months."
   },
   {
-    icon: "📢",
+    iconName: "megaphone" as const,
     title: "Content matters!",
     description: "The LinkedIn algorithm favors visual content like videos and images, boosting engagement and reach."
   }
@@ -132,11 +133,11 @@ const profileOptimizationSections = [
   }
 ];
 
-const HighlightCard = ({ icon, title, description }: { icon: string, title: string, description: string }) => {
+const HighlightCard = ({ iconName, title, description }: { iconName: string, title: string, description: string }) => {
   return (
     <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-6 h-full">
       <div className="flex items-start gap-4">
-        <span className="text-2xl">{icon}</span>
+        <Icon name={iconName} size={24} className="text-[#20CEB6] mt-1 flex-shrink-0" aria-hidden="true" />
         <div className="flex flex-col gap-2">
           <h3 className="font-manrope text-[18px] font-semibold text-[#F5F5F6]">
             {title}
@@ -190,8 +191,9 @@ const LinkedInOptimization = () => {
             button={
               <div className="flex flex-col custom-md:flex-row gap-4">
                 <Link href="https://youtu.be/1Cg3C0BLEis" target="_blank">
-                  <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
-                    📹 Watch Webinar
+                  <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px] items-center gap-2">
+                    <Icon name="video" size={20} className="text-white" aria-hidden="true" />
+                    Watch Webinar
                   </button>
                 </Link>
                 <Link href="/dashboard/linkedin-analyzer">
@@ -207,8 +209,9 @@ const LinkedInOptimization = () => {
         <ResponsivePageContainer>
           <div className="pt-[103px] relative z-20">
             <div className="text-center mb-12">
-              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                📌 Webinar Highlights
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center justify-center gap-3">
+                <Icon name="target" size={32} className="text-[#20CEB6]" aria-hidden="true" />
+                Webinar Highlights
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Key insights from our LinkedIn optimization webinar to help you build a standout professional presence.
@@ -219,7 +222,7 @@ const LinkedInOptimization = () => {
               {webinarHighlights.map((highlight, index) => (
                 <HighlightCard
                   key={index}
-                  icon={highlight.icon}
+                  iconName={highlight.iconName}
                   title={highlight.title}
                   description={highlight.description}
                 />
@@ -231,8 +234,9 @@ const LinkedInOptimization = () => {
         <ResponsivePageContainer>
           <div className="pt-[176px] relative z-20">
             <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-[7%] rounded-[30px] p-8 text-center">
-              <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4">
-                🔥 Key Takeaway
+              <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4 flex items-center justify-center gap-3">
+                <Icon name="flame" size={24} className="text-[#20CEB6]" aria-hidden="true" />
+                Key Takeaway
               </h2>
               <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
                 Your LinkedIn profile alone won't land you a job – networking, branding, and engagement are crucial to standing out. Start building your presence today!
@@ -244,8 +248,9 @@ const LinkedInOptimization = () => {
         <ResponsivePageContainer>
           <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
             <div className="text-center">
-              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                📖 AIDA Framework for About Section
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center justify-center gap-3">
+                <Icon name="book-open" size={32} className="text-[#20CEB6]" aria-hidden="true" />
+                AIDA Framework for About Section
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Structure your About section using the proven AIDA framework to make it engaging and recruiter-friendly.
@@ -264,8 +269,9 @@ const LinkedInOptimization = () => {
                 ))}
               </div>
               <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8">
-                <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6">
-                  📝 Profile Optimization Template
+                <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6 flex items-center gap-3">
+                  <Icon name="notebook-pen" size={24} className="text-[#20CEB6]" aria-hidden="true" />
+                  Profile Optimization Template
                 </h3>
                 <div className="space-y-6">
                   {profileOptimizationSections.map((section, index) => (
@@ -292,8 +298,9 @@ const LinkedInOptimization = () => {
         <ResponsivePageContainer>
           <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
             <div className="text-center">
-              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                🛠 LinkedIn Optimization Tools
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center justify-center gap-3">
+                <Icon name="settings" size={32} className="text-[#20CEB6]" aria-hidden="true" />
+                LinkedIn Optimization Tools
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Leverage these powerful tools to optimize your LinkedIn presence and maximize your networking efforts.
@@ -321,16 +328,18 @@ const LinkedInOptimization = () => {
         <ResponsivePageContainer>
           <div className="pt-[176px] flex flex-col gap-[50px] relative z-20">
             <div className="text-center">
-              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                📚 Further Reading & Resources
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center justify-center gap-3">
+                <Icon name="book-open" size={32} className="text-[#20CEB6]" aria-hidden="true" />
+                Further Reading & Resources
               </h1>
             </div>
 
             <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8 max-w-[600px] mx-auto w-full text-center">
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
-                    📖 Recommended Reading
+                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2 flex items-center justify-center gap-3">
+                    <Icon name="book-open" size={20} className="text-[#20CEB6]" aria-hidden="true" />
+                    Recommended Reading
                   </h3>
                   <p className="font-manrope text-[16px] text-[#20CEB6]">
                     'SEO for LinkedIn Optimization' by Neil Patel
@@ -338,15 +347,17 @@ const LinkedInOptimization = () => {
                 </div>
                 
                 <div className="border-t border-white border-opacity-10 pt-6">
-                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4">
-                    👇 Join Our Community
+                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4 flex items-center justify-center gap-3">
+                    <Icon name="file-down" size={20} className="text-[#20CEB6]" aria-hidden="true" />
+                    Join Our Community
                   </h3>
                   <p className="font-manrope text-[14px] text-[#B0B0B0] mb-4">
                     Get daily tips and connect with other job seekers
                   </p>
                   <Link href="http://www.tinyurl.com/AiPplyJobCommunity" target="_blank">
-                    <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all">
-                      💬 Join WhatsApp Community
+                    <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all flex items-center gap-2">
+                      <Icon name="message-circle" size={16} className="text-white" aria-hidden="true" />
+                      Join WhatsApp Community
                     </button>
                   </Link>
                 </div>

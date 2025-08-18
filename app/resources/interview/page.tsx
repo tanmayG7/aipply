@@ -7,40 +7,41 @@ import HeroSection from "@/components/sections/heroSection/heroSection";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { Icon } from "@/components/ui/Icon";
 
 const webinarHighlights = [
   {
-    icon: "🎯",
+    iconName: "target" as const,
     title: "Great Interviews Are Structured, Not Perfect",
     description: "Don't chase the perfect answer. Use frameworks like STAR (Situation–Task–Action–Result) to showcase how you think and solve problems."
   },
   {
-    icon: "🧠",
+    iconName: "lightbulb" as const,
     title: "Think, Then Speak",
     description: "Pausing is powerful. Don't be afraid to take a few seconds before answering—clarity matters more than speed."
   },
   {
-    icon: "🙋🏻‍♀️",
+    iconName: "user-round" as const,
     title: "Confidence Comes From Clarity",
     description: "Prepare a crisp 2-minute personal pitch that communicates your story, strengths, and aspirations clearly and calmly."
   },
   {
-    icon: "📁",
+    iconName: "file-down" as const,
     title: "Portfolios Need Context, Not Just Design",
     description: "For every project, explain the problem, your approach, and the outcome. Show your impact, not just deliverables."
   },
   {
-    icon: "❓",
+    iconName: "circle-help" as const,
     title: "Ask Smart Questions",
     description: "Interviews are two-way. Ask about the team, culture, or role expectations—it signals maturity, interest, and confidence."
   },
   {
-    icon: "🤷‍♀️",
+    iconName: "help-circle" as const,
     title: "It's Okay to Not Know Everything",
     description: "If stuck, be honest—and then share how you'd find the answer or approach the problem."
   },
   {
-    icon: "🗣",
+    iconName: "megaphone" as const,
     title: "Body Language Speaks Louder Than Words",
     description: "Maintain eye contact, smile, sit straight, and avoid fidgeting or overusing filler words like 'umm' or 'like.'"
   }
@@ -128,11 +129,11 @@ const smartQuestions = [
   "How would you describe the company culture?"
 ];
 
-const HighlightCard = ({ icon, title, description }: { icon: string, title: string, description: string }) => {
+const HighlightCard = ({ iconName, title, description }: { iconName: string, title: string, description: string }) => {
   return (
     <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-6 h-full">
       <div className="flex items-start gap-4">
-        <span className="text-2xl">{icon}</span>
+        <Icon name={iconName} size={24} ariaLabel={title} />
         <div className="flex flex-col gap-2">
           <h3 className="font-manrope text-[18px] font-semibold text-[#F5F5F6]">
             {title}
@@ -187,7 +188,8 @@ const InterviewPreparation = () => {
               <div className="flex flex-col custom-md:flex-row gap-4">
                 <Link href="https://youtu.be/Tm0Gd7GILwc" target="_blank">
                   <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
-                    📹 Watch Webinar
+                    <Icon name="video" size={18} ariaLabel="Video" inline className="mr-2" />
+                    Watch Webinar
                   </button>
                 </Link>
                 <Link href="/dashboard/interview-prep">
@@ -203,8 +205,9 @@ const InterviewPreparation = () => {
         <ResponsivePageContainer>
           <div className="pt-[103px] relative z-20">
             <div className="text-center mb-12">
-              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                📌 Webinar Highlights
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center gap-3 justify-center">
+                <Icon name="target" size={32} ariaLabel="Highlights" />
+                Webinar Highlights
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Key insights from Gurleen Baruah's interview mastery webinar to help you ace your next interview.
@@ -215,7 +218,7 @@ const InterviewPreparation = () => {
               {webinarHighlights.map((highlight, index) => (
                 <HighlightCard
                   key={index}
-                  icon={highlight.icon}
+                  iconName={highlight.iconName}
                   title={highlight.title}
                   description={highlight.description}
                 />
@@ -227,8 +230,9 @@ const InterviewPreparation = () => {
         <ResponsivePageContainer>
           <div className="pt-[176px] relative z-20">
             <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-[7%] rounded-[30px] p-8 text-center">
-              <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4">
-                🔥 Key Takeaway
+              <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4 flex items-center gap-2 justify-center">
+                <Icon name="flame" size={24} ariaLabel="Key point" />
+                Key Takeaway
               </h2>
               <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
                 "Your job isn't to answer everything perfectly—it's to show how you think." Focus on demonstrating your problem-solving approach and thought process.
@@ -240,8 +244,9 @@ const InterviewPreparation = () => {
         <ResponsivePageContainer>
           <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
             <div className="text-center">
-              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                ⭐ STAR Framework for Behavioral Questions
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center gap-3 justify-center">
+                <Icon name="star" size={32} ariaLabel="Star" />
+                STAR Framework for Behavioral Questions
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Use the STAR method to structure your responses and showcase your problem-solving abilities effectively.
@@ -260,8 +265,9 @@ const InterviewPreparation = () => {
                 ))}
               </div>
               <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8">
-                <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6">
-                  📝 Interview Preparation Checklist
+                <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6 flex items-center gap-2">
+                  <Icon name="notebook-pen" size={24} ariaLabel="Checklist" />
+                  Interview Preparation Checklist
                 </h3>
                 <div className="space-y-6">
                   {interviewPreparationSections.map((section, index) => (
@@ -288,8 +294,9 @@ const InterviewPreparation = () => {
         <ResponsivePageContainer>
           <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
             <div className="text-center">
-              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                🎯 Interview Appearance: Do's & Don'ts
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center gap-3 justify-center">
+                <Icon name="target" size={32} ariaLabel="Target" />
+                Interview Appearance: Do's & Don'ts
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Professional appearance and body language can make or break your interview. Here's what to focus on.
@@ -300,12 +307,13 @@ const InterviewPreparation = () => {
               {/* Do's */}
               <div className="bg-[#111111] bg-opacity-50 border border-green-500 border-opacity-20 rounded-[20px] p-8">
                 <h3 className="font-manrope text-[24px] font-semibold text-green-400 mb-6 flex items-center gap-2">
-                  ✅ Do's
+                  <Icon name="check-circle" size={24} ariaLabel="Do" />
+                  Do's
                 </h3>
                 <ul className="space-y-4">
                   {interviewDos.map((item, index) => (
                     <li key={index} className="font-manrope text-[16px] text-[#B0B0B0] leading-[150%] flex items-start gap-3">
-                      <span className="text-green-400 mt-1 flex-shrink-0">✓</span>
+                      <Icon name="check" size={16} className="text-green-400 mt-1 flex-shrink-0" aria-hidden="true" />
                       {item}
                     </li>
                   ))}
@@ -315,12 +323,13 @@ const InterviewPreparation = () => {
               {/* Don'ts */}
               <div className="bg-[#111111] bg-opacity-50 border border-red-500 border-opacity-20 rounded-[20px] p-8">
                 <h3 className="font-manrope text-[24px] font-semibold text-red-400 mb-6 flex items-center gap-2">
-                  ❌ Don'ts
+                  <Icon name="x-circle" size={24} ariaLabel="Don't" />
+                  Don'ts
                 </h3>
                 <ul className="space-y-4">
                   {interviewDonts.map((item, index) => (
                     <li key={index} className="font-manrope text-[16px] text-[#B0B0B0] leading-[150%] flex items-start gap-3">
-                      <span className="text-red-400 mt-1 flex-shrink-0">✗</span>
+                      <Icon name="x" size={16} className="text-red-400 mt-1 flex-shrink-0" aria-hidden="true" />
                       {item}
                     </li>
                   ))}
@@ -359,8 +368,9 @@ const InterviewPreparation = () => {
         <ResponsivePageContainer>
           <div className="pt-[176px] flex flex-col gap-[50px] relative z-20">
             <div className="text-center">
-              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                📚 Further Reading & Resources
+              <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center gap-3 justify-center">
+                <Icon name="book-open" size={32} ariaLabel="Books" />
+                Further Reading & Resources
               </h1>
             </div>
 
@@ -376,8 +386,9 @@ const InterviewPreparation = () => {
                 </div>
 
                 <div className="border-t border-white border-opacity-10 pt-6">
-                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
-                    🎥 TED Talk
+                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2 flex items-center gap-2">
+                    <Icon name="video" size={20} ariaLabel="Video" />
+                    TED Talk
                   </h3>
                   <Link href="https://youtu.be/YyXRYgjQXX0?feature=shared" target="_blank">
                     <p className="font-manrope text-[16px] text-[#20CEB6] hover:underline">
@@ -387,15 +398,17 @@ const InterviewPreparation = () => {
                 </div>
                 
                 <div className="border-t border-white border-opacity-10 pt-6">
-                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4">
-                    👇 Join Our Community
+                  <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4 flex items-center gap-2">
+                    <Icon name="users" size={20} ariaLabel="Community" />
+                    Join Our Community
                   </h3>
                   <p className="font-manrope text-[14px] text-[#B0B0B0] mb-4">
                     Get daily tips and connect with other job seekers
                   </p>
                   <Link href="http://www.tinyurl.com/AiPplyJobCommunity" target="_blank">
                     <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all">
-                      💬 Join WhatsApp Community
+                      <Icon name="message-circle" size={16} ariaLabel="Message" inline className="mr-1" />
+                      Join WhatsApp Community
                     </button>
                   </Link>
                 </div>

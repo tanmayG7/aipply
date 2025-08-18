@@ -14,6 +14,7 @@ import {
   ExclamationTriangleIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
+import { Icon } from "./Icon";
 
 export default function ResumeAnalysisForm() {
   const [formData, setFormData] = useState({
@@ -640,7 +641,7 @@ export default function ResumeAnalysisForm() {
             <div className="bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#333741] rounded-xl p-6 text-center">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-[#AE94FF] bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">🎉</span>
+                  <Icon name="sparkles" size={20} ariaLabel="Celebration" />
                 </div>
                 <h3 className="text-[#F5F5F6] text-lg font-semibold">
                   Join Our Community!
@@ -665,13 +666,16 @@ export default function ResumeAnalysisForm() {
               
               <div className="flex items-center justify-center gap-6 mt-4 text-xs text-[#94969C]">
                 <span className="flex items-center gap-1">
-                  ✨ Insider Tips
+                  <Icon name="sparkles" size={12} ariaLabel="Sparkles" inline />
+                  Insider Tips
                 </span>
                 <span className="flex items-center gap-1">
-                  🤝 Networking
+                  <Icon name="handshake" size={12} ariaLabel="Networking" inline />
+                  Networking
                 </span>
                 <span className="flex items-center gap-1">
-                  🚀 Early Access
+                  <Icon name="rocket" size={12} ariaLabel="Early access" inline />
+                  Early Access
                 </span>
               </div>
             </div>

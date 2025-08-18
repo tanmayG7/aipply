@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Icon } from '@/components/ui/Icon';
 import { auth, saveUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { UserDetails, PlatformCredentialsData } from '@/lib/types';
 
@@ -43,28 +44,28 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
       id: 'foundit' as keyof PlatformCredentialsData, 
       name: 'Foundit', 
       color: 'bg-red-600', 
-      icon: '📰',
+      iconName: 'newspaper' as const,
       description: 'India\'s leading job portal with millions of job opportunities'
     },
     { 
       id: 'hirist' as keyof PlatformCredentialsData, 
       name: 'Hirist', 
       color: 'bg-purple-600', 
-      icon: '💼',
+      iconName: 'briefcase' as const,
       description: 'Premier platform for tech professionals and startups'
     },
     { 
       id: 'shine' as keyof PlatformCredentialsData, 
       name: 'Shine', 
       color: 'bg-blue-600', 
-      icon: '⭐',
+      iconName: 'star' as const,
       description: 'Career acceleration platform with personalized job recommendations'
     },
     { 
       id: 'timesjob' as keyof PlatformCredentialsData, 
       name: 'Timesjob', 
       color: 'bg-green-600', 
-      icon: '⚡',
+      iconName: 'zap' as const,
       description: 'Comprehensive job search platform by Times Group'
     }
   ];
@@ -147,7 +148,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
               <div key={platform.id} className="border border-[#371b7e] rounded-lg p-6">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className={`w-10 h-10 ${platform.color} rounded-lg flex items-center justify-center text-white font-bold text-lg`}>
-                    {platform.icon}
+                    <Icon name={platform.iconName} size={20} ariaLabel={platform.name} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">{platform.name}</h3>

@@ -3,6 +3,7 @@ import { ResponsivePageContainer } from "../responsivePageContainer/responsivePa
 import Image from "next/image";
 import Link from "next/link";
 import { features } from "@/lib/staticData";
+import { Icon } from "@/components/ui/Icon";
 
 const quickLinks = [{ name: "About Us", path: "/about-us" },
                     { name: "Pricing", path: "/pricing" },
@@ -40,8 +41,8 @@ const Footer = () => {
                 <p className="font-manrope text-[16px] text-[#CECFD2]">
                   Because Finding a Job is not YOUR Job!
                 </p>
-                <p className="font-manrope text-[16px] text-[#CECFD2]">
-                  It&apos;s Ours!🙂
+                <p className="font-manrope text-[16px] text-[#CECFD2] flex items-center gap-1">
+                  It&apos;s Ours! <Icon name="smile" size={16} ariaLabel="Smile" inline />
                 </p>
               </div>
               <div className="flex flex-row gap-6">

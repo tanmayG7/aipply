@@ -7,6 +7,7 @@ import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import TestimonialsCard from "@/components/card/testimonialsCard/testimonialsCard";
+import { Icon } from "@/components/ui/Icon";
 // Declare Razorpay for TypeScript
 declare global {
   interface Window {
@@ -129,22 +130,22 @@ const initializePayment = () => {
 
   const problems = [
     {
-      icon: "⏰",
+      iconName: "clock" as const,
       title: "Endless Hours Wasted",
       description: "Spending 3+ hours daily filling repetitive application forms instead of preparing for interviews"
     },
     {
-      icon: "👻",
+      iconName: "ghost" as const,
       title: "Getting Ghosted",
       description: "Companies ignoring your applications, leaving you wondering what went wrong"
     },
     {
-      icon: "🏃‍♂️",
+      iconName: "users" as const,
       title: "Missing Opportunities",
       description: "Great jobs getting filled while you're stuck with manual applications"
     },
     {
-      icon: "😵",
+      iconName: "alert-triangle" as const,
       title: "Application Burnout",
       description: "Feeling drained from the soul-crushing, repetitive job application process"
     }
@@ -152,22 +153,22 @@ const initializePayment = () => {
 
   const solutions = [
     {
-      icon: "🤖",
+      iconName: "bot" as const,
       title: "Smart AI Agent",
       description: "Applies to 50+ relevant jobs daily while you sleep"
     },
     {
-      icon: "📊",
+      iconName: "bar-chart" as const,
       title: "Live Dashboard",
       description: "Watch your AI work - every application tracked in real-time"
     },
     {
-      icon: "🎯",
+      iconName: "target" as const,
       title: "Perfect Targeting",
       description: "AI matches your skills to ideal roles automatically"
     },
     {
-      icon: "⚡",
+      iconName: "zap" as const,
       title: "Lightning Speed",
       description: "Apply to 100s of jobs in minutes, be first in line"
     }
@@ -192,15 +193,15 @@ const initializePayment = () => {
     </div>
   );
 
-  const FeatureCard = ({ icon, title, description, variant }: {
-    icon: string;
+  const FeatureCard = ({ iconName, title, description, variant }: {
+    iconName: string;
     title: string;
     description: string;
     variant: "problem" | "solution";
   }) => (
     <div className={`bg-[#111111] bg-opacity-50 border ${variant === "problem" ? "border-red-500" : "border-green-500"} border-opacity-20 rounded-[20px] p-6 transition-all duration-300 hover:border-opacity-40 hover:transform hover:-translate-y-1`}>
       <div className="flex items-start gap-4">
-        <span className="text-3xl">{icon}</span>
+        <Icon name={iconName} size={32} className={variant === "problem" ? "text-red-400" : "text-green-400"} ariaLabel={title} />
         <div className="flex flex-col gap-3">
           <h3 className={`font-manrope text-[20px] font-semibold ${variant === "problem" ? "text-red-400" : "text-green-400"}`}>
             {title}
@@ -231,8 +232,9 @@ const initializePayment = () => {
             <div className="text-center">
               {/* Badge */}
               <div className="inline-block bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-full mb-6">
-                <div className="bg-black text-white py-2 px-6 rounded-full font-manrope font-medium text-sm">
-                  ✨ Free-me Independence Special
+                <div className="bg-black text-white py-2 px-6 rounded-full font-manrope font-medium text-sm flex items-center gap-2">
+                  <Icon name="sparkles" size={16} ariaLabel="Special offer" />
+                  Free-me Independence Special
                 </div>
               </div>
 
@@ -251,7 +253,10 @@ const initializePayment = () => {
               <div className="max-w-lg mx-auto mb-8">
                 <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-1 rounded-[24px]">
                   <div className="bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] rounded-[20px] p-6 text-center">
-                    <h3 className="font-manrope text-3xl font-bold text-white mb-4">🎯 Free-me Special</h3>
+                    <h3 className="font-manrope text-3xl font-bold text-white mb-4 flex items-center gap-3 justify-center">
+                      <Icon name="target" size={28} ariaLabel="Target" />
+                      Free-me Special
+                    </h3>
                     
                     <div className="flex items-center justify-center gap-6 mb-4">
                       <div className="text-center">
@@ -270,7 +275,7 @@ const initializePayment = () => {
                       <div className="grid grid-cols-1 gap-2 text-left">
                         {features.map((feature, index) => (
                           <div key={index} className="flex items-center gap-3 text-white">
-                            <span className="text-green-300 text-lg">✓</span>
+                            <Icon name="check" size={18} className="text-green-300" aria-hidden="true" />
                             <span className="font-manrope">{feature}</span>
                           </div>
                         ))}
@@ -282,15 +287,18 @@ const initializePayment = () => {
                     {/* Payment Success Message */}
                     {paymentSuccess && (
                       <div className="mt-6 bg-green-600 bg-opacity-20 border border-green-500 border-opacity-40 rounded-[16px] p-6 text-center backdrop-blur-sm">
-                        <div className="text-4xl mb-3">🎉</div>
+                        <div className="mb-3">
+                          <Icon name="sparkles" size={32} ariaLabel="Celebration" />
+                        </div>
                         <h4 className="font-manrope text-xl font-bold text-green-300 mb-3">
                           Payment Successful!
                         </h4>
                         <p className="font-manrope text-white mb-4 leading-relaxed">
                           Thank you for your purchase! Your payment receipt will be sent to your email shortly. 
                         </p>
-                        <p className="font-manrope text-green-200 mb-4 text-sm">
-                          🗓️ Your subscription will be active from <strong>August 16th, 2025</strong> for 1 month
+                        <p className="font-manrope text-green-200 mb-4 text-sm flex items-center gap-2">
+                          <Icon name="calendar-days" size={16} ariaLabel="Calendar" inline />
+                          Your subscription will be active from <strong>August 16th, 2025</strong> for 1 month
                         </p>
                         <p className="font-manrope text-white mb-4">
                           Ready to get started? Register with the same email ID you used for payment.
@@ -308,7 +316,10 @@ const initializePayment = () => {
 
               {/* Countdown */}
               <div className="mb-12">
-                <h3 className="font-manrope text-2xl font-semibold text-[#F5F5F6] mb-4">⏰ Offer Ends In:</h3>
+                <h3 className="font-manrope text-2xl font-semibold text-[#F5F5F6] mb-4 flex items-center gap-2 justify-center">
+                  <Icon name="alarm-clock" size={24} ariaLabel="Timer" inline />
+                  Offer Ends In:
+                </h3>
                 <div className="flex justify-center gap-6">
                   <CountdownDigit value={timeLeft.days} label="Days" />
                   <CountdownDigit value={timeLeft.hours} label="Hours" />
@@ -326,14 +337,15 @@ const initializePayment = () => {
               
               {/* Problems */}
               <div>
-                <h2 className="font-manrope text-4xl font-bold text-red-400 mb-6 text-center">
-                  😤 Job Hunt Struggles
+                <h2 className="font-manrope text-4xl font-bold text-red-400 mb-6 text-center flex items-center gap-3 justify-center">
+                  <Icon name="alert-triangle" size={32} ariaLabel="Warning" />
+                  Job Hunt Struggles
                 </h2>
                 <div className="space-y-4">
                   {problems.map((problem, index) => (
                     <FeatureCard
                       key={index}
-                      icon={problem.icon}
+                      iconName={problem.iconName}
                       title={problem.title}
                       description={problem.description}
                       variant="problem"
@@ -344,14 +356,15 @@ const initializePayment = () => {
 
               {/* Solutions */}
               <div>
-                <h2 className="font-manrope text-4xl font-bold text-green-400 mb-6 text-center">
-                  🚀 AI-Powered Freedom
+                <h2 className="font-manrope text-4xl font-bold text-green-400 mb-6 text-center flex items-center gap-3 justify-center">
+                  <Icon name="rocket" size={32} ariaLabel="Rocket" />
+                  AI-Powered Freedom
                 </h2>
                 <div className="space-y-4">
                   {solutions.map((solution, index) => (
                     <FeatureCard
                       key={index}
-                      icon={solution.icon}
+                      iconName={solution.iconName}
                       title={solution.title}
                       description={solution.description}
                       variant="solution"
@@ -368,27 +381,37 @@ const initializePayment = () => {
                   <h3 className="font-manrope text-3xl font-bold text-white mb-6 text-center">Why Job Seekers Trust AiPply</h3>
                   <div className="grid custom-md:grid-cols-2 custom-lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                     <div className="text-center">
-                      <div className="text-4xl mb-3">⏳</div>
+                      <div className="mb-3">
+                        <Icon name="hourglass" size={32} ariaLabel="Time saved" />
+                      </div>
                       <h4 className="font-manrope text-lg font-bold text-white mb-2">Saves 2+ hours every day</h4>
                       <p className="font-manrope text-white text-sm">No more manual job applying</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-4xl mb-3">📄</div>
+                      <div className="mb-3">
+                        <Icon name="file-text" size={32} ariaLabel="Job applications" />
+                      </div>
                       <h4 className="font-manrope text-lg font-bold text-white mb-2">Applies to 600+ jobs/month</h4>
                       <p className="font-manrope text-white text-sm">Across top job boards</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-4xl mb-3">📞</div>
+                      <div className="mb-3">
+                        <Icon name="phone" size={32} ariaLabel="Phone calls" />
+                      </div>
                       <h4 className="font-manrope text-lg font-bold text-white mb-2">Get recruiter calls directly</h4>
                       <p className="font-manrope text-white text-sm">With optimized resumes & smart targeting</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-4xl mb-3">🎯</div>
+                      <div className="mb-3">
+                        <Icon name="target" size={32} ariaLabel="Targeting accuracy" />
+                      </div>
                       <h4 className="font-manrope text-lg font-bold text-white mb-2">Higher interview chances</h4>
                       <p className="font-manrope text-white text-sm">ATS-optimized, role-relevant applications</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-4xl mb-3">🔒</div>
+                      <div className="mb-3">
+                        <Icon name="lock" size={32} ariaLabel="Security" />
+                      </div>
                       <h4 className="font-manrope text-lg font-bold text-white mb-2">Private & secure</h4>
                       <p className="font-manrope text-white text-sm">Your data, always encrypted</p>
                     </div>
@@ -402,8 +425,9 @@ const initializePayment = () => {
         {/* Success Stories */}
         <ResponsivePageContainer>
           <div className="py-12 relative z-20">
-            <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-10">
-              💬 <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
+            <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-10 flex items-center gap-3 justify-center">
+              <Icon name="message-circle" size={32} ariaLabel="Testimonials" />
+              <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
                 Success Stories
               </span>
             </h2>
@@ -426,8 +450,9 @@ const initializePayment = () => {
         <ResponsivePageContainer>
           <div className="py-12 relative z-20">
             <div className="max-w-5xl mx-auto">
-              <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-10">
-                💰 <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
+              <h2 className="font-manrope text-4xl font-bold text-center text-[#F5F5F6] mb-10 flex items-center gap-3 justify-center">
+                <Icon name="heart" size={32} ariaLabel="Affordable pricing" />
+                <span className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] bg-clip-text text-transparent">
                   Student-Friendly Pricing
                 </span>
               </h2>
@@ -439,21 +464,30 @@ const initializePayment = () => {
                       <h4 className="font-manrope font-bold text-red-400 mb-2 text-xl">Other Platforms</h4>
                       <p className="font-manrope text-4xl font-black text-red-400 mb-1">₹3000+</p>
                       <p className="font-manrope text-[#B0B0B0]">per month</p>
-                      <p className="font-manrope text-red-300 mt-2">❌ No transparency</p>
+                      <p className="font-manrope text-red-300 mt-2 flex items-center gap-2">
+                        <Icon name="x" size={16} ariaLabel="No" inline />
+                        No transparency
+                      </p>
                     </div>
                     
                     <div className="p-4 border-l border-r border-white border-opacity-20">
                       <h4 className="font-manrope font-bold text-yellow-400 mb-2 text-xl">Manual Process</h4>
                       <p className="font-manrope text-4xl font-black text-yellow-400 mb-1">FREE</p>
                       <p className="font-manrope text-[#B0B0B0]">but 3+ hrs daily</p>
-                      <p className="font-manrope text-yellow-300 mt-2">⚠️ Time = Money</p>
+                      <p className="font-manrope text-yellow-300 mt-2 flex items-center gap-2">
+                        <Icon name="alert-triangle" size={16} ariaLabel="Warning" inline />
+                        Time = Money
+                      </p>
                     </div>
                     
                     <div className="p-4">
                       <h4 className="font-manrope font-bold text-green-400 mb-2 text-xl">aipply.io</h4>
                       <p className="font-manrope text-4xl font-black text-green-400 mb-1">₹194.7</p>
                       <p className="font-manrope text-[#B0B0B0]">first month</p>
-                      <p className="font-manrope text-green-300 mt-2">✅ Full transparency</p>
+                      <p className="font-manrope text-green-300 mt-2 flex items-center gap-2">
+                        <Icon name="check-circle" size={16} ariaLabel="Yes" inline />
+                        Full transparency
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -483,15 +517,18 @@ const initializePayment = () => {
                   {/* Payment Success Message for Final CTA */}
                   {paymentSuccess && (
                     <div className="mt-6 bg-green-600 bg-opacity-20 border border-green-500 border-opacity-40 rounded-[16px] p-6 text-center backdrop-blur-sm">
-                      <div className="text-3xl mb-2">🎉</div>
+                      <div className="mb-2">
+                        <Icon name="sparkles" size={28} ariaLabel="Celebration" />
+                      </div>
                       <h4 className="font-manrope text-lg font-bold text-green-300 mb-2">
                         Payment Successful!
                       </h4>
                       <p className="font-manrope text-white mb-3 text-sm leading-relaxed">
                         Thank you for your purchase! Check your email for the receipt.
                       </p>
-                      <p className="font-manrope text-green-200 mb-3 text-xs">
-                        🗓️ Active from <strong>August 16th, 2025</strong> for 1 month
+                      <p className="font-manrope text-green-200 mb-3 text-xs flex items-center gap-1 justify-center">
+                        <Icon name="calendar-days" size={14} ariaLabel="Calendar" inline />
+                        Active from <strong>August 16th, 2025</strong> for 1 month
                       </p>
                       <Link href="dashboard/onboarding/login">
                         <button className="bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-2 px-6 rounded-full font-manrope font-bold text-sm hover:scale-105 transition-all shadow-lg">
@@ -502,9 +539,18 @@ const initializePayment = () => {
                   )}
                   
                   <div className="flex justify-center gap-8 text-base text-[#B0B0B0] mt-6">
-                    <span>✓ No Setup Required</span>
-                    <span>✓ Cancel Anytime</span>
-                    <span>✓ Money Back Guarantee</span>
+                    <span className="flex items-center gap-1">
+                      <Icon name="check" size={16} ariaLabel="Checkmark" inline />
+                      No Setup Required
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Icon name="check" size={16} ariaLabel="Checkmark" inline />
+                      Cancel Anytime
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Icon name="check" size={16} ariaLabel="Checkmark" inline />
+                      Money Back Guarantee
+                    </span>
                   </div>
                 </div>
               </div>

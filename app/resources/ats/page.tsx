@@ -7,45 +7,46 @@ import HeroSection from "@/components/sections/heroSection/heroSection";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { Icon } from "@/components/ui/Icon";
 
 const webinarHighlights = [
   {
-    icon: "📄",
+    iconName: "file-text" as const,
     title: "Your Resume Must Pass the ATS First",
     description: "Use clear formatting, standard section headings, and keywords from the job description to increase visibility."
   },
   {
-    icon: "🚫",
+    iconName: "circle-slash" as const,
     title: "Avoid Common Resume Mistakes",
     description: "No generic templates, excessive text, or irrelevant experience—focus on impact-driven content."
   },
   {
-    icon: "💡",
+    iconName: "lightbulb" as const,
     title: "Your Cover Letter Should Tell a Story",
     description: "Structure it using who you are, why you're a fit, and what you bring to the table instead of rehashing your resume."
   },
   {
-    icon: "🎤",
+    iconName: "mic" as const,
     title: "Acing Interviews is About Preparation",
     description: "Use the STAR method (Situation, Task, Action, Result) to answer behavioral questions confidently and concisely."
   },
   {
-    icon: "🤝",
+    iconName: "handshake" as const,
     title: "Networking Gives You an Edge",
     description: "Engaging with hiring managers, recruiters, and employees can increase your chances of landing a job far beyond Easy Apply."
   },
   {
-    icon: "📢",
+    iconName: "megaphone" as const,
     title: "Personal Branding Can Set You Apart",
     description: "Showcase your expertise on LinkedIn through content, projects, and recommendations to attract opportunities."
   },
   {
-    icon: "💰",
+    iconName: "heart" as const,
     title: "Salary Negotiation is a Must",
     description: "Always research market salaries, express enthusiasm first, and justify your ask with industry benchmarks and your skillset."
   },
   {
-    icon: "🛠",
+    iconName: "settings" as const,
     title: "Use AI & Tools to Optimize Your Job Search",
     description: "Platforms like ChatGPT (resume tweaks), Jobscan (ATS analysis), and LinkedIn (networking) can streamline your approach."
   }
@@ -167,11 +168,11 @@ const interviewPrepSections = [
   }
 ];
 
-const HighlightCard = ({ icon, title, description }: { icon: string, title: string, description: string }) => {
+const HighlightCard = ({ iconName, title, description }: { iconName: string, title: string, description: string }) => {
   return (
     <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-6 h-full">
       <div className="flex items-start gap-4">
-        <span className="text-2xl">{icon}</span>
+        <Icon name={iconName} size={24} className="text-[#20CEB6] mt-1" aria-hidden="true" />
         <div className="flex flex-col gap-2">
           <h3 className="font-manrope text-[18px] font-semibold text-[#F5F5F6]">
             {title}
@@ -226,12 +227,12 @@ const ATSCVInterviewPrep = () => {
               <div className="flex flex-col custom-md:flex-row gap-4">
                 <Link href="https://youtu.be/b-w9NzV8FM0" target="_blank">
                   <button className="flex bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px]">
-                    📹 Access Webinar Recording
+                    <Icon name="video" size={20} className="text-white" inline aria-hidden="true" /> Access Webinar Recording
                   </button>
                 </Link>
                 <Link href="https://www.canva.com/design/DAGcoiLfWAc/FhPyWx9Z7kXP0BsWShTHhA/edit?utm_content=DAGcoiLfWAc&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
                   <button className="flex border-2 border-white border-opacity-20 text-white py-3 px-5 font-manrope text-[20px] font-semibold rounded-[30px] hover:bg-white hover:bg-opacity-10 transition-all">
-                    📄 Get CV Template
+                    <Icon name="file-text" size={20} className="text-white" inline aria-hidden="true" /> Get CV Template
                   </button>
                 </Link>
               </div>
@@ -243,7 +244,7 @@ const ATSCVInterviewPrep = () => {
           <div className="pt-[103px] relative z-20">
             <div className="text-center mb-12">
               <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                📌 Webinar Highlights
+                <Icon name="target" size={32} className="text-[#20CEB6]" inline aria-hidden="true" /> Webinar Highlights
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Essential strategies from our ATS optimization and interview preparation webinar to boost your job search success.
@@ -254,7 +255,7 @@ const ATSCVInterviewPrep = () => {
               {webinarHighlights.map((highlight, index) => (
                 <HighlightCard
                   key={index}
-                  icon={highlight.icon}
+                  iconName={highlight.iconName}
                   title={highlight.title}
                   description={highlight.description}
                 />
@@ -267,7 +268,7 @@ const ATSCVInterviewPrep = () => {
           <div className="pt-[176px] relative z-20">
             <div className="bg-gradient-to-r from-[#20CEB6] bg-opacity-10 to-[#2E2ADC] bg-opacity-10 border border-white border-opacity-[7%] rounded-[30px] p-8 text-center">
               <h2 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-4">
-                🎯 Key Success Formula
+                <Icon name="target" size={24} className="text-[#20CEB6]" inline aria-hidden="true" /> Key Success Formula
               </h2>
               <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
                 ATS-Optimized Resume + Strategic Networking + Interview Preparation = Job Offer Success. Focus on all three pillars for maximum impact!
@@ -280,7 +281,7 @@ const ATSCVInterviewPrep = () => {
           <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
             <div className="text-center">
               <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                ⭐ STAR Method for Interview Success
+                <Icon name="star" size={32} className="text-[#20CEB6]" inline aria-hidden="true" /> STAR Method for Interview Success
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Structure your behavioral interview answers using the proven STAR method to showcase your achievements effectively.
@@ -300,7 +301,7 @@ const ATSCVInterviewPrep = () => {
               </div>
               <div className="bg-[#111111] bg-opacity-50 border border-white border-opacity-[7%] rounded-[20px] p-8">
                 <h3 className="font-manrope text-[24px] font-semibold text-[#F5F5F6] mb-6">
-                  📋 ATS Optimization Checklist
+                  <Icon name="check-circle" size={24} className="text-[#20CEB6]" inline aria-hidden="true" /> ATS Optimization Checklist
                 </h3>
                 <div className="space-y-6">
                   {atsOptimizationSections.map((section, index) => (
@@ -328,7 +329,7 @@ const ATSCVInterviewPrep = () => {
           <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
             <div className="text-center">
               <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                🎯 Interview Preparation Guide
+                <Icon name="target" size={32} className="text-[#20CEB6]" inline aria-hidden="true" /> Interview Preparation Guide
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Comprehensive preparation steps to ensure you're ready to impress in any interview situation.
@@ -359,7 +360,7 @@ const ATSCVInterviewPrep = () => {
           <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
             <div className="text-center">
               <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                🛠 Essential Job Search Tools
+                <Icon name="settings" size={32} className="text-[#20CEB6]" inline aria-hidden="true" /> Essential Job Search Tools
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Leverage these powerful tools to optimize your resume, prepare for interviews, and accelerate your job search.
@@ -388,7 +389,7 @@ const ATSCVInterviewPrep = () => {
           <div className="pt-[176px] flex flex-col gap-[50px] relative z-20">
             <div className="text-center">
               <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                📚 Resources & Templates
+                <Icon name="book-open" size={32} className="text-[#20CEB6]" inline aria-hidden="true" /> Resources & Templates
               </h1>
             </div>
 
@@ -396,7 +397,7 @@ const ATSCVInterviewPrep = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4">
-                    📄 Free ATS CV Template
+                    <Icon name="file-text" size={20} className="text-[#20CEB6]" inline aria-hidden="true" /> Free ATS CV Template
                   </h3>
                   <Link href="https://www.canva.com/design/DAGcoiLfWAc/FhPyWx9Z7kXP0BsWShTHhA/edit?utm_content=DAGcoiLfWAc&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
                     <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all mb-4">
@@ -407,7 +408,7 @@ const ATSCVInterviewPrep = () => {
                 
                 <div className="border-t border-white border-opacity-10 pt-6">
                   <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
-                    📧 Connect with Surbhi
+                    <Icon name="phone" size={20} className="text-[#20CEB6]" inline aria-hidden="true" /> Connect with Surbhi
                   </h3>
                   <p className="font-manrope text-[14px] text-[#20CEB6] mb-4">
                     hr@redef9skills.in
@@ -416,14 +417,14 @@ const ATSCVInterviewPrep = () => {
 
                 <div className="border-t border-white border-opacity-10 pt-6">
                   <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-4">
-                    👇 Join Our Community
+                    <Icon name="users" size={20} className="text-[#20CEB6]" inline aria-hidden="true" /> Join Our Community
                   </h3>
                   <p className="font-manrope text-[14px] text-[#B0B0B0] mb-4">
                     Get daily job search tips and connect with other professionals
                   </p>
                   <Link href="http://www.tinyurl.com/AiPplyJobCommunity" target="_blank">
                     <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all">
-                      💬 Join WhatsApp Community
+                      <Icon name="message-circle" size={16} className="text-white" inline aria-hidden="true" /> Join WhatsApp Community
                     </button>
                   </Link>
                 </div>

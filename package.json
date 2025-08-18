@@ -10,7 +10,9 @@
     "deploy": "npm run build && firebase deploy",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "audit:emoji": "npx ts-node scripts/find-emojis.ts",
+    "verify:no-emoji": "npx ts-node scripts/find-emojis.ts --fail"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

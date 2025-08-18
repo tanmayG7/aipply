@@ -7,11 +7,12 @@ import UploadCv from './uploadCv';
 import PlatformCredentials from './PlatformCredentials';
 import { auth, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { UserDetails } from '@/lib/types';
+import { Icon } from '@/components/ui/Icon';
 
 interface Tab {
   id: string;
   label: string;
-  icon: string;
+  iconName: string;
 }
 
 const EditProfile: React.FC = () => {
@@ -29,22 +30,22 @@ const EditProfile: React.FC = () => {
     { 
       id: 'profile', 
       label: 'Profile', 
-      icon: '👤'
+      iconName: 'user-round' as const
     },
     { 
       id: 'credentials', 
       label: 'Job Portal Credentials', 
-      icon: '🔐'
+      iconName: 'lock' as const
     },
     { 
       id: 'preferences', 
       label: 'Preferences', 
-      icon: '⚙️'
+      iconName: 'settings' as const
     },
     { 
       id: 'documents', 
       label: 'Resume', 
-      icon: '📄'
+      iconName: 'file-text' as const
     }
   ];
 
@@ -188,7 +189,7 @@ const EditProfile: React.FC = () => {
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >
-              <span className="text-base sm:text-lg">{tab.icon}</span>
+              <Icon name={tab.iconName} size={18} ariaLabel={tab.label} inline />
               <span className="font-medium text-sm sm:text-base">{tab.label}</span>
             </button>
           ))}

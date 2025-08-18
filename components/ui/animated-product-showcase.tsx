@@ -2,15 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { 
-  SparklesIcon, 
-  ChartBarIcon,
-  BoltIcon,
-  StarIcon,
-  CheckCircleIcon
-} from "@heroicons/react/24/outline";
-import { 
-  RocketLaunchIcon
-} from "@heroicons/react/24/solid";
+  Sparkles, 
+  BarChart3,
+  Zap,
+  Star,
+  CheckCircle2,
+  Rocket
+} from "lucide-react";
+import { Icon } from "./Icon";
 
 interface AnimatedProductShowcaseProps {
   isVisible: boolean;
@@ -19,28 +18,28 @@ interface AnimatedProductShowcaseProps {
 
 const flagshipFeatures = [
   {
-    icon: RocketLaunchIcon,
+    icon: Rocket,
     title: "AI-Powered Job Matching",
     description: "Smart algorithms find perfect job matches based on your profile",
     color: "from-blue-400 to-purple-600",
     delay: 0
   },
   {
-    icon: BoltIcon,
+    icon: Zap,
     title: "Auto-Apply Technology",
     description: "Apply to hundreds of jobs automatically while you sleep",
     color: "from-purple-400 to-pink-600",
     delay: 0.2
   },
   {
-    icon: ChartBarIcon,
+    icon: BarChart3,
     title: "Real-Time Analytics",
     description: "Track your application success rate and optimize your strategy",
     color: "from-green-400 to-blue-500",
     delay: 0.4
   },
   {
-    icon: SparklesIcon,
+    icon: Sparkles,
     title: "ATS Optimization",
     description: "Ensure your resume passes through any tracking system",
     color: "from-yellow-400 to-orange-500",
@@ -49,10 +48,10 @@ const flagshipFeatures = [
 ];
 
 const statsData = [
-  { label: "Jobs Applied", value: "10K+", icon: "📊" },
-  { label: "Success Rate", value: "78%", icon: "🎯" },
-  { label: "Time Saved", value: "40hrs", icon: "⏰" },
-  { label: "Interviews", value: "3x More", icon: "💼" }
+  { label: "Jobs Applied", value: "10K+", iconName: "bar-chart" as const },
+  { label: "Success Rate", value: "78%", iconName: "target" as const },
+  { label: "Time Saved", value: "40hrs", iconName: "alarm-clock" as const },
+  { label: "Interviews", value: "3x More", iconName: "briefcase" as const }
 ];
 
 export const AnimatedProductShowcase: React.FC<AnimatedProductShowcaseProps> = ({
@@ -198,7 +197,9 @@ export const AnimatedProductShowcase: React.FC<AnimatedProductShowcaseProps> = (
                   className="bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] border border-[#333741] rounded-xl p-4 text-center hover:border-[#AE94FF] transition-all duration-300"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="text-2xl mb-2">{stat.icon}</div>
+                  <div className="mb-2">
+                    <Icon name={stat.iconName} size={32} ariaLabel={stat.label} />
+                  </div>
                   <div className="text-xl font-bold text-[#AE94FF] mb-1">
                     {stat.value}
                   </div>
@@ -217,17 +218,17 @@ export const AnimatedProductShowcase: React.FC<AnimatedProductShowcaseProps> = (
               "opacity-100 translate-y-0 scale-100"
             )}>
               <div className="flex items-center justify-center gap-2 mb-4">
-                <StarIcon className="w-5 h-5 text-yellow-400 animate-pulse" />
+                <Star className="w-5 h-5 text-yellow-400 animate-pulse" />
                 <span className="text-[#F5F5F6] font-medium">
                   Ready to transform your job search?
                 </span>
-                <StarIcon className="w-5 h-5 text-yellow-400 animate-pulse" />
+                <Star className="w-5 h-5 text-yellow-400 animate-pulse" />
               </div>
               
               <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] rounded-full text-white font-medium hover:from-[#4A9FEF] hover:to-[#5323EF] transition-all duration-300 cursor-pointer">
-                <CheckCircleIcon className="w-5 h-5" />
+                <CheckCircle2 className="w-5 h-5" />
                 <span>Get Started with AiPply</span>
-                <SparklesIcon className="w-5 h-5 animate-pulse" />
+                <Sparkles className="w-5 h-5 animate-pulse" />
               </div>
             </div>
           )}
