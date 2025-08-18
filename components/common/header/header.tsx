@@ -153,7 +153,7 @@ const Header = () => {
   const handleDropdownLeave = () => {
     const timeout = setTimeout(() => {
       setIsDropdownOpen(false);
-    }, 200);
+    }, 150);
     setDropdownTimeout(timeout);
   };
 
@@ -174,13 +174,35 @@ const Header = () => {
   const handleResourcesLeave = () => {
     const timeout = setTimeout(() => {
       setIsResourcesDropdownOpen(false);
-    }, 200);
+    }, 150);
     setResourcesTimeout(timeout);
   };
 
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
-  const toggleResourcesDropdown = () =>
+  const handleDropdownClick = () => {
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+    if (resourcesTimeout) {
+      clearTimeout(resourcesTimeout);
+      setResourcesTimeout(null);
+    }
+    setIsResourcesDropdownOpen(false);
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleResourcesClick = () => {
+    if (resourcesTimeout) {
+      clearTimeout(resourcesTimeout);
+      setResourcesTimeout(null);
+    }
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+    setIsDropdownOpen(false);
     setIsResourcesDropdownOpen(!isResourcesDropdownOpen);
+  };
 
   return (
     <header 
@@ -219,7 +241,7 @@ const Header = () => {
               >
                 <button
                   className="text-white flex items-center gap-1 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={toggleDropdown}
+                  onClick={handleDropdownClick}
                   aria-expanded={isDropdownOpen}
                   aria-controls="features-dropdown"
                   aria-haspopup="true"
@@ -275,7 +297,7 @@ const Header = () => {
               >
                 <button
                   className="text-white items-center gap-1 flex px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={toggleResourcesDropdown}
+                  onClick={handleResourcesClick}
                   aria-expanded={isResourcesDropdownOpen}
                   aria-controls="resources-dropdown"
                   aria-haspopup="true"

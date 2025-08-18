@@ -355,7 +355,7 @@ const LinkedInOptimization = () => {
                     Get daily tips and connect with other job seekers
                   </p>
                   <Link href="http://www.tinyurl.com/AiPplyJobCommunity" target="_blank">
-                    <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all flex items-center gap-2">
+                    <button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC] text-white py-3 px-6 font-manrope text-[16px] font-semibold rounded-[25px] hover:opacity-90 transition-all inline-flex items-center justify-center gap-2">
                       <Icon name="message-circle" size={16} className="text-white" aria-hidden="true" />
                       Join WhatsApp Community
                     </button>
