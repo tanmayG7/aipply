@@ -19,9 +19,9 @@ export default function ResumeAnalysis() {
       {/* Hero Section */}
       <ResponsivePageContainer>
         <div className="relative">
-          <div className="absolute w-full h-[822px] top-[134px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-50 backdrop-blur-[400px] rounded-full blur-[300px]"></div>
+          <div className="absolute w-full hero-blur-bg top-[134px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-50 backdrop-blur-[400px] rounded-full blur-[300px]"></div>
 
-          <div className="relative grid grid-cols-1 gap-16 px-[20px] custom-lg:px-[58px] bg-gradient-to-b">
+          <div className="relative grid grid-cols-1 gap-16 px-container bg-gradient-to-b">
             {/* Hero Content */}
             <div className="flex flex-col gap-6 items-center pt-[137px]">
               <div className="flex justify-center">
@@ -29,10 +29,10 @@ export default function ResumeAnalysis() {
               </div>
 
               <div className="flex flex-col gap-6 items-center justify-center max-w-4xl">
-                <h1 className="font-manrope text-[40px] custom-md:text-[60px] custom-md:leading-[72px] font-bold custom-md:font-semibold text-[#F5F5F6] text-center">
+                <h1 className="font-manrope text-fluid-hero font-bold custom-md:font-semibold text-[#F5F5F6] text-center">
                   Get Your Resume Analyzed by AI in 60 Seconds
                 </h1>
-                <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[30px] text-[#CECFD2] text-center max-w-3xl">
+                <p className="font-manrope font-normal text-fluid-lead text-[#CECFD2] text-center max-w-3xl">
                   Upload your resume and get instant, actionable feedback powered by AI. Discover what recruiters see, identify improvement areas, and land more interviews.
                 </p>
               </div>
@@ -78,9 +78,9 @@ export default function ResumeAnalysis() {
       {/* Features/Benefits Section */}
       <div className="pt-[100px]">
         <ResponsivePageContainer>
-          <div className="px-[20px] custom-lg:px-[58px]">
+          <div className="px-container">
             <div className="text-center mb-16">
-              <h2 className="font-manrope text-[32px] custom-md:text-[48px] font-bold text-[#F5F5F6] mb-4">
+              <h2 className="font-manrope text-fluid-section font-bold text-[#F5F5F6] mb-4">
                 What You'll Get
               </h2>
               <p className="text-[#CECFD2] text-lg max-w-2xl mx-auto">
@@ -223,7 +223,7 @@ const ResumeAnalysisFAQSection: React.FC = () => {
   return (
     <ResponsivePageContainer>
       <div className="grid grid-cols-1 gap-12 custom-lg:gap-16 w-full py-24">
-        <h1 className="text-[36px] font-semibold leading-[44px] font-manrope text-[#F5F5F6] text-center">
+        <h1 className="text-fluid-section font-semibold font-manrope text-[#F5F5F6] text-center">
           Frequently asked questions
         </h1>
         <div className="flex flex-col gap-8">

@@ -9,6 +9,9 @@ body {
 /* Smooth scrolling for hash links */
 html {
   scroll-behavior: smooth;
+  /* Respect user font/display size settings on mobile */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Scroll margin for anchor targets to account for fixed header */
@@ -139,6 +142,45 @@ header {
     @apply bg-background text-foreground;
   }
 }
+
+/* ---------- Fluid type & spacing tokens (scales with viewport and user settings) ---------- */
+:root {
+  /* Headline (e.g., page hero) */
+  --fs-hero: clamp(2rem, 1.2rem + 4vw, 3.75rem);
+  --lh-hero: clamp(2.4rem, 1.6rem + 4.5vw, 4.5rem);
+
+  /* Section titles */
+  --fs-section: clamp(1.75rem, 1.4rem + 1.6vw, 3rem);
+  --lh-section: clamp(2.2rem, 1.8rem + 2vw, 3.6rem);
+
+  /* Lead/body large */
+  --fs-lead: clamp(1rem, 0.95rem + 0.6vw, 1.25rem);
+  --lh-lead: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
+}
+
+/* Minimal utility classes to adopt the fluid tokens without refactoring everything */
+.text-fluid-hero { font-size: var(--fs-hero); line-height: var(--lh-hero); }
+.text-fluid-section { font-size: var(--fs-section); line-height: var(--lh-section); }
+.text-fluid-lead { font-size: var(--fs-lead); line-height: var(--lh-lead); }
+
+/* Container padding that scales with screen size */
+.px-container { 
+  padding-left: calc(env(safe-area-inset-left) + clamp(1rem, 4vw, 3rem)); 
+  padding-right: calc(env(safe-area-inset-right) + clamp(1rem, 4vw, 3rem)); 
+}
+
+/* Background blur block height balanced for phones and large screens */
+.hero-blur-bg { height: clamp(380px, 60vh, 822px); }
+
+/* Mobile-safe widths/heights for dropdowns */
+.country-dropdown-width { width: min(22rem, 92vw); }
+.country-dropdown-max-h { max-height: min(18rem, 60vh); }
+
+/* Better heading wrapping for narrow screens */
+.text-balance { text-wrap: balance; }
+
+/* Prevent overflow on very long tokens (emails, URLs) */
+.wrap-anywhere { overflow-wrap: anywhere; word-break: break-word; }
 
 .scrollbar-hide {
   -ms-overflow-style: none;

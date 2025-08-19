@@ -88,7 +88,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
 
           {/* Dropdown Menu */}
           {isOpen && (
-            <div className="absolute top-full left-0 mt-1 w-80 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md shadow-lg z-50 max-h-64 overflow-hidden">
+            <div className="absolute top-full left-0 mt-1 country-dropdown-width bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md shadow-lg z-50 country-dropdown-max-h overflow-hidden">
               {/* Search Input */}
               <div className="p-2 border-b border-gray-200 dark:border-zinc-700">
                 <input
@@ -102,7 +102,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
               </div>
 
               {/* Countries List */}
-              <div className="overflow-y-auto max-h-48">
+              <div className="overflow-y-auto country-dropdown-max-h">
                 {filteredCountries.length > 0 ? (
                   filteredCountries.map((country) => (
                     <button

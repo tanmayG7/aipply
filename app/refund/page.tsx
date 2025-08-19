@@ -20,15 +20,15 @@ export default function CancellationAndRefundPolicy() {
       <ResponsivePageContainer>
         <div className="relative">
           {/* Background blur effect */}
-          <div className="absolute w-full h-[400px] top-[50px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-30 backdrop-blur-[400px] rounded-full blur-[200px]"></div>
+          <div className="absolute w-full hero-blur-bg top-[50px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-30 backdrop-blur-[400px] rounded-full blur-[200px]"></div>
           
-          <div className="relative px-[20px] custom-lg:px-[58px] pt-[100px] pb-[50px]">
+          <div className="relative px-container pt-[100px] pb-[50px]">
             {/* Header Section */}
             <div className="flex flex-col gap-6 items-center justify-center mb-16">
-              <h1 className="font-manrope text-[40px] custom-md:text-[60px] custom-md:leading-[72px] font-bold custom-md:font-semibold text-[#F5F5F6] text-center">
+              <h1 className="font-manrope text-fluid-hero font-bold custom-md:font-semibold text-[#F5F5F6] text-center">
                 Cancellation and Refund Policy
               </h1>
-              <p className="font-manrope font-normal text-[18px] leading-[28px] text-[#CECFD2] text-center max-w-3xl">
+              <p className="font-manrope font-normal text-fluid-lead text-[#CECFD2] text-center max-w-3xl">
                 This policy outlines the terms and conditions for subscription cancellations and refunds for AiPply services.
               </p>
               <p className="font-manrope font-normal text-[14px] text-[#888] text-center">
