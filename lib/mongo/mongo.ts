@@ -359,7 +359,10 @@ export const getJobsByIds = async (
     .collection("jobs")
     .find({ jobId: { $in: jobIds } })
     .toArray();
-  console.log("💾 MongoDB: Found jobs:", jobs.length, jobs.map((j: any) => ({ id: j.id, jobId: j.jobId, title: j.title })));
+  console.log("💾 MongoDB: Found jobs:", jobs.length);
+  if (jobs.length > 0) {
+    console.log("🔍 Sample MongoDB job structure:", jobs[0]);
+  }
 
   jobs = Array.from(new Map(jobs.map(job => [job.id, job])).values());
 
