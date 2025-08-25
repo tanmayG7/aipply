@@ -54,9 +54,9 @@ const JobTrackerPage: React.FC = () => {
         console.log("📋 Job IDs to fetch:", jobIds);
         const jobs: Job[] = await getJobsByIds(jobIds);
         console.log("💾 Jobs fetched from MongoDB:", jobs.length, jobs);
-        console.log("🔍 Applied Jobs from Firestore:", jobTrackerData.appliedJobs.map(j => j.jobId));
-        console.log("🔍 MongoDB Job IDs:", jobs.map(j => j.jobId));
-        console.log("🔍 MongoDB IDs:", jobs.map(j => j.id));
+        console.log("🔍 Applied Jobs from Firestore:", jobTrackerData.appliedJobs.map((j: Job) => j.jobId));
+        console.log("🔍 MongoDB Job IDs:", jobs.map((j: Job) => j.jobId));
+        console.log("🔍 MongoDB IDs:", jobs.map((j: Job) => j.id));
         const appliedJobsFiltered = jobs.filter((job) =>
           jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.id)
         );
