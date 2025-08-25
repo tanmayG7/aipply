@@ -353,9 +353,11 @@ export const getJobsByIds = async (
 ) => {
   console.log("🔍 MongoDB: Searching for jobs with IDs:", jobIds);
   const db = await connectToMongoDB();
+  
+  // Try searching by jobId field instead of id field
   let jobs = await db
     .collection("jobs")
-    .find({ id: { $in: jobIds } })
+    .find({ jobId: { $in: jobIds } })
     .toArray();
   console.log("💾 MongoDB: Found jobs:", jobs.length, jobs.map((j: any) => ({ id: j.id, jobId: j.jobId, title: j.title })));
 
