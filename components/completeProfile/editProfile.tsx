@@ -127,6 +127,7 @@ const EditProfile: React.FC = () => {
               isEditing={editingStates.credentials} 
               userDetails={userDetails} 
               onRefresh={refreshUserDetails}
+              onExitEditMode={() => toggleEditing('credentials')}
             />
           </>
         );

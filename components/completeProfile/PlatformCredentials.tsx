@@ -14,12 +14,14 @@ interface PlatformCredentialsProps {
   isEditing: boolean;
   userDetails: UserDetails;
   onRefresh?: () => Promise<void>;
+  onExitEditMode?: () => void;
 }
 
 const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
   isEditing,
   userDetails,
-  onRefresh
+  onRefresh,
+  onExitEditMode
 }) => {
   const [showPasswords, setShowPasswords] = useState({
     foundit: false,
@@ -111,7 +113,12 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
         }
         
         setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 2000);
+        setTimeout(() => {
+          setSaveStatus('idle');
+          if (onExitEditMode) {
+            onExitEditMode();
+          }
+        }, 2000);
       }
     } catch (error) {
       console.error('Error saving credentials:', error);
@@ -222,10 +229,23 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
             <div className="flex gap-4 mt-6">
               <Button
                 onClick={handleSave}
-                disabled={saveStatus === 'saving'}
-                className="w-fit px-8 text-white bg-transparent border border-gray"
+                disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+                className={`w-fit px-8 text-white transition-colors ${
+                  saveStatus === 'saved' 
+                    ? 'bg-green-600 border-green-600 cursor-not-allowed' 
+                    : 'bg-transparent border border-gray'
+                }`}
               >
-                {saveStatus === 'saving' ? "Saving..." : saveStatus === 'saved' ? "Saved!" : "Save Credentials"}
+                {saveStatus === 'saving' ? (
+                  "Saving..."
+                ) : saveStatus === 'saved' ? (
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Saved!</span>
+                  </div>
+                ) : (
+                  "Save Credentials"
+                )}
               </Button>
             </div>
           )}
