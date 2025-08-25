@@ -53,22 +53,22 @@ const JobTrackerPage: React.FC = () => {
         const jobs: Job[] = await getJobsByIds(jobIds);
         setAppliedJobs(
           jobs.filter((job) =>
-            jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.id)
+            jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.jobId)
           )
         );
         setArchivedJobs(
           jobs.filter((job) =>
-            jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.id)
+            jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.jobId)
           )
         );
         setFollowUpRequiredJobs(
           jobs.filter((job) =>
-            jobTrackerData.followUp.some((j: Job) => j.jobId === job.id)
+            jobTrackerData.followUp.some((j: Job) => j.jobId === job.jobId)
           )
         );
         setNoReplyJobs(
           jobs.filter((job) =>
-            jobTrackerData.noReply.some((j: Job) => j.jobId === job.id)
+            jobTrackerData.noReply.some((j: Job) => j.jobId === job.jobId)
           )
         );
         setLoading(false); // Set loading to false when fetching is complete
@@ -94,22 +94,22 @@ const JobTrackerPage: React.FC = () => {
     const jobs: Job[] = await getJobsByIds(jobIds);
     setAppliedJobs(
       jobs.filter((job) =>
-        jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.id)
+        jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.jobId)
       )
     );
     setArchivedJobs(
       jobs.filter((job) =>
-        jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.id)
+        jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.jobId)
       )
     );
     setFollowUpRequiredJobs(
       jobs.filter((job) =>
-        jobTrackerData.followUp.some((j: Job) => j.jobId === job.id)
+        jobTrackerData.followUp.some((j: Job) => j.jobId === job.jobId)
       )
     );
     setNoReplyJobs(
       jobs.filter((job) =>
-        jobTrackerData.noReply.some((j: Job) => j.jobId === job.id)
+        jobTrackerData.noReply.some((j: Job) => j.jobId === job.jobId)
       )
     );
   };
