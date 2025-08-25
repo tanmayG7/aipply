@@ -54,24 +54,27 @@ const JobTrackerPage: React.FC = () => {
         console.log("📋 Job IDs to fetch:", jobIds);
         const jobs: Job[] = await getJobsByIds(jobIds);
         console.log("💾 Jobs fetched from MongoDB:", jobs.length, jobs);
+        console.log("🔍 Applied Jobs from Firestore:", jobTrackerData.appliedJobs.map(j => j.jobId));
+        console.log("🔍 MongoDB Job IDs:", jobs.map(j => j.jobId));
+        console.log("🔍 MongoDB IDs:", jobs.map(j => j.id));
         const appliedJobsFiltered = jobs.filter((job) =>
-          jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.jobId)
+          jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.id)
         );
         console.log("✅ Applied Jobs Filtered:", appliedJobsFiltered.length, appliedJobsFiltered);
         setAppliedJobs(appliedJobsFiltered);
         setArchivedJobs(
           jobs.filter((job) =>
-            jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.jobId)
+            jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.id)
           )
         );
         setFollowUpRequiredJobs(
           jobs.filter((job) =>
-            jobTrackerData.followUp.some((j: Job) => j.jobId === job.jobId)
+            jobTrackerData.followUp.some((j: Job) => j.jobId === job.id)
           )
         );
         setNoReplyJobs(
           jobs.filter((job) =>
-            jobTrackerData.noReply.some((j: Job) => j.jobId === job.jobId)
+            jobTrackerData.noReply.some((j: Job) => j.jobId === job.id)
           )
         );
         setLoading(false); // Set loading to false when fetching is complete
@@ -97,22 +100,22 @@ const JobTrackerPage: React.FC = () => {
     const jobs: Job[] = await getJobsByIds(jobIds);
     setAppliedJobs(
       jobs.filter((job) =>
-        jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.jobId)
+        jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.id)
       )
     );
     setArchivedJobs(
       jobs.filter((job) =>
-        jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.jobId)
+        jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.id)
       )
     );
     setFollowUpRequiredJobs(
       jobs.filter((job) =>
-        jobTrackerData.followUp.some((j: Job) => j.jobId === job.jobId)
+        jobTrackerData.followUp.some((j: Job) => j.jobId === job.id)
       )
     );
     setNoReplyJobs(
       jobs.filter((job) =>
-        jobTrackerData.noReply.some((j: Job) => j.jobId === job.jobId)
+        jobTrackerData.noReply.some((j: Job) => j.jobId === job.id)
       )
     );
   };
