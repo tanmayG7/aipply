@@ -44,18 +44,21 @@ const JobTrackerPage: React.FC = () => {
         const userId = user.uid;
         setUserId(userId);
         const jobTrackerData = await getJobTrackerData(userId);
+        console.log("🔍 Job Tracker Data:", jobTrackerData);
         const jobIds = [
           ...jobTrackerData.appliedJobs.map((job: Job) => job.jobId),
           ...jobTrackerData.personalArchive.map((job: Job) => job.jobId),
           ...jobTrackerData.followUp.map((job: Job) => job.jobId),
           ...jobTrackerData.noReply.map((job: Job) => job.jobId),
         ];
+        console.log("📋 Job IDs to fetch:", jobIds);
         const jobs: Job[] = await getJobsByIds(jobIds);
-        setAppliedJobs(
-          jobs.filter((job) =>
-            jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.jobId)
-          )
+        console.log("💾 Jobs fetched from MongoDB:", jobs.length, jobs);
+        const appliedJobsFiltered = jobs.filter((job) =>
+          jobTrackerData.appliedJobs.some((j: Job) => j.jobId === job.jobId)
         );
+        console.log("✅ Applied Jobs Filtered:", appliedJobsFiltered.length, appliedJobsFiltered);
+        setAppliedJobs(appliedJobsFiltered);
         setArchivedJobs(
           jobs.filter((job) =>
             jobTrackerData.personalArchive.some((j: Job) => j.jobId === job.jobId)

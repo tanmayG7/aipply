@@ -351,11 +351,13 @@ export const getJobsByIds = async (
   expectedCTC?: string,
   workexperience?: string
 ) => {
+  console.log("🔍 MongoDB: Searching for jobs with IDs:", jobIds);
   const db = await connectToMongoDB();
   let jobs = await db
     .collection("jobs")
     .find({ id: { $in: jobIds } })
     .toArray();
+  console.log("💾 MongoDB: Found jobs:", jobs.length, jobs.map(j => ({ id: j.id, jobId: j.jobId, title: j.title })));
 
   jobs = Array.from(new Map(jobs.map(job => [job.id, job])).values());
 
