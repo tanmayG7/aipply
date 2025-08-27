@@ -5,8 +5,8 @@ import { Job, UserDetails } from "../types";
 import { getSkillsForJobTitle } from '../enhanced-skill-tree';
 /*just commenting*/
 
-const MONGODB_URI = process.env.MONGODB_URI as string; // MongoDB Connection String
-const MONGODB_DB = process.env.MONGODB_DB as string; // Database Name
+const MONGODB_URI = process.env.MONGODB_URI as string || "mongodb+srv://chauhankanishk990:kanishk123@aipply-main.prfha.mongodb.net/main?retryWrites=true&w=majority&appName=aipply-main"; // MongoDB Connection String
+const MONGODB_DB = process.env.MONGODB_DB as string || "main" // Database Name
 
 if (!MONGODB_URI) {
   throw new Error("Please define the MONGODB_URI environment variable");
