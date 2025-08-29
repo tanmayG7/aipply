@@ -3,30 +3,51 @@ import { AppSidebar } from "@/components/app-sidebar";
 import DashboardCard from "@/components/card/DashboardCard/DashboardCard";
 import { DashboardChart } from "@/components/charts/pieCharts";
 import { Button } from "@/components/ui/button";
-import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
-import { auth, getDashboardData } from "@/lib/firebaseConfig/firebaseConfig";
+import {
+  auth,
+  getDashboardData,
+  firestore,
+} from "@/lib/firebaseConfig/firebaseConfig";
 import { DashboardData } from "@/lib/types";
 import { DashboardBarChart } from "@/components/charts/barChart";
 import { HomeShimmer } from "@/components/loaders/loader";
-import { testSkillTree } from '@/lib/test-skill-tree';
+import { testSkillTree } from "@/lib/test-skill-tree";
+import { doc, getDoc } from "firebase/firestore";
 
-const DEBUG = process.env.NODE_ENV === 'development';
+const DEBUG = process.env.NODE_ENV === "development";
 
 const debugLog = (message: string, data?: any) => {
   if (DEBUG) {
-    console.log(`🏠 HomePage: ${message}`, data || '');
+    console.log(`🏠 HomePage: ${message}`, data || "");
   }
 };
 
+interface AutoAppliedStats {
+  totalAutoApplied: number;
+  todayAutoApplied: number;
+  thisMonthAutoApplied: number;
+}
+
+interface UserSubscription {
+  subscriptionStatus: string;
+  // Add other subscription fields as needed
+}
+
 const MobileTrigger = () => {
   const { openMobile } = useSidebar();
-  
+
   if (openMobile) return null; // Hide when mobile sidebar is open
-  
+
   return (
     <div className="lg:hidden fixed top-6 right-4 z-50">
       <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
@@ -36,85 +57,222 @@ const MobileTrigger = () => {
   );
 };
 
+const getAppliedJobs = async (userId: string) => {
+  try {
+    const appliedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    if (appliedJobsDoc.exists()) {
+      return appliedJobsDoc.data().appliedJobs || [];
+    } else {
+      return [];
+    }
+  } catch (error: any) {
+    throw new Error("Error fetching applied jobs: " + error.message);
+  }
+};
+
+const getUserSubscription = async (
+  userId: string
+): Promise<UserSubscription | null> => {
+  try {
+    const subscriptionDoc = await getDoc(
+      doc(firestore, "subscriptions", userId)
+    );
+    if (subscriptionDoc.exists()) {
+      return subscriptionDoc.data() as UserSubscription;
+    }
+    return null;
+  } catch (error: any) {
+    debugLog("Error fetching subscription:", error);
+    return null;
+  }
+};
+
+const calculateAutoAppliedStats = (appliedJobs: any[]): AutoAppliedStats => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // Filter only auto-applied jobs
+  const autoAppliedJobs = appliedJobs.filter((job) => job.autoApplied === true);
+
+  const todayAutoApplied = autoAppliedJobs.filter((job) => {
+    const appliedDate = new Date(job.appliedDate || job.appliedAt);
+    return appliedDate >= today;
+  }).length;
+
+  const thisMonthAutoApplied = autoAppliedJobs.filter((job) => {
+    const appliedDate = new Date(job.appliedDate || job.appliedAt);
+    return appliedDate >= thisMonth;
+  }).length;
+
+  return {
+    totalAutoApplied: autoAppliedJobs.length,
+    todayAutoApplied,
+    thisMonthAutoApplied,
+  };
+};
+
 const HomePage: React.FC = () => {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
+  const [autoAppliedStats, setAutoAppliedStats] =
+    useState<AutoAppliedStats | null>(null);
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Add cron testing states
+  const [cronLoading, setCronLoading] = useState(false);
+  const [cronResult, setCronResult] = useState<any>(null);
+
   useEffect(() => {
-    debugLog('Setting up auth listener');
-    
+    debugLog("Setting up auth listener");
+
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      debugLog('Auth state changed', { hasUser: !!user, uid: user?.uid });
-      
+      debugLog("Auth state changed", { hasUser: !!user, uid: user?.uid });
+
       if (user) {
         fetchDashboardData(user.uid);
+        fetchAutoAppliedData(user.uid);
       } else {
-        debugLog('No user - redirecting to login');
-        window.location.href = '/dashboard/onboarding/login';
+        debugLog("No user - redirecting to login");
+        window.location.href = "/dashboard/onboarding/login";
       }
     });
 
     return () => {
-      debugLog('Cleaning up auth listener');
+      debugLog("Cleaning up auth listener");
       unsubscribe();
     };
   }, []);
 
-useEffect(() => {
-  console.log('🧪 Testing skill tree...');
-  
-  // Import the test function directly
-  import('@/lib/test-skill-tree').then(testModule => {
-    console.log('✅ Test module loaded:', Object.keys(testModule));
-    
-    if (testModule.testSkillTree) {
-      console.log('🎯 Running testSkillTree...');
-      testModule.testSkillTree();
-    } else {
-      console.log('❌ testSkillTree function not found');
+  useEffect(() => {
+    console.log("🧪 Testing skill tree...");
+
+    // Import the test function directly
+    import("@/lib/test-skill-tree")
+      .then((testModule) => {
+        console.log("✅ Test module loaded:", Object.keys(testModule));
+
+        if (testModule.testSkillTree) {
+          console.log("🎯 Running testSkillTree...");
+          testModule.testSkillTree();
+        } else {
+          console.log("❌ testSkillTree function not found");
+        }
+      })
+      .catch((error) => {
+        console.error("❌ Failed to import test module:", error);
+
+        // If test module fails, try testing the enhanced-skill-tree directly
+        import("@/lib/enhanced-skill-tree")
+          .then((skillModule) => {
+            console.log(
+              "✅ Skill tree module loaded as fallback:",
+              Object.keys(skillModule)
+            );
+
+            if (skillModule.getSkillsStats) {
+              const stats = skillModule.getSkillsStats();
+              console.log("📊 Direct stats test:", stats);
+            }
+
+            if (skillModule.getSkillsForJobTitle) {
+              const skills =
+                skillModule.getSkillsForJobTitle("Software Engineer");
+              console.log("🔧 Software Engineer skills:", skills?.slice(0, 5));
+            }
+          })
+          .catch((skillError) => {
+            console.error("❌ Both imports failed:", {
+              testError: error,
+              skillError,
+            });
+          });
+      });
+  }, []);
+
+  // Add cron test function
+  const testCronJob = async () => {
+    setCronLoading(true);
+    setCronResult(null);
+
+    try {
+      debugLog("Testing cron job...");
+      const response = await fetch("/api/cron/daily-auto-apply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: auth.currentUser.uid, // send userId in body
+        }),
+      });
+
+      const result = await response.json();
+      setCronResult(result);
+      console.log("🚀 Cron job result:", result);
+
+      // Refresh dashboard data after cron job
+      if (auth.currentUser) {
+        fetchDashboardData(auth.currentUser.uid);
+      }
+    } catch (error: any) {
+      console.error("Error testing cron job:", error);
+      setCronResult({ error: "Failed to run cron job: " + error.message });
+    } finally {
+      setCronLoading(false);
     }
-    
-  }).catch(error => {
-    console.error('❌ Failed to import test module:', error);
-    
-    // If test module fails, try testing the enhanced-skill-tree directly
-    import('@/lib/enhanced-skill-tree').then(skillModule => {
-      console.log('✅ Skill tree module loaded as fallback:', Object.keys(skillModule));
-      
-      if (skillModule.getSkillsStats) {
-        const stats = skillModule.getSkillsStats();
-        console.log('📊 Direct stats test:', stats);
-      }
-      
-      if (skillModule.getSkillsForJobTitle) {
-        const skills = skillModule.getSkillsForJobTitle('Software Engineer');
-        console.log('🔧 Software Engineer skills:', skills?.slice(0, 5));
-      }
-      
-    }).catch(skillError => {
-      console.error('❌ Both imports failed:', { testError: error, skillError });
-    });
-  });
-}, []);
+  };
+
   const fetchDashboardData = async (uid: string) => {
     try {
-      debugLog('Fetching dashboard data', { uid });
+      debugLog("Fetching dashboard data", { uid });
       setLoading(true);
       setError(null);
-      
+
       const data = await getDashboardData(uid);
-      debugLog('Dashboard data fetched', { 
+      debugLog("Dashboard data fetched", {
         hasData: !!data,
         jobsApplied: data?.jobsApplied,
-        totalJobsShown: data?.totalJobsShown
+        totalJobsShown: data?.totalJobsShown,
       });
-      
+
       setDashboardData(data);
     } catch (error: any) {
       console.error("Error fetching dashboard data:", error);
-      debugLog('Error fetching dashboard data', error);
+      debugLog("Error fetching dashboard data", error);
       setError(`Failed to load dashboard: ${error.message}`);
+    }
+  };
+
+  const fetchAutoAppliedData = async (uid: string) => {
+    try {
+      debugLog("Fetching auto-applied data", { uid });
+
+      // Check subscription status
+      const subscription = await getUserSubscription(uid);
+      const userIsSubscribed =
+        subscription?.subscriptionStatus === "premium" ||
+        subscription?.subscriptionStatus === "active";
+      setIsSubscribed(userIsSubscribed);
+
+      if (userIsSubscribed) {
+        // Fetch applied jobs for subscribed users
+        const appliedJobs = await getAppliedJobs(uid);
+        debugLog("Applied jobs fetched", { count: appliedJobs.length });
+
+        // Calculate auto-applied stats
+        const stats = calculateAutoAppliedStats(appliedJobs);
+        debugLog("Auto-applied stats calculated", stats);
+
+        setAutoAppliedStats(stats);
+      }
+    } catch (error: any) {
+      console.error("Error fetching auto-applied data:", error);
+      debugLog("Error fetching auto-applied data", error);
+      // Don't set error state for auto-applied data to avoid blocking the main dashboard
     } finally {
       setLoading(false);
     }
@@ -126,9 +284,14 @@ useEffect(() => {
       <>
         <Head>
           <title>Home - Aipply</title>
-          <meta name="description" content="Welcome to Aipply. Find your dream job today." />
+          <meta
+            name="description"
+            content="Welcome to Aipply. Find your dream job today."
+          />
         </Head>
-        <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
+        <SidebarProvider
+          style={{ "--sidebar-width": "19rem" } as React.CSSProperties}
+        >
           <AppSidebar />
           <SidebarInset>
             <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
@@ -136,13 +299,16 @@ useEffect(() => {
               <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="text-center py-8">
                   <div className="bg-red-900/20 border border-red-500 rounded-lg p-6 max-w-md mx-auto">
-                    <h2 className="text-red-400 text-xl font-semibold mb-2">Error Loading Dashboard</h2>
+                    <h2 className="text-red-400 text-xl font-semibold mb-2">
+                      Error Loading Dashboard
+                    </h2>
                     <p className="text-red-300 mb-4">{error}</p>
-                    <button 
+                    <button
                       onClick={() => {
                         setError(null);
                         if (auth.currentUser) {
                           fetchDashboardData(auth.currentUser.uid);
+                          fetchAutoAppliedData(auth.currentUser.uid);
                         }
                       }}
                       className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md h-11"
@@ -163,11 +329,16 @@ useEffect(() => {
     <>
       <Head>
         <title>Home - Aipply</title>
-        <meta name="description" content="Welcome to Aipply. Find your dream job today." />
+        <meta
+          name="description"
+          content="Welcome to Aipply. Find your dream job today."
+        />
       </Head>
-      <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
+      <SidebarProvider
+        style={{ "--sidebar-width": "19rem" } as React.CSSProperties}
+      >
         <AppSidebar />
-        
+
         <SidebarInset>
           <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
             <MobileTrigger />
@@ -179,23 +350,33 @@ useEffect(() => {
                   {/* Debug info in development */}
                   {DEBUG && (
                     <div className="bg-gray-800 p-2 rounded text-xs text-gray-300">
-                      Debug: Data loaded: {!!dashboardData} | Jobs Applied: {dashboardData?.jobsApplied}
+                      Debug: Data loaded: {!!dashboardData} | Jobs Applied:{" "}
+                      {dashboardData?.jobsApplied} | Subscribed: {isSubscribed}{" "}
+                      | Auto Applied: {autoAppliedStats?.totalAutoApplied}
                     </div>
                   )}
-                  
+
                   <div className="gap-3">
                     <h1 className="font-inter text-[#ECECED] font-bold text-2xl sm:text-3xl lg:text-[40px]">
                       Home
                     </h1>
                     <p className="font-inter text-[#F5F5F6] text-text-sm-semibold">
-                      Today we have curated {dashboardData?.totalJobsShown || 0} jobs for you.
+                      Today we have curated {dashboardData?.totalJobsShown || 0}{" "}
+                      jobs for you.
                     </p>
                   </div>
-                  
+
                   <div className="w-full lg:w-[50%]">
-                    <GetStartedCard appliedJoblength={dashboardData?.jobsApplied ? parseInt(dashboardData.jobsApplied.toString()) : 0}/>
+                    <GetStartedCard
+                      appliedJoblength={
+                        dashboardData?.jobsApplied
+                          ? parseInt(dashboardData.jobsApplied.toString())
+                          : 0
+                      }
+                    />
                   </div>
-                  
+
+                  {/* Manual Jobs Applied Cards - Always shown */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {dashboardData && (
                       <>
@@ -206,7 +387,7 @@ useEffect(() => {
                         />
                         <DashboardCard
                           id="3"
-                          title="Jobs Applied"
+                          title="Jobs Applied (Manual)"
                           totalNumber={dashboardData.jobsApplied.toString()}
                         />
                         <DashboardCard
@@ -222,13 +403,49 @@ useEffect(() => {
                       </>
                     )}
                   </div>
-                  
+
+                  {/* Auto Applied Jobs Cards - Only for subscribed users */}
+                  {isSubscribed && autoAppliedStats && (
+                    <>
+                      <div className="flex flex-col gap-3">
+                        <h2 className="font-inter text-[#ECECED] font-semibold text-xl">
+                          Auto Apply Statistics
+                        </h2>
+                        <p className="font-inter text-[#94969C] text-sm">
+                          Track your automated job applications performance
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <DashboardCard
+                          id="5"
+                          title="Total Auto Applied"
+                          totalNumber={autoAppliedStats.totalAutoApplied.toString()}
+                        />
+                        <DashboardCard
+                          id="6"
+                          title="Auto Applied Today"
+                          totalNumber={autoAppliedStats.todayAutoApplied.toString()}
+                        />
+                        <DashboardCard
+                          id="7"
+                          title="Auto Applied This Month"
+                          totalNumber={autoAppliedStats.thisMonthAutoApplied.toString()}
+                        />
+                      </div>
+                    </>
+                  )}
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     {dashboardData && (
-                      <DashboardBarChart locationData={dashboardData.location} />
+                      <DashboardBarChart
+                        locationData={dashboardData.location}
+                      />
                     )}
                     {dashboardData && (
-                      <DashboardChart packageAppliedTo={dashboardData.packageAppliedTo} />
+                      <DashboardChart
+                        packageAppliedTo={dashboardData.packageAppliedTo}
+                      />
                     )}
                   </div>
 
@@ -256,7 +473,9 @@ useEffect(() => {
                             <Button
                               variant={"secondary"}
                               className="bg-background text-white border hover:bg-blue text-text-sm-medium w-fit font-inter h-11"
-                              onClick={() => window.location.href = '/dashboard/job-board'}
+                              onClick={() =>
+                                (window.location.href = "/dashboard/job-board")
+                              }
                             >
                               Find more jobs
                             </Button>
@@ -289,6 +508,38 @@ useEffect(() => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Cron Job Test Section - Only in Development */}
+                  {DEBUG && (
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-600">
+                      <h3 className="text-lg font-semibold text-white mb-3">
+                        Test Auto-Apply Cron Job
+                      </h3>
+
+                      <div className="flex flex-col gap-3">
+                        <Button
+                          onClick={testCronJob}
+                          disabled={cronLoading}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md h-11 w-fit"
+                        >
+                          {cronLoading
+                            ? "Running Cron Job..."
+                            : "Test Auto-Apply Cron"}
+                        </Button>
+
+                        {cronResult && (
+                          <div className="bg-gray-900 p-3 rounded border border-gray-700 max-h-96 overflow-auto">
+                            <h4 className="text-sm font-medium text-green-400 mb-2">
+                              Cron Job Result:
+                            </h4>
+                            <pre className="text-xs text-gray-300 whitespace-pre-wrap">
+                              {JSON.stringify(cronResult, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

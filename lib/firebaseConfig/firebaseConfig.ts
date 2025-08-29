@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { 
-  UserSubscription, 
-  PLAN_FEATURES, 
-  GRACE_PERIOD_DAYS, 
+import {
+  UserSubscription,
+  PLAN_FEATURES,
+  GRACE_PERIOD_DAYS,
   INDIA_TIMEZONE,
-  FeatureAccess 
+  FeatureAccess,
 } from "../types";
 import { initializeApp, getApps, getApp } from "firebase/app";
 import {
@@ -18,12 +18,37 @@ import {
   signOut,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { Job, UserDetails, DashboardData } from "../types";
 import { getFilteredJobsByTitlePaginatedWithFuzzy } from "@/lib/mongo/fuzzy-matcher";
-import { getJobsByIds, getFilteredJobsByTitle, getJobByTitleandSkills, getFilteredJobsByTitlePaginated } from "@/lib/mongo/mongo";
-import { mapSalaryToRange, mapExperienceToRange, determineJobType } from "../utils";
+import {
+  getJobsByIds,
+  getFilteredJobsByTitle,
+  getJobByTitleandSkills,
+  getFilteredJobsByTitlePaginated,
+} from "@/lib/mongo/mongo";
+import {
+  mapSalaryToRange,
+  mapExperienceToRange,
+  determineJobType,
+} from "../utils";
+import {
+  areCredentialsEncrypted,
+  decryptPlatformCredentials,
+  encryptPlatformCredentials,
+  generateUserSalt,
+} from "../security/encryptionUtils";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -45,21 +70,65 @@ const provider = new GoogleAuthProvider();
 // Ensure authentication persistence across page refreshes
 setPersistence(auth, browserLocalPersistence).catch(console.error);
 
+/**
+ * Safely encrypt platform credentials before saving to Firebase
+ */
+const encryptCredentialsForStorage = (
+  userId: string,
+  credentials: Record<string, { email: string; password: string }>
+): Record<string, any> => {
+  try {
+    // Generate user-specific salt
+    const userSalt = generateUserSalt(userId);
+
+    // Encrypt the credentials
+    return encryptPlatformCredentials(credentials, userSalt);
+  } catch (error) {
+    console.error("Error encrypting credentials for storage:", error);
+    throw new Error("Failed to encrypt credentials");
+  }
+};
+
+//  * Safely decrypt platform credentials after retrieving from Firebase
+const decryptCredentialsFromStorage = (
+  encryptedCredentials: Record<string, any>
+): Record<string, { email: string; password: string }> => {
+  try {
+    if (!areCredentialsEncrypted(encryptedCredentials)) {
+      console.warn(
+        "Credentials are not encrypted - this should not happen in production"
+      );
+      return encryptedCredentials as Record<
+        string,
+        { email: string; password: string }
+      >;
+    }
+
+    return decryptPlatformCredentials(encryptedCredentials);
+  } catch (error) {
+    console.error("Error decrypting credentials from storage:", error);
+    throw new Error("Failed to decrypt credentials");
+  }
+};
+
 // ========== SUBSCRIPTION HELPER FUNCTIONS ==========
 
 // Utility functions for date handling in IST
 const getCurrentDateIST = (): string => {
   const now = new Date();
-  const istDate = new Date(now.toLocaleString("en-US", {timeZone: INDIA_TIMEZONE}));
-  return istDate.toISOString().split('T')[0]; // YYYY-MM-DD
+  const istDate = new Date(
+    now.toLocaleString("en-US", { timeZone: INDIA_TIMEZONE })
+  );
+  return istDate.toISOString().split("T")[0]; // YYYY-MM-DD
 };
 
 const getCurrentMonthIST = (): string => {
   const now = new Date();
-  const istDate = new Date(now.toLocaleString("en-US", {timeZone: INDIA_TIMEZONE}));
+  const istDate = new Date(
+    now.toLocaleString("en-US", { timeZone: INDIA_TIMEZONE })
+  );
   return istDate.toISOString().substring(0, 7); // YYYY-MM
 };
-
 
 // Check if usage needs to be reset
 const shouldResetDailyUsage = (subscription: UserSubscription): boolean => {
@@ -73,57 +142,77 @@ const shouldResetMonthlyUsage = (subscription: UserSubscription): boolean => {
 };
 
 // Reset usage if needed (daily/monthly)
-const resetUsageIfNeeded = (subscription: UserSubscription): UserSubscription => {
+const resetUsageIfNeeded = (
+  subscription: UserSubscription
+): UserSubscription => {
   const currentDateIST = getCurrentDateIST();
   const currentMonthIST = getCurrentMonthIST();
-  
+
   const updatedUsage = { ...subscription.usage };
   let hasChanged = false;
-  
+
   // Reset daily usage if date changed
   if (shouldResetDailyUsage(subscription)) {
     updatedUsage.autoApplyToday = 0;
     updatedUsage.lastResetDate = currentDateIST;
     hasChanged = true;
   }
-  
+
   // Reset monthly usage if month changed
   if (shouldResetMonthlyUsage(subscription)) {
     updatedUsage.autoApplyThisMonth = 0;
     updatedUsage.lastMonthlyResetDate = currentMonthIST;
     hasChanged = true;
   }
-  
-  return hasChanged ? {
-    ...subscription,
-    usage: updatedUsage,
-    updatedAt: new Date().toISOString()
-  } : subscription;
+
+  return hasChanged
+    ? {
+        ...subscription,
+        usage: updatedUsage,
+        updatedAt: new Date().toISOString(),
+      }
+    : subscription;
 };
 
 // Get effective subscription status considering grace period
-const getEffectiveSubscriptionStatus = (subscription: UserSubscription): string => {
+const getEffectiveSubscriptionStatus = (
+  subscription: UserSubscription
+): string => {
   const now = new Date();
-  const renewalDate = subscription.renewalDate ? new Date(subscription.renewalDate) : null;
-  const gracePeriodEnd = subscription.gracePeriodEndDate ? new Date(subscription.gracePeriodEndDate) : null;
-  
+  const renewalDate = subscription.renewalDate
+    ? new Date(subscription.renewalDate)
+    : null;
+  const gracePeriodEnd = subscription.gracePeriodEndDate
+    ? new Date(subscription.gracePeriodEndDate)
+    : null;
+
   // If subscription is active and renewal date hasn't passed
-  if (subscription.subscriptionStatus === 'premium' && renewalDate && now < renewalDate) {
-    return 'premium';
+  if (
+    subscription.subscriptionStatus === "premium" &&
+    renewalDate &&
+    now < renewalDate
+  ) {
+    return "premium";
   }
-  
+
   // If subscription expired but still in grace period
-  if (subscription.subscriptionStatus === 'grace_period' && gracePeriodEnd && now < gracePeriodEnd) {
-    return 'grace_period';
+  if (
+    subscription.subscriptionStatus === "grace_period" &&
+    gracePeriodEnd &&
+    now < gracePeriodEnd
+  ) {
+    return "grace_period";
   }
-  
+
   // If grace period ended or subscription cancelled
-  if (subscription.subscriptionStatus === 'expired' || 
-      subscription.subscriptionStatus === 'cancelled' ||
-      (gracePeriodEnd && now >= gracePeriodEnd)) {
-    return 'free';
+  if (
+    subscription.subscriptionStatus === "expired" ||
+    subscription.subscriptionStatus === "cancelled" ||
+    (gracePeriodEnd && now >= gracePeriodEnd)
+  ) {
+    return "free";
   }
-  
+
   return subscription.subscriptionStatus;
 };
 
@@ -132,12 +221,12 @@ const createDefaultSubscription = (userId: string): UserSubscription => {
   const currentDate = new Date().toISOString();
   const currentDateIST = getCurrentDateIST();
   const currentMonthIST = getCurrentMonthIST();
-  
+
   return {
     userId,
-    subscriptionStatus: 'free',
+    subscriptionStatus: "free",
     planType: null,
-    planTier: 'free',
+    planTier: "free",
     razorpaySubscriptionId: null,
     razorpayCustomerId: null,
     razorpayPlanId: null,
@@ -149,50 +238,59 @@ const createDefaultSubscription = (userId: string): UserSubscription => {
     expiredDate: null,
     gracePeriodEndDate: null,
     planPrice: null,
-    planCurrency: 'INR',
+    planCurrency: "INR",
     features: PLAN_FEATURES.free,
     usage: {
       autoApplyToday: 0,
       autoApplyThisMonth: 0,
       lastResetDate: currentDateIST,
       lastMonthlyResetDate: currentMonthIST,
-      timezone: 'Asia/Kolkata'
+      timezone: "Asia/Kolkata",
     },
     createdAt: currentDate,
-    updatedAt: currentDate
+    updatedAt: currentDate,
   };
 };
 
 // ========== MAIN SUBSCRIPTION FUNCTIONS ==========
 
 // Create a new subscription for a user
-const createUserSubscription = async (userId: string): Promise<UserSubscription> => {
+const createUserSubscription = async (
+  userId: string
+): Promise<UserSubscription> => {
   try {
     const subscription = createDefaultSubscription(userId);
     await setDoc(doc(firestore, "subscriptions", userId), subscription);
     console.log(`Created default subscription for user: ${userId}`);
     return subscription;
   } catch (error: any) {
-    console.error('Error creating user subscription:', error);
+    console.error("Error creating user subscription:", error);
     throw new Error(`Failed to create subscription: ${error.message}`);
   }
 };
 
 // Get user subscription
-const getUserSubscription = async (userId: string): Promise<UserSubscription> => {
+const getUserSubscription = async (
+  userId: string
+): Promise<UserSubscription> => {
   try {
-    const subscriptionDoc = await getDoc(doc(firestore, "subscriptions", userId));
-    
+    const subscriptionDoc = await getDoc(
+      doc(firestore, "subscriptions", userId)
+    );
+
     if (subscriptionDoc.exists()) {
       const subscription = subscriptionDoc.data() as UserSubscription;
       // Always reset usage if needed when fetching
       const updatedSubscription = resetUsageIfNeeded(subscription);
-      
+
       // Save back to DB if usage was reset
       if (updatedSubscription.updatedAt !== subscription.updatedAt) {
-        await setDoc(doc(firestore, "subscriptions", userId), updatedSubscription);
+        await setDoc(
+          doc(firestore, "subscriptions", userId),
+          updatedSubscription
+        );
       }
-      
+
       return updatedSubscription;
     } else {
       // Create default subscription if doesn't exist
@@ -200,77 +298,89 @@ const getUserSubscription = async (userId: string): Promise<UserSubscription> =>
       return await createUserSubscription(userId);
     }
   } catch (error: any) {
-    console.error('Error getting user subscription:', error);
+    console.error("Error getting user subscription:", error);
     throw new Error(`Failed to get subscription: ${error.message}`);
   }
 };
 
 // Update user subscription
-const updateUserSubscription = async (userId: string, updates: Partial<UserSubscription>): Promise<void> => {
+const updateUserSubscription = async (
+  userId: string,
+  updates: Partial<UserSubscription>
+): Promise<void> => {
   try {
     const currentSubscription = await getUserSubscription(userId);
     const updatedSubscription = {
       ...currentSubscription,
       ...updates,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
-    
+
     await setDoc(doc(firestore, "subscriptions", userId), updatedSubscription);
     console.log(`Updated subscription for user: ${userId}`);
   } catch (error: any) {
-    console.error('Error updating user subscription:', error);
+    console.error("Error updating user subscription:", error);
     throw new Error(`Failed to update subscription: ${error.message}`);
   }
 };
 
 // Check if user can use a specific feature
-const canUseFeature = async (userId: string, feature: keyof UserSubscription['features']): Promise<FeatureAccess> => {
+const canUseFeature = async (
+  userId: string,
+  feature: keyof UserSubscription["features"]
+): Promise<FeatureAccess> => {
   try {
     const subscription = await getUserSubscription(userId);
     const effectiveStatus = getEffectiveSubscriptionStatus(subscription);
-    
+
     // For auto-apply, check usage limits
-    if (feature === 'autoApply') {
-      if (effectiveStatus === 'free') {
-        return { allowed: false, reason: 'upgrade_required' };
+    if (feature === "autoApply") {
+      if (effectiveStatus === "free") {
+        return { allowed: false, reason: "upgrade_required" };
       }
-      
-      if (effectiveStatus === 'premium' || effectiveStatus === 'grace_period') {
-        if (subscription.usage.autoApplyToday >= subscription.features.maxAutoApplyPerDay) {
-          return { allowed: false, reason: 'daily_limit_reached' };
+
+      if (effectiveStatus === "premium" || effectiveStatus === "grace_period") {
+        if (
+          subscription.usage.autoApplyToday >=
+          subscription.features.maxAutoApplyPerDay
+        ) {
+          return { allowed: false, reason: "daily_limit_reached" };
         }
-        
-        if (subscription.usage.autoApplyThisMonth >= subscription.features.maxAutoApplyPerMonth) {
-          return { allowed: false, reason: 'monthly_limit_reached' };
+
+        if (
+          subscription.usage.autoApplyThisMonth >=
+          subscription.features.maxAutoApplyPerMonth
+        ) {
+          return { allowed: false, reason: "monthly_limit_reached" };
         }
-        
+
         return { allowed: true };
       }
     }
-    
+
     // For boolean features, check if enabled
-    if (typeof subscription.features[feature] === 'boolean') {
+    if (typeof subscription.features[feature] === "boolean") {
       const hasFeature = subscription.features[feature] as boolean;
-      if (!hasFeature && effectiveStatus === 'free') {
-        return { allowed: false, reason: 'upgrade_required' };
+      if (!hasFeature && effectiveStatus === "free") {
+        return { allowed: false, reason: "upgrade_required" };
       }
       return { allowed: hasFeature };
     }
-    
+
     // For number features (like maxAutoApplyPerDay), they're always "allowed" if > 0
-    if (typeof subscription.features[feature] === 'number') {
+    if (typeof subscription.features[feature] === "number") {
       const featureValue = subscription.features[feature] as number;
-      if (featureValue === 0 && effectiveStatus === 'free') {
-        return { allowed: false, reason: 'upgrade_required' };
+      if (featureValue === 0 && effectiveStatus === "free") {
+        return { allowed: false, reason: "upgrade_required" };
       }
       return { allowed: featureValue > 0 };
     }
-    
+
     // Default case
-    return { allowed: false, reason: 'unknown_error' };
+    return { allowed: false, reason: "unknown_error" };
   } catch (error: any) {
     console.error(`Error checking feature access for ${feature}:`, error);
-    return { allowed: false, reason: 'unknown_error' };
+    return { allowed: false, reason: "unknown_error" };
   }
 };
 
@@ -278,26 +388,26 @@ const canUseFeature = async (userId: string, feature: keyof UserSubscription['fe
 const incrementAutoApplyUsage = async (userId: string): Promise<boolean> => {
   try {
     const subscription = await getUserSubscription(userId);
-    
+
     // Check if user can use auto-apply
-    const canUse = await canUseFeature(userId, 'autoApply');
+    const canUse = await canUseFeature(userId, "autoApply");
     if (!canUse.allowed) {
       console.log(`User ${userId} cannot use auto-apply: ${canUse.reason}`);
       return false;
     }
-    
+
     // Increment usage
     const updatedUsage = {
       ...subscription.usage,
       autoApplyToday: subscription.usage.autoApplyToday + 1,
-      autoApplyThisMonth: subscription.usage.autoApplyThisMonth + 1
+      autoApplyThisMonth: subscription.usage.autoApplyThisMonth + 1,
     };
-    
+
     await updateUserSubscription(userId, { usage: updatedUsage });
     console.log(`Incremented auto-apply usage for user ${userId}`);
     return true;
   } catch (error: any) {
-    console.error('Error incrementing auto-apply usage:', error);
+    console.error("Error incrementing auto-apply usage:", error);
     return false;
   }
 };
@@ -308,35 +418,47 @@ const getSubscriptionStatusWithWarnings = async (userId: string) => {
     const subscription = await getUserSubscription(userId);
     const effectiveStatus = getEffectiveSubscriptionStatus(subscription);
     const warnings: string[] = [];
-    
-    if (effectiveStatus === 'grace_period') {
-      const gracePeriodEnd = subscription.gracePeriodEndDate ? new Date(subscription.gracePeriodEndDate) : null;
+
+    if (effectiveStatus === "grace_period") {
+      const gracePeriodEnd = subscription.gracePeriodEndDate
+        ? new Date(subscription.gracePeriodEndDate)
+        : null;
       if (gracePeriodEnd) {
-        const daysLeft = Math.ceil((gracePeriodEnd.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-        warnings.push(`Your subscription expired. You have ${daysLeft} days left to renew and keep your premium features.`);
+        const daysLeft = Math.ceil(
+          (gracePeriodEnd.getTime() - new Date().getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
+        warnings.push(
+          `Your subscription expired. You have ${daysLeft} days left to renew and keep your premium features.`
+        );
       }
     }
-    
+
     return {
       subscription,
       effectiveStatus,
       warnings,
-      usage: subscription.usage
+      usage: subscription.usage,
     };
   } catch (error: any) {
-    console.error('Error getting subscription status:', error);
+    console.error("Error getting subscription status:", error);
     throw new Error(`Failed to get subscription status: ${error.message}`);
   }
 };
 
 // Check subscription status (simplified version)
-const checkSubscriptionStatus = async (userId: string): Promise<'free' | 'premium' | 'grace_period'> => {
+const checkSubscriptionStatus = async (
+  userId: string
+): Promise<"free" | "premium" | "grace_period"> => {
   try {
     const subscription = await getUserSubscription(userId);
-    return getEffectiveSubscriptionStatus(subscription) as 'free' | 'premium' | 'grace_period';
+    return getEffectiveSubscriptionStatus(subscription) as
+      | "free"
+      | "premium"
+      | "grace_period";
   } catch (error: any) {
-    console.error('Error checking subscription status:', error);
-    return 'free'; // Default to free on error
+    console.error("Error checking subscription status:", error);
+    return "free"; // Default to free on error
   }
 };
 
@@ -353,22 +475,24 @@ type ContactFormData = {
 
 type ContactSubmissionData = ContactFormData & {
   submittedAt: string;
-  status: 'new' | 'read' | 'responded';
+  status: "new" | "read" | "responded";
 };
 
-const CONTACT_SUBMISSIONS_COLLECTION = 'contactSubmissions';
-const INITIAL_SUBMISSION_STATUS = 'new';
+const CONTACT_SUBMISSIONS_COLLECTION = "contactSubmissions";
+const INITIAL_SUBMISSION_STATUS = "new";
 
 // Helper function to create submission data
-const createSubmissionData = (formData: ContactFormData): ContactSubmissionData => {
+const createSubmissionData = (
+  formData: ContactFormData
+): ContactSubmissionData => {
   const currentTimestamp = new Date().toISOString();
-  
+
   const submissionData: ContactSubmissionData = {
     ...formData,
     submittedAt: currentTimestamp,
     status: INITIAL_SUBMISSION_STATUS,
   };
-  
+
   return submissionData;
 };
 
@@ -377,27 +501,30 @@ const saveContactFormSubmission = async (formData: ContactFormData) => {
   try {
     // Create the submission data object
     const submissionData = createSubmissionData(formData);
-    
+
     // Get reference to the contact submissions collection
-    const contactSubmissionsRef = collection(firestore, CONTACT_SUBMISSIONS_COLLECTION);
-    
+    const contactSubmissionsRef = collection(
+      firestore,
+      CONTACT_SUBMISSIONS_COLLECTION
+    );
+
     // Add the document to Firestore
     const docRef = await addDoc(contactSubmissionsRef, submissionData);
-    
+
     // Return success response with document ID
-    const response = { 
-      success: true, 
-      id: docRef.id 
+    const response = {
+      success: true,
+      id: docRef.id,
     };
-    
+
     return response;
-    
   } catch (error: any) {
     // Log the error for debugging
-    console.error('Error saving contact form:', error);
-    
+    console.error("Error saving contact form:", error);
+
     // Throw a new error with the message
-    const errorMessage = error.message || 'Failed to save contact form submission';
+    const errorMessage =
+      error.message || "Failed to save contact form submission";
     throw new Error(errorMessage);
   }
 };
@@ -406,15 +533,18 @@ const saveContactFormSubmission = async (formData: ContactFormData) => {
 const getContactSubmissions = async () => {
   try {
     const querySnapshot = await getDocs(
-      query(collection(firestore, CONTACT_SUBMISSIONS_COLLECTION), orderBy('submittedAt', 'desc'))
+      query(
+        collection(firestore, CONTACT_SUBMISSIONS_COLLECTION),
+        orderBy("submittedAt", "desc")
+      )
     );
-    
-    return querySnapshot.docs.map(doc => ({
+
+    return querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
   } catch (error: any) {
-    console.error('Error fetching contact submissions:', error);
+    console.error("Error fetching contact submissions:", error);
     throw new Error(error.message);
   }
 };
@@ -520,53 +650,251 @@ const logoutUser = async (navigate: (path: string) => void) => {
 
 const saveUserProfile = async (userId: string, profileData: any) => {
   try {
+    const processedProfileData = { ...profileData };
+
+    // If platformCredentials are being saved, encrypt them
+    if (profileData.platformCredentials) {
+      console.log("Encrypting platform credentials before saving...");
+
+      // Check if credentials are already encrypted
+      if (!areCredentialsEncrypted(profileData.platformCredentials)) {
+        // Convert to the format expected by encryption function
+        const credentialsToEncrypt: Record<
+          string,
+          { email: string; password: string }
+        > = {};
+
+        Object.entries(profileData.platformCredentials).forEach(
+          ([platform, creds]: [string, any]) => {
+            if (creds && creds.email && creds.password) {
+              credentialsToEncrypt[platform] = {
+                email: creds.email,
+                password: creds.password,
+              };
+            }
+          }
+        );
+
+        // Encrypt the credentials
+        const encryptedCredentials = encryptCredentialsForStorage(
+          userId,
+          credentialsToEncrypt
+        );
+        processedProfileData.platformCredentials = encryptedCredentials;
+
+        console.log("Platform credentials encrypted successfully");
+      } else {
+        console.log("Credentials already encrypted, skipping encryption");
+      }
+    }
+
     await setDoc(
       doc(firestore, "users", userId),
       {
-        ...profileData,
-        onboardingCompleted: profileData.onboardingCompleted || false,
+        ...processedProfileData,
+        onboardingCompleted: processedProfileData.onboardingCompleted || false,
+        updatedAt: new Date().toISOString(),
       },
       { merge: true }
     );
+
+    console.log("User profile saved successfully with encrypted credentials");
   } catch (error: any) {
-    throw new Error(error.message);
+    console.error("Error saving user profile:", error);
+    throw new Error(`Failed to save profile: ${error.message}`);
   }
 };
 
-const getUserProfile = async (userId?: string) => {
+const getUserProfile = async (userId?: string): Promise<UserDetails> => {
   try {
     if (!userId) {
       const user = auth.currentUser;
       if (!user) throw new Error("No user is currently signed in");
       userId = user.uid;
     }
+
     const userDoc = await getDoc(doc(firestore, "users", userId));
     if (userDoc.exists()) {
-      const userData = userDoc.data();
+      const userData = userDoc.data() as UserDetails;
       userData.userId = userId;
-      return userDoc.data() as UserDetails;
+
+      // Decrypt platform credentials if they exist and are encrypted
+      if (
+        userData.platformCredentials &&
+        areCredentialsEncrypted(userData.platformCredentials)
+      ) {
+        try {
+          console.log("Decrypting platform credentials...");
+          const decryptedCredentials = decryptCredentialsFromStorage(
+            userData.platformCredentials
+          );
+          userData.platformCredentials = decryptedCredentials;
+          console.log("Platform credentials decrypted successfully");
+        } catch (decryptError) {
+          console.error("Error decrypting credentials:", decryptError);
+          // If decryption fails, clear the credentials to prevent app crashes
+          userData.platformCredentials = {};
+          console.warn(
+            "Cleared corrupted credentials due to decryption failure"
+          );
+        }
+      }
+
+      return userData;
     } else {
       throw new Error("User profile not found");
     }
   } catch (error: any) {
-    throw new Error(error.message);
+    console.error("Error getting user profile:", error);
+    throw new Error(`Failed to get profile: ${error.message}`);
   }
 };
 
 const updateUserProfile = async (userId: string, profileData: any) => {
   try {
     const currentDate = new Date().toISOString();
+    const processedProfileData = { ...profileData };
+
+    // If platformCredentials are being updated, encrypt them
+    if (profileData.platformCredentials) {
+      console.log("Encrypting platform credentials for update...");
+
+      if (!areCredentialsEncrypted(profileData.platformCredentials)) {
+        const credentialsToEncrypt: Record<
+          string,
+          { email: string; password: string }
+        > = {};
+
+        Object.entries(profileData.platformCredentials).forEach(
+          ([platform, creds]: [string, any]) => {
+            if (creds && creds.email && creds.password) {
+              credentialsToEncrypt[platform] = {
+                email: creds.email,
+                password: creds.password,
+              };
+            }
+          }
+        );
+
+        const encryptedCredentials = encryptCredentialsForStorage(
+          userId,
+          credentialsToEncrypt
+        );
+        processedProfileData.platformCredentials = encryptedCredentials;
+      }
+    }
+
     const updatedProfileData = {
-      ...profileData,
+      ...processedProfileData,
       lastPreferenceChangedDate: currentDate,
       updatedDate: currentDate,
       createdDate: profileData.createdDate || currentDate,
     };
+
     await setDoc(doc(firestore, "users", userId), updatedProfileData, {
       merge: true,
     });
+
+    console.log("User profile updated successfully with encrypted credentials");
   } catch (error: any) {
-    throw new Error(error.message);
+    console.error("Error updating user profile:", error);
+    throw new Error(`Failed to update profile: ${error.message}`);
+  }
+};
+
+// ========== NEW FUNCTIONS FOR CREDENTIAL MANAGEMENT ==========
+
+/**
+ * Save only platform credentials (with encryption)
+ */
+const savePlatformCredentials = async (
+  userId: string,
+  credentials: Record<string, { email: string; password: string }>
+): Promise<void> => {
+  try {
+    console.log("Saving platform credentials...");
+
+    // Encrypt credentials before saving
+    const encryptedCredentials = encryptCredentialsForStorage(
+      userId,
+      credentials
+    );
+
+    await setDoc(
+      doc(firestore, "users", userId),
+      {
+        platformCredentials: encryptedCredentials,
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+
+    console.log("Platform credentials saved and encrypted successfully");
+  } catch (error: any) {
+    console.error("Error saving platform credentials:", error);
+    throw new Error(`Failed to save credentials: ${error.message}`);
+  }
+};
+
+/**
+ * Get only platform credentials (with decryption)
+ */
+const getPlatformCredentials = async (
+  userId: string
+): Promise<Record<string, { email: string; password: string }>> => {
+  try {
+    const userDoc = await getDoc(doc(firestore, "users", userId));
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+
+      if (userData.platformCredentials) {
+        if (areCredentialsEncrypted(userData.platformCredentials)) {
+          console.log("Decrypting platform credentials...");
+          return decryptCredentialsFromStorage(userData.platformCredentials);
+        } else {
+          console.warn("Platform credentials are not encrypted");
+          return userData.platformCredentials as Record<
+            string,
+            { email: string; password: string }
+          >;
+        }
+      }
+    }
+
+    return {}; // Return empty object if no credentials found
+  } catch (error: any) {
+    console.error("Error getting platform credentials:", error);
+    throw new Error(`Failed to get credentials: ${error.message}`);
+  }
+};
+
+/**
+ * Delete platform credentials for a specific platform
+ */
+const deletePlatformCredential = async (
+  userId: string,
+  platform: string
+): Promise<void> => {
+  try {
+    const userProfile: any = await getUserProfile(userId);
+
+    if (
+      userProfile.platformCredentials &&
+      userProfile.platformCredentials[platform]
+    ) {
+      // Remove the platform credentials
+      const updatedCredentials = { ...userProfile.platformCredentials };
+      delete updatedCredentials[platform];
+
+      // Save updated credentials (will be encrypted automatically)
+      await savePlatformCredentials(userId, updatedCredentials);
+
+      console.log(`Deleted credentials for platform: ${platform}`);
+    }
+  } catch (error: any) {
+    console.error(`Error deleting credentials for ${platform}:`, error);
+    throw new Error(`Failed to delete credentials: ${error.message}`);
   }
 };
 
@@ -673,7 +1001,10 @@ const getCurrentJobs = async (userId: string) => {
   }
 };
 
-const getCurrentJobsByJobTitle = async (userId: string, userProfile: UserDetails) => {
+const getCurrentJobsByJobTitle = async (
+  userId: string,
+  userProfile: UserDetails
+) => {
   try {
     const currentJobsDoc = await getJobByTitleandSkills(userProfile);
     console.log(currentJobsDoc);
@@ -722,12 +1053,11 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found");
     }
-   
+
     return currentJobsData.map((job: any) => ({
       ...job,
       _id: job._id?.toString(), // Convert _id to a string
     }));
-    
 
     if (
       currentJobsData &&
@@ -740,9 +1070,8 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
         jobIds,
         userProfile.jobTitle,
         userProfile.expectedCTC,
-        userProfile.workexperience,   
+        userProfile.workexperience
       );
-
 
       // Sanitize jobs before returning
       return jobs.map((job) => ({
@@ -753,14 +1082,12 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
       const archivedJobs = await getArchivedJobs(userId);
       const hiddenJobs = await getHiddenJobs(userId);
       const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
-     
 
-      const fetchedJobs: any= (await getFilteredJobsByTitle(
+      const fetchedJobs: any = (await getFilteredJobsByTitle(
         userProfile.jobTitle,
         excludedJobs,
         userProfile
       )) as any;
-
 
       const sanitizedJobs = fetchedJobs.map((job: any) => ({
         ...job,
@@ -782,7 +1109,7 @@ const getUpdatedJobs = async (userId: string, userProfile: UserDetails) => {
 
 // IMPROVED PAGINATED VERSION FOR INFINITE JOBS WITH ACCURATE FILTERING
 const getUpdatedJobsPaginated = async (
-  userId: string, 
+  userId: string,
   userProfile: UserDetails,
   page: number = 1,
   pageSize: number = 20,
@@ -791,12 +1118,14 @@ const getUpdatedJobsPaginated = async (
     salaryRange?: [number, number][];
     experience?: [number, number][];
     jobType?: string[];
-    platform?: string[]; 
+    platform?: string[];
   }
 ) => {
   try {
-    console.log(`[getUpdatedJobsPaginated] Starting infinite pagination - Page: ${page}, PageSize: ${pageSize}`);
-    
+    console.log(
+      `[getUpdatedJobsPaginated] Starting infinite pagination - Page: ${page}, PageSize: ${pageSize}`
+    );
+
     if (!userProfile.jobTitle) {
       throw new Error("Primary role not found in user profile");
     }
@@ -806,21 +1135,26 @@ const getUpdatedJobsPaginated = async (
     const hiddenJobs = await getHiddenJobs(userId);
     const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
 
-    console.log(`[getUpdatedJobsPaginated] Excluded jobs - Archived: ${archivedJobs.length}, Hidden: ${hiddenJobs.length}`);
+    console.log(
+      `[getUpdatedJobsPaginated] Excluded jobs - Archived: ${archivedJobs.length}, Hidden: ${hiddenJobs.length}`
+    );
 
     // Check if we have filters/search applied
-    const hasFilters = (searchTerm && searchTerm.trim()) || 
-                      (filters?.salaryRange && filters.salaryRange.length > 0) ||
-                      (filters?.experience && filters.experience.length > 0) ||
-                      (filters?.jobType && filters.jobType.length > 0) ||
-                      (filters?.platform && filters.platform.length > 0);
+    const hasFilters =
+      (searchTerm && searchTerm.trim()) ||
+      (filters?.salaryRange && filters.salaryRange.length > 0) ||
+      (filters?.experience && filters.experience.length > 0) ||
+      (filters?.jobType && filters.jobType.length > 0) ||
+      (filters?.platform && filters.platform.length > 0);
 
     console.log(`[getUpdatedJobsPaginated] Has filters/search: ${hasFilters}`);
 
     if (!hasFilters) {
       // NO FILTERS: Use database-level pagination for infinite jobs
-      console.log(`[getUpdatedJobsPaginated] No filters - using direct database pagination`);
-      
+      console.log(
+        `[getUpdatedJobsPaginated] No filters - using direct database pagination`
+      );
+
       // Get jobs directly from database with pagination
       const result = await getFilteredJobsByTitlePaginatedWithFuzzy(
         userProfile.jobTitle,
@@ -832,36 +1166,51 @@ const getUpdatedJobsPaginated = async (
       );
 
       if (!result || !result.jobs) {
-        console.error(`[getUpdatedJobsPaginated] Invalid result from database:`, result);
+        console.error(
+          `[getUpdatedJobsPaginated] Invalid result from database:`,
+          result
+        );
         return {
           jobs: [],
           currentPage: page,
           totalPages: 0,
           totalJobs: 0,
           hasMore: false,
-          debugInfo: null
+          debugInfo: null,
         };
       }
 
-      console.log(`[getUpdatedJobsPaginated] Database returned: ${result.jobs.length} jobs, total: ${result.totalCount || 'unknown'}`);
+      console.log(
+        `[getUpdatedJobsPaginated] Database returned: ${
+          result.jobs.length
+        } jobs, total: ${result.totalCount || "unknown"}`
+      );
 
       // Sanitize and return jobs
       console.log(`[DEBUG] Before sanitization: ${result.jobs.length} jobs`);
       result.jobs.forEach((job: any, index: number) => {
-        console.log(`[DEBUG] Job ${index}: jobId="${job.jobId}", _id="${job._id}", hasJobId=${!!job.jobId}`);
+        console.log(
+          `[DEBUG] Job ${index}: jobId="${job.jobId}", _id="${
+            job._id
+          }", hasJobId=${!!job.jobId}`
+        );
       });
-      
-      const sanitizedJobs = result.jobs.map((job: any) => ({
-        ...job,
-        _id: job._id?.toString(),
-      })).filter(job => {
-        const isValid = job && job.jobId;
-        if (!isValid) {
-          console.log(`[DEBUG] Filtered out job: jobId="${job?.jobId}", _id="${job?._id}"`);
-        }
-        return isValid;
-      });
-      
+
+      const sanitizedJobs = result.jobs
+        .map((job: any) => ({
+          ...job,
+          _id: job._id?.toString(),
+        }))
+        .filter((job) => {
+          const isValid = job && job.jobId;
+          if (!isValid) {
+            console.log(
+              `[DEBUG] Filtered out job: jobId="${job?.jobId}", _id="${job?._id}"`
+            );
+          }
+          return isValid;
+        });
+
       console.log(`[DEBUG] After sanitization: ${sanitizedJobs.length} jobs`);
 
       // Calculate pagination info
@@ -874,7 +1223,7 @@ const getUpdatedJobsPaginated = async (
         totalPages: totalPages,
         totalJobs: totalJobs,
         hasMore: page < totalPages,
-        debugInfo: result.debugInfo || null
+        debugInfo: result.debugInfo || null,
       };
 
       console.log(`[getUpdatedJobsPaginated] No-filter result:`, {
@@ -882,14 +1231,17 @@ const getUpdatedJobsPaginated = async (
         currentPage: finalResult.currentPage,
         totalPages: finalResult.totalPages,
         totalJobs: finalResult.totalJobs,
-        hasMore: finalResult.hasMore
+        hasMore: finalResult.hasMore,
       });
-      
-      console.log(`[DEBUG] Final jobs sample:`, finalResult.jobs.slice(0, 2).map(j => ({ 
-        jobId: j.jobId, 
-        title: j.title, 
-        _id: j._id 
-      })));
+
+      console.log(
+        `[DEBUG] Final jobs sample:`,
+        finalResult.jobs.slice(0, 2).map((j) => ({
+          jobId: j.jobId,
+          title: j.title,
+          _id: j._id,
+        }))
+      );
 
       // Update dashboard with jobs shown
       if (sanitizedJobs.length > 0 && page === 1) {
@@ -902,8 +1254,10 @@ const getUpdatedJobsPaginated = async (
     }
 
     // WITH FILTERS: We need to fetch more data and apply client-side filtering
-    console.log(`[getUpdatedJobsPaginated] Filters detected - fetching larger dataset for accurate filtering`);
-    
+    console.log(
+      `[getUpdatedJobsPaginated] Filters detected - fetching larger dataset for accurate filtering`
+    );
+
     // TODO: Implement server-side filtering to avoid large client-side batches.
     // For now, reduce batch size to 2 pages worth to reduce client-side load
     const batchSize = pageSize * 2; // Fetch 2 pages worth to reduce client-side load
@@ -919,43 +1273,53 @@ const getUpdatedJobsPaginated = async (
     );
 
     if (!result || !result.jobs) {
-      console.error(`[getUpdatedJobsPaginated] Invalid result for filtering:`, result);
+      console.error(
+        `[getUpdatedJobsPaginated] Invalid result for filtering:`,
+        result
+      );
       return {
         jobs: [],
         currentPage: page,
         totalPages: 0,
         totalJobs: 0,
         hasMore: false,
-        debugInfo: null
+        debugInfo: null,
       };
     }
 
     let allJobs = result.jobs;
-    console.log(`[getUpdatedJobsPaginated] Retrieved ${allJobs.length} jobs for filtering`);
+    console.log(
+      `[getUpdatedJobsPaginated] Retrieved ${allJobs.length} jobs for filtering`
+    );
 
     // Apply search filter
     if (searchTerm && searchTerm.trim()) {
       const originalLength = allJobs.length;
       allJobs = allJobs.filter((job: Job) => {
         if (!job) return false;
-        
+
         const searchLower = searchTerm.toLowerCase();
-        
-        const locationMatch = Array.isArray(job.location) 
-          ? job.location.some((loc: string) => loc && loc.toLowerCase().includes(searchLower))
+
+        const locationMatch = Array.isArray(job.location)
+          ? job.location.some(
+              (loc: string) => loc && loc.toLowerCase().includes(searchLower)
+            )
           : job.location?.toLowerCase().includes(searchLower);
-        
+
         return (
           (job.title && job.title.toLowerCase().includes(searchLower)) ||
           (job.company && job.company.toLowerCase().includes(searchLower)) ||
           locationMatch ||
-          (job.tags && job.tags.some((tag: string) => 
-            tag && tag.toLowerCase().includes(searchLower)
-          ))
+          (job.tags &&
+            job.tags.some(
+              (tag: string) => tag && tag.toLowerCase().includes(searchLower)
+            ))
         );
       });
-      
-      console.log(`[getUpdatedJobsPaginated] Search filtered: ${originalLength} -> ${allJobs.length}`);
+
+      console.log(
+        `[getUpdatedJobsPaginated] Search filtered: ${originalLength} -> ${allJobs.length}`
+      );
     }
 
     // Apply salary filter
@@ -963,15 +1327,24 @@ const getUpdatedJobsPaginated = async (
       const originalLength = allJobs.length;
       allJobs = allJobs.filter((job: Job) => {
         if (!job.salary || !Array.isArray(job.salary)) return false;
-        
+
         const jobSalaryRanges = job.salary.map((salaryStr: string) => {
           const cleanSalary = salaryStr.toLowerCase().trim();
-          let min = 0, max = 0;
-          
-          if (cleanSalary.includes('lakhs') || cleanSalary.includes('lacs') || cleanSalary.includes('lpa')) {
+          let min = 0,
+            max = 0;
+
+          if (
+            cleanSalary.includes("lakhs") ||
+            cleanSalary.includes("lacs") ||
+            cleanSalary.includes("lpa")
+          ) {
             const numbers = cleanSalary.match(/\d+\.?\d*/g);
             if (numbers) {
-              if (cleanSalary.includes('+') || cleanSalary.includes('above') || cleanSalary.includes('>')) {
+              if (
+                cleanSalary.includes("+") ||
+                cleanSalary.includes("above") ||
+                cleanSalary.includes(">")
+              ) {
                 min = parseFloat(numbers[0]) * 100000;
                 max = Infinity;
               } else if (numbers.length >= 2) {
@@ -983,17 +1356,19 @@ const getUpdatedJobsPaginated = async (
               }
             }
           }
-          
+
           return [min, max] as [number, number];
         });
-        
-        return jobSalaryRanges.some(([jobMin, jobMax]) => 
+
+        return jobSalaryRanges.some(([jobMin, jobMax]) =>
           filters.salaryRange!.some(([filterMin, filterMax]) => {
-            return (jobMin <= filterMax && jobMax >= filterMin);
+            return jobMin <= filterMax && jobMax >= filterMin;
           })
         );
       });
-      console.log(`[getUpdatedJobsPaginated] Salary filter: ${originalLength} -> ${allJobs.length}`);
+      console.log(
+        `[getUpdatedJobsPaginated] Salary filter: ${originalLength} -> ${allJobs.length}`
+      );
     }
 
     // Apply experience filter
@@ -1001,10 +1376,11 @@ const getUpdatedJobsPaginated = async (
       const originalLength = allJobs.length;
       allJobs = allJobs.filter((job: Job) => {
         if (!job.experience) return false;
-        
+
         const expStr = job.experience.toLowerCase().trim();
-        let jobExpMin = 0, jobExpMax = 0;
-        
+        let jobExpMin = 0,
+          jobExpMax = 0;
+
         const numbers = expStr.match(/\d+\.?\d*/g);
         if (numbers) {
           if (numbers.length >= 2) {
@@ -1015,55 +1391,67 @@ const getUpdatedJobsPaginated = async (
             jobExpMax = jobExpMin;
           }
         }
-        
+
         return filters.experience!.some(([filterMin, filterMax]) => {
-          return (jobExpMin <= filterMax && jobExpMax >= filterMin);
+          return jobExpMin <= filterMax && jobExpMax >= filterMin;
         });
       });
-      console.log(`[getUpdatedJobsPaginated] Experience filter: ${originalLength} -> ${allJobs.length}`);
+      console.log(
+        `[getUpdatedJobsPaginated] Experience filter: ${originalLength} -> ${allJobs.length}`
+      );
     }
 
     // Apply job type filter
     if (filters?.jobType && filters.jobType.length > 0) {
       const originalLength = allJobs.length;
       allJobs = allJobs.filter((job: Job) => {
-        let normalizedJobType = '';
+        let normalizedJobType = "";
         if (job.type) {
           normalizedJobType = job.type.toLowerCase().trim();
         } else {
-          normalizedJobType = determineJobType(job.description || '').toLowerCase().trim();
+          normalizedJobType = determineJobType(job.description || "")
+            .toLowerCase()
+            .trim();
         }
-        
+
         return filters.jobType!.includes(normalizedJobType);
       });
-      console.log(`[getUpdatedJobsPaginated] Job type filter: ${originalLength} -> ${allJobs.length}`);
+      console.log(
+        `[getUpdatedJobsPaginated] Job type filter: ${originalLength} -> ${allJobs.length}`
+      );
     }
-    
+
     // Apply platform filter
     if (filters?.platform && filters.platform.length > 0) {
       const originalLength = allJobs.length;
       allJobs = allJobs.filter((job: Job) => {
-        return filters.platform?.includes(job.platform || 'Unknown');
+        return filters.platform?.includes(job.platform || "Unknown");
       });
-      console.log(`[getUpdatedJobsPaginated] Platform filter: ${originalLength} -> ${allJobs.length}`);
+      console.log(
+        `[getUpdatedJobsPaginated] Platform filter: ${originalLength} -> ${allJobs.length}`
+      );
     }
 
     // Calculate pagination from filtered results
     const totalFiltered = allJobs.length;
     const totalPages = Math.ceil(totalFiltered / pageSize);
-    
+
     // Get current page slice
     const start = (page - 1) * pageSize;
     const end = Math.min(start + pageSize, totalFiltered);
     const pageJobs = allJobs.slice(start, end);
 
-    console.log(`[getUpdatedJobsPaginated] Filtered pagination - Total: ${totalFiltered}, Pages: ${totalPages}, Current: ${pageJobs.length}`);
+    console.log(
+      `[getUpdatedJobsPaginated] Filtered pagination - Total: ${totalFiltered}, Pages: ${totalPages}, Current: ${pageJobs.length}`
+    );
 
     // Sanitize jobs
-    const sanitizedJobs = pageJobs.map((job: any) => ({
-      ...job,
-      _id: job._id?.toString(),
-    })).filter(job => job && job.jobId);
+    const sanitizedJobs = pageJobs
+      .map((job: any) => ({
+        ...job,
+        _id: job._id?.toString(),
+      }))
+      .filter((job) => job && job.jobId);
 
     const finalResult = {
       jobs: sanitizedJobs,
@@ -1071,7 +1459,7 @@ const getUpdatedJobsPaginated = async (
       totalPages: totalPages,
       totalJobs: totalFiltered,
       hasMore: page < totalPages,
-      debugInfo: result.debugInfo || null
+      debugInfo: result.debugInfo || null,
     };
 
     console.log(`[getUpdatedJobsPaginated] Filtered result:`, {
@@ -1079,11 +1467,10 @@ const getUpdatedJobsPaginated = async (
       currentPage: finalResult.currentPage,
       totalPages: finalResult.totalPages,
       totalJobs: finalResult.totalJobs,
-      hasMore: finalResult.hasMore
+      hasMore: finalResult.hasMore,
     });
 
     return finalResult;
-
   } catch (error: any) {
     console.error(`[getUpdatedJobsPaginated] Error:`, error);
     throw new Error("Error fetching paginated jobs: " + error.message);
@@ -1091,14 +1478,11 @@ const getUpdatedJobsPaginated = async (
 };
 
 // Function to get total job count
-const getTotalJobCount = async (
-  userId: string,
-  userProfile: UserDetails
-) => {
+const getTotalJobCount = async (userId: string, userProfile: UserDetails) => {
   try {
     // Get current jobs or fetch new ones
     const currentJobsData = await getCurrentJobs(userId);
-    
+
     if (currentJobsData && currentJobsData.jobs) {
       return currentJobsData.jobs.length;
     }
@@ -1109,7 +1493,7 @@ const getTotalJobCount = async (
     const excludedJobs = new Set([...archivedJobs, ...hiddenJobs]);
 
     const result = await getFilteredJobsByTitlePaginated(
-      userProfile.jobTitle || '',
+      userProfile.jobTitle || "",
       excludedJobs,
       userProfile,
       1,
@@ -1117,9 +1501,8 @@ const getTotalJobCount = async (
     );
 
     return result.totalCount || 0;
-
   } catch (error: any) {
-    console.error('Error getting job count:', error);
+    console.error("Error getting job count:", error);
     return 0;
   }
 };
@@ -1358,7 +1741,7 @@ const updateDashboardData = async (userId: string, data: any) => {
 const getJobTrackerData = async (userId: string) => {
   try {
     const jobTrackerDoc = await getDoc(doc(firestore, "appliedJobs", userId));
-    console.log(jobTrackerDoc.data(),"job");
+    console.log(jobTrackerDoc.data(), "job");
     if (jobTrackerDoc.exists()) {
       const data = jobTrackerDoc.data();
       return {
@@ -1419,6 +1802,13 @@ export {
   incrementAutoApplyUsage,
   getSubscriptionStatusWithWarnings,
   checkSubscriptionStatus,
+
+  // New encryption functions
+  savePlatformCredentials,
+  getPlatformCredentials,
+  deletePlatformCredential,
+  encryptCredentialsForStorage,
+  decryptCredentialsFromStorage,
 };
 
 // Export types if needed elsewhere
