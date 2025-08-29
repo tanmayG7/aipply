@@ -7,7 +7,8 @@ import {
   canUseFeature, 
   incrementAutoApplyUsage,
   checkSubscriptionStatus,
-  getSubscriptionStatusWithWarnings
+  getSubscriptionStatusWithWarnings,
+  updateUserSubscription
 } from '@/lib/firebaseConfig/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -135,6 +136,77 @@ export default function TestSubscription() {
     setLoading(false);
   };
 
+  const testUpgradeToPremium = async () => {
+    if (!user) {
+      log("❌ No user logged in");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      log("🔄 Upgrading user to premium plan...");
+      
+      // Get current subscription first
+      const currentSub = await getUserSubscription(user.uid);
+      log(`📊 Current status: ${currentSub.subscriptionStatus}, tier: ${currentSub.planTier}`);
+      
+      if (currentSub.planTier === 'premium') {
+        log("⚠️ User is already on premium plan");
+        setLoading(false);
+        return;
+      }
+
+      // Calculate dates for premium subscription (30 days from now)
+      const now = new Date();
+      const renewalDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 days from now
+      const nextBillingDate = new Date(renewalDate);
+
+      // Premium subscription update with all required fields
+      const premiumUpdates = {
+        subscriptionStatus: 'premium' as const,
+        planType: 'monthly' as const,
+        planTier: 'premium' as const,
+        razorpaySubscriptionId: `test_sub_${Date.now()}`, // Simulated subscription ID
+        razorpayCustomerId: `test_cust_${user.uid}`,
+        razorpayPlanId: 'plan_Qpq8Ccn726wjfX', // Monthly premium plan
+        subscriptionStartDate: now.toISOString(),
+        renewalDate: renewalDate.toISOString(),
+        lastPaymentDate: now.toISOString(),
+        nextBillingDate: nextBillingDate.toISOString(),
+        planPrice: 666,
+        planCurrency: 'INR' as const,
+        features: {
+          autoApply: true,
+          unlimitedJobListings: true,
+          aiResumeBuilder: true,
+          aiMockInterviews: true,
+          prioritySupport: true,
+          maxAutoApplyPerDay: 20,
+          maxAutoApplyPerMonth: 600,
+          hasManualApply: true
+        }
+      };
+
+      await updateUserSubscription(user.uid, premiumUpdates);
+      
+      log("✅ Successfully upgraded to premium plan!");
+      log(`🎉 Premium features activated:`);
+      log(`   • Auto Apply: ${premiumUpdates.features.maxAutoApplyPerDay} jobs/day`);
+      log(`   • AI Resume Builder: ✅ Enabled`);
+      log(`   • AI Mock Interviews: ✅ Enabled`);
+      log(`   • Priority Support: ✅ Enabled`);
+      log(`📅 Subscription valid until: ${renewalDate.toLocaleDateString()}`);
+      
+      // Refresh subscription data
+      const updatedSubscription = await getUserSubscription(user.uid);
+      setSubscription(updatedSubscription);
+      
+    } catch (error: any) {
+      log(`❌ Error upgrading subscription: ${error.message}`);
+    }
+    setLoading(false);
+  };
+
   const clearResults = () => {
     setResults([]);
   };
@@ -214,6 +286,14 @@ export default function TestSubscription() {
               className="w-full bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
             >
               6. Check Status & Warnings
+            </button>
+            
+            <button
+              onClick={testUpgradeToPremium}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:from-[#4A9AFF] hover:to-[#5520FF] disabled:bg-gray-600 px-4 py-2 rounded-lg transition-colors font-semibold"
+            >
+              🚀 Upgrade to Premium
             </button>
             
             <button
