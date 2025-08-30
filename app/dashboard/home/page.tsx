@@ -206,7 +206,7 @@ const HomePage: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: auth.currentUser.uid, // send userId in body
+          userId: auth?.currentUser?.uid, // send userId in body
         }),
       });
 
@@ -343,18 +343,18 @@ const HomePage: React.FC = () => {
           <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
             <MobileTrigger />
             <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              {loading ? (
-                <HomeShimmer />
-              ) : (
+              {/* {loading ? ( */}
+                {/* // <HomeShimmer /> */}
+              {/* // ) : ( */}
                 <div className="flex flex-col gap-6">
-                  {/* Debug info in development */}
+                  {/* Debug info in development
                   {DEBUG && (
                     <div className="bg-gray-800 p-2 rounded text-xs text-gray-300">
                       Debug: Data loaded: {!!dashboardData} | Jobs Applied:{" "}
                       {dashboardData?.jobsApplied} | Subscribed: {isSubscribed}{" "}
                       | Auto Applied: {autoAppliedStats?.totalAutoApplied}
                     </div>
-                  )}
+                  )} */}
 
                   <div className="gap-3">
                     <h1 className="font-inter text-[#ECECED] font-bold text-2xl sm:text-3xl lg:text-[40px]">
@@ -541,7 +541,7 @@ const HomePage: React.FC = () => {
                     </div>
                   )}
                 </div>
-              )}
+              {/* )} */}
             </div>
           </div>
         </SidebarInset>

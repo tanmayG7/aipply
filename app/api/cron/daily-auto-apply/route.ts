@@ -29,7 +29,8 @@ export async function POST(req: Request) {
     const subscriptionsRef = collection(firestore, "subscriptions");
     const activeSubscriptionsQuery = query(
       subscriptionsRef,
-      where("subscriptionStatus", "==", "premium")
+      where("subscriptionStatus", "==", "premium"),
+      where("features.autoApply", "==", true) // 👈 added condition
     );
 
     console.log("🔎 Fetching active premium subscriptions...");
@@ -56,18 +57,23 @@ export async function POST(req: Request) {
       const userId = subscriptionData.userId;
 
       if (!userId) {
-        console.warn("⚠️ Subscription missing userId, skipping:", subscriptionData);
+        console.warn(
+          "⚠️ Subscription missing userId, skipping:",
+          subscriptionData
+        );
         invalidSubscriptions.push({
           subscriptionId: subscriptionDoc.id,
-          data: subscriptionData
+          data: subscriptionData,
         });
       } else {
         userIds.push(userId);
       }
     });
 
-    console.log(`📊 Collected ${userIds.length} valid user IDs for batch processing`);
-    
+    console.log(
+      `📊 Collected ${userIds.length} valid user IDs for batch processing`
+    );
+
     if (userIds.length === 0) {
       console.log("📝 No valid user IDs found in subscriptions");
       return new Response(
@@ -81,29 +87,34 @@ export async function POST(req: Request) {
     }
 
     // Send all user IDs to the batch auto-apply endpoint
-    console.log(`🚀 Sending batch request for ${userIds.length} users to auto-apply endpoint...`);
-    
-    const batchAutoApplyResponse = await fetch(`${API_URL}/api/auto-apply/daily`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ 
-        userIds, 
-        testMode: false 
-      }),
-    });
+    console.log(
+      `🚀 Sending batch request for ${userIds.length} users to auto-apply endpoint...`
+    );
+
+    const batchAutoApplyResponse = await fetch(
+      `${API_URL}/api/auto-apply/daily`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userIds,
+          testMode: false,
+        }),
+      }
+    );
 
     if (!batchAutoApplyResponse.ok) {
       const errorText = await batchAutoApplyResponse.text();
       console.error(`❌ Batch auto-apply API failed:`, errorText);
-      
+
       return new Response(
-        JSON.stringify({ 
-          error: "Batch auto-apply API failed", 
+        JSON.stringify({
+          error: "Batch auto-apply API failed",
           details: errorText,
           userIds,
-          totalUsers: userIds.length
+          totalUsers: userIds.length,
         }),
         { status: 500 }
       );
@@ -116,7 +127,7 @@ export async function POST(req: Request) {
       processedUsers: batchResult.processedUsers,
       successfulUsers: batchResult.successfulUsers,
       failedUsers: batchResult.failedUsers,
-      totalApplications: batchResult.summary?.totalApplications || 0
+      totalApplications: batchResult.summary?.totalApplications || 0,
     });
 
     // Prepare final summary
@@ -132,31 +143,28 @@ export async function POST(req: Request) {
         successfulUsers: batchResult.successfulUsers || 0,
         failedUsers: batchResult.failedUsers || 0,
         totalApplications: batchResult.summary?.totalApplications || 0,
-        successfulApplications: batchResult.summary?.successfulApplications || 0,
+        successfulApplications:
+          batchResult.summary?.successfulApplications || 0,
         failedApplications: batchResult.summary?.failedApplications || 0,
         platformBreakdown: batchResult.summary?.byPlatform || {},
       },
       userResults: batchResult.userResults || [],
       processingTime: {
         started: new Date().toISOString(),
-        completed: batchResult.timestamp || new Date().toISOString()
-      }
+        completed: batchResult.timestamp || new Date().toISOString(),
+      },
     };
 
     console.log("📊 Daily auto-apply cron job completed:", finalSummary);
 
-    return new Response(
-      JSON.stringify(finalSummary),
-      { status: 200 }
-    );
-
+    return new Response(JSON.stringify(finalSummary), { status: 200 });
   } catch (error: any) {
     console.error("💥 Fatal error in daily auto-apply cron job:", error);
     return new Response(
-      JSON.stringify({ 
-        error: "Internal server error", 
+      JSON.stringify({
+        error: "Internal server error",
         message: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }),
       { status: 500 }
     );

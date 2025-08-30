@@ -5,8 +5,6 @@ import {
   query, 
   where, 
   getDocs, 
-  doc, 
-  getDoc,
   orderBy,
   limit
 } from 'firebase/firestore';
@@ -62,30 +60,30 @@ export const useDashboardStats = (userId: string) => {
       const appliedJobsQuery = query(appliedJobsRef, where('userId', '==', userId));
       const appliedJobsSnapshot = await getDocs(appliedJobsQuery);
 
-      const appliedJobsData = appliedJobsSnapshot.docs.map(doc => ({
+      const appliedJobsData :any= appliedJobsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
 
       // Calculate today's applications (total and auto-applied)
-      const todayApplied = appliedJobsData.filter(job => {
+      const todayApplied = appliedJobsData.filter((job:any) => {
         const appliedAt = job.appliedAt?.toDate?.() || new Date(job.appliedAt);
         return appliedAt >= todayStart && appliedAt < todayEnd;
       });
 
-      const todayAutoApplied = todayApplied.filter(job => job.autoApplied === true);
+      const todayAutoApplied = todayApplied.filter((job:any) => job.autoApplied === true);
 
       // Calculate this month's applications (total and auto-applied)
-      const thisMonthApplied = appliedJobsData.filter(job => {
+      const thisMonthApplied = appliedJobsData.filter((job:any) => {
         const appliedAt = job.appliedAt?.toDate?.() || new Date(job.appliedAt);
         return appliedAt >= monthStart && appliedAt <= monthEnd;
       });
 
-      const thisMonthAutoApplied = thisMonthApplied.filter(job => job.autoApplied === true);
+      const thisMonthAutoApplied = thisMonthApplied.filter((job:any) => job.autoApplied === true);
 
       // Calculate location distribution
       const locationData: { [key: string]: number } = {};
-      appliedJobsData.forEach(job => {
+      appliedJobsData.forEach((job:any) => {
         if (job.location) {
           locationData[job.location] = (locationData[job.location] || 0) + 1;
         }
@@ -93,7 +91,7 @@ export const useDashboardStats = (userId: string) => {
 
       // Calculate package distribution
       const packageAppliedTo: { [key: string]: number } = {};
-      appliedJobsData.forEach(job => {
+      appliedJobsData.forEach((job:any) => {
         if (job.package || job.salary) {
           const packageRange = categorizePackage(job.package || job.salary);
           packageAppliedTo[packageRange] = (packageAppliedTo[packageRange] || 0) + 1;
@@ -101,13 +99,13 @@ export const useDashboardStats = (userId: string) => {
       });
 
       // Calculate averages
-      const totalExperience = appliedJobsData.reduce((sum, job) => {
+      const totalExperience = appliedJobsData.reduce((sum:any, job:any) => {
         const experience = parseExperience(job.experience);
         return sum + experience;
       }, 0);
       const averageExperience = appliedJobsData.length > 0 ? totalExperience / appliedJobsData.length : 0;
 
-      const totalPackage = appliedJobsData.reduce((sum, job) => {
+      const totalPackage = appliedJobsData.reduce((sum:any, job:any) => {
         const packageValue = parsePackage(job.package || job.salary);
         return sum + packageValue;
       }, 0);

@@ -59,7 +59,7 @@ const JobTrackerPage: React.FC = () => {
   const [archivedJobs, setArchivedJobs] = useState<Job[]>([]);
   const [followUpRequiredJobs, setFollowUpRequiredJobs] = useState<Job[]>([]);
   const [noReplyJobs, setNoReplyJobs] = useState<Job[]>([]);
-  const [autoAppliedJobs, setAutoAppliedJobs] = useState<AutoAppliedJobData[]>([]);
+  const [autoAppliedJobs, setAutoAppliedJobs] = useState<any[]>([]);
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);

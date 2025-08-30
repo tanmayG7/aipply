@@ -1,45 +1,56 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { auth, getUserProfile, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
-import Head from "next/head"
-import { MapPin, DollarSign, Clock, FileText, Settings, Zap } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  auth,
+  getUserProfile,
+  saveUserProfile,
+} from "@/lib/firebaseConfig/firebaseConfig";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import Head from "next/head";
+import {
+  MapPin,
+  DollarSign,
+  Clock,
+  FileText,
+  Settings,
+  Zap,
+} from "lucide-react";
 
 interface AutoApplySettings {
-  isEnabled: boolean
-  jobTitles: string[]
-  locations: string[]
+  isEnabled: boolean;
+  jobTitles: string[];
+  locations: string[];
   salaryRange: {
-    min: number
-    max: number
-  }
+    min: number;
+    max: number;
+  };
   experienceRange: {
-    min: number
-    max: number
-  }
-  jobTypes: string[]
-  platforms: string[]
-  keywords: string[]
-  excludeKeywords: string[]
-  maxApplicationsPerDay: number
-  coverLetterTemplate: string
-  resumeUrl: string
+    min: number;
+    max: number;
+  };
+  jobTypes: string[];
+  platforms: string[];
+  keywords: string[];
+  excludeKeywords: string[];
+  maxApplicationsPerDay: number;
+  coverLetterTemplate: string;
+  resumeUrl: string;
   preferences: {
-    remoteOnly: boolean
-    hybridOk: boolean
-    onSiteOk: boolean
-    startupFriendly: boolean
-    corporateOnly: boolean
-  }
+    remoteOnly: boolean;
+    hybridOk: boolean;
+    onSiteOk: boolean;
+    startupFriendly: boolean;
+    corporateOnly: boolean;
+  };
 }
 
 const defaultSettings: AutoApplySettings = {
@@ -62,9 +73,15 @@ const defaultSettings: AutoApplySettings = {
     startupFriendly: false,
     corporateOnly: false,
   },
-}
+};
 
-const jobTypeOptions = ["Full-time", "Part-time", "Contract", "Internship", "Freelance"]
+const jobTypeOptions = [
+  "Full-time",
+  "Part-time",
+  "Contract",
+  "Internship",
+  "Freelance",
+];
 const platformOptions = [
   "Hirist",
   "Naukri",
@@ -75,7 +92,7 @@ const platformOptions = [
   "Cutshort",
   "Internshala",
   "Instahyre",
-]
+];
 const popularLocations = [
   "Bangalore",
   "Mumbai",
@@ -86,131 +103,138 @@ const popularLocations = [
   "Kolkata",
   "Ahmedabad",
   "Remote",
-]
+];
 
 export default function AutoApplySetup() {
-  const [page, setPage] = useState(1)
-  const [settings, setSettings] = useState<AutoApplySettings>(defaultSettings)
-  const [loading, setLoading] = useState(false)
-  const [userProfile, setUserProfile] = useState<any>(null)
-  const [newJobTitle, setNewJobTitle] = useState("")
-  const [newLocation, setNewLocation] = useState("")
-  const [newKeyword, setNewKeyword] = useState("")
-  const [newExcludeKeyword, setNewExcludeKeyword] = useState("")
-  const router = useRouter()
+  const [page, setPage] = useState(1);
+  const [settings, setSettings] = useState<AutoApplySettings>(defaultSettings);
+  const [loading, setLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [newJobTitle, setNewJobTitle] = useState("");
+  const [newLocation, setNewLocation] = useState("");
+  const [newKeyword, setNewKeyword] = useState("");
+  const [newExcludeKeyword, setNewExcludeKeyword] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const loadUserData = async () => {
-      const user = auth.currentUser
+      const user = auth.currentUser;
       if (user) {
         try {
-          const profile = await getUserProfile(user.uid)
-          setUserProfile(profile)
+          const profile: any = await getUserProfile(user.uid);
+          setUserProfile(profile);
 
           // Pre-populate with user's existing data
           if (profile.autoApplySettings) {
-            setSettings(profile.autoApplySettings)
+            setSettings(profile.autoApplySettings);
           } else {
             // Set defaults based on user profile
             setSettings((prev) => ({
               ...prev,
               jobTitles: profile.jobTitle ? [profile.jobTitle] : [],
               salaryRange: {
-                min: profile.currentCTC ? Number.parseInt(profile.currentCTC.replace("LPA", "")) : 0,
-                max: profile.expectedCTC ? Number.parseInt(profile.expectedCTC.replace("LPA", "")) : 100,
+                min: profile.currentCTC
+                  ? Number.parseInt(profile.currentCTC.replace("LPA", ""))
+                  : 0,
+                max: profile.expectedCTC
+                  ? Number.parseInt(profile.expectedCTC.replace("LPA", ""))
+                  : 100,
               },
               keywords: profile.skills || [],
-            }))
+            }));
           }
         } catch (error) {
-          console.error("Error loading user profile:", error)
+          console.error("Error loading user profile:", error);
         }
       }
-    }
+    };
 
-    loadUserData()
-  }, [])
+    loadUserData();
+  }, []);
 
   const handleNext = () => {
-    setPage((prev) => Math.min(prev + 1, 6))
-  }
+    setPage((prev) => Math.min(prev + 1, 6));
+  };
 
   const handleBack = () => {
-    setPage((prev) => Math.max(prev - 1, 1))
-  }
+    setPage((prev) => Math.max(prev - 1, 1));
+  };
 
   const addJobTitle = () => {
     if (newJobTitle && !settings.jobTitles.includes(newJobTitle)) {
       setSettings((prev) => ({
         ...prev,
         jobTitles: [...prev.jobTitles, newJobTitle],
-      }))
-      setNewJobTitle("")
+      }));
+      setNewJobTitle("");
     }
-  }
+  };
 
   const removeJobTitle = (title: string) => {
     setSettings((prev) => ({
       ...prev,
       jobTitles: prev.jobTitles.filter((t) => t !== title),
-    }))
-  }
+    }));
+  };
 
   const addLocation = () => {
     if (newLocation && !settings.locations.includes(newLocation)) {
       setSettings((prev) => ({
         ...prev,
         locations: [...prev.locations, newLocation],
-      }))
-      setNewLocation("")
+      }));
+      setNewLocation("");
     }
-  }
+  };
 
   const removeLocation = (location: string) => {
     setSettings((prev) => ({
       ...prev,
       locations: prev.locations.filter((l) => l !== location),
-    }))
-  }
+    }));
+  };
 
   const addKeyword = () => {
     if (newKeyword && !settings.keywords.includes(newKeyword)) {
       setSettings((prev) => ({
         ...prev,
         keywords: [...prev.keywords, newKeyword],
-      }))
-      setNewKeyword("")
+      }));
+      setNewKeyword("");
     }
-  }
+  };
 
   const removeKeyword = (keyword: string) => {
     setSettings((prev) => ({
       ...prev,
       keywords: prev.keywords.filter((k) => k !== keyword),
-    }))
-  }
+    }));
+  };
 
   const addExcludeKeyword = () => {
-    if (newExcludeKeyword && !settings.excludeKeywords.includes(newExcludeKeyword)) {
+    if (
+      newExcludeKeyword &&
+      !settings.excludeKeywords.includes(newExcludeKeyword)
+    ) {
       setSettings((prev) => ({
         ...prev,
         excludeKeywords: [...prev.excludeKeywords, newExcludeKeyword],
-      }))
-      setNewExcludeKeyword("")
+      }));
+      setNewExcludeKeyword("");
     }
-  }
+  };
 
   const removeExcludeKeyword = (keyword: string) => {
     setSettings((prev) => ({
       ...prev,
       excludeKeywords: prev.excludeKeywords.filter((k) => k !== keyword),
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const user = auth.currentUser
+      const user = auth.currentUser;
       if (user) {
         await saveUserProfile(user.uid, {
           autoApplySettings: {
@@ -218,29 +242,37 @@ export default function AutoApplySetup() {
             isEnabled: true,
             updatedAt: new Date().toISOString(),
           },
-        })
-        router.push("/dashboard/auto-apply/dashboard")
+        });
+        router.push("/dashboard/auto-apply/dashboard");
       }
     } catch (error) {
-      console.error("Error saving auto-apply settings:", error)
+      console.error("Error saving auto-apply settings:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const renderProgressBar = () => (
     <div className="flex gap-4 relative left-1/2 transform -translate-x-1/2 items-center justify-center md:max-w-[520px] w-full">
       {[...Array(6)].map((_, index) => (
-        <div key={index} className={`w-[10%] p-[2px] ${page - 1 > index ? "bg-[#5D29FF]" : "bg-white"}`} />
+        <div
+          key={index}
+          className={`w-[10%] p-[2px] ${
+            page - 1 > index ? "bg-[#5D29FF]" : "bg-white"
+          }`}
+        />
       ))}
     </div>
-  )
+  );
 
   return (
     <>
       <Head>
         <title>Auto-Apply Setup - AiPply</title>
-        <meta name="description" content="Set up your auto-apply preferences for job applications." />
+        <meta
+          name="description"
+          content="Set up your auto-apply preferences for job applications."
+        />
       </Head>
 
       <div className="min-h-screen flex items-center justify-center bg-[#020218] py-8">
@@ -279,7 +311,9 @@ export default function AutoApplySetup() {
               {page === 1 && (
                 <div className="space-y-6">
                   <div>
-                    <Label className="text-lg font-semibold mb-4 block">Job Titles</Label>
+                    <Label className="text-lg font-semibold mb-4 block">
+                      Job Titles
+                    </Label>
                     <div className="flex gap-2 mb-4">
                       <Input
                         placeholder="Add job title (e.g., Software Engineer)"
@@ -293,7 +327,11 @@ export default function AutoApplySetup() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {settings.jobTitles.map((title) => (
-                        <Badge key={title} variant="secondary" className="px-3 py-1">
+                        <Badge
+                          key={title}
+                          variant="secondary"
+                          className="px-3 py-1"
+                        >
                           {title}
                           <button
                             onClick={() => removeJobTitle(title)}
@@ -307,7 +345,9 @@ export default function AutoApplySetup() {
                   </div>
 
                   <div>
-                    <Label className="text-lg font-semibold mb-4 block">Experience Range (Years)</Label>
+                    <Label className="text-lg font-semibold mb-4 block">
+                      Experience Range (Years)
+                    </Label>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label>Minimum</Label>
@@ -317,7 +357,10 @@ export default function AutoApplySetup() {
                           onChange={(e) =>
                             setSettings((prev) => ({
                               ...prev,
-                              experienceRange: { ...prev.experienceRange, min: Number.parseInt(e.target.value) || 0 },
+                              experienceRange: {
+                                ...prev.experienceRange,
+                                min: Number.parseInt(e.target.value) || 0,
+                              },
                             }))
                           }
                         />
@@ -330,7 +373,10 @@ export default function AutoApplySetup() {
                           onChange={(e) =>
                             setSettings((prev) => ({
                               ...prev,
-                              experienceRange: { ...prev.experienceRange, max: Number.parseInt(e.target.value) || 15 },
+                              experienceRange: {
+                                ...prev.experienceRange,
+                                max: Number.parseInt(e.target.value) || 15,
+                              },
                             }))
                           }
                         />
@@ -361,7 +407,11 @@ export default function AutoApplySetup() {
                     </div>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {settings.locations.map((location) => (
-                        <Badge key={location} variant="secondary" className="px-3 py-1">
+                        <Badge
+                          key={location}
+                          variant="secondary"
+                          className="px-3 py-1"
+                        >
                           {location}
                           <button
                             onClick={() => removeLocation(location)}
@@ -383,7 +433,7 @@ export default function AutoApplySetup() {
                               setSettings((prev) => ({
                                 ...prev,
                                 locations: [...prev.locations, location],
-                              }))
+                              }));
                             }
                           }}
                           className="text-xs"
@@ -408,7 +458,10 @@ export default function AutoApplySetup() {
                           onChange={(e) =>
                             setSettings((prev) => ({
                               ...prev,
-                              salaryRange: { ...prev.salaryRange, min: Number.parseInt(e.target.value) || 0 },
+                              salaryRange: {
+                                ...prev.salaryRange,
+                                min: Number.parseInt(e.target.value) || 0,
+                              },
                             }))
                           }
                         />
@@ -421,7 +474,10 @@ export default function AutoApplySetup() {
                           onChange={(e) =>
                             setSettings((prev) => ({
                               ...prev,
-                              salaryRange: { ...prev.salaryRange, max: Number.parseInt(e.target.value) || 100 },
+                              salaryRange: {
+                                ...prev.salaryRange,
+                                max: Number.parseInt(e.target.value) || 100,
+                              },
                             }))
                           }
                         />
@@ -430,7 +486,9 @@ export default function AutoApplySetup() {
                   </div>
 
                   <div>
-                    <Label className="text-lg font-semibold mb-4 block">Work Preferences</Label>
+                    <Label className="text-lg font-semibold mb-4 block">
+                      Work Preferences
+                    </Label>
                     <div className="space-y-3">
                       {[
                         { key: "remoteOnly", label: "Remote Only" },
@@ -442,11 +500,18 @@ export default function AutoApplySetup() {
                         <div key={key} className="flex items-center space-x-2">
                           <Checkbox
                             id={key}
-                            checked={settings.preferences[key as keyof typeof settings.preferences]}
+                            checked={
+                              settings.preferences[
+                                key as keyof typeof settings.preferences
+                              ]
+                            }
                             onCheckedChange={(checked) =>
                               setSettings((prev) => ({
                                 ...prev,
-                                preferences: { ...prev.preferences, [key]: checked },
+                                preferences: {
+                                  ...prev.preferences,
+                                  [key]: checked,
+                                },
                               }))
                             }
                           />
@@ -462,10 +527,15 @@ export default function AutoApplySetup() {
               {page === 3 && (
                 <div className="space-y-6">
                   <div>
-                    <Label className="text-lg font-semibold mb-4 block">Job Platforms</Label>
+                    <Label className="text-lg font-semibold mb-4 block">
+                      Job Platforms
+                    </Label>
                     <div className="grid grid-cols-3 gap-3">
                       {platformOptions.map((platform) => (
-                        <div key={platform} className="flex items-center space-x-2">
+                        <div
+                          key={platform}
+                          className="flex items-center space-x-2"
+                        >
                           <Checkbox
                             id={platform}
                             checked={settings.platforms.includes(platform)}
@@ -474,12 +544,14 @@ export default function AutoApplySetup() {
                                 setSettings((prev) => ({
                                   ...prev,
                                   platforms: [...prev.platforms, platform],
-                                }))
+                                }));
                               } else {
                                 setSettings((prev) => ({
                                   ...prev,
-                                  platforms: prev.platforms.filter((p) => p !== platform),
-                                }))
+                                  platforms: prev.platforms.filter(
+                                    (p) => p !== platform
+                                  ),
+                                }));
                               }
                             }}
                           />
@@ -490,7 +562,9 @@ export default function AutoApplySetup() {
                   </div>
 
                   <div>
-                    <Label className="text-lg font-semibold mb-4 block">Job Types</Label>
+                    <Label className="text-lg font-semibold mb-4 block">
+                      Job Types
+                    </Label>
                     <div className="grid grid-cols-2 gap-3">
                       {jobTypeOptions.map((type) => (
                         <div key={type} className="flex items-center space-x-2">
@@ -502,12 +576,14 @@ export default function AutoApplySetup() {
                                 setSettings((prev) => ({
                                   ...prev,
                                   jobTypes: [...prev.jobTypes, type],
-                                }))
+                                }));
                               } else {
                                 setSettings((prev) => ({
                                   ...prev,
-                                  jobTypes: prev.jobTypes.filter((t) => t !== type),
-                                }))
+                                  jobTypes: prev.jobTypes.filter(
+                                    (t) => t !== type
+                                  ),
+                                }));
                               }
                             }}
                           />
@@ -523,7 +599,9 @@ export default function AutoApplySetup() {
               {page === 4 && (
                 <div className="space-y-6">
                   <div>
-                    <Label className="text-lg font-semibold mb-4 block">Include Keywords</Label>
+                    <Label className="text-lg font-semibold mb-4 block">
+                      Include Keywords
+                    </Label>
                     <div className="flex gap-2 mb-4">
                       <Input
                         placeholder="Add keyword (e.g., React, Python)"
@@ -537,7 +615,11 @@ export default function AutoApplySetup() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {settings.keywords.map((keyword) => (
-                        <Badge key={keyword} variant="secondary" className="px-3 py-1">
+                        <Badge
+                          key={keyword}
+                          variant="secondary"
+                          className="px-3 py-1"
+                        >
                           {keyword}
                           <button
                             onClick={() => removeKeyword(keyword)}
@@ -551,13 +633,17 @@ export default function AutoApplySetup() {
                   </div>
 
                   <div>
-                    <Label className="text-lg font-semibold mb-4 block">Exclude Keywords</Label>
+                    <Label className="text-lg font-semibold mb-4 block">
+                      Exclude Keywords
+                    </Label>
                     <div className="flex gap-2 mb-4">
                       <Input
                         placeholder="Add keyword to exclude (e.g., Sales, Marketing)"
                         value={newExcludeKeyword}
                         onChange={(e) => setNewExcludeKeyword(e.target.value)}
-                        onKeyPress={(e) => e.key === "Enter" && addExcludeKeyword()}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && addExcludeKeyword()
+                        }
                       />
                       <Button onClick={addExcludeKeyword} variant="outline">
                         Add
@@ -565,7 +651,11 @@ export default function AutoApplySetup() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {settings.excludeKeywords.map((keyword) => (
-                        <Badge key={keyword} variant="destructive" className="px-3 py-1">
+                        <Badge
+                          key={keyword}
+                          variant="destructive"
+                          className="px-3 py-1"
+                        >
                           {keyword}
                           <button
                             onClick={() => removeExcludeKeyword(keyword)}
@@ -594,7 +684,8 @@ export default function AutoApplySetup() {
                       onChange={(e) =>
                         setSettings((prev) => ({
                           ...prev,
-                          maxApplicationsPerDay: Number.parseInt(e.target.value) || 10,
+                          maxApplicationsPerDay:
+                            Number.parseInt(e.target.value) || 10,
                         }))
                       }
                       min="1"
@@ -622,12 +713,15 @@ export default function AutoApplySetup() {
                       rows={6}
                     />
                     <p className="text-sm text-gray-400 mt-2">
-                      Use placeholders like {"{company}"}, {"{position}"}, {"{skills}"} for personalization
+                      Use placeholders like {"{company}"}, {"{position}"},{" "}
+                      {"{skills}"} for personalization
                     </p>
                   </div>
 
                   <div>
-                    <Label className="text-lg font-semibold mb-4 block">Resume URL</Label>
+                    <Label className="text-lg font-semibold mb-4 block">
+                      Resume URL
+                    </Label>
                     <Input
                       placeholder="https://drive.google.com/your-resume-link"
                       value={settings.resumeUrl}
@@ -638,7 +732,9 @@ export default function AutoApplySetup() {
                         }))
                       }
                     />
-                    <p className="text-sm text-gray-400 mt-2">Link to your resume (Google Drive, Dropbox, etc.)</p>
+                    <p className="text-sm text-gray-400 mt-2">
+                      Link to your resume (Google Drive, Dropbox, etc.)
+                    </p>
                   </div>
                 </div>
               )}
@@ -654,31 +750,45 @@ export default function AutoApplySetup() {
 
                     <div className="grid grid-cols-2 gap-6 text-sm">
                       <div>
-                        <p className="font-semibold text-gray-300">Job Titles:</p>
+                        <p className="font-semibold text-gray-300">
+                          Job Titles:
+                        </p>
                         <p>{settings.jobTitles.join(", ") || "None"}</p>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-300">Locations:</p>
+                        <p className="font-semibold text-gray-300">
+                          Locations:
+                        </p>
                         <p>{settings.locations.join(", ") || "None"}</p>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-300">Salary Range:</p>
+                        <p className="font-semibold text-gray-300">
+                          Salary Range:
+                        </p>
                         <p>
-                          {settings.salaryRange.min} - {settings.salaryRange.max} LPA
+                          {settings.salaryRange.min} -{" "}
+                          {settings.salaryRange.max} LPA
                         </p>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-300">Experience:</p>
+                        <p className="font-semibold text-gray-300">
+                          Experience:
+                        </p>
                         <p>
-                          {settings.experienceRange.min} - {settings.experienceRange.max} years
+                          {settings.experienceRange.min} -{" "}
+                          {settings.experienceRange.max} years
                         </p>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-300">Platforms:</p>
+                        <p className="font-semibold text-gray-300">
+                          Platforms:
+                        </p>
                         <p>{settings.platforms.join(", ") || "None"}</p>
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-300">Daily Limit:</p>
+                        <p className="font-semibold text-gray-300">
+                          Daily Limit:
+                        </p>
                         <p>{settings.maxApplicationsPerDay} applications</p>
                       </div>
                     </div>
@@ -687,11 +797,14 @@ export default function AutoApplySetup() {
                   <div className="bg-gradient-to-r from-[#20CEB6]/10 to-[#2E2ADC]/10 p-6 rounded-lg border border-[#20CEB6]/20">
                     <div className="flex items-center gap-3 mb-4">
                       <Zap className="w-6 h-6 text-[#20CEB6]" />
-                      <h3 className="text-xl font-semibold">Ready to Activate Auto-Apply?</h3>
+                      <h3 className="text-xl font-semibold">
+                        Ready to Activate Auto-Apply?
+                      </h3>
                     </div>
                     <p className="text-gray-300 mb-4">
-                      Your auto-apply system will start working immediately after activation. You can pause or modify
-                      settings anytime from your dashboard.
+                      Your auto-apply system will start working immediately
+                      after activation. You can pause or modify settings anytime
+                      from your dashboard.
                     </p>
                     <div className="flex items-center space-x-2">
                       <Checkbox
@@ -705,7 +818,8 @@ export default function AutoApplySetup() {
                         }
                       />
                       <Label htmlFor="terms" className="text-sm">
-                        I understand that auto-apply will submit applications on my behalf
+                        I understand that auto-apply will submit applications on
+                        my behalf
                       </Label>
                     </div>
                   </div>
@@ -716,7 +830,12 @@ export default function AutoApplySetup() {
               <div className="flex justify-between pt-6">
                 {page > 1 && (
                   <Button onClick={handleBack} variant="outline">
-                    <Image src="/static/icons/arrow-left.svg" alt="Back" width={24} height={24} />
+                    <Image
+                      src="/static/icons/arrow-left.svg"
+                      alt="Back"
+                      width={24}
+                      height={24}
+                    />
                     Back
                   </Button>
                 )}
@@ -724,7 +843,12 @@ export default function AutoApplySetup() {
                 {page < 6 ? (
                   <Button onClick={handleNext} className="ml-auto">
                     Next
-                    <Image src="/static/icons/arrow-right.svg" alt="Next" width={24} height={24} />
+                    <Image
+                      src="/static/icons/arrow-right.svg"
+                      alt="Next"
+                      width={24}
+                      height={24}
+                    />
                   </Button>
                 ) : (
                   <Button
@@ -741,5 +865,5 @@ export default function AutoApplySetup() {
         </div>
       </div>
     </>
-  )
+  );
 }

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import {
   Eye,
   EyeOff,
-  Save,
   Shield,
   CheckCircle2,
   AlertCircle,
@@ -677,7 +676,6 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                           Password
                           <Lock
                             className="w-3 h-3 ml-1 text-green-500"
-                            title="Will be encrypted"
                           />
                         </Label>
                         <div className="relative">
@@ -736,7 +734,6 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                               <span className="ml-2">{"•".repeat(8)}</span>
                               <Lock
                                 className="w-3 h-3 ml-2 text-green-500"
-                                title="Encrypted"
                               />
                             </p>
                           </div>
