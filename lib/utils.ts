@@ -77,7 +77,7 @@ export const mergeSalaryRanges = (salaries: string[]): string => {
     return "Not Disclosed";
   }
 
-  const ranges = salaries.map((salary) => {
+  const ranges = salaries?.map((salary) => {
     let min = 0, max = 0;
     const cleanSalary = salary.toLowerCase().trim();
     

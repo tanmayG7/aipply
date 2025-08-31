@@ -28,6 +28,7 @@ import {
   getDocs,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { Job, UserDetails, DashboardData } from "../types";
@@ -1703,16 +1704,21 @@ const updateDashboardOnJobApplied = async (
 
 const getAppliedJobs = async (userId: string) => {
   try {
-    const archivedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
-    if (archivedJobsDoc.exists()) {
-      return archivedJobsDoc.data().appliedJobs || [];
-    } else {
-      return [];
-    }
+    const jobsRef = collection(firestore, "appliedJobs");
+    const jobsQuery = query(jobsRef, where("userId", "==", userId));
+    const jobsSnapshot = await getDocs(jobsQuery);
+
+    const jobs = jobsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return jobs;
   } catch (error: any) {
     throw new Error("Error fetching applied jobs: " + error.message);
   }
-};
+}
+
 
 const updateDashboardData = async (userId: string, data: any) => {
   try {
@@ -1738,26 +1744,34 @@ const updateDashboardData = async (userId: string, data: any) => {
   }
 };
 
+
 const getJobTrackerData = async (userId: string) => {
   try {
-    const jobTrackerDoc = await getDoc(doc(firestore, "appliedJobs", userId));
-    console.log(jobTrackerDoc.data(), "job");
-    if (jobTrackerDoc.exists()) {
-      const data = jobTrackerDoc.data();
-      return {
-        appliedJobs: data.appliedJobs || [],
-        personalArchive: data.personalArchive || [],
-        followUp: data.followUp || [],
-        noReply: data.noReply || [],
-      };
-    } else {
-      return {
-        appliedJobs: [],
-        personalArchive: [],
-        followUp: [],
-        noReply: [],
-      };
-    }
+    const jobsRef = collection(firestore, "appliedJobs");
+    const jobsQuery = query(jobsRef, where("userId", "==", userId));
+    const jobsSnapshot = await getDocs(jobsQuery);
+
+    let appliedJobs: any[] = [];
+    let personalArchive: any[] = [];
+    let followUp: any[] = [];
+    let noReply: any[] = [];
+
+
+       const jobs = jobsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return jobs;
+ 
+
+
+    // return {
+    //   appliedJobs,
+    //   personalArchive,
+    //   followUp,
+    //   noReply,
+    // };
   } catch (error: any) {
     throw new Error("Error fetching job tracker data: " + error.message);
   }

@@ -17,11 +17,12 @@ import {
   auth,
   getDashboardData,
   firestore,
+  getAppliedJobs,
 } from "@/lib/firebaseConfig/firebaseConfig";
 import { DashboardData } from "@/lib/types";
 import { DashboardBarChart } from "@/components/charts/barChart";
-import { HomeShimmer } from "@/components/loaders/loader";
-import { testSkillTree } from "@/lib/test-skill-tree";
+// import { HomeShimmer } from "@/components/loaders/loader";
+// import { testSkillTree } from "@/lib/test-skill-tree";
 import { doc, getDoc } from "firebase/firestore";
 
 const DEBUG = process.env.NODE_ENV === "development";
@@ -57,18 +58,6 @@ const MobileTrigger = () => {
   );
 };
 
-const getAppliedJobs = async (userId: string) => {
-  try {
-    const appliedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
-    if (appliedJobsDoc.exists()) {
-      return appliedJobsDoc.data().appliedJobs || [];
-    } else {
-      return [];
-    }
-  } catch (error: any) {
-    throw new Error("Error fetching applied jobs: " + error.message);
-  }
-};
 
 const getUserSubscription = async (
   userId: string
@@ -126,6 +115,8 @@ const HomePage: React.FC = () => {
   const [cronLoading, setCronLoading] = useState(false);
   const [cronResult, setCronResult] = useState<any>(null);
 
+
+
   useEffect(() => {
     debugLog("Setting up auth listener");
 
@@ -133,6 +124,9 @@ const HomePage: React.FC = () => {
       debugLog("Auth state changed", { hasUser: !!user, uid: user?.uid });
 
       if (user) {
+        console.log('====================================');
+        console.log(user.uid,"user id");
+        console.log('====================================');
         fetchDashboardData(user.uid);
         fetchAutoAppliedData(user.uid);
       } else {
@@ -249,19 +243,26 @@ const HomePage: React.FC = () => {
 
   const fetchAutoAppliedData = async (uid: string) => {
     try {
-      debugLog("Fetching auto-applied data", { uid });
+      debugLog("Fetching auto-applied data&&&&&&&&&&&&&&&&&&&&&&&&", { uid });
 
       // Check subscription status
       const subscription = await getUserSubscription(uid);
+      console.log('====================================');
+      console.log(subscription,"subscription");
+      console.log('====================================');
       const userIsSubscribed =
         subscription?.subscriptionStatus === "premium" ||
         subscription?.subscriptionStatus === "active";
       setIsSubscribed(userIsSubscribed);
 
+      console.log('====================================');
+      console.log(userIsSubscribed,"user is subscribed");
+      console.log('====================================');
+
       if (userIsSubscribed) {
         // Fetch applied jobs for subscribed users
         const appliedJobs = await getAppliedJobs(uid);
-        debugLog("Applied jobs fetched", { count: appliedJobs.length });
+        debugLog("Applied jobs fetched", { appliedJobs});
 
         // Calculate auto-applied stats
         const stats = calculateAutoAppliedStats(appliedJobs);
