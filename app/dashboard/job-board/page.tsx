@@ -26,9 +26,9 @@ const JOBS_PER_PAGE = 20;
 
 const MobileTrigger = () => {
   const { openMobile } = useSidebar();
-  
+
   if (openMobile) return null; // Hide when mobile sidebar is open
-  
+
   return (
     <div className="lg:hidden fixed top-6 right-4 z-50">
       <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
@@ -50,41 +50,41 @@ const PaginationControls: React.FC<{
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
       pages.push(1);
-      
+
       let start = Math.max(2, currentPage - 1);
       let end = Math.min(totalPages - 1, currentPage + 1);
-      
+
       if (currentPage <= 3) {
         end = Math.min(totalPages - 1, 4);
       }
       if (currentPage >= totalPages - 2) {
         start = Math.max(2, totalPages - 3);
       }
-      
+
       if (start > 2) {
         pages.push(-1);
       }
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-      
+
       if (end < totalPages - 1) {
         pages.push(-2);
       }
-      
+
       if (totalPages > 1) {
         pages.push(totalPages);
       }
     }
-    
+
     return pages;
   };
 
@@ -113,11 +113,10 @@ const PaginationControls: React.FC<{
             key={page}
             onClick={() => onPageChange(page)}
             disabled={loading}
-            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors h-11 min-w-[44px] ${
-              currentPage === page
+            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors h-11 min-w-[44px] ${currentPage === page
                 ? "bg-blue-600 text-white border border-blue-600 font-semibold"
                 : "text-white bg-[#020218] border border-[#454545] hover:bg-[#1a1a2e] hover:text-white"
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {page}
           </button>
@@ -162,16 +161,16 @@ export default function Page() {
   };
 
   const activeFilterCount = getActiveFilterCount();
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalJobs, setTotalJobs] = useState(0);
-  
+
   // Simplified state management
   const [isInitialized, setIsInitialized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  
+
   // Handle search with debouncing
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -185,9 +184,9 @@ export default function Page() {
 
       setPageLoading(true);
       setError(null);
-      
+
       console.log(`Fetching jobs for page ${page}, search: "${searchTerm}"`);
-      
+
       const result = await getUpdatedJobsPaginated(
         auth.currentUser?.uid || '',
         userProfileValue,
@@ -226,23 +225,23 @@ export default function Page() {
     console.log('Starting initial data fetch...');
     setLoading(true);
     setError(null);
-    
+
     try {
       const currentUser = auth.currentUser;
-      
+
       if (!currentUser) {
         throw new Error('No authenticated user found');
       }
 
       console.log("Fetching user profile...");
       const userProfile = await getUserProfile(currentUser.uid) as UserDetails;
-      
+
       if (!userProfile) {
         throw new Error('Failed to load user profile');
       }
-      
+
       setUserProfileValue(userProfile);
-      
+
       if (!userProfile?.jobTitle) {
         setError('Please complete your profile setup with a job title before viewing jobs.');
         setLoading(false);
@@ -252,9 +251,9 @@ export default function Page() {
       console.log("Fetching hidden jobs...");
       const hideJobs = await getHiddenJobs(currentUser.uid);
       setHiddenJobs(hideJobs || []);
-      
+
       setIsInitialized(true);
-      
+
     } catch (error: any) {
       console.error(`Error in initial data fetch:`, error);
       setError(`Failed to load data: ${error.message}`);
@@ -274,7 +273,7 @@ export default function Page() {
   // Force restart function
   const forceRestart = useCallback(() => {
     console.log('Force restarting job board...');
-    
+
     // Reset all state
     setJobs([]);
     setUserProfileValue(null);
@@ -284,7 +283,7 @@ export default function Page() {
     setTotalJobs(0);
     setError(null);
     setIsInitialized(false);
-    
+
     // Start fresh
     fetchInitialData();
   }, [fetchInitialData]);
@@ -294,7 +293,7 @@ export default function Page() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       console.log('Auth state changed:', !!user);
       setAuthChecked(true);
-      
+
       if (user && !isInitialized) {
         fetchInitialData();
       } else if (!user) {
@@ -302,14 +301,14 @@ export default function Page() {
         window.location.href = '/dashboard/onboarding/login';
       }
     });
-    
+
     return () => unsubscribe();
   }, [fetchInitialData, isInitialized]);
 
   // Handle page change
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || pageLoading) return;
-    
+
     console.log(`Changing to page ${page}`);
     fetchJobsWithPagination(page, filter);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -319,12 +318,12 @@ export default function Page() {
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value;
     setFilter(searchTerm);
-    
+
     // Clear existing timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
-    
+
     // Debounce search
     searchTimeoutRef.current = setTimeout(() => {
       console.log(`Searching for: "${searchTerm}"`);
@@ -391,14 +390,15 @@ export default function Page() {
           denyButtonText: "No"
         }).then(async (result) => {
           if (result.isConfirmed) {
-            if (!appliedJobs.some((appliedJob: Job) => appliedJob.jobId === jobId)) {
+            // Fix: Use 'id' instead of 'jobId' since appliedJobs contains objects with 'id' property
+            if (!appliedJobs.some((appliedJob) => appliedJob.id === jobId)) {
               const appliedDate: string = new Date().toISOString();
               const mergedSalary = mergeSalaryRanges(job.salary);
-              
-              const locationString = Array.isArray(job.location) 
-                ? job.location.join(", ") 
+
+              const locationString = Array.isArray(job.location)
+                ? job.location.join(", ")
                 : job.location;
-              
+
               await updateDashboardOnJobApplied(
                 userId,
                 mergedSalary,
@@ -443,14 +443,14 @@ export default function Page() {
                     {error}
                   </p>
                   <div className="space-y-2 sm:space-y-0 sm:space-x-2 flex flex-col sm:flex-row">
-                    <button 
+                    <button
                       onClick={forceRestart}
                       className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md font-semibold h-11"
                       disabled={loading || pageLoading}
                     >
                       🔄 Force Restart
                     </button>
-                    <button 
+                    <button
                       onClick={() => window.location.href = '/dashboard/complete-profile'}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md h-11"
                     >
@@ -515,12 +515,12 @@ export default function Page() {
                   </div>
                 </div>
 
-              {/* Page info */}
-              {totalJobs > 0 && (
-                <div className="text-xs sm:text-sm text-white opacity-80">
-                  Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
-                </div>
-              )}
+                {/* Page info */}
+                {totalJobs > 0 && (
+                  <div className="text-xs sm:text-sm text-white opacity-80">
+                    Showing {Math.min((currentPage - 1) * JOBS_PER_PAGE + 1, totalJobs)} - {Math.min(currentPage * JOBS_PER_PAGE, totalJobs)} of {totalJobs} jobs
+                  </div>
+                )}
 
                 {showFilterCard && (
                   <FilterCard
@@ -556,9 +556,9 @@ export default function Page() {
                   ) : !pageLoading && isInitialized ? (
                     <div className="text-center py-8 text-gray-400">
                       {activeFilterCount > 0 ? "No jobs match your current filters. Try adjusting or clearing your criteria." :
-                       filter ? "No jobs found matching your search." : 
-                       !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." : 
-                       "No jobs available for your profile."}
+                        filter ? "No jobs found matching your search." :
+                          !userProfileValue?.jobTitle ? "Please complete your profile to see jobs." :
+                            "No jobs available for your profile."}
                     </div>
                   ) : null}
                 </div>
@@ -574,7 +574,7 @@ export default function Page() {
                     />
                   </div>
                 )}
-                
+
               </>
             )}
           </div>
