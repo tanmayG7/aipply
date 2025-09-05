@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/daily-auto-apply",
-      "schedule": "30 19 * * *"
+      "schedule": "0 22 * * *"
     }
   ]
 }
