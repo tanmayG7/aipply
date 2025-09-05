@@ -60,16 +60,13 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
   const [credentials, setCredentials] = useState<PlatformCredentialsData>({});
   const [saveStatus, setSaveStatus] = useState<
     | "idle"
-    | "validating"
     | "saving"
     | "saved"
-    | "validation-error"
     | "save-error"
   >("idle");
   const [validationStatus, setValidationStatus] = useState<ValidationStatus>(
     {}
   );
-  const [isValidatingAll, setIsValidatingAll] = useState(false);
   const [encryptionStatus, setEncryptionStatus] = useState<
     "checking" | "encrypted" | "not-encrypted" | "error"
   >("checking");
@@ -261,98 +258,8 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
     }
   };
 
-  const validateAllCredentials = async (): Promise<boolean> => {
-    const credentialsToValidate = Object.entries(credentials).reduce(
-      (acc, [platform, creds]) => {
-        if (creds?.email && creds?.password) {
-          acc[platform] = {
-            email: creds.email,
-            password: creds.password,
-          };
-        }
-        return acc;
-      },
-      {} as Record<string, { email: string; password: string }>
-    );
-
-    if (Object.keys(credentialsToValidate).length === 0) {
-      return true;
-    }
-
-    setIsValidatingAll(true);
-
-    // set all validating states...
-    setValidationStatus((prev) => {
-      const newStatus = { ...prev };
-      Object.keys(credentialsToValidate).forEach((platform) => {
-        newStatus[platform] = {
-          isValid: null,
-          message: "Validating...",
-          isValidating: true,
-        };
-      });
-      return newStatus;
-    });
-
-    try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("User not authenticated");
-
-      // 🔐 Encrypt before sending
-      const encryptedPayload = encryptCredentialsForStorage(
-        user.uid,
-        credentialsToValidate
-      );
-
-      const response = await fetch(`${API_URL}/api/validate-credentials/all`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          credentials: encryptedPayload,
-        }),
-      });
-
-      const results = await response.json();
-
-      let allValid = true;
-      setValidationStatus((prev) => {
-        const newStatus = { ...prev };
-        Object.entries(results).forEach(([platform, result]: [string, any]) => {
-          newStatus[platform] = {
-            isValid: result.isValid,
-            message: result.message,
-            isValidating: false,
-          };
-          if (!result.isValid) {
-            allValid = false;
-          }
-        });
-        return newStatus;
-      });
-
-      return allValid;
-    } catch (error) {
-      setValidationStatus((prev) => {
-        const newStatus = { ...prev };
-        Object.keys(credentialsToValidate).forEach((platform) => {
-          newStatus[platform] = {
-            isValid: false,
-            message: "Validation failed. Please try again.",
-            isValidating: false,
-          };
-        });
-        return newStatus;
-      });
-      return false;
-    } finally {
-      setIsValidatingAll(false);
-    }
-  };
-
   const handleSave = async () => {
-    // Check if there are credentials to validate
+    // Check if there are credentials to save
     const hasCredentialsToSave = Object.values(credentials).some(
       (cred) => cred?.email && cred?.password
     );
@@ -365,18 +272,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
       return;
     }
 
-    // Step 1: Validate all credentials first
-    setSaveStatus("validating");
-
-    const allCredentialsValid = await validateAllCredentials();
-
-    if (!allCredentialsValid) {
-      setSaveStatus("validation-error");
-      setTimeout(() => setSaveStatus("idle"), 3000);
-      return;
-    }
-
-    // Step 2: If validation passes, proceed with saving
+    // Skip validation and go directly to saving
     setSaveStatus("saving");
 
     try {
@@ -485,14 +381,10 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
 
   const getSaveButtonText = () => {
     switch (saveStatus) {
-      case "validating":
-        return "Validating Credentials...";
       case "saving":
         return "Encrypting & Saving...";
       case "saved":
         return "Saved & Encrypted!";
-      case "validation-error":
-        return "Invalid Credentials - Fix Errors";
       case "save-error":
         return "Save Failed - Try Again";
       default:
@@ -502,8 +394,6 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
 
   const getSaveButtonClass = () => {
     switch (saveStatus) {
-      case "validation-error":
-        return "bg-red-600 border-red-600";
       case "save-error":
         return "bg-red-600 border-red-600";
       case "saved":
@@ -515,14 +405,10 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
 
   const getSaveButtonIcon = () => {
     switch (saveStatus) {
-      case "validating":
-        return <Loader2 className="w-4 h-4 mr-2 animate-spin" />;
       case "saving":
         return <Loader2 className="w-4 h-4 mr-2 animate-spin" />;
       case "saved":
         return <CheckCircle2 className="w-4 h-4 mr-2" />;
-      case "validation-error":
-        return <AlertCircle className="w-4 h-4 mr-2" />;
       case "save-error":
         return <AlertCircle className="w-4 h-4 mr-2" />;
       default:
@@ -565,35 +451,6 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
             </p>
           </div>
 
-          {/* Validation Status Banner */}
-          {saveStatus === "validating" && (
-            <div className="border border-blue-500 bg-blue-500/10 rounded-lg p-4 mb-6">
-              <div className="flex items-center space-x-2">
-                <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
-                <span className="text-sm font-medium text-blue-500">
-                  Validating Credentials
-                </span>
-              </div>
-              <p className="text-sm mt-1 text-blue-400">
-                Please wait while we verify your login credentials...
-              </p>
-            </div>
-          )}
-
-          {saveStatus === "validation-error" && (
-            <div className="border border-red-500 bg-red-500/10 rounded-lg p-4 mb-6">
-              <div className="flex items-center space-x-2">
-                <AlertCircle className="w-4 h-4 text-red-500" />
-                <span className="text-sm font-medium text-red-500">
-                  Validation Failed
-                </span>
-              </div>
-              <p className="text-sm mt-1 text-red-400">
-                Please correct the invalid credentials before saving.
-              </p>
-            </div>
-          )}
-
           {/* Platform Cards */}
           <div className="grid gap-6">
             {platforms.map((platform) => (
@@ -630,8 +487,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                         <Button
                           onClick={() => validateSinglePlatform(platform.id)}
                           disabled={
-                            validationStatus[platform.id]?.isValidating ||
-                            saveStatus === "validating"
+                            validationStatus[platform.id]?.isValidating
                           }
                           size="sm"
                           variant="outline"
@@ -666,7 +522,6 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                           placeholder="Enter your email or username"
                           required
                           className="text-white"
-                          disabled={saveStatus === "validating"}
                         />
                       </div>
 
@@ -694,7 +549,6 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                             placeholder="Enter your password"
                             required
                             className="text-white pr-10"
-                            disabled={saveStatus === "validating"}
                           />
                           <button
                             type="button"
@@ -702,7 +556,6 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
                               togglePasswordVisibility(platform.id)
                             }
                             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                            disabled={saveStatus === "validating"}
                           >
                             {showPasswords[platform.id] ? (
                               <EyeOff className="w-4 h-4" />
@@ -758,9 +611,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
             <div className="flex gap-4 mt-6">
               <Button
                 onClick={handleSave}
-                disabled={
-                  saveStatus === "validating" || saveStatus === "saving"
-                }
+                disabled={saveStatus === "saving"}
                 className={`w-fit px-8 text-white transition-colors ${getSaveButtonClass()}`}
               >
                 {getSaveButtonIcon()}
