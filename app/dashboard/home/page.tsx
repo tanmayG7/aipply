@@ -511,7 +511,7 @@ const HomePage: React.FC = () => {
                   </div>
 
                   {/* Cron Job Test Section - Only in Development */}
-                  {/* {DEBUG && (
+                  {{DEBUG && (
                     <div className="bg-gray-800 p-4 rounded-lg border border-gray-600">
                       <h3 className="text-lg font-semibold text-white mb-3">
                         Test Auto-Apply Cron Job
@@ -540,7 +540,7 @@ const HomePage: React.FC = () => {
                         )}
                       </div>
                     </div>
-                  )} */}
+                  )} }
                 </div>
               {/* )} */}
             </div>
