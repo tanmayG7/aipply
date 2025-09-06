@@ -18,12 +18,14 @@ interface ProfileFormProps {
   isEditing: boolean;
   userDetails: UserDetails;
   onExitEditMode?: () => void;
+  onRefresh?: () => Promise<void>;
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({
   isEditing,
   userDetails,
   onExitEditMode,
+  onRefresh,
 }) => {
   const [educations, setEducations] = useState<Education[]>();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -143,7 +145,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
   return (
     <div className="py-6 border border-gray rounded-xl">
-      <AboutSection userDetails={userDetails} isEditing={isEditing} onExitEditMode={onExitEditMode} />
+      <AboutSection userDetails={userDetails} isEditing={isEditing} onExitEditMode={onExitEditMode} onRefresh={onRefresh} />
 
       {(isEditing || userDetails.socialMediaLinks) && (
         <SocialMediaLinks isEditing={isEditing} userDetails={userDetails} />

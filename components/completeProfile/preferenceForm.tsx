@@ -12,12 +12,14 @@ interface PreferenceFormProps {
   isEditing: boolean;
   userDetails: UserDetails;
   onExitEditMode?: () => void;
+  onRefresh?: () => Promise<void>;
 }
 
 const PreferenceForm: React.FC<PreferenceFormProps> = ({
   isEditing,
   userDetails,
   onExitEditMode,
+  onRefresh,
 }) => {
   const [preferences, setPreferences] = useState({
     jobSearchStatus: false,
@@ -87,27 +89,45 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
   };
 
   const handleSavePreferences = async () => {
+    // Prevent double-clicks
+    if (saveStatus !== 'idle') return;
+    
     setSaveStatus('saving');
     try {
       const user = auth.currentUser;
-      if (user) {
-        const updatedUserDetails = {
-          preferences,
-          locations,
-        };
-        await saveUserProfile(user.uid, updatedUserDetails);
-        
-        setSaveStatus('saved');
-        setTimeout(() => {
-          setSaveStatus('idle');
-          if (onExitEditMode) {
-            onExitEditMode();
-          }
-        }, 2000);
+      if (!user) {
+        alert('Please log in to save your preferences.');
+        setSaveStatus('idle');
+        return;
       }
-    } catch (error) {
+      
+      const updatedUserDetails = {
+        preferences,
+        locations,
+      };
+      await saveUserProfile(user.uid, updatedUserDetails);
+      
+      // Refresh parent component data
+      if (onRefresh) {
+        await onRefresh();
+      }
+      
+      setSaveStatus('saved');
+      
+      // Show success state for 2 seconds then exit edit mode
+      setTimeout(() => {
+        setSaveStatus('idle');
+        if (onExitEditMode) {
+          onExitEditMode();
+        }
+      }, 2000);
+      
+    } catch (error: any) {
       console.error('Error saving preferences:', error);
       setSaveStatus('idle');
+      
+      const errorMessage = error?.message || 'Unknown error occurred';
+      alert(`Failed to save preferences: ${errorMessage}. Please try again.`);
     }
   };
 

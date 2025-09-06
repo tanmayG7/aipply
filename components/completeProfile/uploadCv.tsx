@@ -14,9 +14,10 @@ interface UploadCvProps {
   isEditing: boolean;
   userDetails: UserDetails;
   onExitEditMode?: () => void;
+  onRefresh?: () => Promise<void>;
 }
 
-const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditMode }) => {
+const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditMode, onRefresh }) => {
   const [resumeSaveStatus, setResumeSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [coverLetterSaveStatus, setCoverLetterSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [fileName, setFileName] = useState<string | null>(null);
@@ -50,6 +51,9 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditM
   };
 
   const handleSaveCvButtonClick = async () => {
+    // Prevent double-clicks
+    if (resumeSaveStatus !== 'idle') return;
+    
     setResumeSaveStatus('saving');
     try {
       const inputElement = document.getElementById(
@@ -57,6 +61,12 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditM
       ) as HTMLInputElement;
       const user = auth.currentUser;
 
+      if (!user) {
+        alert('Please log in to save your resume.');
+        setResumeSaveStatus('idle');
+        return;
+      }
+      
       if (user && inputElement && inputElement.files) {
         const event = {
           target: inputElement,
@@ -67,6 +77,11 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditM
         const downloadURL = await getDownloadURL(storageRef);
         const userDetails: UserDetails = { cv: downloadURL };
         await saveUserProfile(user.uid, userDetails);
+
+        // Refresh parent component data
+        if (onRefresh) {
+          await onRefresh();
+        }
 
         inputElement.value = "";
         
@@ -81,19 +96,34 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditM
     } catch (error) {
       console.error('Error saving resume:', error);
       setResumeSaveStatus('idle');
+      alert('Failed to save resume. Please try again.');
     }
   };
 
   const handleSaveCoverLetterButtonClick = async () => {
+    // Prevent double-clicks
+    if (coverLetterSaveStatus !== 'idle') return;
+    
     setCoverLetterSaveStatus('saving');
     try {
       const user = auth.currentUser;
 
-      if (user && coverLetter) {
+      if (!user) {
+        alert('Please log in to save your cover letter.');
+        setCoverLetterSaveStatus('idle');
+        return;
+      }
+      
+      if (user && coverLetter.trim()) {
         const userDetails: UserDetails = {
-          coverLetter: coverLetter,
+          coverLetter: coverLetter.trim(),
         };
         await saveUserProfile(user.uid, userDetails);
+        
+        // Refresh parent component data
+        if (onRefresh) {
+          await onRefresh();
+        }
         
         setCoverLetterSaveStatus('saved');
         setTimeout(() => {
@@ -102,10 +132,14 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditM
             onExitEditMode();
           }
         }, 2000);
+      } else {
+        setCoverLetterSaveStatus('idle');
+        alert('Please enter a cover letter before saving.');
       }
     } catch (error) {
       console.error('Error saving cover letter:', error);
       setCoverLetterSaveStatus('idle');
+      alert('Failed to save cover letter. Please try again.');
     }
   };
 

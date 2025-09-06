@@ -111,6 +111,7 @@ const EditProfile: React.FC = () => {
               isEditing={editingStates.profile} 
               userDetails={userDetails} 
               onExitEditMode={() => toggleEditing('profile')}
+              onRefresh={refreshUserDetails}
             />
           </>
         );
@@ -152,6 +153,7 @@ const EditProfile: React.FC = () => {
               isEditing={editingStates.preferences} 
               userDetails={userDetails} 
               onExitEditMode={() => toggleEditing('preferences')}
+              onRefresh={refreshUserDetails}
             />
           </>
         );
@@ -172,6 +174,7 @@ const EditProfile: React.FC = () => {
               isEditing={editingStates.documents} 
               userDetails={userDetails} 
               onExitEditMode={() => toggleEditing('documents')}
+              onRefresh={refreshUserDetails}
             />
           </>
         );

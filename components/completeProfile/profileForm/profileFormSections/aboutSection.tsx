@@ -21,12 +21,14 @@ interface AboutSectionProps {
   userDetails: UserDetails;
   isEditing: boolean;
   onExitEditMode?: () => void;
+  onRefresh?: () => Promise<void>;
 }
 
 const AboutSection: React.FC<AboutSectionProps> = ({
   isEditing,
   userDetails,
   onExitEditMode,
+  onRefresh,
 }) => {
   console.log(userDetails,"formData");
   const [formData, setFormData] = useState({
@@ -44,21 +46,33 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   const [fileName, setFileName] = useState<string | null>(null);
   const [jobRoleSearch, setJobRoleSearch] = useState("");
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-
+    // Update form data when userDetails change
     setFormData({
-    firstName: userDetails.firstName || "",
-    lastName: userDetails.lastName || "",
-    whereYouBased: userDetails.whereYouBased || "",
-    jobTitle: userDetails.jobTitle || "",
-    workexperience: userDetails.workexperience || "",
-    role: userDetails.role || "",
-    bio: userDetails.bio || "",
-    showDropdown: false,
-  })
+      firstName: userDetails.firstName || "",
+      lastName: userDetails.lastName || "",
+      whereYouBased: userDetails.whereYouBased || "",
+      jobTitle: userDetails.jobTitle || "",
+      workexperience: userDetails.workexperience || "",
+      role: userDetails.role || "",
+      bio: userDetails.bio || "",
+      showDropdown: false,
+    });
+    
+    // Update profile picture
+    setProfilePic(userDetails.uploadFile || "");
+  }, [userDetails])
 
-  },[userDetails])
+  // Cleanup timeout on unmount or when save status changes
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [timeoutId])
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -96,23 +110,60 @@ const AboutSection: React.FC<AboutSectionProps> = ({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent double-clicks
+    if (saveStatus !== 'idle') return;
+    
+    // Basic form validation
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      alert('Please fill in your first and last name.');
+      return;
+    }
+    
+    if (!formData.whereYouBased.trim()) {
+      alert('Please enter your location.');
+      return;
+    }
+    
     setSaveStatus('saving');
     try {
       const user = auth.currentUser;
-      if (user) {
-        await saveUserProfile(user.uid, formData);
-        
-        setSaveStatus('saved');
-        setTimeout(() => {
-          setSaveStatus('idle');
-          if (onExitEditMode) {
-            onExitEditMode();
-          }
-        }, 2000);
+      if (!user) {
+        alert('Please log in to save your profile.');
+        setSaveStatus('idle');
+        return;
       }
+      
+      // Include profile picture in save data if it exists
+      const saveData = {
+        ...formData,
+        ...(profilePic && { uploadFile: profilePic })
+      };
+      
+      await saveUserProfile(user.uid, saveData);
+      
+      // Refresh parent component data
+      if (onRefresh) {
+        await onRefresh();
+      }
+      
+      setSaveStatus('saved');
+      
+      // Show success state for 2 seconds then exit edit mode
+      const newTimeoutId = setTimeout(() => {
+        setSaveStatus('idle');
+        if (onExitEditMode) {
+          onExitEditMode();
+        }
+      }, 2000);
+      setTimeoutId(newTimeoutId);
+      
     } catch (error: any) {
-      console.error(error.message);
+      console.error('Error saving profile:', error);
       setSaveStatus('idle');
+      
+      const errorMessage = error?.message || 'Unknown error occurred';
+      alert(`Failed to save profile: ${errorMessage}. Please try again.`);
     }
   };
 
