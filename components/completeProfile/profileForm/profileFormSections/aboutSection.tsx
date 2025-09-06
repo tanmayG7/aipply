@@ -14,17 +14,19 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { UserDetails } from "@/lib/types";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Upload } from "lucide-react";
+import { Upload, CheckCircle2 } from "lucide-react";
 import { jobRoles } from "@/lib/jobRoles";
 
 interface AboutSectionProps {
   userDetails: UserDetails;
   isEditing: boolean;
+  onExitEditMode?: () => void;
 }
 
 const AboutSection: React.FC<AboutSectionProps> = ({
   isEditing,
   userDetails,
+  onExitEditMode,
 }) => {
   console.log(userDetails,"formData");
   const [formData, setFormData] = useState({
@@ -41,6 +43,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   const [profilePic, setProfilePic] = useState(userDetails.uploadFile || "");
   const [fileName, setFileName] = useState<string | null>(null);
   const [jobRoleSearch, setJobRoleSearch] = useState("");
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   useEffect(() => {
 
@@ -93,23 +96,23 @@ const AboutSection: React.FC<AboutSectionProps> = ({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaveStatus('saving');
     try {
       const user = auth.currentUser;
       if (user) {
         await saveUserProfile(user.uid, formData);
-        // setFormData({
-        //   firstName: "",
-        //   lastName: "",
-        //   whereYouBased: "",
-        //   jobTitle: "",
-        //   workexperience: "",
-        //   role: "",
-        //   bio: "",
-        //   showDropdown: false,
-        // });
+        
+        setSaveStatus('saved');
+        setTimeout(() => {
+          setSaveStatus('idle');
+          if (onExitEditMode) {
+            onExitEditMode();
+          }
+        }, 2000);
       }
     } catch (error: any) {
       console.error(error.message);
+      setSaveStatus('idle');
     }
   };
 
@@ -291,10 +294,24 @@ const AboutSection: React.FC<AboutSectionProps> = ({
             </div>
             <div className="flex gap-4">
               <Button
-                className="w-fit px-8 text-white bg-transparent border border-gray"
                 onClick={handleSave}
+                disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+                className={`w-fit px-8 text-white transition-colors ${
+                  saveStatus === 'saved' 
+                    ? 'bg-green-600 border-green-600 cursor-not-allowed' 
+                    : 'bg-transparent border border-gray'
+                }`}
               >
-                Save
+                {saveStatus === 'saving' ? (
+                  "Saving..."
+                ) : saveStatus === 'saved' ? (
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Saved!</span>
+                  </div>
+                ) : (
+                  "Save"
+                )}
               </Button>
             </div>
           </form>

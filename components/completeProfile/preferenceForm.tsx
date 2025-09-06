@@ -4,17 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CheckCircle2 } from "lucide-react";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { UserDetails } from "@/lib/types";
 
 interface PreferenceFormProps {
   isEditing: boolean;
   userDetails: UserDetails;
+  onExitEditMode?: () => void;
 }
 
 const PreferenceForm: React.FC<PreferenceFormProps> = ({
   isEditing,
   userDetails,
+  onExitEditMode,
 }) => {
   const [preferences, setPreferences] = useState({
     jobSearchStatus: false,
@@ -29,7 +32,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
 
   const [locations, setLocations] = useState<string[]>([]);
   const [locationInput, setLocationInput] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   useEffect(() => {
     if (userDetails?.preferences) {
@@ -84,16 +87,28 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
   };
 
   const handleSavePreferences = async () => {
-    setIsSaving(true);
-    const user = auth.currentUser;
-    if (user) {
-      const updatedUserDetails = {
-        preferences,
-        locations,
-      };
-      await saveUserProfile(user.uid, updatedUserDetails);
+    setSaveStatus('saving');
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const updatedUserDetails = {
+          preferences,
+          locations,
+        };
+        await saveUserProfile(user.uid, updatedUserDetails);
+        
+        setSaveStatus('saved');
+        setTimeout(() => {
+          setSaveStatus('idle');
+          if (onExitEditMode) {
+            onExitEditMode();
+          }
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      setSaveStatus('idle');
     }
-    setIsSaving(false);
   };
 
   return (
@@ -295,10 +310,23 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
             <div className="flex gap-4 mt-6">
               <Button
                 onClick={handleSavePreferences}
-                className="w-fit px-8 text-white bg-transparent border border-gray"
-                disabled={isSaving}
+                disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+                className={`w-fit px-8 text-white transition-colors ${
+                  saveStatus === 'saved' 
+                    ? 'bg-green-600 border-green-600 cursor-not-allowed' 
+                    : 'bg-transparent border border-gray'
+                }`}
               >
-                {isSaving ? "Saving..." : "Save Preferences"}
+                {saveStatus === 'saving' ? (
+                  "Saving..."
+                ) : saveStatus === 'saved' ? (
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Saved!</span>
+                  </div>
+                ) : (
+                  "Save Preferences"
+                )}
               </Button>
             </div>
           )}

@@ -17,11 +17,13 @@ import WorkExperience from "./profileFormSections/workExperience";
 interface ProfileFormProps {
   isEditing: boolean;
   userDetails: UserDetails;
+  onExitEditMode?: () => void;
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({
   isEditing,
   userDetails,
+  onExitEditMode,
 }) => {
   const [educations, setEducations] = useState<Education[]>();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -141,7 +143,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
   return (
     <div className="py-6 border border-gray rounded-xl">
-      <AboutSection userDetails={userDetails} isEditing={isEditing} />
+      <AboutSection userDetails={userDetails} isEditing={isEditing} onExitEditMode={onExitEditMode} />
 
       {(isEditing || userDetails.socialMediaLinks) && (
         <SocialMediaLinks isEditing={isEditing} userDetails={userDetails} />

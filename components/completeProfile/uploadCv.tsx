@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Input } from "../ui/input";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Button } from "../ui/button";
+import { CheckCircle2 } from "lucide-react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { UserDetails } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,10 +13,12 @@ import Image from "next/image";
 interface UploadCvProps {
   isEditing: boolean;
   userDetails: UserDetails;
+  onExitEditMode?: () => void;
 }
 
-const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
-  const [loading, setLoading] = useState(false);
+const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditMode }) => {
+  const [resumeSaveStatus, setResumeSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [coverLetterSaveStatus, setCoverLetterSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [fileName, setFileName] = useState<string | null>(null);
   const [coverLetter, setCoverLetter] = useState(userDetails.coverLetter || "");
 
@@ -47,39 +50,63 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
   };
 
   const handleSaveCvButtonClick = async () => {
-    setLoading(true);
-    const inputElement = document.getElementById(
-      "uploadFile"
-    ) as HTMLInputElement;
-    const user = auth.currentUser;
+    setResumeSaveStatus('saving');
+    try {
+      const inputElement = document.getElementById(
+        "uploadFile"
+      ) as HTMLInputElement;
+      const user = auth.currentUser;
 
-    if (user && inputElement && inputElement.files) {
-      const event = {
-        target: inputElement,
-      } as React.ChangeEvent<HTMLInputElement>;
-      await handleUploadCv(event);
-      const storage = getStorage();
-      const storageRef = ref(storage, `resumes/${user.uid}/resume`);
-      const downloadURL = await getDownloadURL(storageRef);
-      const userDetails: UserDetails = { cv: downloadURL };
-      await saveUserProfile(user.uid, userDetails);
+      if (user && inputElement && inputElement.files) {
+        const event = {
+          target: inputElement,
+        } as React.ChangeEvent<HTMLInputElement>;
+        await handleUploadCv(event);
+        const storage = getStorage();
+        const storageRef = ref(storage, `resumes/${user.uid}/resume`);
+        const downloadURL = await getDownloadURL(storageRef);
+        const userDetails: UserDetails = { cv: downloadURL };
+        await saveUserProfile(user.uid, userDetails);
 
-      inputElement.value = "";
+        inputElement.value = "";
+        
+        setResumeSaveStatus('saved');
+        setTimeout(() => {
+          setResumeSaveStatus('idle');
+          if (onExitEditMode) {
+            onExitEditMode();
+          }
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      setResumeSaveStatus('idle');
     }
-    setLoading(false);
   };
 
   const handleSaveCoverLetterButtonClick = async () => {
-    setLoading(true);
-    const user = auth.currentUser;
+    setCoverLetterSaveStatus('saving');
+    try {
+      const user = auth.currentUser;
 
-    if (user && coverLetter) {
-      const userDetails: UserDetails = {
-        coverLetter: coverLetter,
-      };
-      await saveUserProfile(user.uid, userDetails);
+      if (user && coverLetter) {
+        const userDetails: UserDetails = {
+          coverLetter: coverLetter,
+        };
+        await saveUserProfile(user.uid, userDetails);
+        
+        setCoverLetterSaveStatus('saved');
+        setTimeout(() => {
+          setCoverLetterSaveStatus('idle');
+          if (onExitEditMode) {
+            onExitEditMode();
+          }
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error saving cover letter:', error);
+      setCoverLetterSaveStatus('idle');
     }
-    setLoading(false);
   };
 
   return (
@@ -127,10 +154,23 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
               )}
               <Button
                 onClick={handleSaveCvButtonClick}
-                className="w-fit px-8 text-white bg-transparent border border-gray"
-                disabled={loading}
+                disabled={resumeSaveStatus === 'saving' || resumeSaveStatus === 'saved'}
+                className={`w-fit px-8 text-white transition-colors ${
+                  resumeSaveStatus === 'saved' 
+                    ? 'bg-green-600 border-green-600 cursor-not-allowed' 
+                    : 'bg-transparent border border-gray'
+                }`}
               >
-                {loading ? "Saving..." : "Save Resume"}
+                {resumeSaveStatus === 'saving' ? (
+                  "Saving..."
+                ) : resumeSaveStatus === 'saved' ? (
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Saved!</span>
+                  </div>
+                ) : (
+                  "Save Resume"
+                )}
               </Button>
             </div>
           ) : (
@@ -181,10 +221,23 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails }) => {
               />
               <Button
                 onClick={handleSaveCoverLetterButtonClick}
-                className="w-fit px-8 text-white bg-transparent border border-gray"
-                disabled={loading}
+                disabled={coverLetterSaveStatus === 'saving' || coverLetterSaveStatus === 'saved'}
+                className={`w-fit px-8 text-white transition-colors ${
+                  coverLetterSaveStatus === 'saved' 
+                    ? 'bg-green-600 border-green-600 cursor-not-allowed' 
+                    : 'bg-transparent border border-gray'
+                }`}
               >
-                {loading ? "Saving..." : "Save Cover Letter"}
+                {coverLetterSaveStatus === 'saving' ? (
+                  "Saving..."
+                ) : coverLetterSaveStatus === 'saved' ? (
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Saved!</span>
+                  </div>
+                ) : (
+                  "Save Cover Letter"
+                )}
               </Button>
             </div>
           ) : (

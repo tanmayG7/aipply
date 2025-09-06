@@ -107,7 +107,11 @@ const EditProfile: React.FC = () => {
                 {editingStates.profile ? 'View Mode' : 'Edit Mode'}
               </button>
             </div>
-            <ProfileForm isEditing={editingStates.profile} userDetails={userDetails} />
+            <ProfileForm 
+              isEditing={editingStates.profile} 
+              userDetails={userDetails} 
+              onExitEditMode={() => toggleEditing('profile')}
+            />
           </>
         );
 
@@ -144,7 +148,11 @@ const EditProfile: React.FC = () => {
                 {editingStates.preferences ? 'View Mode' : 'Edit Mode'}
               </button>
             </div>
-            <PreferenceForm isEditing={editingStates.preferences} userDetails={userDetails} />
+            <PreferenceForm 
+              isEditing={editingStates.preferences} 
+              userDetails={userDetails} 
+              onExitEditMode={() => toggleEditing('preferences')}
+            />
           </>
         );
 
@@ -160,7 +168,11 @@ const EditProfile: React.FC = () => {
                 {editingStates.documents ? 'View Mode' : 'Edit Mode'}
               </button>
             </div>
-            <UploadCv isEditing={editingStates.documents} userDetails={userDetails} />
+            <UploadCv 
+              isEditing={editingStates.documents} 
+              userDetails={userDetails} 
+              onExitEditMode={() => toggleEditing('documents')}
+            />
           </>
         );
 
