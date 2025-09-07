@@ -1,6 +1,6 @@
 import * as React from "react";
 import { LogOut, Settings, ChevronRight, Edit3, Crown, Zap, Star } from "lucide-react";
-import { auth, getUserProfile, getUserSubscription } from "@/lib/firebaseConfig/firebaseConfig";
+import { auth, getUserProfile, checkSubscriptionStatus } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
 import { UserDetails, UserSubscription } from "@/lib/types";
@@ -105,18 +105,21 @@ const NavLink = ({
 
 // Premium CTA Button Component
 const PremiumCTAButton: React.FC<{
-  userSubscription?: UserSubscription;
+  subscriptionStatus?: 'free' | 'premium' | 'grace_period';
   isMobile: boolean;
-}> = ({ userSubscription, isMobile }) => {
+}> = ({ subscriptionStatus, isMobile }) => {
   const router = useRouter();
-  const isPremium = userSubscription?.subscriptionStatus === 'premium';
+  const isPremium = subscriptionStatus === 'premium' || subscriptionStatus === 'grace_period';
+  
+  // Debug logging
+  console.log('🎯 CTA Button - Subscription Status:', subscriptionStatus, 'isPremium:', isPremium);
   
   const handleClick = () => {
     if (isPremium) {
-      // Navigate to manage subscription
+      console.log('🔧 Navigating to subscription management');
       router.push('/dashboard/subscription');
     } else {
-      // Navigate to pricing page
+      console.log('💰 Navigating to pricing page');
       router.push('/pricing');
     }
   };
@@ -194,37 +197,46 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     lastName: string;
     email: string;
     profileImage: string;
-    subscription?: UserSubscription;
+    subscriptionStatus?: 'free' | 'premium' | 'grace_period';
   } | null>(null);
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          // Fetch user profile and subscription data separately
-          const [profile, subscription] = await Promise.all([
+          console.log('🔄 Fetching user profile and subscription status for:', user.email);
+          
+          // Fetch user profile and effective subscription status
+          const [profile, effectiveStatus] = await Promise.all([
             getUserProfile(user.uid),
-            getUserSubscription(user.uid)
+            checkSubscriptionStatus(user.uid)
           ]);
+
+          console.log('📊 User subscription status:', effectiveStatus);
 
           setUserProfile({
             firstName: profile.firstName || "",
             lastName: profile.lastName || "",
             email: profile.email || "",
             profileImage: profile.uploadFile || "",
-            subscription: subscription,
+            subscriptionStatus: effectiveStatus,
           });
         } catch (error) {
-          console.error('Error fetching user data:', error);
+          console.error('❌ Error fetching user data:', error);
           // Set profile without subscription if there's an error
-          const profile = await getUserProfile(user.uid);
-          setUserProfile({
-            firstName: profile.firstName || "",
-            lastName: profile.lastName || "",
-            email: profile.email || "",
-            profileImage: profile.uploadFile || "",
-            subscription: undefined,
-          });
+          try {
+            const profile = await getUserProfile(user.uid);
+            setUserProfile({
+              firstName: profile.firstName || "",
+              lastName: profile.lastName || "",
+              email: profile.email || "",
+              profileImage: profile.uploadFile || "",
+              subscriptionStatus: 'free', // Default to free on error
+            });
+          } catch (profileError) {
+            console.error('❌ Error fetching profile:', profileError);
+            setUserProfile(null);
+          }
         }
       } else {
         setUserProfile(null);
@@ -359,7 +371,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {/* Premium CTA Button */}
           <div className={`flex absolute ${isMobile ? 'bottom-16' : 'bottom-20'} w-[90%]`}>
             <PremiumCTAButton 
-              userSubscription={userProfile?.subscription} 
+              subscriptionStatus={userProfile?.subscriptionStatus} 
               isMobile={isMobile}
             />
           </div>
