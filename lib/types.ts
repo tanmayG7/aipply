@@ -77,6 +77,7 @@ export interface UserDetails {
   lastName?: string;
   phone?: string;
   platformCredentials?: PlatformCredentialsData;
+  subscription?: UserSubscription;
 }
 
 export interface DashboardData {
