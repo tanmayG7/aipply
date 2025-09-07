@@ -125,23 +125,23 @@ const PremiumCTAButton: React.FC<{
     return (
       <button
         onClick={handleClick}
-        className={`w-full ${isMobile ? 'p-3' : 'p-4'} rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl group`}
+        className={`w-full ${isMobile ? 'p-3' : 'p-4'} rounded-lg border border-gray-600/50 bg-gray-800/30 hover:bg-gray-700/40 hover:border-gray-500/60 transition-all duration-200 group`}
       >
-        <div className="flex items-center justify-between text-white">
+        <div className="flex items-center justify-between text-gray-300 group-hover:text-white">
           <div className="flex items-center gap-3">
-            <div className={`${isMobile ? 'p-1.5' : 'p-2'} bg-white/20 rounded-lg backdrop-blur-sm`}>
-              <Crown className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-white`} />
+            <div className={`${isMobile ? 'p-1.5' : 'p-2'} bg-gray-700/50 rounded-md`}>
+              <Settings className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-gray-400 group-hover:text-gray-300`} />
             </div>
             <div className="text-left">
-              <p className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold leading-tight`}>
-                Premium Active
+              <p className={`${isMobile ? 'text-sm' : 'text-base'} font-medium leading-tight`}>
+                Manage Subscription
               </p>
-              <p className={`${isMobile ? 'text-xs' : 'text-sm'} opacity-90 leading-tight`}>
-                Manage Plan
+              <p className={`${isMobile ? 'text-xs' : 'text-sm'} opacity-70 leading-tight`}>
+                Premium Plan
               </p>
             </div>
           </div>
-          <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} group-hover:translate-x-1 transition-transform duration-300`} />
+          <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200`} />
         </div>
       </button>
     );
@@ -167,7 +167,7 @@ const PremiumCTAButton: React.FC<{
           </div>
           <div className="text-left">
             <p className={`${isMobile ? 'text-sm' : 'text-base'} font-bold leading-tight group-hover:text-yellow-200 transition-colors duration-300`}>
-              Upgrade to Pro
+              Upgrade to Premium
             </p>
             <p className={`${isMobile ? 'text-xs' : 'text-sm'} opacity-90 leading-tight group-hover:opacity-100 transition-opacity duration-300`}>
               Unlimited Auto-Apply
