@@ -148,7 +148,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       <AboutSection userDetails={userDetails} isEditing={isEditing} onExitEditMode={onExitEditMode} onRefresh={onRefresh} />
 
       {(isEditing || userDetails.socialMediaLinks) && (
-        <SocialMediaLinks isEditing={isEditing} userDetails={userDetails} />
+        <SocialMediaLinks isEditing={isEditing} userDetails={userDetails} onExitEditMode={onExitEditMode} onRefresh={onRefresh} />
       )}
 
       {(isEditing || (workExperiences && workExperiences.length > 0)) && (

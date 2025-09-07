@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth, saveUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { Button } from "@/components/ui/button";
 import { UserDetails } from "@/lib/types";
@@ -16,16 +16,21 @@ import {
   LucideLinkedin,
   LucideTwitter,
   LucideGlobe,
+  CheckCircle2,
 } from "lucide-react";
 
 interface SocialMediaLinksProps {
   isEditing: boolean;
   userDetails: UserDetails;
+  onExitEditMode?: () => void;
+  onRefresh?: () => Promise<void>;
 }
 
 const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   isEditing,
   userDetails,
+  onExitEditMode,
+  onRefresh,
 }) => {
   const [socialMediaLinks, setSocialMediaLinks] = useState({
     website: userDetails.socialMediaLinks?.website || "",
@@ -33,6 +38,27 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
     github: userDetails.socialMediaLinks?.github || "",
     twitter: userDetails.socialMediaLinks?.twitter || "",
   });
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+
+  // Update social media links when userDetails change
+  useEffect(() => {
+    setSocialMediaLinks({
+      website: userDetails.socialMediaLinks?.website || "",
+      linkedin: userDetails.socialMediaLinks?.linkedin || "",
+      github: userDetails.socialMediaLinks?.github || "",
+      twitter: userDetails.socialMediaLinks?.twitter || "",
+    });
+  }, [userDetails]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [timeoutId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -44,19 +70,47 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = auth.currentUser;
-    if (user) {
+    
+    // Prevent double-clicks
+    if (saveStatus !== 'idle') return;
+    
+    setSaveStatus('saving');
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert('Please log in to save your social profiles.');
+        setSaveStatus('idle');
+        return;
+      }
+      
       const userDetails = {
         socialMediaLinks,
       };
       await saveUserProfile(user.uid, userDetails);
+      
+      // Refresh parent component data
+      if (onRefresh) {
+        await onRefresh();
+      }
+      
+      setSaveStatus('saved');
+      
+      // Show success state for 2 seconds then exit edit mode
+      const newTimeoutId = setTimeout(() => {
+        setSaveStatus('idle');
+        if (onExitEditMode) {
+          onExitEditMode();
+        }
+      }, 2000);
+      setTimeoutId(newTimeoutId);
+      
+    } catch (error: any) {
+      console.error('Error saving social profiles:', error);
+      setSaveStatus('idle');
+      
+      const errorMessage = error?.message || 'Unknown error occurred';
+      alert(`Failed to save social profiles: ${errorMessage}. Please try again.`);
     }
-    setSocialMediaLinks({
-      website: "",
-      linkedin: "",
-      github: "",
-      twitter: "",
-    });
   };
 
   return (
@@ -123,10 +177,24 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
             </div>
             <div className="flex gap-4">
               <Button
-                className="w-fit px-8 bg-transparent text-white border border-[#84849a]"
                 onClick={handleSave}
+                disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+                className={`w-fit px-8 text-white transition-colors ${
+                  saveStatus === 'saved' 
+                    ? 'bg-green-600 border-green-600 cursor-not-allowed' 
+                    : 'bg-transparent border border-gray'
+                }`}
               >
-                Save
+                {saveStatus === 'saving' ? (
+                  "Saving..."
+                ) : saveStatus === 'saved' ? (
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Saved!</span>
+                  </div>
+                ) : (
+                  "Save"
+                )}
               </Button>
             </div>
           </CardContent>
