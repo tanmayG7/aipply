@@ -111,6 +111,12 @@ const PremiumCTAButton: React.FC<{
   const router = useRouter();
   const isPremium = subscriptionStatus === 'premium' || subscriptionStatus === 'grace_period';
   
+  // Current discount info from pricing page (monthly plan default)
+  // Monthly: 66% OFF (₹666 from ₹1998) - matches pricing page default selection
+  // Update this when promotional pricing changes
+  const currentDiscount = '66% OFF';
+  const hasActiveDiscount = true; // Set to false when no discount is active
+  
   // Debug logging
   console.log('🎯 CTA Button - Subscription Status:', subscriptionStatus, 'isPremium:', isPremium);
   
@@ -179,9 +185,9 @@ const PremiumCTAButton: React.FC<{
         </div>
         <div className="flex flex-col items-center">
           <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} group-hover:translate-x-1 transition-transform duration-300`} />
-          {!isMobile && (
+          {!isMobile && hasActiveDiscount && (
             <div className="text-xs bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent font-bold animate-pulse">
-              50% OFF
+              {currentDiscount}
             </div>
           )}
         </div>
