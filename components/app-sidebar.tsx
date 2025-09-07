@@ -1,8 +1,9 @@
 import * as React from "react";
-import { LogOut, Settings, ChevronRight, Edit3 } from "lucide-react";
+import { LogOut, Settings, ChevronRight, Edit3, Crown, Zap, Star } from "lucide-react";
 import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
+import { UserDetails, UserSubscription } from "@/lib/types";
 
 import {
   Sidebar,
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserIcon } from "@heroicons/react/24/solid";
 
@@ -102,6 +103,90 @@ const NavLink = ({
   );
 };
 
+// Premium CTA Button Component
+const PremiumCTAButton: React.FC<{
+  userSubscription?: UserSubscription;
+  isMobile: boolean;
+}> = ({ userSubscription, isMobile }) => {
+  const router = useRouter();
+  const isPremium = userSubscription?.subscriptionStatus === 'premium';
+  
+  const handleClick = () => {
+    if (isPremium) {
+      // Navigate to manage subscription
+      router.push('/dashboard/subscription');
+    } else {
+      // Navigate to pricing page
+      router.push('/pricing');
+    }
+  };
+
+  if (isPremium) {
+    return (
+      <button
+        onClick={handleClick}
+        className={`w-full ${isMobile ? 'p-3' : 'p-4'} rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl group`}
+      >
+        <div className="flex items-center justify-between text-white">
+          <div className="flex items-center gap-3">
+            <div className={`${isMobile ? 'p-1.5' : 'p-2'} bg-white/20 rounded-lg backdrop-blur-sm`}>
+              <Crown className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-white`} />
+            </div>
+            <div className="text-left">
+              <p className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold leading-tight`}>
+                Premium Active
+              </p>
+              <p className={`${isMobile ? 'text-xs' : 'text-sm'} opacity-90 leading-tight`}>
+                Manage Plan
+              </p>
+            </div>
+          </div>
+          <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} group-hover:translate-x-1 transition-transform duration-300`} />
+        </div>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      className={`w-full ${isMobile ? 'p-3' : 'p-4'} rounded-xl bg-gradient-to-br from-purple-600 via-violet-600 to-purple-700 hover:from-purple-700 hover:via-violet-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl group relative overflow-hidden`}
+    >
+      {/* Animated background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+      
+      {/* Sparkle effect */}
+      <div className="absolute top-2 right-2 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+        <Star className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-yellow-300 animate-pulse`} />
+      </div>
+      
+      <div className="relative flex items-center justify-between text-white">
+        <div className="flex items-center gap-3">
+          <div className={`${isMobile ? 'p-1.5' : 'p-2'} bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg shadow-lg group-hover:rotate-12 transition-transform duration-300`}>
+            <Zap className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-white`} />
+          </div>
+          <div className="text-left">
+            <p className={`${isMobile ? 'text-sm' : 'text-base'} font-bold leading-tight group-hover:text-yellow-200 transition-colors duration-300`}>
+              Upgrade to Pro
+            </p>
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} opacity-90 leading-tight group-hover:opacity-100 transition-opacity duration-300`}>
+              Unlimited Auto-Apply
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center">
+          <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} group-hover:translate-x-1 transition-transform duration-300`} />
+          {!isMobile && (
+            <div className="text-xs bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent font-bold animate-pulse">
+              50% OFF
+            </div>
+          )}
+        </div>
+      </div>
+    </button>
+  );
+};
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isMobile = useIsMobile();
   const [userProfile, setUserProfile] = React.useState<{
@@ -109,6 +194,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     lastName: string;
     email: string;
     profileImage: string;
+    subscription?: UserSubscription;
   } | null>(null);
 
   React.useEffect(() => {
@@ -121,6 +207,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           lastName: profile.lastName || "",
           email: profile.email || "",
           profileImage: profile.uploadFile || "",
+          subscription: profile.subscription,
         });
       }
     });
@@ -249,6 +336,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ))}
             </SidebarMenu>
           </SidebarGroup>
+          
+          {/* Premium CTA Button */}
+          <div className={`flex absolute ${isMobile ? 'bottom-16' : 'bottom-20'} w-[90%]`}>
+            <PremiumCTAButton 
+              userSubscription={userProfile?.subscription} 
+              isMobile={isMobile}
+            />
+          </div>
+          
           <SidebarMenu className={`flex absolute ${isMobile ? 'bottom-4' : 'bottom-6'} w-[90%] rounded ${isMobile ? 'py-1' : 'py-2'} hover:bg-white hover:text-black text-[#CECFD2]`}>
             <button
               onClick={handleLogout}
