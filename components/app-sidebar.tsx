@@ -1,6 +1,6 @@
 import * as React from "react";
 import { LogOut, Settings, ChevronRight, Edit3, Crown, Zap, Star } from "lucide-react";
-import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
+import { auth, getUserProfile, getUserSubscription } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
 import { UserDetails, UserSubscription } from "@/lib/types";
@@ -200,15 +200,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const profile = await getUserProfile(user.uid);
+        try {
+          // Fetch user profile and subscription data separately
+          const [profile, subscription] = await Promise.all([
+            getUserProfile(user.uid),
+            getUserSubscription(user.uid)
+          ]);
 
-        setUserProfile({
-          firstName: profile.firstName || "",
-          lastName: profile.lastName || "",
-          email: profile.email || "",
-          profileImage: profile.uploadFile || "",
-          subscription: profile.subscription,
-        });
+          setUserProfile({
+            firstName: profile.firstName || "",
+            lastName: profile.lastName || "",
+            email: profile.email || "",
+            profileImage: profile.uploadFile || "",
+            subscription: subscription,
+          });
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          // Set profile without subscription if there's an error
+          const profile = await getUserProfile(user.uid);
+          setUserProfile({
+            firstName: profile.firstName || "",
+            lastName: profile.lastName || "",
+            email: profile.email || "",
+            profileImage: profile.uploadFile || "",
+            subscription: undefined,
+          });
+        }
+      } else {
+        setUserProfile(null);
       }
     });
 
