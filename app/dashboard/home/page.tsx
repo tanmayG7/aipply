@@ -13,6 +13,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
+import HeroSection from "@/components/ui/hero-section";
 import {
   auth,
   getDashboardData,
@@ -367,14 +368,19 @@ const HomePage: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="w-full lg:w-[50%]">
-                    <GetStartedCard
-                      appliedJoblength={
-                        dashboardData?.jobsApplied
-                          ? parseInt(dashboardData.jobsApplied.toString())
-                          : 0
-                      }
-                    />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                    <div className="w-full">
+                      <GetStartedCard
+                        appliedJoblength={
+                          dashboardData?.jobsApplied
+                            ? parseInt(dashboardData.jobsApplied.toString())
+                            : 0
+                        }
+                      />
+                    </div>
+                    <div className="w-full">
+                      <HeroSection />
+                    </div>
                   </div>
 
                   {/* Manual Jobs Applied Cards - Always shown */}
