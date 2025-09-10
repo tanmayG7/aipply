@@ -289,7 +289,7 @@ const QuarterlyComponent = () => {
               />
               <CheckPointscard
                 imageUrl={"/static/icons/checkpoint.svg"}
-                text="Auto Apply (100 jobs/month)"
+                text="Auto Apply (600 jobs/month)"
                 opacity={true}
               />
               <CheckPointscard
