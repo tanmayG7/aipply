@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Button Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #020218; color: white; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #333; border-radius: 8px; }
+        .debug-button { 
+            background: #6033F5; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            margin: 5px;
+            cursor: pointer;
+        }
+        .debug-button:hover { background: #6033F8; }
+        .result { margin: 10px 0; padding: 10px; background: #1a1a2e; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Button Functionality Debug Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Basic Button Click Test</h2>
+        <button class="debug-button" onclick="testBasicClick()">Test Basic Click</button>
+        <div id="basic-result" class="result">Click the button above to test basic JavaScript functionality</div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Navigation Test</h2>
+        <button class="debug-button" onclick="testNavigation()">Test Navigation</button>
+        <div id="nav-result" class="result">Click to test if navigation works</div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Console Log Test</h2>
+        <button class="debug-button" onclick="testConsole()">Test Console Logging</button>
+        <div id="console-result" class="result">Check browser console for output</div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Firebase Config Test</h2>
+        <button class="debug-button" onclick="testFirebase()">Test Firebase Config</button>
+        <div id="firebase-result" class="result">Testing Firebase configuration...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Your App Tests</h2>
+        <a href="http://localhost:3000" target="_blank">
+            <button class="debug-button">Open Your App (Homepage)</button>
+        </a>
+        <a href="http://localhost:3000/dashboard/onboarding/login" target="_blank">
+            <button class="debug-button">Open Login Page</button>
+        </a>
+    </div>
+
+    <script>
+        function testBasicClick() {
+            document.getElementById('basic-result').innerHTML = 
+                '✅ JavaScript is working! Time: ' + new Date().toLocaleTimeString();
+        }
+
+        function testNavigation() {
+            try {
+                // Test if window.location works
+                const currentUrl = window.location.href;
+                document.getElementById('nav-result').innerHTML = 
+                    '✅ Navigation API working. Current URL: ' + currentUrl;
+            } catch (error) {
+                document.getElementById('nav-result').innerHTML = 
+                    '❌ Navigation error: ' + error.message;
+            }
+        }
+
+        function testConsole() {
+            console.log('🧪 Console test successful!');
+            console.error('🧪 This is a test error (ignore this)');
+            document.getElementById('console-result').innerHTML = 
+                '✅ Console commands executed. Check browser console (F12 → Console tab)';
+        }
+
+        function testFirebase() {
+            const result = document.getElementById('firebase-result');
+            
+            // Test if Firebase environment variables would be available
+            const testConfig = {
+                apiKey: 'test-key',
+                authDomain: 'test-domain',
+                projectId: 'test-project'
+            };
+            
+            try {
+                // Simulate what your app does
+                if (typeof fetch !== 'undefined') {
+                    result.innerHTML = '✅ Fetch API available (needed for Firebase)';
+                } else {
+                    result.innerHTML = '❌ Fetch API not available';
+                }
+            } catch (error) {
+                result.innerHTML = '❌ Error testing Firebase requirements: ' + error.message;
+            }
+        }
+
+        // Auto-run basic test
+        window.onload = function() {
+            testBasicClick();
+        };
+
+        // Log any errors
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('🚨 JavaScript Error:', { msg, url, lineNo, columnNo, error });
+            return false;
+        };
+    </script>
+</body>
+</html>
