@@ -14,7 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import Image from "next/image";
-import { authenticateUser } from "@/lib/firebaseConfig/firebaseConfig";
+import { 
+  authenticateUser, 
+  checkEmailSignInMethods,
+  setupPasswordForGoogleAccount 
+} from "@/lib/firebaseConfig/firebaseConfig";
 import { useRouter } from "next/navigation";
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -34,10 +38,56 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const router = useRouter();
   const [error, setError] = useState(errorText);
+  const [showPasswordSetup, setShowPasswordSetup] = useState(false);
+  const [emailMethods, setEmailMethods] = useState<{
+    hasPassword: boolean;
+    hasGoogle: boolean;
+    exists: boolean;
+  }>({ hasPassword: false, hasGoogle: false, exists: false });
+
+  const handleEmailBlur = async () => {
+    if (email && email.includes('@')) {
+      try {
+        const methods = await checkEmailSignInMethods(email);
+        setEmailMethods(methods);
+        
+        // Reset password setup form when email changes
+        setShowPasswordSetup(false);
+        setError("");
+      } catch (error: any) {
+        console.error("Error checking email methods:", error);
+      }
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     onLogin(email, password);
+  };
+
+  const handlePasswordSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password || password.length < 6) {
+      setError("Password should be at least 6 characters");
+      return;
+    }
+
+    try {
+      // First sign in with Google to get user context
+      await authenticateUser("", "", (path: string) => {
+        // Don't navigate yet, we'll handle it after password setup
+      }, true, setError);
+
+      // Then setup password
+      await setupPasswordForGoogleAccount(password);
+      setError("");
+      setShowPasswordSetup(false);
+      
+      // Now navigate to dashboard
+      router.push("/dashboard/home");
+    } catch (error: any) {
+      setError(error.message);
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -92,6 +142,7 @@ export function LoginForm({
                     placeholder="Enter your Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onBlur={handleEmailBlur}
                     required
                   />
                 </div>
@@ -112,6 +163,77 @@ export function LoginForm({
                   />
                 </div>
 
+                {/* Authentication method guidance */}
+                {emailMethods.exists && (
+                  <div className="text-sm text-[#94969C] bg-[#1a1a2e] p-3 rounded-md">
+                    {emailMethods.hasGoogle && emailMethods.hasPassword ? (
+                      <p>✅ You can sign in with either email/password or Google</p>
+                    ) : emailMethods.hasGoogle && !emailMethods.hasPassword ? (
+                      <div>
+                        <p>🔍 This email is registered with Google only</p>
+                        <p className="mt-1">
+                          You can{" "}
+                          <button
+                            type="button"
+                            className="text-blue-400 underline"
+                            onClick={() => setShowPasswordSetup(true)}
+                          >
+                            set up a password
+                          </button>{" "}
+                          or use "Sign in with Google" below
+                        </p>
+                      </div>
+                    ) : emailMethods.hasPassword && !emailMethods.hasGoogle ? (
+                      <p>🔑 This email uses password authentication</p>
+                    ) : null}
+                  </div>
+                )}
+
+                {/* Password setup form for Google-only accounts */}
+                {showPasswordSetup && (
+                  <div className="bg-[#2a2a3e] p-4 rounded-md border border-[#333741]">
+                    <form onSubmit={handlePasswordSetup} className="flex flex-col gap-4">
+                      <h3 className="text-white font-semibold">Set up password for your account</h3>
+                      <p className="text-sm text-[#94969C]">
+                        You'll be able to sign in with either Google or email/password after this.
+                      </p>
+                      <div className="grid gap-2">
+                        <Label htmlFor="setupPassword" className="text-[#CECFD2]">
+                          New Password
+                        </Label>
+                        <Input
+                          id="setupPassword"
+                          type="password"
+                          placeholder="Enter your new password (min 6 characters)"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          type="submit" 
+                          size="sm"
+                          disabled={loading || !password || password.length < 6}
+                        >
+                          Set up password
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setShowPasswordSetup(false);
+                            setPassword("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
                 <div className="flex flex-row justify-between">
                   <a
                     href="#"
@@ -122,9 +244,12 @@ export function LoginForm({
                 </div>
 
                 {error && <p className="text-red-500 text-sm">{error}</p>}
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Signing in..." : "Sign in"}
-                </Button>
+                
+                {!showPasswordSetup && (
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Signing in..." : "Sign in"}
+                  </Button>
+                )}
               </div>
             </div>
           </form>

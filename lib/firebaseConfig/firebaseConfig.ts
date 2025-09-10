@@ -17,6 +17,12 @@ import {
   browserLocalPersistence,
   signOut,
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
+  linkWithPopup,
+  EmailAuthProvider,
+  updatePassword,
+  reauthenticateWithPopup,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -575,6 +581,83 @@ const checkAuthToken = (navigate: (path: string) => void) => {
   });
 };
 
+// ========== UNIFIED AUTHENTICATION SYSTEM ==========
+
+// Check what sign-in methods are available for an email
+const checkEmailSignInMethods = async (email: string) => {
+  try {
+    const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+    return {
+      hasPassword: signInMethods.includes("password"),
+      hasGoogle: signInMethods.includes("google.com"),
+      methods: signInMethods,
+      exists: signInMethods.length > 0
+    };
+  } catch (error) {
+    console.error("Error checking email methods:", error);
+    return { hasPassword: false, hasGoogle: false, methods: [], exists: false };
+  }
+};
+
+// Link email/password to existing Google account
+const linkEmailPasswordToAccount = async (email: string, password: string) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user is currently signed in");
+  
+  try {
+    const credential = EmailAuthProvider.credential(email, password);
+    await linkWithCredential(user, credential);
+    return { success: true, message: "Email/password linked successfully" };
+  } catch (error: any) {
+    if (error.code === "auth/credential-already-in-use") {
+      throw new Error("This email is already in use with another account");
+    } else if (error.code === "auth/email-already-in-use") {
+      throw new Error("This email is already associated with another account");
+    } else if (error.code === "auth/weak-password") {
+      throw new Error("Password should be at least 6 characters");
+    }
+    throw new Error(error.message);
+  }
+};
+
+// Link Google account to existing email/password account
+const linkGoogleToAccount = async () => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user is currently signed in");
+  
+  try {
+    await linkWithPopup(user, provider);
+    return { success: true, message: "Google account linked successfully" };
+  } catch (error: any) {
+    if (error.code === "auth/credential-already-in-use") {
+      throw new Error("This Google account is already linked to another user");
+    } else if (error.code === "auth/popup-closed-by-user") {
+      throw new Error("Google sign-in was cancelled");
+    }
+    throw new Error(error.message);
+  }
+};
+
+// Setup password for Google-only accounts
+const setupPasswordForGoogleAccount = async (password: string) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user is currently signed in");
+  
+  try {
+    const credential = EmailAuthProvider.credential(user.email!, password);
+    await linkWithCredential(user, credential);
+    return { success: true, message: "Password set up successfully" };
+  } catch (error: any) {
+    if (error.code === "auth/weak-password") {
+      throw new Error("Password should be at least 6 characters");
+    } else if (error.code === "auth/credential-already-in-use") {
+      throw new Error("This email already has a password set up");
+    }
+    throw new Error(error.message);
+  }
+};
+
+// Enhanced unified authentication function
 const authenticateUser = async (
   email: string,
   password: string,
@@ -586,42 +669,50 @@ const authenticateUser = async (
     let userCredential;
 
     if (isGoogleSignIn) {
+      // Google Sign-in
       userCredential = await signInWithPopup(auth, provider);
     } else {
-      try {
-        // Attempt to create a new user
-        userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+      // Email/Password flow
+      const emailMethods = await checkEmailSignInMethods(email);
+      
+      if (!emailMethods.exists) {
+        // Email doesn't exist, create new account
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // New user - redirect to profile setup
+        const user = userCredential.user;
+        const token = await user.getIdToken();
+        localStorage.setItem("firebaseToken", token);
         navigate("/dashboard/onboarding/profile-setup");
-        return userCredential.user;
-      } catch (error: any) {
-        if (error.code === "auth/email-already-in-use") {
-          // Email already exists, attempt to sign in
-          try {
-            userCredential = await signInWithEmailAndPassword(
-              auth,
-              email,
-              password
-            );
-          } catch (signInError: any) {
-            if (signInError.code === "auth/wrong-password") {
-              setError("Incorrect password. Please try again.");
-              throw new Error("Incorrect password");
-            } else {
-              setError(signInError.message);
-              throw new Error(signInError.message);
-            }
+        return user;
+        
+      } else if (emailMethods.hasPassword) {
+        // Email exists with password - try to sign in
+        try {
+          userCredential = await signInWithEmailAndPassword(auth, email, password);
+        } catch (signInError: any) {
+          if (signInError.code === "auth/wrong-password") {
+            setError("Incorrect password. Please try again.");
+            throw new Error("Incorrect password");
+          } else {
+            setError(signInError.message);
+            throw new Error(signInError.message);
           }
-        } else {
-          setError(error.message);
-          throw new Error(error.message);
         }
+        
+      } else if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
+        // Email exists with Google only - offer to set up password
+        setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password below.");
+        throw new Error("GOOGLE_ONLY_ACCOUNT");
+        
+      } else {
+        // Unknown state
+        setError("Unable to determine authentication method for this email.");
+        throw new Error("Unknown authentication state");
       }
     }
 
+    // Common post-authentication logic
     const user = userCredential.user;
     const token = await user.getIdToken();
     localStorage.setItem("firebaseToken", token);
@@ -632,10 +723,14 @@ const authenticateUser = async (
     } else {
       navigate("/dashboard/onboarding/profile-setup");
     }
+    
     return user;
   } catch (error: any) {
-    console.error(error);
-    throw new Error(error.message);
+    console.error("Authentication error:", error);
+    if (error.message !== "GOOGLE_ONLY_ACCOUNT") {
+      throw new Error(error.message);
+    }
+    throw error;
   }
 };
 
@@ -1808,6 +1903,7 @@ export {
   logoutUser,
   saveContactFormSubmission,
   getContactSubmissions,
+  
   // New subscription functions
   createUserSubscription,
   getUserSubscription,
@@ -1823,6 +1919,12 @@ export {
   deletePlatformCredential,
   encryptCredentialsForStorage,
   decryptCredentialsFromStorage,
+  
+  // New unified authentication functions
+  checkEmailSignInMethods,
+  linkEmailPasswordToAccount,
+  linkGoogleToAccount,
+  setupPasswordForGoogleAccount,
 };
 
 // Export types if needed elsewhere
