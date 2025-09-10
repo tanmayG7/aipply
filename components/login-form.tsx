@@ -48,7 +48,9 @@ export function LoginForm({
   const handleEmailBlur = async () => {
     if (email && email.includes('@')) {
       try {
+        console.log("🔍 Checking email methods for:", email);
         const methods = await checkEmailSignInMethods(email);
+        console.log("📧 Email methods detected:", methods);
         setEmailMethods(methods);
         
         // Reset password setup form when email changes
@@ -141,7 +143,12 @@ export function LoginForm({
                     type="email"
                     placeholder="Enter your Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      // Reset email methods when email changes
+                      setEmailMethods({ hasPassword: false, hasGoogle: false, exists: false });
+                      setShowPasswordSetup(false);
+                    }}
                     onBlur={handleEmailBlur}
                     required
                   />

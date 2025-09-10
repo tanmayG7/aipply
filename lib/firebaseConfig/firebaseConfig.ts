@@ -672,43 +672,17 @@ const authenticateUser = async (
       // Google Sign-in
       userCredential = await signInWithPopup(auth, provider);
     } else {
-      // Email/Password flow
-      const emailMethods = await checkEmailSignInMethods(email);
-      
-      if (!emailMethods.exists) {
-        // Email doesn't exist, create new account
-        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Email/Password flow - Try sign in first, then create account
+      try {
+        // First attempt: Try to sign in with existing account
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log("✅ Sign in successful for existing user");
+      } catch (signInError: any) {
+        console.log("📝 Sign in failed, checking error:", signInError.code);
         
-        // New user - redirect to profile setup
-        const user = userCredential.user;
-        const token = await user.getIdToken();
-        localStorage.setItem("firebaseToken", token);
-        navigate("/dashboard/onboarding/profile-setup");
-        return user;
-        
-      } else if (emailMethods.hasPassword) {
-        // Email exists with password - try to sign in
-        try {
-          userCredential = await signInWithEmailAndPassword(auth, email, password);
-        } catch (signInError: any) {
-          if (signInError.code === "auth/wrong-password") {
-            setError("Incorrect password. Please try again.");
-            throw new Error("Incorrect password");
-          } else {
-            setError(signInError.message);
-            throw new Error(signInError.message);
-          }
-        }
-        
-      } else if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
-        // Email exists with Google only - offer to set up password
-        setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password below.");
-        throw new Error("GOOGLE_ONLY_ACCOUNT");
-        
-      } else {
-        // Unknown state
-        setError("Unable to determine authentication method for this email.");
-        throw new Error("Unknown authentication state");
+        // Handle different sign-in errors
+        await handleSignInError(signInError, email, password, setError, navigate);
+        return; // Early return since handleSignInError will handle navigation
       }
     }
 
@@ -731,6 +705,75 @@ const authenticateUser = async (
       throw new Error(error.message);
     }
     throw error;
+  }
+};
+
+// Helper function to handle sign-in errors
+const handleSignInError = async (
+  signInError: any,
+  email: string,
+  password: string,
+  setError: (message: string) => void,
+  navigate: (path: string) => void
+) => {
+  if (signInError.code === "auth/user-not-found" || signInError.code === "auth/invalid-credential") {
+    // Could be: user doesn't exist OR wrong password OR Google-only account
+    const emailMethods = await checkEmailSignInMethods(email);
+    
+    if (!emailMethods.exists) {
+      // User doesn't exist, create new account
+      console.log("👤 Creating new user account");
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // New user - redirect to profile setup
+        const user = userCredential.user;
+        const token = await user.getIdToken();
+        localStorage.setItem("firebaseToken", token);
+        navigate("/dashboard/onboarding/profile-setup");
+        return user;
+      } catch (createError: any) {
+        if (createError.code === "auth/email-already-in-use") {
+          setError("An account with this email already exists. Please try signing in.");
+          throw new Error("Email already in use");
+        } else {
+          setError(createError.message);
+          throw new Error(createError.message);
+        }
+      }
+    } else if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
+      // Email exists with Google only
+      console.log("🔍 Google-only account detected");
+      setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password.");
+      throw new Error("GOOGLE_ONLY_ACCOUNT");
+    } else if (emailMethods.hasPassword) {
+      // Email exists with password, so it's wrong password
+      console.log("🔑 Wrong password for existing account");
+      setError("Incorrect password. Please try again.");
+      throw new Error("Incorrect password");
+    } else {
+      setError("Unable to sign in. Please check your credentials.");
+      throw new Error("Unknown authentication state");
+    }
+  } else if (signInError.code === "auth/wrong-password") {
+    setError("Incorrect password. Please try again.");
+    throw new Error("Incorrect password");
+  } else if (signInError.code === "auth/invalid-email") {
+    setError("Please enter a valid email address.");
+    throw new Error("Invalid email");
+  } else if (signInError.code === "auth/user-disabled") {
+    setError("This account has been disabled.");
+    throw new Error("Account disabled");
+  } else {
+    // Check if it's a Google-only account
+    const emailMethods = await checkEmailSignInMethods(email);
+    if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
+      setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password.");
+      throw new Error("GOOGLE_ONLY_ACCOUNT");
+    } else {
+      setError(signInError.message);
+      throw new Error(signInError.message);
+    }
   }
 };
 
@@ -1925,6 +1968,7 @@ export {
   linkEmailPasswordToAccount,
   linkGoogleToAccount,
   setupPasswordForGoogleAccount,
+  handleSignInError,
 };
 
 // Export types if needed elsewhere
