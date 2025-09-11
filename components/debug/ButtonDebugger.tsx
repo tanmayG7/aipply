@@ -44,7 +44,7 @@ export function ButtonDebugger() {
   const testRouterNavigation = () => {
     try {
       // Test if router is available
-      if (router && router.push) {
+      if (router) {
         addResult("Router Navigation", "success", "Next.js router is available and functional");
       } else {
         addResult("Router Navigation", "error", "Next.js router not available");

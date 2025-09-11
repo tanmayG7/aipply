@@ -7,8 +7,6 @@ import { LoginForm } from "@/components/login-form";
 import TestimonialsCard from "@/components/testimonialsCard/testimonialsCard";
 import { testimonials } from "@/lib/staticData";
 import Head from "next/head";
-import ButtonDebugger from "@/components/debug/ButtonDebugger";
-import EnvChecker from "@/components/debug/EnvChecker";
 
 export default function LoginPage() {
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
@@ -94,13 +92,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      
-      {/* Temporary debug section - remove after fixing */}
-      <div className="fixed top-4 left-4 z-50 max-w-sm">
-        <EnvChecker />
-      </div>
-      
-      <ButtonDebugger />
     </>
   );
 }
