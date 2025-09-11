@@ -754,6 +754,12 @@ const handleSignInError = async (
             console.log("🔗 Account has both Google and password - wrong password");
             setError("Incorrect password. Please try again.");
             throw new Error("Incorrect password");
+          } else if (!emailMethods.exists || emailMethods.methods.length === 0) {
+            // Firebase fetchSignInMethodsForEmail is unreliable for OAuth accounts
+            // If we get "email-already-in-use" but no methods detected, it's likely a Google account
+            console.log("🔧 Firebase API returned empty methods but email exists - assuming Google account");
+            setError("🔍 This email is registered with Google only");
+            throw new Error("GOOGLE_ONLY_ACCOUNT");
           } else {
             console.log("❓ Unknown email state:", emailMethods);
             setError("An account with this email already exists. Please try signing in.");
