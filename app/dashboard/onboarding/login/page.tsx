@@ -50,8 +50,7 @@ export default function LoginPage() {
       );
     } catch (error: any) {
       if (error.message === "GOOGLE_ONLY_ACCOUNT") {
-        // This error is already handled in the LoginForm component
-        // The user will see the option to set up a password
+        setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password below.");
       } else {
         setError(error.message);
       }

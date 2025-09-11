@@ -12,7 +12,7 @@ import {
 import Link from 'next/link';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { 
   authenticateUser, 
@@ -39,11 +39,21 @@ export function LoginForm({
   const router = useRouter();
   const [error, setError] = useState(errorText);
   const [showPasswordSetup, setShowPasswordSetup] = useState(false);
+  const [isGoogleOnlyAccount, setIsGoogleOnlyAccount] = useState(false);
   const [emailMethods, setEmailMethods] = useState<{
     hasPassword: boolean;
     hasGoogle: boolean;
     exists: boolean;
   }>({ hasPassword: false, hasGoogle: false, exists: false });
+
+  // Watch for error changes to detect GOOGLE_ONLY_ACCOUNT
+  useEffect(() => {
+    if (errorText && errorText.includes("Google")) {
+      setIsGoogleOnlyAccount(true);
+    } else {
+      setIsGoogleOnlyAccount(false);
+    }
+  }, [errorText]);
 
   const handleEmailBlur = async () => {
     if (email && email.includes('@')) {
@@ -64,6 +74,7 @@ export function LoginForm({
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsGoogleOnlyAccount(false);
     onLogin(email, password);
   };
 
@@ -171,11 +182,11 @@ export function LoginForm({
                 </div>
 
                 {/* Authentication method guidance */}
-                {emailMethods.exists && (
+                {(emailMethods.exists || isGoogleOnlyAccount) && (
                   <div className="text-sm text-[#94969C] bg-[#1a1a2e] p-3 rounded-md">
                     {emailMethods.hasGoogle && emailMethods.hasPassword ? (
                       <p>✅ You can sign in with either email/password or Google</p>
-                    ) : emailMethods.hasGoogle && !emailMethods.hasPassword ? (
+                    ) : (emailMethods.hasGoogle && !emailMethods.hasPassword) || isGoogleOnlyAccount ? (
                       <div>
                         <p>🔍 This email is registered with Google only</p>
                         <p className="mt-1">

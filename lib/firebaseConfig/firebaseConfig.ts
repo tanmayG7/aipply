@@ -734,8 +734,18 @@ const handleSignInError = async (
         return user;
       } catch (createError: any) {
         if (createError.code === "auth/email-already-in-use") {
-          setError("An account with this email already exists. Please try signing in.");
-          throw new Error("Email already in use");
+          // Email exists but createUserWithEmailAndPassword failed
+          // This means it's likely a Google-only account
+          console.log("🔍 Email already in use - checking for Google-only account");
+          const emailMethods = await checkEmailSignInMethods(email);
+          
+          if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
+            setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password below.");
+            throw new Error("GOOGLE_ONLY_ACCOUNT");
+          } else {
+            setError("An account with this email already exists. Please try signing in.");
+            throw new Error("Email already in use");
+          }
         } else {
           setError(createError.message);
           throw new Error(createError.message);
