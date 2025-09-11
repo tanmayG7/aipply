@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
+import { sendPasswordResetEmail } from "firebase/auth";
 import Image from "next/image";
 import { 
   authenticateUser, 
@@ -50,14 +51,20 @@ export function LoginForm({
   const [showPasswordSetup, setShowPasswordSetup] = useState(false);
   const [isGoogleOnlyAccount, setIsGoogleOnlyAccount] = useState(false);
   const [passwordSetupLoading, setPasswordSetupLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
   const [emailMethods, setEmailMethods] = useState<{
     hasPassword: boolean;
     hasGoogle: boolean;
     exists: boolean;
   }>({ hasPassword: false, hasGoogle: false, exists: false });
 
-  // Watch for error changes to detect GOOGLE_ONLY_ACCOUNT
+  // Watch for error changes to detect GOOGLE_ONLY_ACCOUNT and update local error state
   useEffect(() => {
+    // Update local error state when parent error changes
+    setError(errorText);
+    
     if (errorText && errorText.includes("Google")) {
       setIsGoogleOnlyAccount(true);
     } else {
@@ -168,6 +175,46 @@ export function LoginForm({
       );
     } catch (error: any) {
       setError(error.message);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError("Please enter your email address first.");
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setForgotPasswordLoading(true);
+    setError("");
+
+    try {
+      console.log("🔐 Sending password reset email to:", email);
+      await sendPasswordResetEmail(auth, email);
+      console.log("✅ Password reset email sent successfully");
+      
+      setForgotPasswordSuccess(true);
+      setError("");
+      setShowForgotPassword(false);
+      
+    } catch (error: any) {
+      console.error("❌ Password reset failed:", error);
+      
+      if (error.code === "auth/user-not-found") {
+        setError("No account found with this email address. Please check your email or create a new account.");
+      } else if (error.code === "auth/invalid-email") {
+        setError("Please enter a valid email address.");
+      } else if (error.code === "auth/too-many-requests") {
+        setError("Too many password reset attempts. Please try again later.");
+      } else {
+        setError("Failed to send password reset email. Please try again.");
+      }
+    } finally {
+      setForgotPasswordLoading(false);
     }
   };
 
@@ -320,17 +367,73 @@ export function LoginForm({
                 )}
 
                 <div className="flex flex-row justify-between">
-                  <a
-                    href="#"
-                    className="ml-auto text-text-sm-medium font-inter text-[#CECFD2] underline-offset-4"
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="ml-auto text-text-sm-medium font-inter text-[#CECFD2] underline-offset-4 hover:underline"
                   >
                     Forgot password?
-                  </a>
+                  </button>
                 </div>
 
+                {/* Success message for forgot password */}
+                {forgotPasswordSuccess && (
+                  <div className="p-3 bg-green-900 text-green-200 rounded-md text-sm">
+                    ✅ Password reset email sent! Please check your inbox and follow the instructions to reset your password.
+                  </div>
+                )}
+
+                {/* Error messages */}
                 {error && <p className="text-red-500 text-sm">{error}</p>}
+
+                {/* Forgot Password Modal */}
+                {showForgotPassword && (
+                  <div className="bg-[#2a2a3e] p-4 rounded-md border border-[#333741]">
+                    <div className="flex flex-col gap-4">
+                      <h3 className="text-white font-semibold">Reset your password</h3>
+                      <p className="text-sm text-[#94969C]">
+                        Enter your email address and we'll send you a link to reset your password.
+                      </p>
+                      <div className="grid gap-2">
+                        <Label htmlFor="resetEmail" className="text-[#CECFD2]">
+                          Email Address
+                        </Label>
+                        <Input
+                          id="resetEmail"
+                          type="email"
+                          placeholder="Enter your email address"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          disabled={forgotPasswordLoading}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={handleForgotPassword}
+                          size="sm"
+                          disabled={forgotPasswordLoading || !email}
+                        >
+                          {forgotPasswordLoading ? "Sending..." : "Send reset email"}
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setShowForgotPassword(false);
+                            setForgotPasswordSuccess(false);
+                            setError("");
+                          }}
+                          disabled={forgotPasswordLoading}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
-                {!showPasswordSetup && (
+                {!showPasswordSetup && !showForgotPassword && (
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Signing in..." : "Sign in"}
                   </Button>
