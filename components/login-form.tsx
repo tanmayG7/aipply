@@ -17,8 +17,17 @@ import Image from "next/image";
 import { 
   authenticateUser, 
   checkEmailSignInMethods,
-  setupPasswordForGoogleAccount 
+  setupPasswordForGoogleAccount,
+  auth,
+  provider,
+  firestore
 } from "@/lib/firebaseConfig/firebaseConfig";
+import { 
+  signInWithPopup, 
+  EmailAuthProvider, 
+  linkWithCredential 
+} from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -86,20 +95,46 @@ export function LoginForm({
     }
 
     try {
-      // First sign in with Google to get user context
-      await authenticateUser("", "", (path: string) => {
-        // Don't navigate yet, we'll handle it after password setup
-      }, true, setError);
-
-      // Then setup password
-      await setupPasswordForGoogleAccount(password);
+      console.log("🔐 Starting password setup for Google account");
+      
+      // First, sign in with Google to establish the user session
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+      
+      console.log("✅ Google sign-in successful, linking password...");
+      
+      // Now link the email/password credential to the existing Google account
+      const credential = EmailAuthProvider.credential(email, password);
+      await linkWithCredential(user, credential);
+      
+      console.log("✅ Password linked successfully!");
+      
+      // Store the token
+      const token = await user.getIdToken();
+      localStorage.setItem("firebaseToken", token);
+      
       setError("");
       setShowPasswordSetup(false);
       
-      // Now navigate to dashboard
-      router.push("/dashboard/home");
+      // Check if user has completed profile
+      const userDoc = await getDoc(doc(firestore, "users", user.uid));
+      if (userDoc.exists()) {
+        router.push("/dashboard/home");
+      } else {
+        router.push("/dashboard/onboarding/profile-setup");
+      }
+      
     } catch (error: any) {
-      setError(error.message);
+      console.error("❌ Password setup failed:", error);
+      if (error.code === "auth/credential-already-in-use") {
+        setError("This password is already associated with another account.");
+      } else if (error.code === "auth/weak-password") {
+        setError("Password should be at least 6 characters.");
+      } else if (error.code === "auth/popup-closed-by-user") {
+        setError("Google sign-in was cancelled. Please try again.");
+      } else {
+        setError(error.message);
+      }
     }
   };
 
