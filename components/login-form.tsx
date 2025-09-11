@@ -49,6 +49,7 @@ export function LoginForm({
   const [error, setError] = useState(errorText);
   const [showPasswordSetup, setShowPasswordSetup] = useState(false);
   const [isGoogleOnlyAccount, setIsGoogleOnlyAccount] = useState(false);
+  const [passwordSetupLoading, setPasswordSetupLoading] = useState(false);
   const [emailMethods, setEmailMethods] = useState<{
     hasPassword: boolean;
     hasGoogle: boolean;
@@ -87,12 +88,14 @@ export function LoginForm({
     onLogin(email, password);
   };
 
-  const handlePasswordSetup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePasswordSetup = async () => {
     if (!password || password.length < 6) {
       setError("Password should be at least 6 characters");
       return;
     }
+
+    setPasswordSetupLoading(true);
+    setError("");
 
     try {
       console.log("🔐 Starting password setup for Google account");
@@ -135,6 +138,8 @@ export function LoginForm({
       } else {
         setError(error.message);
       }
+    } finally {
+      setPasswordSetupLoading(false);
     }
   };
 
@@ -258,10 +263,10 @@ export function LoginForm({
                   </div>
                 )}
 
-                {/* Password setup form for Google-only accounts */}
+                {/* Password setup form for Google-only accounts - OUTSIDE main form to avoid nesting */}
                 {showPasswordSetup && (
                   <div className="bg-[#2a2a3e] p-4 rounded-md border border-[#333741]">
-                    <form onSubmit={handlePasswordSetup} className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4">
                       <h3 className="text-white font-semibold">Set up password for your account</h3>
                       <p className="text-sm text-[#94969C]">
                         You'll be able to sign in with either Google or email/password after this.
@@ -276,16 +281,15 @@ export function LoginForm({
                           placeholder="Enter your new password (min 6 characters)"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          required
                         />
                       </div>
                       <div className="flex gap-2">
                         <Button 
-                          type="submit" 
+                          onClick={handlePasswordSetup}
                           size="sm"
-                          disabled={loading || !password || password.length < 6}
+                          disabled={passwordSetupLoading || !password || password.length < 6}
                         >
-                          Set up password
+                          {passwordSetupLoading ? "Setting up..." : "Set up password"}
                         </Button>
                         <Button 
                           type="button" 
@@ -299,7 +303,7 @@ export function LoginForm({
                           Cancel
                         </Button>
                       </div>
-                    </form>
+                    </div>
                   </div>
                 )}
 
