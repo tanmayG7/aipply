@@ -586,15 +586,21 @@ const checkAuthToken = (navigate: (path: string) => void) => {
 // Check what sign-in methods are available for an email
 const checkEmailSignInMethods = async (email: string) => {
   try {
+    console.log("🔍 Checking sign-in methods for email:", email);
     const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-    return {
+    console.log("🔍 Raw Firebase signInMethods:", signInMethods);
+    
+    const result = {
       hasPassword: signInMethods.includes("password"),
       hasGoogle: signInMethods.includes("google.com"),
       methods: signInMethods,
       exists: signInMethods.length > 0
     };
+    
+    console.log("🔍 Processed result:", result);
+    return result;
   } catch (error) {
-    console.error("Error checking email methods:", error);
+    console.error("❌ Error checking email methods:", error);
     return { hasPassword: false, hasGoogle: false, methods: [], exists: false };
   }
 };
@@ -738,11 +744,18 @@ const handleSignInError = async (
           // This means it's likely a Google-only account
           console.log("🔍 Email already in use - checking for Google-only account");
           const emailMethods = await checkEmailSignInMethods(email);
+          console.log("📧 Email methods result:", emailMethods);
           
           if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
+            console.log("✅ Confirmed Google-only account - showing password setup");
             setError("🔍 This email is registered with Google only");
             throw new Error("GOOGLE_ONLY_ACCOUNT");
+          } else if (emailMethods.hasGoogle && emailMethods.hasPassword) {
+            console.log("🔗 Account has both Google and password - wrong password");
+            setError("Incorrect password. Please try again.");
+            throw new Error("Incorrect password");
           } else {
+            console.log("❓ Unknown email state:", emailMethods);
             setError("An account with this email already exists. Please try signing in.");
             throw new Error("Email already in use");
           }
