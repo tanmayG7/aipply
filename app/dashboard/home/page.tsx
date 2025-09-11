@@ -12,9 +12,9 @@ import {
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
-// import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
-// import HeroSection from "@/components/ui/hero-section";
-import DashboardHeroLayout from "@/components/ui/dashboard-hero-layout";
+import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
+import HeroSection from "@/components/ui/hero-section";
+import DashboardBentoGrid from "@/components/ui/dashboard-bento-grid";
 import {
   auth,
   getDashboardData,
@@ -110,7 +110,7 @@ const HomePage: React.FC = () => {
   const [autoAppliedStats, setAutoAppliedStats] =
     useState<AutoAppliedStats | null>(null);
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Add cron testing states
@@ -225,7 +225,7 @@ const HomePage: React.FC = () => {
   const fetchDashboardData = async (uid: string) => {
     try {
       debugLog("Fetching dashboard data", { uid });
-      // setLoading(true);
+      setLoading(true);
       setError(null);
 
       const data = await getDashboardData(uid);
@@ -277,7 +277,7 @@ const HomePage: React.FC = () => {
       debugLog("Error fetching auto-applied data", error);
       // Don't set error state for auto-applied data to avoid blocking the main dashboard
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -369,20 +369,44 @@ const HomePage: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Two-Column Layout with Bento Grid and Hero Section */}
-                  <DashboardHeroLayout 
-                    stats={{
-                      gettingStarted: dashboardData?.jobsApplied 
-                        ? Math.min(100, (parseInt(dashboardData.jobsApplied.toString()) / 10) * 100)
-                        : 0,
-                      totalJobsShown: dashboardData?.totalJobsShown || 0,
-                      jobsApplied: dashboardData?.jobsApplied 
-                        ? parseInt(dashboardData.jobsApplied.toString()) 
-                        : 0,
-                      averageExperience: dashboardData?.averageExperience || 0,
-                      averagePackage: dashboardData?.averagePackage || 0,
-                    }}
-                  />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                    <div className="w-full">
+                      <GetStartedCard
+                        appliedJoblength={
+                          dashboardData?.jobsApplied
+                            ? parseInt(dashboardData.jobsApplied.toString())
+                            : 0
+                        }
+                      />
+                    </div>
+                    <div className="w-full">
+                      <HeroSection />
+                    </div>
+                  </div>
+
+                  {/* Bento Grid Layout */}
+                  {dashboardData && (
+                    <div className="flex flex-col gap-4">
+                      <div className="text-center">
+                        <h2 className="font-inter text-[#ECECED] font-bold text-xl lg:text-2xl mb-2">
+                          Quick Stats Overview
+                        </h2>
+                        <p className="font-inter text-[#94969C] text-sm">
+                          Your job search metrics at a glance
+                        </p>
+                      </div>
+                      <DashboardBentoGrid 
+                        stats={{
+                          totalJobsShown: dashboardData.totalJobsShown || 0,
+                          jobsApplied: dashboardData.jobsApplied 
+                            ? parseInt(dashboardData.jobsApplied.toString()) 
+                            : 0,
+                          averageExperience: dashboardData.averageExperience || 0,
+                          averagePackage: dashboardData.averagePackage || 0,
+                        }}
+                      />
+                    </div>
+                  )}
 
                   {/* Manual Jobs Applied Cards - Always shown */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

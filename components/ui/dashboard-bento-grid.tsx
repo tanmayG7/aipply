@@ -12,7 +12,6 @@ import {
 } from "@tabler/icons-react";
 
 interface DashboardStats {
-  gettingStarted: number;
   totalJobsShown: number;
   jobsApplied: number;
   averageExperience: number;
@@ -25,22 +24,52 @@ interface DashboardBentoGridProps {
 
 export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
   return (
-    <BentoGrid className="max-w-4xl mx-auto">
-      {items(stats).map((item, i) => (
+    <div className="max-w-4xl mx-auto">
+      {/* Pentagon-like layout with 4 items */}
+      <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+        {/* Top item - spans 2 columns */}
+        <div className="col-span-2 flex justify-center">
+          <div className="w-40">
+            <BentoGridItem
+              title={items(stats)[0].title}
+              description={items(stats)[0].description}
+              header={items(stats)[0].header}
+              icon={items(stats)[0].icon}
+              className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200"
+            />
+          </div>
+        </div>
+        
+        {/* Bottom row - 2 items */}
         <BentoGridItem
-          key={i}
-          title={item.title}
-          description={item.description}
-          header={item.header}
-          icon={item.icon}
-          className={cn(
-            "border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative",
-            "shadow-sm hover:shadow-lg transition-all duration-200",
-            i === 3 || i === 4 ? "md:col-span-2" : ""
-          )}
+          title={items(stats)[1].title}
+          description={items(stats)[1].description}
+          header={items(stats)[1].header}
+          icon={items(stats)[1].icon}
+          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200"
         />
-      ))}
-    </BentoGrid>
+        <BentoGridItem
+          title={items(stats)[2].title}
+          description={items(stats)[2].description}
+          header={items(stats)[2].header}
+          icon={items(stats)[2].icon}
+          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200"
+        />
+        
+        {/* Bottom center - spans 2 columns */}
+        <div className="col-span-2 flex justify-center">
+          <div className="w-40">
+            <BentoGridItem
+              title={items(stats)[3].title}
+              description={items(stats)[3].description}
+              header={items(stats)[3].header}
+              icon={items(stats)[3].icon}
+              className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -54,23 +83,11 @@ const Skeleton = ({ children }: { children?: React.ReactNode }) => (
 
 const items = (stats: DashboardStats) => [
   {
-    title: "Getting Started",
-    description: `${stats.gettingStarted}% profile completion`,
-    header: (
-      <Skeleton>
-        <div className="text-3xl font-bold text-white">
-          {stats.gettingStarted}%
-        </div>
-      </Skeleton>
-    ),
-    icon: <IconTrendingUp className="h-4 w-4 text-neutral-500" />,
-  },
-  {
     title: "Total Jobs Shown",
     description: "Available positions in your feed",
     header: (
       <Skeleton>
-        <div className="text-3xl font-bold text-white">
+        <div className="text-2xl font-bold text-white">
           {stats.totalJobsShown.toLocaleString()}
         </div>
       </Skeleton>
@@ -82,7 +99,7 @@ const items = (stats: DashboardStats) => [
     description: "Your total applications submitted",
     header: (
       <Skeleton>
-        <div className="text-3xl font-bold text-white">
+        <div className="text-2xl font-bold text-white">
           {stats.jobsApplied}
         </div>
       </Skeleton>
@@ -94,7 +111,7 @@ const items = (stats: DashboardStats) => [
     description: "Years of experience for applied positions",
     header: (
       <Skeleton>
-        <div className="text-3xl font-bold text-white">
+        <div className="text-2xl font-bold text-white">
           {stats.averageExperience} yrs
         </div>
       </Skeleton>
@@ -106,7 +123,7 @@ const items = (stats: DashboardStats) => [
     description: "LPA for positions you've applied to",
     header: (
       <Skeleton>
-        <div className="text-3xl font-bold text-white">
+        <div className="text-2xl font-bold text-white">
           {stats.averagePackage} LPA
         </div>
       </Skeleton>
