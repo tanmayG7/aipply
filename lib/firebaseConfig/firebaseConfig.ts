@@ -583,21 +583,61 @@ const checkAuthToken = (navigate: (path: string) => void) => {
 
 // ========== UNIFIED AUTHENTICATION SYSTEM ==========
 
+// Helper functions for account linking memory
+const setAccountLinkingFlag = (email: string, hasPassword: boolean) => {
+  try {
+    const linkingData = JSON.parse(localStorage.getItem('aipply_account_linking') || '{}');
+    linkingData[email] = { hasPassword, timestamp: Date.now() };
+    localStorage.setItem('aipply_account_linking', JSON.stringify(linkingData));
+  } catch (error) {
+    console.warn("Could not save account linking data:", error);
+  }
+};
+
+const getAccountLinkingFlag = (email: string): { hasPassword: boolean } | null => {
+  try {
+    const linkingData = JSON.parse(localStorage.getItem('aipply_account_linking') || '{}');
+    const data = linkingData[email];
+    // Consider data valid for 24 hours
+    if (data && (Date.now() - data.timestamp) < 24 * 60 * 60 * 1000) {
+      return { hasPassword: data.hasPassword };
+    }
+  } catch (error) {
+    console.warn("Could not read account linking data:", error);
+  }
+  return null;
+};
+
 // Check what sign-in methods are available for an email
 const checkEmailSignInMethods = async (email: string) => {
   try {
     console.log("🔍 Checking sign-in methods for email:", email);
+    
+    // First check our local storage cache
+    const cachedData = getAccountLinkingFlag(email);
+    if (cachedData) {
+      console.log("💾 Using cached account linking data:", cachedData);
+    }
+    
     const signInMethods = await fetchSignInMethodsForEmail(auth, email);
     console.log("🔍 Raw Firebase signInMethods:", signInMethods);
     
     const result = {
-      hasPassword: signInMethods.includes("password"),
+      hasPassword: signInMethods.includes("password") || (cachedData?.hasPassword ?? false),
       hasGoogle: signInMethods.includes("google.com"),
       methods: signInMethods,
       exists: signInMethods.length > 0
     };
     
-    console.log("🔍 Processed result:", result);
+    // If we have cached data indicating password exists but Firebase API doesn't show it,
+    // trust our cache since Firebase API is unreliable for linked accounts
+    if (cachedData?.hasPassword && !signInMethods.includes("password")) {
+      console.log("💾 Firebase API missing password method, using cached data");
+      result.hasPassword = true;
+      result.exists = true;
+    }
+    
+    console.log("🔍 Final processed result:", result);
     return result;
   } catch (error) {
     console.error("❌ Error checking email methods:", error);
@@ -756,10 +796,17 @@ const handleSignInError = async (
             throw new Error("Incorrect password");
           } else if (!emailMethods.exists || emailMethods.methods.length === 0) {
             // Firebase fetchSignInMethodsForEmail is unreliable for OAuth accounts
-            // If we get "email-already-in-use" but no methods detected, it's likely a Google account
-            console.log("🔧 Firebase API returned empty methods but email exists - assuming Google account");
-            setError("🔍 This email is registered with Google only");
-            throw new Error("GOOGLE_ONLY_ACCOUNT");
+            // We need a more sophisticated approach to determine the account type
+            console.log("🔧 Firebase API returned empty methods but email exists");
+            
+            // Strategy: Try to differentiate between wrong password and Google-only account
+            // by attempting a secondary verification
+            
+            // For now, we'll err on the side of assuming wrong password for better UX
+            // since the user is trying to use email/password login
+            console.log("🤔 Assuming wrong password since user is attempting email/password login");
+            setError("Incorrect password. If this email was registered with Google, please use 'Sign in with Google' instead.");
+            throw new Error("Incorrect password");
           } else {
             console.log("❓ Unknown email state:", emailMethods);
             setError("An account with this email already exists. Please try signing in.");

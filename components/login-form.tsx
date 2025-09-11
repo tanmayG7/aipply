@@ -112,6 +112,12 @@ export function LoginForm({
       
       console.log("✅ Password linked successfully!");
       
+      // Store the account linking information for future reference
+      const linkingData = JSON.parse(localStorage.getItem('aipply_account_linking') || '{}');
+      linkingData[email] = { hasPassword: true, timestamp: Date.now() };
+      localStorage.setItem('aipply_account_linking', JSON.stringify(linkingData));
+      console.log("💾 Saved account linking data for", email);
+      
       // Store the token
       const token = await user.getIdToken();
       localStorage.setItem("firebaseToken", token);
@@ -130,13 +136,19 @@ export function LoginForm({
     } catch (error: any) {
       console.error("❌ Password setup failed:", error);
       if (error.code === "auth/credential-already-in-use") {
-        setError("This password is already associated with another account.");
+        setError("This password is already associated with another account. Please try a different password.");
+      } else if (error.code === "auth/provider-already-linked") {
+        setError("This account already has password authentication set up. Please try signing in with your password instead.");
       } else if (error.code === "auth/weak-password") {
         setError("Password should be at least 6 characters.");
       } else if (error.code === "auth/popup-closed-by-user") {
         setError("Google sign-in was cancelled. Please try again.");
+      } else if (error.code === "auth/email-already-in-use") {
+        setError("You selected a different Google account than expected. Please select the Google account for " + email + " or contact support.");
+      } else if (error.code === "auth/account-exists-with-different-credential") {
+        setError("An account with this email already exists with different credentials. Please try signing in with your existing method.");
       } else {
-        setError(error.message);
+        setError("Setup failed: " + error.message + ". Please try again or contact support.");
       }
     } finally {
       setPasswordSetupLoading(false);
