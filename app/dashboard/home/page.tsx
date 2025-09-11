@@ -369,8 +369,9 @@ const HomePage: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                    <div className="w-full">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch min-h-[600px]">
+                    {/* Left Column: Getting Started + Bento Grid */}
+                    <div className="w-full flex flex-col gap-6">
                       <GetStartedCard
                         appliedJoblength={
                           dashboardData?.jobsApplied
@@ -378,62 +379,36 @@ const HomePage: React.FC = () => {
                             : 0
                         }
                       />
+                      
+                      {/* Bento Grid */}
+                      {dashboardData && (
+                        <div className="flex flex-col gap-4">
+                          <div className="text-left">
+                            <h3 className="font-inter text-[#ECECED] font-semibold text-lg mb-1">
+                              Quick Stats
+                            </h3>
+                            <p className="font-inter text-[#94969C] text-sm">
+                              Your job search metrics at a glance
+                            </p>
+                          </div>
+                          <DashboardBentoGrid 
+                            stats={{
+                              totalJobsShown: dashboardData.totalJobsShown || 0,
+                              jobsApplied: dashboardData.jobsApplied 
+                                ? parseInt(dashboardData.jobsApplied.toString()) 
+                                : 0,
+                              averageExperience: dashboardData.averageExperience || 0,
+                              averagePackage: dashboardData.averagePackage || 0,
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
+                    
+                    {/* Right Column: Hero Section */}
                     <div className="w-full">
                       <HeroSection />
                     </div>
-                  </div>
-
-                  {/* Bento Grid Layout */}
-                  {dashboardData && (
-                    <div className="flex flex-col gap-4">
-                      <div className="text-center">
-                        <h2 className="font-inter text-[#ECECED] font-bold text-xl lg:text-2xl mb-2">
-                          Quick Stats Overview
-                        </h2>
-                        <p className="font-inter text-[#94969C] text-sm">
-                          Your job search metrics at a glance
-                        </p>
-                      </div>
-                      <DashboardBentoGrid 
-                        stats={{
-                          totalJobsShown: dashboardData.totalJobsShown || 0,
-                          jobsApplied: dashboardData.jobsApplied 
-                            ? parseInt(dashboardData.jobsApplied.toString()) 
-                            : 0,
-                          averageExperience: dashboardData.averageExperience || 0,
-                          averagePackage: dashboardData.averagePackage || 0,
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Manual Jobs Applied Cards - Always shown */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {dashboardData && (
-                      <>
-                        <DashboardCard
-                          id="2"
-                          title="Total Jobs Shown"
-                          totalNumber={dashboardData.totalJobsShown.toString()}
-                        />
-                        <DashboardCard
-                          id="3"
-                          title="Jobs Applied (Manual)"
-                          totalNumber={dashboardData.jobsApplied.toString()}
-                        />
-                        <DashboardCard
-                          id="1"
-                          title="Avg. Experience (Years)"
-                          totalNumber={dashboardData.averageExperience.toString()}
-                        />
-                        <DashboardCard
-                          id="4"
-                          title="Avg. Package (LPA)"
-                          totalNumber={dashboardData.averagePackage.toFixed(1)}
-                        />
-                      </>
-                    )}
                   </div>
 
                   {/* Auto Applied Jobs Cards - Only for subscribed users */}
