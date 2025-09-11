@@ -740,7 +740,7 @@ const handleSignInError = async (
           const emailMethods = await checkEmailSignInMethods(email);
           
           if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
-            setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password below.");
+            setError("🔍 This email is registered with Google only");
             throw new Error("GOOGLE_ONLY_ACCOUNT");
           } else {
             setError("An account with this email already exists. Please try signing in.");
@@ -754,7 +754,7 @@ const handleSignInError = async (
     } else if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
       // Email exists with Google only
       console.log("🔍 Google-only account detected");
-      setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password.");
+      setError("🔍 This email is registered with Google only");
       throw new Error("GOOGLE_ONLY_ACCOUNT");
     } else if (emailMethods.hasPassword) {
       // Email exists with password, so it's wrong password
@@ -778,7 +778,7 @@ const handleSignInError = async (
     // Check if it's a Google-only account
     const emailMethods = await checkEmailSignInMethods(email);
     if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
-      setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password.");
+      setError("🔍 This email is registered with Google only");
       throw new Error("GOOGLE_ONLY_ACCOUNT");
     } else {
       setError(signInError.message);

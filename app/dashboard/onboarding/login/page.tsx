@@ -50,7 +50,8 @@ export default function LoginPage() {
       );
     } catch (error: any) {
       if (error.message === "GOOGLE_ONLY_ACCOUNT") {
-        setError("This email is registered with Google. Please use 'Sign in with Google' or set up a password below.");
+        // Error message already set by the authenticateUser function
+        // Don't override it here
       } else {
         setError(error.message);
       }
