@@ -371,43 +371,49 @@ const HomePage: React.FC = () => {
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch min-h-[600px]">
                     {/* Left Column: Getting Started + Bento Grid */}
-                    <div className="w-full flex flex-col gap-6">
-                      <GetStartedCard
-                        appliedJoblength={
-                          dashboardData?.jobsApplied
-                            ? parseInt(dashboardData.jobsApplied.toString())
-                            : 0
-                        }
-                      />
+                    <div className="w-full flex flex-col gap-6 h-full">
+                      <div className="flex-shrink-0">
+                        <GetStartedCard
+                          appliedJoblength={
+                            dashboardData?.jobsApplied
+                              ? parseInt(dashboardData.jobsApplied.toString())
+                              : 0
+                          }
+                        />
+                      </div>
                       
                       {/* Bento Grid */}
                       {dashboardData && (
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 flex-grow justify-center">
                           <div className="text-left">
                             <h3 className="font-inter text-[#ECECED] font-semibold text-lg mb-1">
                               Quick Stats
                             </h3>
-                            <p className="font-inter text-[#94969C] text-sm">
+                            <p className="font-inter text-[#94969C] text-sm mb-4">
                               Your job search metrics at a glance
                             </p>
                           </div>
-                          <DashboardBentoGrid 
-                            stats={{
-                              totalJobsShown: dashboardData.totalJobsShown || 0,
-                              jobsApplied: dashboardData.jobsApplied 
-                                ? parseInt(dashboardData.jobsApplied.toString()) 
-                                : 0,
-                              averageExperience: dashboardData.averageExperience || 0,
-                              averagePackage: dashboardData.averagePackage || 0,
-                            }}
-                          />
+                          <div className="flex-grow flex items-center">
+                            <DashboardBentoGrid 
+                              stats={{
+                                totalJobsShown: dashboardData.totalJobsShown || 0,
+                                jobsApplied: dashboardData.jobsApplied 
+                                  ? parseInt(dashboardData.jobsApplied.toString()) 
+                                  : 0,
+                                averageExperience: dashboardData.averageExperience || 0,
+                                averagePackage: dashboardData.averagePackage || 0,
+                              }}
+                            />
+                          </div>
                         </div>
                       )}
                     </div>
                     
                     {/* Right Column: Hero Section */}
-                    <div className="w-full">
-                      <HeroSection />
+                    <div className="w-full flex items-stretch">
+                      <div className="w-full">
+                        <HeroSection />
+                      </div>
                     </div>
                   </div>
 
