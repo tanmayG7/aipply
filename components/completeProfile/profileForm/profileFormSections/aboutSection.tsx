@@ -257,12 +257,12 @@ const AboutSection: React.FC<AboutSectionProps> = ({
             </div>
 
             <div className="grid gap-2 text-white">
-              <Label htmlFor="whereYouBased">Where You Based:</Label>
+              <Label htmlFor="whereYouBased">Where are you based out of:</Label>
               <Input
                 type="text"
                 name="whereYouBased"
                 value={formData.whereYouBased}
-                placeholder="Where You Based"
+                placeholder="Location"
                 onChange={handleChange}
                 required
               />
