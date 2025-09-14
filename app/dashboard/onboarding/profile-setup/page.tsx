@@ -44,25 +44,20 @@ export default function ProfileSetup() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("🔍 Auth state changed, user:", user?.email);
+      console.log("🔍 AUTH CHANGED - User email:", user?.email);
+
       if (user) {
-        console.log("🔍 User provider data:", user.providerData);
-        console.log("🔍 User provider data length:", user.providerData.length);
-        console.log("🔍 Provider IDs:", user.providerData.map(p => p.providerId));
+        // Force Google user detection to true for testing
+        alert("DEBUG: User detected, setting Google user to TRUE for testing");
+        setIsGoogleUser(true);
 
-        // Check if user signed in with Google - try multiple detection methods
-        const isFromGoogle1 = user.providerData.some(provider => provider.providerId === 'google.com');
-        const isFromGoogle2 = user.providerData.some(provider => provider.providerId === 'google');
-        const isFromGoogle3 = user.providerData.some(provider => provider.providerId.includes('google'));
+        // Also try normal detection
+        const hasGoogleProvider = user.providerData.some(provider =>
+          provider.providerId === 'google.com'
+        );
 
-        console.log("🔍 Is Google user (google.com):", isFromGoogle1);
-        console.log("🔍 Is Google user (google):", isFromGoogle2);
-        console.log("🔍 Is Google user (includes google):", isFromGoogle3);
-
-        const isFromGoogle = isFromGoogle1 || isFromGoogle2 || isFromGoogle3;
-        console.log("🔍 Final Google user status:", isFromGoogle);
-        console.log("🔍 Setting isGoogleUser to:", isFromGoogle);
-        setIsGoogleUser(isFromGoogle);
+        console.log("🔍 Provider data:", user.providerData);
+        console.log("🔍 Has Google provider:", hasGoogleProvider);
 
         setFormData((prevData) => ({
           ...prevData,
