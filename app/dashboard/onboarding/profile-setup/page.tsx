@@ -47,9 +47,21 @@ export default function ProfileSetup() {
       console.log("🔍 Auth state changed, user:", user?.email);
       if (user) {
         console.log("🔍 User provider data:", user.providerData);
-        // Check if user signed in with Google
-        const isFromGoogle = user.providerData.some(provider => provider.providerId === 'google.com');
-        console.log("🔍 Is Google user:", isFromGoogle);
+        console.log("🔍 User provider data length:", user.providerData.length);
+        console.log("🔍 Provider IDs:", user.providerData.map(p => p.providerId));
+
+        // Check if user signed in with Google - try multiple detection methods
+        const isFromGoogle1 = user.providerData.some(provider => provider.providerId === 'google.com');
+        const isFromGoogle2 = user.providerData.some(provider => provider.providerId === 'google');
+        const isFromGoogle3 = user.providerData.some(provider => provider.providerId.includes('google'));
+
+        console.log("🔍 Is Google user (google.com):", isFromGoogle1);
+        console.log("🔍 Is Google user (google):", isFromGoogle2);
+        console.log("🔍 Is Google user (includes google):", isFromGoogle3);
+
+        const isFromGoogle = isFromGoogle1 || isFromGoogle2 || isFromGoogle3;
+        console.log("🔍 Final Google user status:", isFromGoogle);
+        console.log("🔍 Setting isGoogleUser to:", isFromGoogle);
         setIsGoogleUser(isFromGoogle);
 
         setFormData((prevData) => ({
@@ -71,6 +83,10 @@ export default function ProfileSetup() {
       setSkills(suggestedSkills);
     }
   }, [formData.jobTitle]);
+
+  useEffect(() => {
+    console.log("🔍 isGoogleUser state changed to:", isGoogleUser);
+  }, [isGoogleUser]);
 
   const [errors, setErrors] = useState({
     firstName: false,
@@ -265,6 +281,14 @@ export default function ProfileSetup() {
                   <p className="text-gray-400">Loading...</p>
                 </div>
               ) : (
+                <>
+                {/* Debug info - remove in production */}
+                <div className="bg-gray-800 p-2 rounded text-xs mb-4">
+                  <p>Debug: authLoading={authLoading.toString()}</p>
+                  <p>Debug: isGoogleUser={isGoogleUser.toString()}</p>
+                  <p>Debug: email={formData.email}</p>
+                </div>
+                </>
               <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                 {page === 1 && (
                   <div className="grid gap-6">
