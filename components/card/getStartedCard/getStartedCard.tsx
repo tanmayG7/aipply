@@ -83,139 +83,148 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-6 border-[1px] bg-[#0C111D] border-[#1F242F] px-6 py-6 rounded-xl relative">
+    <div className="flex flex-col gap-6 border-[1px] bg-[#0C111D] border-[#1F242F] px-4 py-6 rounded-xl relative overflow-hidden">
       <div className="flex flex-col gap-4">
-        <h2 className="text-text-sm-bold font-inter text-white">
+        <h2 className="text-sm font-bold font-inter text-white">
           Getting Started
         </h2>
-        <p className="text-text-md-regular font-inter text-white">
-          Congratulations! You’ve set up your account.
+        <p className="text-sm font-normal font-inter text-white/90 leading-relaxed">
+          Congratulations! You've set up your account.
         </p>
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="relative w-[full] h-[16px] bg-[#e0e0e0] rounded-full">
+        <div className="relative w-full h-4 bg-[#e0e0e0] rounded-full overflow-hidden">
           <div
-            className="absolute top-0 left-0 h-full bg-green-500 rounded-full"
+            className="absolute top-0 left-0 h-full bg-green-500 rounded-full transition-all duration-300"
             style={{ width: `${calculateProgress()}%` }}
           ></div>
-          {/* <p className="absolute right-4">{calculateProgress()}%</p> */}
         </div>
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-row justify-between items-center gap-4">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-row justify-between items-center gap-3">
             <Link
               href="/dashboard/complete-profile"
-              className="flex flex-row justify-between items-center w-full"
+              className="flex flex-row justify-between items-center w-full min-w-0"
             >
-              <div className="flex flex-row gap-4 items-center">
+              <div className="flex flex-row gap-3 items-center min-w-0 flex-1">
                 <Checkbox
                   disabled={true}
                   checked={checkedFields.profile}
                   onCheckedChange={() => handleCheckboxChange("profile")}
+                  className="flex-shrink-0"
                 />
-                <span className="hover:text-green-600">
+                <span className="hover:text-green-600 text-sm truncate">
                   Update your profile
                 </span>
               </div>
               <Image
                 src={"/static/icons/arrow-right.svg"}
-                width={20}
-                height={20}
+                width={16}
+                height={16}
                 alt="arrow"
+                className="flex-shrink-0"
               />
             </Link>
           </div>
 
-          <div className="flex flex-row justify-between items-center gap-4">
+          <div className="flex flex-row justify-between items-center gap-3">
             <Link
               href="/dashboard/complete-profile"
-              className="flex flex-row justify-between items-center w-full"
+              className="flex flex-row justify-between items-center w-full min-w-0"
             >
-              <div className="flex flex-row gap-4 items-center">
+              <div className="flex flex-row gap-3 items-center min-w-0 flex-1">
                 <Checkbox
                   disabled={true}
                   checked={checkedFields.cv}
                   onCheckedChange={() => handleCheckboxChange("cv")}
+                  className="flex-shrink-0"
                 />
-                <span className="hover:text-green-600">
+                <span className="hover:text-green-600 text-sm truncate">
                   Upload an ATS Friendly CV
                 </span>
               </div>
               <Image
                 src={"/static/icons/arrow-right.svg"}
-                width={20}
-                height={20}
+                width={16}
+                height={16}
                 alt="arrow"
+                className="flex-shrink-0"
               />
             </Link>
           </div>
 
-          <div className="flex flex-row justify-between items-center gap-4">
+          <div className="flex flex-row justify-between items-center gap-3">
             <Link
               href="/dashboard/complete-profile"
-              className="flex flex-row justify-between items-center w-full"
+              className="flex flex-row justify-between items-center w-full min-w-0"
             >
-              <div className="flex flex-row gap-4 items-center">
+              <div className="flex flex-row gap-3 items-center min-w-0 flex-1">
                 <Checkbox
                   disabled={true}
                   checked={checkedFields.coverLetter}
                   onCheckedChange={() => handleCheckboxChange("coverLetter")}
+                  className="flex-shrink-0"
                 />
-                <span className="hover:text-green-600">
+                <span className="hover:text-green-600 text-sm truncate">
                   Upload your cover letter
                 </span>
               </div>
               <Image
                 src={"/static/icons/arrow-right.svg"}
-                width={20}
-                height={20}
+                width={16}
+                height={16}
                 alt="arrow"
+                className="flex-shrink-0"
               />
             </Link>
           </div>
 
-          <div className="flex flex-row justify-between items-center gap-4">
+          <div className="flex flex-row justify-between items-center gap-3">
             <Link
               href="/dashboard/job-board"
-              className="flex flex-row justify-between items-center w-full"
+              className="flex flex-row justify-between items-center w-full min-w-0"
             >
-              <div className="flex flex-row gap-4 items-center">
+              <div className="flex flex-row gap-3 items-center min-w-0 flex-1">
                 <Checkbox
                   disabled={true}
                   checked={checkedFields.firstJob}
                   onCheckedChange={() => handleCheckboxChange("firstJob")}
+                  className="flex-shrink-0"
                 />
-                <span className="hover:text-green-600">
+                <span className="hover:text-green-600 text-sm truncate">
                   Apply your first job
                 </span>
               </div>
               <Image
                 src={"/static/icons/arrow-right.svg"}
-                width={20}
-                height={20}
+                width={16}
+                height={16}
                 alt="arrow"
+                className="flex-shrink-0"
               />
             </Link>
           </div>
 
-          <div className="flex flex-row justify-between items-center gap-4">
+          <div className="flex flex-row justify-between items-center gap-3">
             <Link
               href="/features/join-community"
-              className="flex flex-row justify-between items-center w-full"
+              className="flex flex-row justify-between items-center w-full min-w-0"
             >
-              <div className="flex flex-row gap-4 items-center">
+              <div className="flex flex-row gap-3 items-center min-w-0 flex-1">
                 <Checkbox
                   disabled={true}
                   checked={checkedFields.community}
                   onCheckedChange={() => handleCheckboxChange("community")}
+                  className="flex-shrink-0"
                 />
-                <span className="hover:text-green-600">Join community</span>
+                <span className="hover:text-green-600 text-sm truncate">Join community</span>
               </div>
               <Image
-                src={"/static/icons/arrow-right.svg"}
-                width={20}
-                height={20}
+                src="/static/icons/arrow-right.svg"
+                width={16}
+                height={16}
                 alt="arrow"
+                className="flex-shrink-0"
               />
             </Link>
           </div>

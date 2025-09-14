@@ -52,9 +52,9 @@ const MobileTrigger = () => {
   if (openMobile) return null; // Hide when mobile sidebar is open
 
   return (
-    <div className="lg:hidden fixed top-6 right-4 z-50">
-      <div className="bg-black/80 p-1.5 rounded-md shadow-md border border-gray-600/50 backdrop-blur-sm">
-        <SidebarTrigger className="text-white hover:text-gray-200 h-6 w-6" />
+    <div className="lg:hidden fixed top-4 right-4 z-40">
+      <div className="bg-black/90 p-2 rounded-lg shadow-lg border border-gray-600/50 backdrop-blur-sm">
+        <SidebarTrigger className="text-white hover:text-gray-200 h-5 w-5" />
       </div>
     </div>
   );
@@ -343,9 +343,9 @@ const HomePage: React.FC = () => {
         <AppSidebar />
 
         <SidebarInset>
-          <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
+          <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-hidden">
             <MobileTrigger />
-            <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
               {/* {loading ? ( */}
                 {/* // <HomeShimmer /> */}
               {/* // ) : ( */}
@@ -369,9 +369,9 @@ const HomePage: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                  <div className="flex flex-col lg:flex-row gap-6 items-start">
                     {/* Left Column: Getting Started + Bento Grid */}
-                    <div className="w-full flex flex-col gap-4">
+                    <div className="w-full lg:w-1/2 flex flex-col gap-4 min-w-0">
                       <GetStartedCard
                         appliedJoblength={
                           dashboardData?.jobsApplied
@@ -379,7 +379,7 @@ const HomePage: React.FC = () => {
                             : 0
                         }
                       />
-                      
+
                       {/* Bento Grid */}
                       {dashboardData && (
                         <div className="flex flex-col gap-3">
@@ -391,11 +391,11 @@ const HomePage: React.FC = () => {
                               Your job search metrics at a glance
                             </p>
                           </div>
-                          <DashboardBentoGrid 
+                          <DashboardBentoGrid
                             stats={{
                               totalJobsShown: dashboardData.totalJobsShown || 0,
-                              jobsApplied: dashboardData.jobsApplied 
-                                ? parseInt(dashboardData.jobsApplied.toString()) 
+                              jobsApplied: dashboardData.jobsApplied
+                                ? parseInt(dashboardData.jobsApplied.toString())
                                 : 0,
                               averageExperience: dashboardData.averageExperience || 0,
                               averagePackage: dashboardData.averagePackage || 0,
@@ -404,9 +404,9 @@ const HomePage: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Right Column: Hero Section */}
-                    <div className="w-full">
+                    <div className="w-full lg:w-1/2 min-w-0">
                       <HeroSection />
                     </div>
                   </div>

@@ -24,9 +24,9 @@ interface DashboardBentoGridProps {
 
 export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full max-w-md">
       {/* Compact Pentagon-like layout with 4 items */}
-      <div className="grid grid-cols-2 gap-2 w-full">
+      <div className="grid grid-cols-2 gap-3 w-full">
         {/* Top item - spans 2 columns */}
         <div className="col-span-2">
           <BentoGridItem
@@ -34,26 +34,26 @@ export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
             description={items(stats)[0].description}
             header={items(stats)[0].header}
             icon={items(stats)[0].icon}
-            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-14"
+            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 min-h-[4rem]"
           />
         </div>
-        
+
         {/* Middle row - 2 items */}
         <BentoGridItem
           title={items(stats)[1].title}
           description={items(stats)[1].description}
           header={items(stats)[1].header}
           icon={items(stats)[1].icon}
-          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-14"
+          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 min-h-[4rem]"
         />
         <BentoGridItem
           title={items(stats)[2].title}
           description={items(stats)[2].description}
           header={items(stats)[2].header}
           icon={items(stats)[2].icon}
-          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-14"
+          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 min-h-[4rem]"
         />
-        
+
         {/* Bottom item - spans 2 columns */}
         <div className="col-span-2">
           <BentoGridItem
@@ -61,7 +61,7 @@ export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
             description={items(stats)[3].description}
             header={items(stats)[3].header}
             icon={items(stats)[3].icon}
-            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-14"
+            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 min-h-[4rem]"
           />
         </div>
       </div>
