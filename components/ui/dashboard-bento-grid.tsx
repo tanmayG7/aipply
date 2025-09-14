@@ -24,9 +24,9 @@ interface DashboardBentoGridProps {
 
 export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-md mx-auto">
       {/* Compact Pentagon-like layout with 4 items */}
-      <div className="grid grid-cols-2 gap-3 w-full">
+      <div className="grid grid-cols-2 gap-4 w-full">
         {/* Top item - spans 2 columns */}
         <div className="col-span-2">
           <BentoGridItem
@@ -34,7 +34,7 @@ export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
             description={items(stats)[0].description}
             header={items(stats)[0].header}
             icon={items(stats)[0].icon}
-            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 min-h-[4rem]"
+            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-18 min-h-[4.5rem]"
           />
         </div>
 
@@ -61,7 +61,7 @@ export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
             description={items(stats)[3].description}
             header={items(stats)[3].header}
             icon={items(stats)[3].icon}
-            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 min-h-[4rem]"
+            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-18 min-h-[4.5rem]"
           />
         </div>
       </div>

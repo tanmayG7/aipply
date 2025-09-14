@@ -382,8 +382,8 @@ const HomePage: React.FC = () => {
 
                       {/* Bento Grid */}
                       {dashboardData && (
-                        <div className="flex flex-col gap-3">
-                          <div className="text-left">
+                        <div className="flex flex-col gap-4">
+                          <div className="text-center">
                             <h3 className="font-inter text-[#ECECED] font-semibold text-lg mb-1">
                               Quick Stats
                             </h3>
