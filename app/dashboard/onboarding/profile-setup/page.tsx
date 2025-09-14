@@ -34,6 +34,8 @@ export default function ProfileSetup() {
     showDropdown: false,
   });
 
+  const [isGoogleUser, setIsGoogleUser] = useState(false);
+
   const [skills, setSkills] = useState<string[]>([]);
   const [skillsInput, setSkillsInput] = useState("");
   const [jobRoleSearch, setJobRoleSearch] = useState("");
@@ -41,6 +43,10 @@ export default function ProfileSetup() {
   useEffect(() => {
     const user = auth.currentUser;
     if (user) {
+      // Check if user signed in with Google
+      const isFromGoogle = user.providerData.some(provider => provider.providerId === 'google.com');
+      setIsGoogleUser(isFromGoogle);
+
       setFormData((prevData) => ({
         ...prevData,
         email: user.email || "",
@@ -320,7 +326,14 @@ export default function ProfileSetup() {
                       )}
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">
+                        Email
+                        {isGoogleUser && (
+                          <span className="ml-2 text-xs text-blue-400 font-normal">
+                            (from Google account)
+                          </span>
+                        )}
+                      </Label>
                       <Input
                         id="email"
                         name="email"
@@ -335,10 +348,18 @@ export default function ProfileSetup() {
     }
   }}
                         required
-                        className={errors.email ? "border-red-500" : ""}
+                        readOnly={isGoogleUser}
+                        className={`${errors.email ? "border-red-500" : ""} ${
+                          isGoogleUser ? "bg-gray-800/50 cursor-not-allowed" : ""
+                        }`}
                       />
                       {errors.email && (
                         <p className="text-red-500">Email is required</p>
+                      )}
+                      {isGoogleUser && (
+                        <p className="text-xs text-gray-400">
+                          This email is from your Google account and cannot be changed
+                        </p>
                       )}
                     </div>
                   </div>
