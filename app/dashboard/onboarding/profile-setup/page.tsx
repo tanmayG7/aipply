@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 import Head from "next/head";
 import { jobRoles, roleBasedSkills } from "@/lib/jobRoles";
 import { ChevronDown } from "lucide-react";
@@ -35,25 +36,33 @@ export default function ProfileSetup() {
   });
 
   const [isGoogleUser, setIsGoogleUser] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   const [skills, setSkills] = useState<string[]>([]);
   const [skillsInput, setSkillsInput] = useState("");
   const [jobRoleSearch, setJobRoleSearch] = useState("");
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (user) {
-      // Check if user signed in with Google
-      const isFromGoogle = user.providerData.some(provider => provider.providerId === 'google.com');
-      setIsGoogleUser(isFromGoogle);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("🔍 Auth state changed, user:", user?.email);
+      if (user) {
+        console.log("🔍 User provider data:", user.providerData);
+        // Check if user signed in with Google
+        const isFromGoogle = user.providerData.some(provider => provider.providerId === 'google.com');
+        console.log("🔍 Is Google user:", isFromGoogle);
+        setIsGoogleUser(isFromGoogle);
 
-      setFormData((prevData) => ({
-        ...prevData,
-        email: user.email || "",
-        firstName: user.displayName?.split(" ")[0] || "",
-        lastName: user.displayName?.split(" ")[1] || "",
-      }));
-    }
+        setFormData((prevData) => ({
+          ...prevData,
+          email: user.email || "",
+          firstName: user.displayName?.split(" ")[0] || "",
+          lastName: user.displayName?.split(" ")[1] || "",
+        }));
+      }
+      setAuthLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -251,6 +260,11 @@ export default function ProfileSetup() {
               </div>
             </CardHeader>
             <CardContent className="w-full px-4 sm:px-6 lg:w-[80%] lg:mx-auto">
+              {authLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <p className="text-gray-400">Loading...</p>
+                </div>
+              ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                 {page === 1 && (
                   <div className="grid gap-6">
@@ -327,7 +341,7 @@ export default function ProfileSetup() {
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="email">
-                        Email
+                        Email {console.log("🔍 Rendering email field, isGoogleUser:", isGoogleUser)}
                         {isGoogleUser && (
                           <span className="ml-2 text-xs text-blue-400 font-normal">
                             (from Google account)
@@ -612,8 +626,9 @@ export default function ProfileSetup() {
               </form>
 
               <div className="font-inter text-center text-text-md-regular text-muted-foreground text-[#94969C] mt-5">
-        Already have an account, <Link href="/dashboard/onboarding/login" className="text-white hover:underline">sign-In</Link> now
-      </div>
+                Already have an account, <Link href="/dashboard/onboarding/login" className="text-white hover:underline">sign-In</Link> now
+              </div>
+              )}
             </CardContent>
           </Card>
         </div>
