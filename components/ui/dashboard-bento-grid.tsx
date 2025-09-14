@@ -44,14 +44,14 @@ export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
           description={items(stats)[1].description}
           header={items(stats)[1].header}
           icon={items(stats)[1].icon}
-          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 min-h-[4rem]"
+          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 min-h-[5rem]"
         />
         <BentoGridItem
           title={items(stats)[2].title}
           description={items(stats)[2].description}
           header={items(stats)[2].header}
           icon={items(stats)[2].icon}
-          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 min-h-[4rem]"
+          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 min-h-[5rem]"
         />
 
         {/* Bottom item - spans 2 columns */}
