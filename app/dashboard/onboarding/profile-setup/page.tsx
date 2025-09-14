@@ -81,6 +81,7 @@ export default function ProfileSetup() {
 
   useEffect(() => {
     console.log("🔍 isGoogleUser state changed to:", isGoogleUser);
+    console.log("🔍 Rendering email field, isGoogleUser:", isGoogleUser);
   }, [isGoogleUser]);
 
   const [errors, setErrors] = useState({
@@ -359,7 +360,7 @@ export default function ProfileSetup() {
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="email">
-                        Email {console.log("🔍 Rendering email field, isGoogleUser:", isGoogleUser)}
+                        Email
                         {isGoogleUser && (
                           <span className="ml-2 text-xs text-blue-400 font-normal">
                             (from Google account)
