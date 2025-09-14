@@ -288,8 +288,7 @@ export default function ProfileSetup() {
                   <p>Debug: isGoogleUser={isGoogleUser.toString()}</p>
                   <p>Debug: email={formData.email}</p>
                 </div>
-                </>
-              <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                 {page === 1 && (
                   <div className="grid gap-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -649,9 +648,10 @@ export default function ProfileSetup() {
                 </div>
               </form>
 
-              <div className="font-inter text-center text-text-md-regular text-muted-foreground text-[#94969C] mt-5">
-                Already have an account, <Link href="/dashboard/onboarding/login" className="text-white hover:underline">sign-In</Link> now
-              </div>
+                <div className="font-inter text-center text-text-md-regular text-muted-foreground text-[#94969C] mt-5">
+                  Already have an account, <Link href="/dashboard/onboarding/login" className="text-white hover:underline">sign-In</Link> now
+                </div>
+                </>
               )}
             </CardContent>
           </Card>
