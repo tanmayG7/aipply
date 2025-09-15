@@ -24,9 +24,9 @@ interface DashboardBentoGridProps {
 
 export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-full max-w-xl mx-auto">
       {/* Compact Pentagon-like layout with 4 items */}
-      <div className="grid grid-cols-2 gap-4 w-full">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
         {/* Top item - spans 2 columns */}
         <div className="col-span-2">
           <BentoGridItem
@@ -90,7 +90,7 @@ const items = (stats: DashboardStats) => [
   },
   {
     title: "Jobs Applied",
-    description: "Your total applications submitted",
+    description: "Your total applications",
     header: (
       <Skeleton>
         <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-green-500/20 to-green-600/20 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-green-500/30 min-w-[60px] sm:min-w-[70px] text-center">
@@ -102,7 +102,7 @@ const items = (stats: DashboardStats) => [
   },
   {
     title: "Average Experience",
-    description: "Years of experience for applied positions",
+    description: "Years of experience",
     header: (
       <Skeleton>
         <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-purple-500/30 min-w-[60px] sm:min-w-[70px] text-center">
