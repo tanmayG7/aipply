@@ -67,7 +67,7 @@
       });
 
       console.log(
-        `📊 Collected ${userIds.length} valid user IDs for batch processing`
+        `📊 Collected ${userIds.length} valid user IDs for queue processing`
       );
 
       if (userIds.length === 0) {
@@ -82,82 +82,75 @@
         );
       }
 
-      const batchSize = 2;
-      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-      const allResults = [];
-      let totalSuccessful = 0;
-      let totalFailed = 0;
-      let totalApplications = 0;
+      // Send ALL user IDs to the queue-based endpoint in one call
+      console.log(`🚀 Enqueuing ${userIds.length} users for auto-apply processing...`);
 
-      console.log(`🚀 Processing ${userIds.length} users in batches of ${batchSize}...`);
+      try {
+        const queueResponse = await fetch(`${API_URL}/api/auto-apply/daily`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userIds, testMode: false }),
+          signal: AbortSignal.timeout(30000), // Short timeout since we're just enqueuing
+        });
 
-      for (let i = 0; i < userIds.length; i += batchSize) {
-        const batch = userIds.slice(i, i + batchSize);
-        const batchNumber = Math.floor(i/batchSize) + 1;
-        const totalBatches = Math.ceil(userIds.length/batchSize);
+        if (!queueResponse.ok) {
+          const errorText = await queueResponse.text();
+          console.error(`❌ Queue enqueuing failed:`, errorText);
 
-        console.log(`🚀 Processing batch ${batchNumber}/${totalBatches} with ${batch.length} users...`);
-
-        try {
-          const batchResponse = await fetch(`${API_URL}/api/auto-apply/daily`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userIds: batch, testMode: false }),
-            signal: AbortSignal.timeout(120000),
-          });
-
-          if (!batchResponse.ok) {
-            const errorText = await batchResponse.text();
-            console.error(`❌ Batch ${batchNumber} failed:`, errorText);
-            totalFailed += batch.length;
-          } else {
-            const batchResult = await batchResponse.json();
-            console.log(`✅ Batch ${batchNumber} completed:`, {
-              processedUsers: batchResult.processedUsers,
-              successfulUsers: batchResult.successfulUsers,
-              applications: batchResult.summary?.totalApplications || 0
-            });
-
-            allResults.push(batchResult);
-            totalSuccessful += batchResult.successfulUsers || 0;
-            totalFailed += batchResult.failedUsers || 0;
-            totalApplications += batchResult.summary?.totalApplications || 0;
-          }
-
-        } catch (error) {
-          console.error(`❌ Batch ${batchNumber} error:`, error);
-          totalFailed += batch.length;
+          return new Response(
+            JSON.stringify({
+              error: "Failed to enqueue auto-apply jobs",
+              details: errorText,
+              userIds,
+              totalUsers: userIds.length,
+            }),
+            { status: 500 }
+          );
         }
 
-        if (i + batchSize < userIds.length) {
-          console.log("⏳ Waiting 30 seconds before next batch...");
-          await delay(30000);
-        }
+        const queueResult = await queueResponse.json();
+        console.log("✅ Jobs successfully enqueued:", {
+          totalUsers: queueResult.totalUsers,
+          enqueuedJobs: queueResult.enqueuedJobs,
+          queueStats: queueResult.queueStats
+        });
+
+        const finalSummary = {
+          message: "Daily auto-apply jobs successfully enqueued",
+          cronJobStarted: new Date().toISOString(),
+          subscriptionsFound: subscriptionsSnapshot.size,
+          validUserIds: userIds.length,
+          invalidSubscriptions: invalidSubscriptions.length,
+          queueResult: {
+            totalUsers: queueResult.totalUsers,
+            enqueuedJobs: queueResult.enqueuedJobs,
+            estimatedCompletionTime: queueResult.estimatedCompletionTime,
+            queueStats: queueResult.queueStats
+          },
+          processingTime: {
+            started: new Date().toISOString(),
+            completed: new Date().toISOString(),
+          },
+        };
+
+        console.log("📊 Daily auto-apply cron job completed:", finalSummary);
+
+        return new Response(JSON.stringify(finalSummary), { status: 200 });
+
+      } catch (error: any) {
+        console.error("💥 Error enqueuing auto-apply jobs:", error);
+        return new Response(
+          JSON.stringify({
+            error: "Failed to enqueue jobs",
+            message: error.message,
+            userIds,
+            totalUsers: userIds.length,
+            timestamp: new Date().toISOString(),
+          }),
+          { status: 500 }
+        );
       }
 
-      const finalSummary = {
-        message: "Daily auto-apply cron job completed successfully",
-        cronJobStarted: new Date().toISOString(),
-        subscriptionsFound: subscriptionsSnapshot.size,
-        validUserIds: userIds.length,
-        invalidSubscriptions: invalidSubscriptions.length,
-        batchProcessingResult: {
-          totalUsers: userIds.length,
-          processedUsers: totalSuccessful + totalFailed,
-          successfulUsers: totalSuccessful,
-          failedUsers: totalFailed,
-          totalApplications: totalApplications,
-          batchesProcessed: allResults.length,
-        },
-        processingTime: {
-          started: new Date().toISOString(),
-          completed: new Date().toISOString(),
-        },
-      };
-
-      console.log("📊 Daily auto-apply cron job completed:", finalSummary);
-
-      return new Response(JSON.stringify(finalSummary), { status: 200 });
     } catch (error: any) {
       console.error("💥 Fatal error in daily auto-apply cron job:", error);
       return new Response(
