@@ -1,15 +1,3 @@
- import { collection, query, where, getDocs } from "firebase/firestore";
-  import { firestore } from "@/lib/firebaseConfig/firebaseConfig";
-
-  const API_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8080";
-
-  export async function GET(req: Request) {
-    return handleCronJob(req);
-  }
-
-  export async function POST(req: Request) {
-    return handleCronJob(req);
-  }
 
   async function handleCronJob(req: Request) {
     console.log("====================================");
@@ -20,15 +8,6 @@
     const body = await req.json().catch(() => ({}));
     console.log("Request body received:", body);
 
-    // Verify this is a legitimate cron request (uncomment in production)
-    // const authHeader = req.headers.get("authorization");
-    // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    //   console.warn("⚠️ Unauthorized request:", authHeader);
-    //   return new Response(
-    //     JSON.stringify({ error: "Unauthorized" }),
-    //     { status: 401 }
-    //   );
-    // }
     console.log("✅ Authorization verified");
 
     try {
@@ -37,7 +16,7 @@
       const activeSubscriptionsQuery = query(
         subscriptionsRef,
         where("subscriptionStatus", "==", "premium"),
-        where("features.autoApply", "==", true) // 👈 added condition
+        where("features.autoApply", "==", true)
       );
 
       console.log("🔎 Fetching active premium subscriptions...");
@@ -93,49 +72,60 @@
         );
       }
 
-      // Send all user IDs to the batch auto-apply endpoint
-      console.log(
-        `🚀 Sending batch request for ${userIds.length} users to auto-apply endpoint...`
-      );
+      // Process users in smaller batches with delays
+      const batchSize = 2;
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+      const allResults = [];
+      let totalSuccessful = 0;
+      let totalFailed = 0;
+      let totalApplications = 0;
 
-      const batchAutoApplyResponse = await fetch(
-        `${API_URL}/api/auto-apply/daily`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userIds,
-            testMode: false,
-          }),
+      console.log(`🚀 Processing ${userIds.length} users in batches of ${batchSize}...`);
+
+      for (let i = 0; i < userIds.length; i += batchSize) {
+        const batch = userIds.slice(i, i + batchSize);
+        const batchNumber = Math.floor(i/batchSize) + 1;
+        const totalBatches = Math.ceil(userIds.length/batchSize);
+
+        console.log(`🚀 Processing batch ${batchNumber}/${totalBatches} with ${batch.length} users...`);
+
+        try {
+          const batchResponse = await fetch(`${API_URL}/api/auto-apply/daily`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userIds: batch, testMode: false }),
+            signal: AbortSignal.timeout(120000), // 2 minutes per batch
+          });
+
+          if (!batchResponse.ok) {
+            const errorText = await batchResponse.text();
+            console.error(`❌ Batch ${batchNumber} failed:`, errorText);
+            totalFailed += batch.length;
+          } else {
+            const batchResult = await batchResponse.json();
+            console.log(`✅ Batch ${batchNumber} completed:`, {
+              processedUsers: batchResult.processedUsers,
+              successfulUsers: batchResult.successfulUsers,
+              applications: batchResult.summary?.totalApplications || 0
+            });
+
+            allResults.push(batchResult);
+            totalSuccessful += batchResult.successfulUsers || 0;
+            totalFailed += batchResult.failedUsers || 0;
+            totalApplications += batchResult.summary?.totalApplications || 0;
+          }
+
+        } catch (error) {
+          console.error(`❌ Batch ${batchNumber} error:`, error);
+          totalFailed += batch.length;
         }
-      );
 
-      if (!batchAutoApplyResponse.ok) {
-        const errorText = await batchAutoApplyResponse.text();
-        console.error(`❌ Batch auto-apply API failed:`, errorText);
-
-        return new Response(
-          JSON.stringify({
-            error: "Batch auto-apply API failed",
-            details: errorText,
-            userIds,
-            totalUsers: userIds.length,
-          }),
-          { status: 500 }
-        );
+        // Wait between batches (except for the last batch)
+        if (i + batchSize < userIds.length) {
+          console.log("⏳ Waiting 30 seconds before next batch...");
+          await delay(30000);
+        }
       }
-
-      const batchResult = await batchAutoApplyResponse.json();
-      console.log("✅ Batch auto-apply API succeeded");
-      console.log("📊 Batch results:", {
-        totalUsers: batchResult.totalUsers,
-        processedUsers: batchResult.processedUsers,
-        successfulUsers: batchResult.successfulUsers,
-        failedUsers: batchResult.failedUsers,
-        totalApplications: batchResult.summary?.totalApplications || 0,
-      });
 
       // Prepare final summary
       const finalSummary = {
@@ -145,20 +135,16 @@
         validUserIds: userIds.length,
         invalidSubscriptions: invalidSubscriptions.length,
         batchProcessingResult: {
-          totalUsers: batchResult.totalUsers || 0,
-          processedUsers: batchResult.processedUsers || 0,
-          successfulUsers: batchResult.successfulUsers || 0,
-          failedUsers: batchResult.failedUsers || 0,
-          totalApplications: batchResult.summary?.totalApplications || 0,
-          successfulApplications:
-            batchResult.summary?.successfulApplications || 0,
-          failedApplications: batchResult.summary?.failedApplications || 0,
-          platformBreakdown: batchResult.summary?.byPlatform || {},
+          totalUsers: userIds.length,
+          processedUsers: totalSuccessful + totalFailed,
+          successfulUsers: totalSuccessful,
+          failedUsers: totalFailed,
+          totalApplications: totalApplications,
+          batchesProcessed: allResults.length,
         },
-        userResults: batchResult.userResults || [],
         processingTime: {
           started: new Date().toISOString(),
-          completed: batchResult.timestamp || new Date().toISOString(),
+          completed: new Date().toISOString(),
         },
       };
 
