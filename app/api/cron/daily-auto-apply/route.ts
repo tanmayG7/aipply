@@ -1,3 +1,15 @@
+  import { collection, query, where, getDocs } from "firebase/firestore";
+  import { firestore } from "@/lib/firebaseConfig/firebaseConfig";
+
+  const API_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8080";
+
+  export async function GET(req: Request) {
+    return handleCronJob(req);
+  }
+
+  export async function POST(req: Request) {
+    return handleCronJob(req);
+  }
 
   async function handleCronJob(req: Request) {
     console.log("====================================");
@@ -11,7 +23,6 @@
     console.log("✅ Authorization verified");
 
     try {
-      // Get all users with active premium subscriptions
       const subscriptionsRef = collection(firestore, "subscriptions");
       const activeSubscriptionsQuery = query(
         subscriptionsRef,
@@ -34,7 +45,6 @@
         );
       }
 
-      // Extract all user IDs from subscriptions
       const userIds: string[] = [];
       const invalidSubscriptions: any[] = [];
 
@@ -72,7 +82,6 @@
         );
       }
 
-      // Process users in smaller batches with delays
       const batchSize = 2;
       const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
       const allResults = [];
@@ -94,7 +103,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userIds: batch, testMode: false }),
-            signal: AbortSignal.timeout(120000), // 2 minutes per batch
+            signal: AbortSignal.timeout(120000),
           });
 
           if (!batchResponse.ok) {
@@ -120,14 +129,12 @@
           totalFailed += batch.length;
         }
 
-        // Wait between batches (except for the last batch)
         if (i + batchSize < userIds.length) {
           console.log("⏳ Waiting 30 seconds before next batch...");
           await delay(30000);
         }
       }
 
-      // Prepare final summary
       const finalSummary = {
         message: "Daily auto-apply cron job completed successfully",
         cronJobStarted: new Date().toISOString(),
