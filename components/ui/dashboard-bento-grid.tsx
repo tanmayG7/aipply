@@ -24,7 +24,7 @@ interface DashboardBentoGridProps {
 
 export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       {/* Compact Pentagon-like layout with 4 items */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
         {/* Top item - spans 2 columns */}
@@ -34,7 +34,7 @@ export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
             description={items(stats)[0].description}
             header={items(stats)[0].header}
             icon={items(stats)[0].icon}
-            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 sm:h-20 min-h-[4rem] sm:min-h-[5rem]"
+            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
           />
         </div>
 
@@ -44,14 +44,14 @@ export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
           description={items(stats)[1].description}
           header={items(stats)[1].header}
           icon={items(stats)[1].icon}
-          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 min-h-[5rem]"
+          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
         />
         <BentoGridItem
           title={items(stats)[2].title}
           description={items(stats)[2].description}
           header={items(stats)[2].header}
           icon={items(stats)[2].icon}
-          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 min-h-[5rem]"
+          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
         />
 
         {/* Bottom item - spans 2 columns */}
@@ -61,7 +61,7 @@ export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
             description={items(stats)[3].description}
             header={items(stats)[3].header}
             icon={items(stats)[3].icon}
-            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-16 sm:h-20 min-h-[4rem] sm:min-h-[5rem]"
+            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
           />
         </div>
       </div>
@@ -81,7 +81,7 @@ const items = (stats: DashboardStats) => [
     description: "Available positions in your feed",
     header: (
       <Skeleton>
-        <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-blue-500/30 min-w-[60px] sm:min-w-[70px] text-center">
+        <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-lg px-2 py-1 border border-blue-500/30 min-w-[50px] sm:min-w-[60px] text-center">
           {stats.totalJobsShown.toLocaleString()}
         </div>
       </Skeleton>
@@ -90,10 +90,10 @@ const items = (stats: DashboardStats) => [
   },
   {
     title: "Jobs Applied",
-    description: "Your total applications",
+    description: "",
     header: (
       <Skeleton>
-        <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-green-500/20 to-green-600/20 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-green-500/30 min-w-[60px] sm:min-w-[70px] text-center">
+        <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-green-500/20 to-green-600/20 rounded-lg px-2 py-1 border border-green-500/30 min-w-[50px] sm:min-w-[60px] text-center">
           {stats.jobsApplied}
         </div>
       </Skeleton>
@@ -101,11 +101,11 @@ const items = (stats: DashboardStats) => [
     icon: <IconSend className="h-3 w-3 text-green-400" />,
   },
   {
-    title: "Average Experience",
-    description: "Years of experience",
+    title: "Avg Experience",
+    description: "",
     header: (
       <Skeleton>
-        <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-purple-500/30 min-w-[60px] sm:min-w-[70px] text-center">
+        <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-lg px-2 py-1 border border-purple-500/30 min-w-[50px] sm:min-w-[60px] text-center">
           {stats.averageExperience} yrs
         </div>
       </Skeleton>
@@ -114,10 +114,10 @@ const items = (stats: DashboardStats) => [
   },
   {
     title: "Average Package",
-    description: "LPA for positions you've applied to",
+    description: "For positions applied to",
     header: (
       <Skeleton>
-        <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-orange-500/20 to-orange-600/20 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-orange-500/30 min-w-[60px] sm:min-w-[70px] text-center">
+        <div className="text-xs sm:text-sm font-bold text-[#F5F5F6] bg-gradient-to-r from-orange-500/20 to-orange-600/20 rounded-lg px-2 py-1 border border-orange-500/30 min-w-[50px] sm:min-w-[60px] text-center">
           {stats.averagePackage} LPA
         </div>
       </Skeleton>
