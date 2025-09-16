@@ -42,7 +42,7 @@ export function DashboardChart({ packageAppliedTo }: DashboardChartProps) {
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="items-center lg:items-start m-5">
+      <CardHeader className="items-center m-5">
         <CardTitle className="text-white">Package Applied Breakdown</CardTitle>
         {/* <CardDescription>January - June 2024</CardDescription> */}
       </CardHeader>

@@ -15,6 +15,7 @@ import Head from "next/head";
 import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
 import HeroSection from "@/components/ui/hero-section";
 import DashboardBentoGrid from "@/components/ui/dashboard-bento-grid";
+import MobileAutoApplyCarousel from "@/components/ui/mobile-auto-apply-carousel";
 import {
   auth,
   getDashboardData,
@@ -414,31 +415,37 @@ const HomePage: React.FC = () => {
                   {/* Auto Applied Jobs Cards - Only for subscribed users */}
                   {isSubscribed && autoAppliedStats && (
                     <>
-                      <div className="flex flex-col gap-3">
-                        <h2 className="font-inter text-[#ECECED] font-semibold text-xl">
-                          Auto Apply Statistics
-                        </h2>
-                        <p className="font-inter text-[#94969C] text-sm">
-                          Track your automated job applications performance
-                        </p>
-                      </div>
+                      {/* Mobile Carousel View */}
+                      <MobileAutoApplyCarousel stats={autoAppliedStats} />
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <DashboardCard
-                          id="5"
-                          title="Total Auto Applied"
-                          totalNumber={autoAppliedStats.totalAutoApplied.toString()}
-                        />
-                        <DashboardCard
-                          id="6"
-                          title="Auto Applied Today"
-                          totalNumber={autoAppliedStats.todayAutoApplied.toString()}
-                        />
-                        <DashboardCard
-                          id="7"
-                          title="Auto Applied This Month"
-                          totalNumber={autoAppliedStats.thisMonthAutoApplied.toString()}
-                        />
+                      {/* Desktop Grid View - Hidden on mobile */}
+                      <div className="hidden md:flex flex-col gap-4">
+                        <div className="flex flex-col gap-3 text-center md:text-left">
+                          <h2 className="font-inter text-[#ECECED] font-semibold text-xl">
+                            Auto Apply Statistics
+                          </h2>
+                          <p className="font-inter text-[#94969C] text-sm">
+                            Track your automated job applications performance
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          <DashboardCard
+                            id="5"
+                            title="Total Auto Applied"
+                            totalNumber={autoAppliedStats.totalAutoApplied.toString()}
+                          />
+                          <DashboardCard
+                            id="6"
+                            title="Auto Applied Today"
+                            totalNumber={autoAppliedStats.todayAutoApplied.toString()}
+                          />
+                          <DashboardCard
+                            id="7"
+                            title="Auto Applied This Month"
+                            totalNumber={autoAppliedStats.thisMonthAutoApplied.toString()}
+                          />
+                        </div>
                       </div>
                     </>
                   )}

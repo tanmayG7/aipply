@@ -25,44 +25,83 @@ interface DashboardBentoGridProps {
 export default function DashboardBentoGrid({ stats }: DashboardBentoGridProps) {
   return (
     <div className="w-full max-w-2xl mx-auto">
-      {/* Compact Pentagon-like layout with 4 items */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
-        {/* Top item - spans 2 columns */}
-        <div className="col-span-2">
-          <BentoGridItem
-            title={items(stats)[0].title}
-            description={items(stats)[0].description}
-            header={items(stats)[0].header}
-            icon={items(stats)[0].icon}
-            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
-          />
+      {/* Mobile: Vertical stack with centered content, Desktop: Original grid layout */}
+      <div className="md:grid md:grid-cols-2 md:gap-3 lg:gap-4 w-full space-y-0 md:space-y-0">
+        {/* Mobile: Vertical stack layout */}
+        <div className="md:hidden">
+          <div className="bg-[#0C111D] border border-[#1F242F] rounded-xl p-4 space-y-6">
+            {items(stats).map((item, index) => (
+              <div key={index} className="relative">
+                {/* Item content */}
+                <div className="flex flex-col items-center text-center space-y-3">
+                  {/* Icon centered */}
+                  <div className="flex items-center justify-center">
+                    {item.icon}
+                  </div>
+                  {/* Stats value */}
+                  <div className="flex items-center justify-center">
+                    {item.header}
+                  </div>
+                  {/* Title and description */}
+                  <div className="space-y-1">
+                    <div className="font-inter font-semibold text-sm text-neutral-200 leading-tight">
+                      {item.title}
+                    </div>
+                    {item.description && (
+                      <div className="font-inter text-xs text-neutral-300 leading-tight opacity-80">
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Invisible separator line (except for last item) */}
+                {index < items(stats).length - 1 && (
+                  <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-full h-px bg-transparent border-b border-[#1F242F]/30"></div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Middle row - 2 items */}
-        <BentoGridItem
-          title={items(stats)[1].title}
-          description={items(stats)[1].description}
-          header={items(stats)[1].header}
-          icon={items(stats)[1].icon}
-          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
-        />
-        <BentoGridItem
-          title={items(stats)[2].title}
-          description={items(stats)[2].description}
-          header={items(stats)[2].header}
-          icon={items(stats)[2].icon}
-          className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
-        />
+        {/* Desktop: Original grid layout */}
+        <div className="hidden md:contents">
+          {/* Top item - spans 2 columns */}
+          <div className="col-span-2">
+            <BentoGridItem
+              title={items(stats)[0].title}
+              description={items(stats)[0].description}
+              header={items(stats)[0].header}
+              icon={items(stats)[0].icon}
+              className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
+            />
+          </div>
 
-        {/* Bottom item - spans 2 columns */}
-        <div className="col-span-2">
+          {/* Middle row - 2 items */}
           <BentoGridItem
-            title={items(stats)[3].title}
-            description={items(stats)[3].description}
-            header={items(stats)[3].header}
-            icon={items(stats)[3].icon}
+            title={items(stats)[1].title}
+            description={items(stats)[1].description}
+            header={items(stats)[1].header}
+            icon={items(stats)[1].icon}
             className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
           />
+          <BentoGridItem
+            title={items(stats)[2].title}
+            description={items(stats)[2].description}
+            header={items(stats)[2].header}
+            icon={items(stats)[2].icon}
+            className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
+          />
+
+          {/* Bottom item - spans 2 columns */}
+          <div className="col-span-2">
+            <BentoGridItem
+              title={items(stats)[3].title}
+              description={items(stats)[3].description}
+              header={items(stats)[3].header}
+              icon={items(stats)[3].icon}
+              className="border-[#1F242F] bg-[#0C111D] hover:bg-[#1F242F]/50 text-white relative shadow-sm hover:shadow-lg transition-all duration-200 h-20 sm:h-24 min-h-[5rem] sm:min-h-[6rem]"
+            />
+          </div>
         </div>
       </div>
     </div>
