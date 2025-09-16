@@ -86,7 +86,7 @@ const items = (stats: DashboardStats) => [
         </div>
       </Skeleton>
     ),
-    icon: <IconBriefcase className="h-3 w-3 text-blue-400" />,
+    icon: <IconBriefcase className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" />,
   },
   {
     title: "Jobs Applied",
@@ -98,7 +98,7 @@ const items = (stats: DashboardStats) => [
         </div>
       </Skeleton>
     ),
-    icon: <IconSend className="h-3 w-3 text-green-400" />,
+    icon: <IconSend className="h-5 w-5 sm:h-6 sm:w-6 text-green-400" />,
   },
   {
     title: "Avg Experience",
@@ -110,7 +110,7 @@ const items = (stats: DashboardStats) => [
         </div>
       </Skeleton>
     ),
-    icon: <IconCalendar className="h-3 w-3 text-purple-400" />,
+    icon: <IconCalendar className="h-5 w-5 sm:h-6 sm:w-6 text-purple-400" />,
   },
   {
     title: "Average Package",
@@ -122,6 +122,6 @@ const items = (stats: DashboardStats) => [
         </div>
       </Skeleton>
     ),
-    icon: <IconCash className="h-3 w-3 text-orange-400" />,
+    icon: <IconCash className="h-5 w-5 sm:h-6 sm:w-6 text-orange-400" />,
   },
 ];
