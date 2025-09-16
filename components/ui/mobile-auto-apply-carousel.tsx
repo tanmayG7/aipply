@@ -90,7 +90,7 @@ const MobileAutoApplyCarousel: React.FC<MobileAutoApplyCarouselProps> = ({ stats
   };
 
   return (
-    <div className="flex flex-col gap-6 md:hidden"> {/* Only show on mobile */}
+    <div className="flex flex-col gap-6 md:hidden w-full max-w-full overflow-hidden"> {/* Only show on mobile */}
       {/* Centered Title and Description */}
       <div className="text-center">
         <h2 className="font-inter text-[#ECECED] font-semibold text-xl mb-2">
@@ -102,23 +102,23 @@ const MobileAutoApplyCarousel: React.FC<MobileAutoApplyCarouselProps> = ({ stats
       </div>
 
       {/* Horizontal Sliding Carousel */}
-      <div className="relative">
+      <div className="relative w-full">
         <div
-          className="overflow-hidden"
+          className="overflow-hidden w-full"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
           <div
-            className="flex transition-transform duration-300 ease-in-out"
+            className="flex transition-transform duration-300 ease-in-out w-full"
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
           >
             {statsData.map((item, index) => (
               <div
                 key={item.key}
-                className="w-full flex-shrink-0 px-4"
+                className="w-full flex-shrink-0 px-2"
               >
-                <div className="border border-[#1F242F] bg-[#0C111D] px-6 py-8 rounded-xl relative">
+                <div className="border border-[#1F242F] bg-[#0C111D] px-4 py-8 rounded-xl relative w-full">
                   <div className="flex flex-col gap-3 items-center text-center">
                     <h3 className="text-text-sm-medium font-inter text-[#94969C]">
                       Jobs Applied

@@ -344,9 +344,9 @@ const HomePage: React.FC = () => {
         <AppSidebar />
 
         <SidebarInset>
-          <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-hidden">
+          <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden">
             <MobileTrigger />
-            <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 w-full max-w-full">
               {/* {loading ? ( */}
                 {/* // <HomeShimmer /> */}
               {/* // ) : ( */}
