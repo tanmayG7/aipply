@@ -40,7 +40,7 @@ export function DashboardBarChart({ locationData }: DashboardBarChartProps) {
 
   return (
     <Card>
-      <CardHeader className="items-start m-5 my-10">
+      <CardHeader className="items-center lg:items-start m-5 my-10">
         <CardTitle className="text-white">Top Locations Applied</CardTitle>
       </CardHeader>
       <CardContent>

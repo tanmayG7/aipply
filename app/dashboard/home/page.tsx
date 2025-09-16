@@ -370,8 +370,8 @@ const HomePage: React.FC = () => {
                   </div>
 
                   <div className="flex flex-col lg:flex-row gap-6 items-start">
-                    {/* Left Column: Getting Started + Bento Grid */}
-                    <div className="w-full lg:w-1/2 flex flex-col gap-4 min-w-0">
+                    {/* Getting Started Card - Always first */}
+                    <div className="w-full lg:w-1/2 flex flex-col gap-4 min-w-0 order-1 lg:order-1">
                       <GetStartedCard
                         appliedJoblength={
                           dashboardData?.jobsApplied
@@ -380,9 +380,9 @@ const HomePage: React.FC = () => {
                         }
                       />
 
-                      {/* Bento Grid */}
+                      {/* Quick Stats - Third on mobile, Second on desktop */}
                       {dashboardData && (
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 order-3 lg:order-2">
                           <div className="text-center">
                             <h3 className="font-inter text-[#ECECED] font-semibold text-lg mb-1">
                               Quick Stats
@@ -405,8 +405,8 @@ const HomePage: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Right Column: Hero Section */}
-                    <div className="w-full lg:w-1/2 min-w-0">
+                    {/* Hero Section - Second on mobile, Second column on desktop */}
+                    <div className="w-full lg:w-1/2 min-w-0 order-2 lg:order-3">
                       <HeroSection />
                     </div>
                   </div>
