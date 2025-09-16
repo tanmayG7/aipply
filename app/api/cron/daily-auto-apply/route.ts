@@ -3,6 +3,27 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { firestore } from "@/lib/firebaseConfig/firebaseConfig";
 
 const API_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8080";
+ 
+export async function GET(req: Request) {
+    return handleCronJob(req);
+  }
+
+  Then wrap your existing POST code in a shared function:
+
+  export async function GET(req: Request) {
+    return handleCronJob(req);
+  }
+
+  export async function POST(req: Request) {
+    return handleCronJob(req);
+  }
+
+  async function handleCronJob(req: Request) {
+    // Move all your existing POST function code here
+    console.log("====================================");
+    console.log("🟢 Daily auto-apply cron job triggered");
+    // ... rest of your existing code
+  }
 
 export async function POST(req: Request) {
   console.log("====================================");
