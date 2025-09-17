@@ -74,7 +74,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="shadow-input flex items-center h-10 px-3 rounded-l-md border border-[#333741] bg-gray-50 text-sm transition duration-400 focus-visible:ring-[2px] focus-visible:ring-neutral-400 focus-visible:outline-none dark:bg-zinc-800 dark:text-white dark:shadow-[0px_0px_1px_1px_#404040] dark:focus-visible:ring-neutral-600 min-w-[120px]"
+            className="shadow-input flex items-center h-10 px-3 rounded-l-md border-none bg-zinc-800 text-sm text-white transition duration-400 focus-visible:ring-[2px] focus-visible:ring-neutral-600 focus-visible:outline-none shadow-[0px_0px_1px_1px_#404040] min-w-[120px]"
           >
             <span className="mr-2">{selectedCountry.flag}</span>
             <span className="text-xs font-medium">{selectedCountry.dialCode}</span>
@@ -139,7 +139,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
           placeholder="Enter phone number"
           required={required}
           autoComplete="tel-national"
-          className="shadow-input flex-1 h-10 w-full rounded-r-md border-none bg-gray-50 px-3 py-2 text-sm text-black transition duration-400 focus-visible:ring-[2px] focus-visible:ring-neutral-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-800 dark:text-white dark:shadow-[0px_0px_1px_1px_#404040] dark:focus-visible:ring-neutral-600"
+          className="shadow-input flex-1 h-10 w-full rounded-r-md border-none bg-zinc-800 px-3 py-2 text-sm text-white transition duration-400 focus-visible:ring-[2px] focus-visible:ring-neutral-600 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 shadow-[0px_0px_1px_1px_#404040]"
         />
       </div>
 

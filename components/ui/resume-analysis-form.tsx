@@ -299,7 +299,7 @@ export default function ResumeAnalysisForm() {
               {step < 2 && (
                 <div className={cn(
                   "w-16 h-1 mx-2 rounded transition-colors",
-                  currentStep > step ? "bg-[#AE94FF]" : "bg-[#333741]"
+                  currentStep >= step + 1 ? "bg-[#AE94FF]" : "bg-[#333741]"
                 )} />
               )}
             </div>
