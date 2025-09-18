@@ -239,19 +239,12 @@ export const HamburgerMenu = ({
               </div>
 
               <div className="flex flex-col gap-4 mt-8 pt-8 border-t border-white/20">
-                <Link 
+                <Link
                   href="/dashboard/onboarding/login"
-                  className="text-white font-manrope leading-[160%] text-[16px] font-[500] w-full text-left py-3 px-4 rounded-md transition-colors duration-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
+                  className="text-white font-manrope leading-[160%] text-[16px] font-[500] w-full text-center py-3 px-4 rounded-md transition-colors duration-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent border border-white/20"
                   onClick={toggleMenu}
                 >
-                  Login
-                </Link>
-                <Link 
-                  href="/dashboard/onboarding/profile-setup"
-                  className="text-white font-manrope leading-[160%] text-[16px] font-[500] w-full text-left py-3 px-4 rounded-md transition-colors duration-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={toggleMenu}
-                >
-                  Sign up
+                  Join Now
                 </Link>
               </div>
             </nav>

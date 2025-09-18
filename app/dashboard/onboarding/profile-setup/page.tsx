@@ -47,14 +47,11 @@ export default function ProfileSetup() {
       console.log("🔍 AUTH CHANGED - User email:", user?.email);
 
       if (user) {
-        // Force Google user detection to true for testing
-        alert("DEBUG: User detected, setting Google user to TRUE for testing");
-        setIsGoogleUser(true);
-
-        // Also try normal detection
+        // Detect Google user properly
         const hasGoogleProvider = user.providerData.some(provider =>
           provider.providerId === 'google.com'
         );
+        setIsGoogleUser(hasGoogleProvider);
 
         console.log("🔍 Provider data:", user.providerData);
         console.log("🔍 Has Google provider:", hasGoogleProvider);
