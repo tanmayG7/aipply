@@ -1,8 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useRef, useMemo } from 'react';
 import { auth, saveUserProfile, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
+import { mapOnboardingToUserDetails, mapUserDetailsToOnboarding } from '@/lib/interface-mappers';
+import { ONBOARDING_CONFIG, getValidationMessage, calculateProgress as calculateProgressHelper, shouldSanitizeInput } from '@/lib/onboarding-config';
+import { createOnboardingError, handleOnboardingError } from '@/lib/onboarding-errors';
+import { useOnboardingError } from './OnboardingErrorContext';
+import { sanitizeFormData, sanitizeInput, type SanitizationResult } from '@/lib/input-sanitization';
 
 export interface OnboardingFormData {
   firstName: string;
@@ -31,6 +36,7 @@ export interface OnboardingState {
   lastSavedAt: Date | null;
   isDirty: boolean;
   progress: number;
+  sanitizationWarnings: Record<string, string[]>;
 }
 
 type OnboardingAction =
@@ -45,6 +51,7 @@ type OnboardingAction =
   | { type: 'SET_LAST_SAVED_AT'; payload: Date | null }
   | { type: 'SET_DIRTY'; payload: boolean }
   | { type: 'SET_SKILLS'; payload: string[] }
+  | { type: 'SET_SANITIZATION_WARNINGS'; payload: Record<string, string[]> }
   | { type: 'RESET_FORM' }
   | { type: 'LOAD_SAVED_DATA'; payload: Partial<OnboardingFormData> };
 
@@ -61,6 +68,12 @@ interface OnboardingContextType {
   isFormValid: (page?: number) => boolean;
   calculateProgress: () => number;
   resetForm: () => void;
+  formCompletionStatus: {
+    totalFields: number;
+    completedFieldsCount: number;
+    hasSkills: boolean;
+    progressPercentage: number;
+  };
 }
 
 const initialFormData: OnboardingFormData = {
@@ -80,7 +93,7 @@ const initialFormData: OnboardingFormData = {
 
 const initialState: OnboardingState = {
   formData: initialFormData,
-  currentPage: 1,
+  currentPage: ONBOARDING_CONFIG.INITIAL_PAGE,
   isLoading: false,
   isSaving: false,
   errors: {},
@@ -90,6 +103,7 @@ const initialState: OnboardingState = {
   lastSavedAt: null,
   isDirty: false,
   progress: 0,
+  sanitizationWarnings: {},
 };
 
 function onboardingReducer(state: OnboardingState, action: OnboardingAction): OnboardingState {
@@ -124,6 +138,8 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
         formData: { ...state.formData, skills: action.payload },
         isDirty: true,
       };
+    case 'SET_SANITIZATION_WARNINGS':
+      return { ...state, sanitizationWarnings: action.payload };
     case 'RESET_FORM':
       return { ...initialState, authLoading: false };
     case 'LOAD_SAVED_DATA':
@@ -143,7 +159,7 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(undef
 export const useOnboarding = () => {
   const context = useContext(OnboardingContext);
   if (!context) {
-    throw new Error('useOnboarding must be used within an OnboardingProvider');
+    throw createOnboardingError('CONTEXT_ERROR', new Error('useOnboarding must be used within an OnboardingProvider'));
   }
   return context;
 };
@@ -152,46 +168,51 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [state, dispatch] = useReducer(onboardingReducer, initialState);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSaveDataRef = useRef<string>('');
+  const { setSystemError, incrementRetryCount, resetRetryCount, state: errorState } = useOnboardingError();
 
-  // Validation rules for each page
+  // Validation rules for each page with error dispatch
   const validatePage = useCallback((page: number): boolean => {
     const newErrors: Record<string, boolean> = {};
-    const phoneNumberRegex = /^\+91-\d{10}$/;
-    const ctcRegex = /^\d+LPA$/;
+    const { PHONE_NUMBER_REGEX, CTC_REGEX, PAGES } = ONBOARDING_CONFIG;
 
-    if (page === 1) {
+    if (page === PAGES.PERSONAL_INFO) {
       newErrors.firstName = !state.formData.firstName;
       newErrors.lastName = !state.formData.lastName;
-      newErrors.mobileNumber = !state.formData.mobileNumber || !phoneNumberRegex.test(state.formData.mobileNumber);
+      newErrors.mobileNumber = !state.formData.mobileNumber || !PHONE_NUMBER_REGEX.test(state.formData.mobileNumber);
       newErrors.email = !state.formData.email;
-    } else if (page === 2) {
+    } else if (page === PAGES.JOB_TITLE) {
       newErrors.jobTitle = !state.formData.jobTitle;
-    } else if (page === 3) {
+    } else if (page === PAGES.SKILLS) {
       newErrors.skills = state.formData.skills.length === 0;
-    } else if (page === 4) {
-      newErrors.expectedCTC = !state.formData.expectedCTC || !ctcRegex.test(state.formData.expectedCTC);
-    } else if (page === 5) {
+    } else if (page === PAGES.EXPECTED_CTC) {
+      newErrors.expectedCTC = !state.formData.expectedCTC || !CTC_REGEX.test(state.formData.expectedCTC);
+    } else if (page === PAGES.LINKEDIN_PROFILE) {
       newErrors.linkedinProfile = !state.formData.linkedinProfile;
     }
 
-    dispatch({ type: 'SET_ERRORS', payload: newErrors });
-    return !Object.values(newErrors).some((error) => error);
+    const isValid = !Object.values(newErrors).some((error) => error);
+    dispatch({ type: 'SET_ERRORS', payload: isValid ? {} : newErrors });
+    return isValid;
   }, [state.formData]);
 
-  // Calculate progress percentage
+  // Memoize progress calculation with granular dependencies
+  const progress = useMemo((): number => {
+    return calculateProgressHelper(state.formData);
+  }, [
+    state.formData.firstName,
+    state.formData.lastName,
+    state.formData.mobileNumber,
+    state.formData.email,
+    state.formData.jobTitle,
+    state.formData.expectedCTC,
+    state.formData.linkedinProfile,
+    state.formData.skills.length,
+  ]);
+
+  // Calculate progress percentage (kept for backward compatibility)
   const calculateProgress = useCallback((): number => {
-    const fields = [
-      'firstName', 'lastName', 'mobileNumber', 'email',
-      'jobTitle', 'expectedCTC', 'linkedinProfile'
-    ];
-    const completedFields = fields.filter(field =>
-      state.formData[field as keyof OnboardingFormData]
-    ).length;
-    const skillsCompleted = state.formData.skills.length > 0 ? 1 : 0;
-    const totalFields = fields.length + 1; // +1 for skills
-
-    return Math.round(((completedFields + skillsCompleted) / totalFields) * 100);
-  }, [state.formData]);
+    return progress;
+  }, [progress]);
 
   // Debounced auto-save function
   const debouncedSave = useCallback(async () => {
@@ -200,8 +221,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const user = auth.currentUser;
     if (!user) return;
 
-    // Check if data has actually changed since last save
-    const currentDataString = JSON.stringify(state.formData);
+    // Check if data has actually changed since last save (using memoized string)
+    const currentDataString = userDataString;
     if (currentDataString === lastSaveDataRef.current) return;
 
     try {
@@ -210,35 +231,70 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const currentDate = new Date().toISOString();
       const updatedFormData = {
         ...state.formData,
-        phone: state.formData.mobileNumber, // Map mobileNumber to phone for UserDetails interface
-        socialMediaLinks: {
-          linkedin: state.formData.linkedinProfile,
-        },
         updatedDate: currentDate,
         createdDate: state.formData.createdDate || currentDate,
       };
 
-      await saveUserProfile(user.uid, updatedFormData);
+      const userDetailsData = mapOnboardingToUserDetails(updatedFormData);
+      await saveUserProfile(user.uid, userDetailsData);
 
       lastSaveDataRef.current = currentDataString;
       dispatch({ type: 'SET_SAVE_STATUS', payload: 'saved' });
       dispatch({ type: 'SET_LAST_SAVED_AT', payload: new Date() });
       dispatch({ type: 'SET_DIRTY', payload: false });
 
-      // Auto-hide saved status after 2 seconds
+      // Auto-hide saved status
       setTimeout(() => {
         dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' });
-      }, 2000);
+      }, ONBOARDING_CONFIG.SAVE_STATUS_DISPLAY_DURATION);
     } catch (error) {
-      console.error('Auto-save failed:', error);
-      dispatch({ type: 'SET_SAVE_STATUS', payload: 'error' });
+      const onboardingError = handleOnboardingError(error, {
+        operation: 'auto-save',
+        userId: user?.uid,
+        formData: state.formData,
+      });
 
-      // Auto-retry after 5 seconds on error
-      setTimeout(() => {
-        dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' });
-      }, 5000);
+      dispatch({ type: 'SET_SAVE_STATUS', payload: 'error' });
+      setSystemError(onboardingError);
+
+      // Auto-retry based on error configuration
+      if (onboardingError.retryable && errorState.retryCount < 3) {
+        incrementRetryCount();
+        setTimeout(() => {
+          dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' });
+          debouncedSave();
+        }, onboardingError.retryDelay || ONBOARDING_CONFIG.ERROR_RETRY_DELAY);
+      } else {
+        // For non-retryable errors or max retries reached, just reset status
+        setTimeout(() => {
+          dispatch({ type: 'SET_SAVE_STATUS', payload: 'idle' });
+        }, ONBOARDING_CONFIG.ERROR_RETRY_DELAY);
+      }
     }
-  }, [state.formData, state.isDirty]);
+  }, [state.formData, state.isDirty, userDataString]);
+
+  // Memoize frequently used computed values
+  const formCompletionStatus = useMemo(() => {
+    const { PROGRESS_FIELDS } = ONBOARDING_CONFIG;
+    return {
+      totalFields: PROGRESS_FIELDS.length + 1, // +1 for skills
+      completedFieldsCount: PROGRESS_FIELDS.filter(field =>
+        state.formData[field as keyof OnboardingFormData]
+      ).length,
+      hasSkills: state.formData.skills.length > 0,
+      progressPercentage: progress,
+    };
+  }, [
+    state.formData.firstName,
+    state.formData.lastName,
+    state.formData.mobileNumber,
+    state.formData.email,
+    state.formData.jobTitle,
+    state.formData.expectedCTC,
+    state.formData.linkedinProfile,
+    state.formData.skills.length,
+    progress,
+  ]);
 
   // Set up debounced auto-save
   useEffect(() => {
@@ -249,7 +305,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       saveTimeoutRef.current = setTimeout(() => {
         debouncedSave();
-      }, 1000); // Save after 1 second of inactivity
+      }, ONBOARDING_CONFIG.AUTO_SAVE_DELAY);
     }
 
     return () => {
@@ -281,26 +337,24 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           const existingProfile = await getUserProfile(user.uid);
           if (existingProfile) {
             // Map UserDetails interface fields to OnboardingFormData
-            const mappedProfile = {
-              ...existingProfile,
-              mobileNumber: existingProfile.phone || '', // Map phone to mobileNumber
-              linkedinProfile: existingProfile.socialMediaLinks?.linkedin || '', // Map LinkedIn profile
-            };
+            const mappedProfile = mapUserDetailsToOnboarding(existingProfile, state.formData);
             dispatch({ type: 'LOAD_SAVED_DATA', payload: mappedProfile });
 
             // Calculate which page user should be on based on completed data
-            let targetPage = 1;
-            if (existingProfile.firstName && existingProfile.lastName && existingProfile.phone && existingProfile.email) {
-              targetPage = 2;
+            const { PAGES, PAGE_PROGRESSION } = ONBOARDING_CONFIG;
+            let targetPage = PAGES.PERSONAL_INFO;
+
+            if (PAGE_PROGRESSION.MIN_FIELDS_FOR_PAGE_2.every(field => existingProfile[field])) {
+              targetPage = PAGES.JOB_TITLE;
             }
             if (existingProfile.jobTitle) {
-              targetPage = 3;
+              targetPage = PAGES.SKILLS;
             }
             if (existingProfile.skills && existingProfile.skills.length > 0) {
-              targetPage = 4;
+              targetPage = PAGES.EXPECTED_CTC;
             }
             if (existingProfile.expectedCTC) {
-              targetPage = 5;
+              targetPage = PAGES.LINKEDIN_PROFILE;
             }
             if (existingProfile.socialMediaLinks?.linkedin && existingProfile.onboardingCompleted) {
               // User has completed onboarding, redirect them
@@ -314,9 +368,21 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             dispatch({ type: 'SET_FORM_DATA', payload: authData });
           }
         } catch (error) {
-          console.error('Error loading existing profile:', error);
-          // Fall back to auth data if profile fetch fails
-          dispatch({ type: 'SET_FORM_DATA', payload: authData });
+          const onboardingError = handleOnboardingError(error, {
+            operation: 'profile-load',
+            userId: user?.uid,
+          });
+
+          setSystemError(onboardingError);
+
+          // For profile load errors, fall back to auth data
+          if (onboardingError.code === 'PROFILE_LOAD_ERROR' || onboardingError.recoverable) {
+            dispatch({ type: 'SET_FORM_DATA', payload: authData });
+            // Clear error after fallback
+            setTimeout(() => {
+              setSystemError(null);
+            }, 3000);
+          }
         }
       }
       dispatch({ type: 'SET_AUTH_LOADING', payload: false });
@@ -325,22 +391,47 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return () => unsubscribe();
   }, []);
 
-  // Update progress when form data changes
-  useEffect(() => {
-    const progress = calculateProgress();
-    if (progress !== state.progress) {
-      // We don't need to dispatch here as it would cause unnecessary re-renders
-      // The progress can be calculated on-demand in the UI
-    }
-  }, [state.formData, calculateProgress, state.progress]);
 
-  // Context methods
+  // Context methods with sanitization
   const updateFormData = useCallback((data: Partial<OnboardingFormData>) => {
-    dispatch({ type: 'SET_FORM_DATA', payload: data });
+    if (shouldSanitizeInput()) {
+      const { sanitized, results } = sanitizeFormData(data);
+
+      // Extract warnings for user feedback
+      const warnings: Record<string, string[]> = {};
+      Object.entries(results).forEach(([key, result]) => {
+        if (result.warnings.length > 0) {
+          warnings[key] = result.warnings;
+        }
+      });
+
+      // Log security violations if enabled
+      if (ONBOARDING_CONFIG.SECURITY.LOG_SECURITY_VIOLATIONS) {
+        Object.entries(results).forEach(([key, result]) => {
+          if (result.errors.length > 0) {
+            console.warn(`Security violation in field '${key}':`, result.errors);
+          }
+        });
+      }
+
+      dispatch({ type: 'SET_SANITIZATION_WARNINGS', payload: warnings });
+      dispatch({ type: 'SET_FORM_DATA', payload: sanitized as Partial<OnboardingFormData> });
+    } else {
+      dispatch({ type: 'SET_FORM_DATA', payload: data });
+    }
   }, []);
 
   const updateSkills = useCallback((skills: string[]) => {
-    dispatch({ type: 'SET_SKILLS', payload: skills });
+    if (shouldSanitizeInput()) {
+      const sanitizedSkills = skills
+        .map(skill => sanitizeInput(skill, 'skill'))
+        .filter(result => result.isValid && result.sanitized.length > 0)
+        .map(result => result.sanitized);
+
+      dispatch({ type: 'SET_SKILLS', payload: sanitizedSkills });
+    } else {
+      dispatch({ type: 'SET_SKILLS', payload: skills });
+    }
   }, []);
 
   const nextPage = useCallback((): boolean => {
@@ -352,7 +443,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, [state.currentPage, validatePage]);
 
   const previousPage = useCallback(() => {
-    if (state.currentPage > 1) {
+    if (state.currentPage > ONBOARDING_CONFIG.MIN_PAGE) {
       dispatch({ type: 'SET_CURRENT_PAGE', payload: state.currentPage - 1 });
     }
   }, [state.currentPage]);
@@ -370,24 +461,50 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const currentDate = new Date().toISOString();
       const updatedFormData = {
         ...state.formData,
-        phone: state.formData.mobileNumber, // Map mobileNumber to phone for UserDetails interface
-        socialMediaLinks: {
-          linkedin: state.formData.linkedinProfile,
-        },
         updatedDate: currentDate,
         createdDate: state.formData.createdDate || currentDate,
       };
 
-      await saveUserProfile(user.uid, updatedFormData);
+      const userDetailsData = mapOnboardingToUserDetails(updatedFormData);
+      await saveUserProfile(user.uid, userDetailsData);
       dispatch({ type: 'SET_DIRTY', payload: false });
       dispatch({ type: 'SET_LAST_SAVED_AT', payload: new Date() });
     } catch (error) {
-      console.error('Save failed:', error);
-      throw error;
+      const onboardingError = handleOnboardingError(error, {
+        operation: 'manual-save',
+        userId: user?.uid,
+        formData: state.formData,
+      });
+
+      // Re-throw as typed error for calling code to handle
+      throw onboardingError;
     } finally {
       dispatch({ type: 'SET_SAVING', payload: false });
     }
   }, [state.formData]);
+
+  // Memoize user data string for efficient comparison
+  const userDataString = useMemo(() => {
+    return JSON.stringify({
+      firstName: state.formData.firstName,
+      lastName: state.formData.lastName,
+      mobileNumber: state.formData.mobileNumber,
+      email: state.formData.email,
+      jobTitle: state.formData.jobTitle,
+      expectedCTC: state.formData.expectedCTC,
+      linkedinProfile: state.formData.linkedinProfile,
+      skills: state.formData.skills,
+    });
+  }, [
+    state.formData.firstName,
+    state.formData.lastName,
+    state.formData.mobileNumber,
+    state.formData.email,
+    state.formData.jobTitle,
+    state.formData.expectedCTC,
+    state.formData.linkedinProfile,
+    state.formData.skills,
+  ]);
 
   const validateCurrentPage = useCallback((): boolean => {
     return validatePage(state.currentPage);
@@ -395,14 +512,34 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const isFormValid = useCallback((page?: number): boolean => {
     const targetPage = page ?? state.currentPage;
-    return validatePage(targetPage);
-  }, [state.currentPage, validatePage]);
+    const { PHONE_NUMBER_REGEX, CTC_REGEX, PAGES } = ONBOARDING_CONFIG;
+    const newErrors: Record<string, boolean> = {};
+
+    if (targetPage === PAGES.PERSONAL_INFO) {
+      newErrors.firstName = !state.formData.firstName;
+      newErrors.lastName = !state.formData.lastName;
+      newErrors.mobileNumber = !state.formData.mobileNumber || !PHONE_NUMBER_REGEX.test(state.formData.mobileNumber);
+      newErrors.email = !state.formData.email;
+    } else if (targetPage === PAGES.JOB_TITLE) {
+      newErrors.jobTitle = !state.formData.jobTitle;
+    } else if (targetPage === PAGES.SKILLS) {
+      newErrors.skills = state.formData.skills.length === 0;
+    } else if (targetPage === PAGES.EXPECTED_CTC) {
+      newErrors.expectedCTC = !state.formData.expectedCTC || !CTC_REGEX.test(state.formData.expectedCTC);
+    } else if (targetPage === PAGES.LINKEDIN_PROFILE) {
+      newErrors.linkedinProfile = !state.formData.linkedinProfile;
+    }
+
+    return !Object.values(newErrors).some((error) => error);
+  }, [state.currentPage, state.formData]);
 
   const resetForm = useCallback(() => {
     dispatch({ type: 'RESET_FORM' });
   }, []);
 
-  const contextValue: OnboardingContextType = {
+
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo<OnboardingContextType>(() => ({
     state,
     dispatch,
     updateFormData,
@@ -415,7 +552,21 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     isFormValid,
     calculateProgress,
     resetForm,
-  };
+    formCompletionStatus,
+  }), [
+    state,
+    updateFormData,
+    updateSkills,
+    nextPage,
+    previousPage,
+    setCurrentPage,
+    saveProgress,
+    validateCurrentPage,
+    isFormValid,
+    calculateProgress,
+    resetForm,
+    formCompletionStatus,
+  ]);
 
   return (
     <OnboardingContext.Provider value={contextValue}>

@@ -12,13 +12,50 @@ import Head from "next/head";
 import { jobRoles, roleBasedSkills } from "@/lib/jobRoles";
 import { ChevronDown } from "lucide-react";
 import { OnboardingProvider, useOnboarding } from "@/contexts/OnboardingContext";
+import { OnboardingErrorProvider, useOnboardingError } from "@/contexts/OnboardingErrorContext";
 import { useSkillsManager } from "@/hooks/useSkillsManager";
 import { SaveStatus } from "@/components/ui/save-status";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { ONBOARDING_CONFIG, formatPhoneNumber, getValidationMessage, shouldSanitizeInput } from "@/lib/onboarding-config";
+import { handleOnboardingError } from "@/lib/onboarding-errors";
+import { sanitizeInput } from "@/lib/input-sanitization";
+import { ErrorDisplay, OnboardingErrorBoundary } from "@/components/ui/error-display";
+import { SanitizationWarnings } from "@/components/ui/sanitization-warnings";
 
 const ProfileSetupContent: React.FC = () => {
-  const { state, updateFormData, nextPage, previousPage, saveProgress, validateCurrentPage } = useOnboarding();
+  const {
+    state,
+    updateFormData,
+    nextPage,
+    previousPage,
+    saveProgress,
+    validateCurrentPage,
+    formCompletionStatus
+  } = useOnboarding();
+
+  const {
+    state: errorState,
+    clearSystemError,
+    setLastOperation
+  } = useOnboardingError();
+
+  const retryLastOperation = useCallback(async () => {
+    if (!errorState.systemError || !errorState.systemError.retryable) return;
+
+    clearSystemError();
+
+    // Retry the last operation based on context
+    if (state.isDirty) {
+      setLastOperation('save');
+      // Trigger a save by calling saveProgress
+      try {
+        await saveProgress();
+      } catch (error) {
+        console.error('Retry failed:', error);
+      }
+    }
+  }, [errorState.systemError, state.isDirty, clearSystemError, setLastOperation, saveProgress]);
   const { skills, skillsInput, removeSkill, handleSkillsInputChange, handleSkillsInputKeyDown } = useSkillsManager();
   const [jobRoleSearch, setJobRoleSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -49,12 +86,45 @@ const ProfileSetupContent: React.FC = () => {
     const { name, value } = e.target;
     let formattedValue = value;
 
+    // Apply formatting first
     if (name === "firstName" || name === "lastName") {
       formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
     } else if (name === "mobileNumber") {
-      formattedValue = value.replace(/^0/, "");
-      if (!formattedValue.startsWith("+91-")) {
-        formattedValue = `+91-${formattedValue}`;
+      formattedValue = formatPhoneNumber(value);
+    }
+
+    // Apply sanitization if enabled (context will handle this, but we can pre-sanitize for immediate feedback)
+    if (shouldSanitizeInput()) {
+      let sanitizationType: 'name' | 'email' | 'phone' | 'text' | 'jobTitle' = 'text';
+
+      switch (name) {
+        case 'firstName':
+        case 'lastName':
+          sanitizationType = 'name';
+          break;
+        case 'email':
+          sanitizationType = 'email';
+          break;
+        case 'mobileNumber':
+          sanitizationType = 'phone';
+          break;
+        case 'jobTitle':
+          sanitizationType = 'jobTitle';
+          break;
+        default:
+          sanitizationType = 'text';
+      }
+
+      const sanitizationResult = sanitizeInput(formattedValue, sanitizationType);
+
+      // Show warnings to user if there are any
+      if (sanitizationResult.warnings.length > 0) {
+        console.warn(`Input sanitization warnings for ${name}:`, sanitizationResult.warnings);
+      }
+
+      // Use sanitized value if valid
+      if (sanitizationResult.isValid) {
+        formattedValue = sanitizationResult.sanitized;
       }
     }
 
@@ -64,30 +134,47 @@ const ProfileSetupContent: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateCurrentPage()) {
+      const currentDate = new Date().toISOString();
+      const finalFormData = {
+        userId: auth.currentUser?.uid || '',
+        ...state.formData,
+        phone: state.formData.mobileNumber, // Map mobileNumber to phone for UserDetails interface
+        socialMediaLinks: {
+          linkedin: state.formData.linkedinProfile,
+        },
+        skills,
+        lastPreferenceChangedDate: currentDate,
+        updatedDate: currentDate,
+        createdDate: state.formData.createdDate || currentDate,
+        onboardingCompleted: true,
+      };
+
       try {
         const user = auth.currentUser;
         if (user) {
-          const currentDate = new Date().toISOString();
-          const finalFormData = {
-            userId: user.uid,
-            ...state.formData,
-            phone: state.formData.mobileNumber, // Map mobileNumber to phone for UserDetails interface
-            socialMediaLinks: {
-              linkedin: state.formData.linkedinProfile,
-            },
-            skills,
-            lastPreferenceChangedDate: currentDate,
-            updatedDate: currentDate,
-            createdDate: state.formData.createdDate || currentDate,
-            onboardingCompleted: true,
-          };
-
           updateFormData(finalFormData);
           await saveProgress();
           router.push("/dashboard/home");
         }
-      } catch (error: any) {
-        console.error("Final save error:", error.message);
+      } catch (error) {
+        const onboardingError = handleOnboardingError(error, {
+          operation: 'final-save',
+          userId: auth.currentUser?.uid,
+          formData: finalFormData,
+        });
+
+        // Handle different error types appropriately
+        if (onboardingError.code === 'AUTH_ERROR') {
+          // Redirect to login
+          router.push('/dashboard/onboarding/login');
+        } else if (onboardingError.recoverable) {
+          // Show user-friendly error message
+          // You could set an error state here to show in UI
+          console.error('Recoverable error during final save:', onboardingError.userMessage);
+        } else {
+          // Critical error - might need to show error page
+          console.error('Critical error during final save:', onboardingError);
+        }
       }
     }
   };
@@ -104,7 +191,10 @@ const ProfileSetupContent: React.FC = () => {
   }, []);
 
   const getTopPosition = () => {
-    return innerHeight > 700 ? "top-0" : "top-[45px]";
+    const { RESPONSIVE } = ONBOARDING_CONFIG;
+    return innerHeight > RESPONSIVE.TOP_POSITION_THRESHOLD
+      ? RESPONSIVE.TOP_POSITIONS.LARGE
+      : RESPONSIVE.TOP_POSITIONS.SMALL;
   };
 
   return (
@@ -118,6 +208,27 @@ const ProfileSetupContent: React.FC = () => {
       </Head>
       <div className="min-h-screen flex items-center justify-center bg-[#020218] p-4 overflow-x-hidden">
         <SaveStatus />
+
+        {/* System Error Display */}
+        {errorState.systemError && (
+          <div className="fixed top-4 right-4 z-50 max-w-md">
+            <ErrorDisplay
+              error={errorState.systemError}
+              onRetry={errorState.systemError.retryable ? retryLastOperation : undefined}
+              onDismiss={clearSystemError}
+            />
+          </div>
+        )}
+
+        {/* Sanitization Warnings */}
+        {Object.keys(state.sanitizationWarnings).length > 0 && (
+          <div className="fixed top-4 left-4 z-50 max-w-md">
+            <SanitizationWarnings
+              warnings={state.sanitizationWarnings}
+              className="mb-4"
+            />
+          </div>
+        )}
         <div className="flex flex-col gap-8 sm:gap-12 lg:gap-[60px] w-full max-w-4xl mx-auto">
           <div className={`${getTopPosition()}`}>
             <ProgressIndicator />
@@ -127,8 +238,8 @@ const ProfileSetupContent: React.FC = () => {
               <Image
                 src={"/static/icons/aipplyLogo.svg"}
                 alt="Aipply Logo"
-                width={168}
-                height={57}
+                width={ONBOARDING_CONFIG.LOGO_DIMENSIONS.DEFAULT.width}
+                height={ONBOARDING_CONFIG.LOGO_DIMENSIONS.DEFAULT.height}
                 className="sm:w-[200px] sm:h-[68px] lg:w-[224px] lg:h-[76px]"
               />
               <div className="grid grid-cols-1 gap-3">
@@ -168,10 +279,12 @@ const ProfileSetupContent: React.FC = () => {
     }
   }}
                           required
-                          className={state.errors.firstName ? "border-red-500" : ""}
+                          className={state.errors.firstName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
                         />
                         {state.errors.firstName && (
-                          <p className="text-red-500">First Name is required</p>
+                          <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
+                            {getValidationMessage('FIRST_NAME_REQUIRED')}
+                          </p>
                         )}
                       </div>
                       <div className="grid gap-2">
@@ -190,10 +303,12 @@ const ProfileSetupContent: React.FC = () => {
     }
   }}
                           required
-                          className={state.errors.lastName ? "border-red-500" : ""}
+                          className={state.errors.lastName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
                         />
                         {state.errors.lastName && (
-                          <p className="text-red-500">Last Name is required</p>
+                          <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
+                            {getValidationMessage('LAST_NAME_REQUIRED')}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -213,12 +328,11 @@ const ProfileSetupContent: React.FC = () => {
     }
   }}
                         required
-                        className={state.errors.mobileNumber ? "border-red-500" : ""}
+                        className={state.errors.mobileNumber ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
                       />
                       {state.errors.mobileNumber && (
-                        <p className="text-red-500">
-                          Mobile Number is required and should be in the format
-                          +91-XXXXXXXXXX
+                        <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
+                          {getValidationMessage('MOBILE_NUMBER_REQUIRED')}
                         </p>
                       )}
                     </div>
@@ -246,12 +360,14 @@ const ProfileSetupContent: React.FC = () => {
   }}
                         required
                         readOnly={state.isGoogleUser}
-                        className={`${state.errors.email ? "border-red-500" : ""} ${
-                          state.isGoogleUser ? "bg-gray-800/50 cursor-not-allowed" : ""
+                        className={`${state.errors.email ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""} ${
+                          state.isGoogleUser ? ONBOARDING_CONFIG.CSS_CLASSES.DISABLED_BACKGROUND : ""
                         }`}
                       />
                       {state.errors.email && (
-                        <p className="text-red-500">Email is required</p>
+                        <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
+                          {getValidationMessage('EMAIL_REQUIRED')}
+                        </p>
                       )}
                       {state.isGoogleUser && (
                         <p className="text-xs text-gray-400">
@@ -477,8 +593,12 @@ const ProfileSetupContent: React.FC = () => {
 
 export default function ProfileSetup() {
   return (
-    <OnboardingProvider>
-      <ProfileSetupContent />
-    </OnboardingProvider>
+    <OnboardingErrorBoundary>
+      <OnboardingErrorProvider>
+        <OnboardingProvider>
+          <ProfileSetupContent />
+        </OnboardingProvider>
+      </OnboardingErrorProvider>
+    </OnboardingErrorBoundary>
   );
 }

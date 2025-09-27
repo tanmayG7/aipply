@@ -1965,10 +1965,10 @@ const getJobTrackerData = async (userId: string) => {
     const jobsQuery = query(jobsRef, where("userId", "==", userId));
     const jobsSnapshot = await getDocs(jobsQuery);
 
-    let appliedJobs: any[] = [];
-    let personalArchive: any[] = [];
-    let followUp: any[] = [];
-    let noReply: any[] = [];
+    const appliedJobs: any[] = [];
+    const personalArchive: any[] = [];
+    const followUp: any[] = [];
+    const noReply: any[] = [];
 
 
        const jobs = jobsSnapshot.docs.map((doc) => ({
