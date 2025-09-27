@@ -5,7 +5,7 @@
 
 export const ONBOARDING_CONFIG = {
   // Timing configurations
-  AUTO_SAVE_DELAY: 1000, // Save after 1 second of inactivity
+  AUTO_SAVE_DELAY: 15000, // Save after 15 seconds of inactivity
   SAVE_STATUS_DISPLAY_DURATION: 2000, // Auto-hide saved status after 2 seconds
   ERROR_RETRY_DELAY: 5000, // Auto-retry after 5 seconds on error
 
