@@ -52,11 +52,6 @@ export const SaveStatus: React.FC = () => {
       <span className={`font-medium ${getStatusColor()}`}>
         {getStatusText()}
       </span>
-      {state.lastSavedAt && state.saveStatus === 'saved' && (
-        <span className="text-gray-400 text-xs">
-          {state.lastSavedAt.toLocaleTimeString()}
-        </span>
-      )}
     </div>
   );
 };
