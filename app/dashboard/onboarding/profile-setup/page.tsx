@@ -1,11 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  getUserProfile,
-  saveUserProfile,
-} from "@/lib/firebaseConfig/firebaseConfig";
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,117 +8,40 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
 import Head from "next/head";
 import { jobRoles, roleBasedSkills } from "@/lib/jobRoles";
 import { ChevronDown } from "lucide-react";
+import { OnboardingProvider, useOnboarding } from "@/contexts/OnboardingContext";
+import { useSkillsManager } from "@/hooks/useSkillsManager";
+import { SaveStatus } from "@/components/ui/save-status";
+import { ProgressIndicator } from "@/components/ui/progress-indicator";
+import { useEffect, useState } from "react";
 
-export default function ProfileSetup() {
-  const [page, setPage] = useState(1);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    mobileNumber: "",
-    email: "",
-    jobTitle: "",
-    currentCTC: "",
-    expectedCTC: "",
-    linkedinProfile: "",
-    lastPreferenceChangedDate: "",
-    createdDate: "",
-    updatedDate: "",
-    showDropdown: false,
-  });
-
-  const [isGoogleUser, setIsGoogleUser] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
-
-  const [skills, setSkills] = useState<string[]>([]);
-  const [skillsInput, setSkillsInput] = useState("");
+const ProfileSetupContent: React.FC = () => {
+  const { state, updateFormData, nextPage, previousPage, saveProgress, validateCurrentPage } = useOnboarding();
+  const { skills, skillsInput, removeSkill, handleSkillsInputChange, handleSkillsInputKeyDown } = useSkillsManager();
   const [jobRoleSearch, setJobRoleSearch] = useState("");
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // Detect Google user properly
-        const hasGoogleProvider = user.providerData.some(provider =>
-          provider.providerId === 'google.com'
-        );
-        setIsGoogleUser(hasGoogleProvider);
-
-        setFormData((prevData) => ({
-          ...prevData,
-          email: user.email || "",
-          firstName: user.displayName?.split(" ")[0] || "",
-          lastName: user.displayName?.split(" ")[1] || "",
-        }));
-      }
-      setAuthLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (formData.jobTitle) {
-      const suggestedSkills = roleBasedSkills[formData.jobTitle] || [];
-      setSkills(suggestedSkills);
-    }
-  }, [formData.jobTitle]);
-
-
-  const [errors, setErrors] = useState({
-    firstName: false,
-    lastName: false,
-    mobileNumber: false,
-    email: false,
-    skills: false,
-    jobTitle: false,
-    currentCTC: false,
-    expectedCTC: false,
-    linkedinProfile: false,
-  });
-  const [loading, setLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
 
-  const validatePage = () => {
-    const newErrors = { ...errors };
-    const phoneNumberRegex = /^\+91-\d{10}$/;
-    const ctcRegex = /^\d+LPA$/;
-    
-    if (page === 1) {
-      newErrors.firstName = !formData.firstName;
-      newErrors.lastName = !formData.lastName;
-      newErrors.mobileNumber =
-        !formData.mobileNumber || !phoneNumberRegex.test(formData.mobileNumber);
-      newErrors.email = !formData.email;
-    } else if (page === 2) {
-      newErrors.jobTitle = !formData.jobTitle;
-    } else if (page === 3) {
-      newErrors.skills = skills.length === 0;
-    } else if (page === 4) {
-      newErrors.currentCTC =
-        !formData.currentCTC || !ctcRegex.test(formData.currentCTC);
-    } else if (page === 5) {
-      newErrors.expectedCTC =
-        !formData.expectedCTC || !ctcRegex.test(formData.expectedCTC);
-    } else if (page === 6) {
-      newErrors.linkedinProfile =
-        !formData.linkedinProfile 
-        // ||
-        // !linkedinRegex.test(formData.linkedinProfile);
+  // Auto-populate skills based on job title
+  useEffect(() => {
+    if (state.formData.jobTitle) {
+      const suggestedSkills = roleBasedSkills[state.formData.jobTitle] || [];
+      if (suggestedSkills.length > 0 && skills.length === 0) {
+        // Only auto-populate if no skills are currently set
+        updateFormData({ skills: suggestedSkills });
+      }
     }
-    setErrors(newErrors);
-    return !Object.values(newErrors).some((error) => error);
-  };
+  }, [state.formData.jobTitle, skills.length, updateFormData]);
 
   const handleNext = () => {
-    if (validatePage()) {
-      setPage((prev) => prev + 1);
-    }
+    nextPage();
   };
 
-  const handleBack = () => setPage((prev) => prev - 1);
+  const handleBack = () => {
+    previousPage();
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -140,33 +58,36 @@ export default function ProfileSetup() {
       }
     }
 
-    setFormData({ ...formData, [name]: formattedValue });
+    updateFormData({ [name]: formattedValue });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validatePage()) {
-      setLoading(true);
+    if (validateCurrentPage()) {
       try {
         const user = auth.currentUser;
         if (user) {
           const currentDate = new Date().toISOString();
-          const updatedFormData = {
+          const finalFormData = {
             userId: user.uid,
-            ...formData,
+            ...state.formData,
+            phone: state.formData.mobileNumber, // Map mobileNumber to phone for UserDetails interface
+            socialMediaLinks: {
+              linkedin: state.formData.linkedinProfile,
+            },
             skills,
             lastPreferenceChangedDate: currentDate,
             updatedDate: currentDate,
-            createdDate: formData.createdDate || currentDate,
-            onboardingCompleted: true, // Set onboardingCompleted to true
+            createdDate: state.formData.createdDate || currentDate,
+            onboardingCompleted: true,
           };
-          await saveUserProfile(user.uid, updatedFormData);
+
+          updateFormData(finalFormData);
+          await saveProgress();
           router.push("/dashboard/home");
         }
       } catch (error: any) {
-        console.error(error.message);
-      } finally {
-        setLoading(false);
+        console.error("Final save error:", error.message);
       }
     }
   };
@@ -186,37 +107,6 @@ export default function ProfileSetup() {
     return innerHeight > 700 ? "top-0" : "top-[45px]";
   };
 
-  const addSkill = async () => {
-    if (skillsInput && !skills.includes(skillsInput)) {
-      const updatedSkills = [...skills, skillsInput];
-      setSkills(updatedSkills);
-      setSkillsInput("");
-      await handleSave();
-    }
-  };
-
-  const removeSkill = async (skill: string) => {
-    setSkills(skills.filter((s) => s !== skill));
-    const user = auth.currentUser;
-    if (user) {
-      const userDetails = await getUserProfile(user.uid);
-      const updatedSkills = (userDetails.skills ?? []).filter(
-        (s: string) => s !== skill
-      );
-      await saveUserProfile(user.uid, { skills: updatedSkills });
-    }
-  };
-
-  const handleSave = async () => {
-    const user = auth.currentUser;
-    if (user) {
-      const userDetails = {
-        skills,
-      };
-      await saveUserProfile(user.uid, userDetails);
-    }
-  };
-
   return (
     <>
       <Head>
@@ -227,18 +117,10 @@ export default function ProfileSetup() {
         />
       </Head>
       <div className="min-h-screen flex items-center justify-center bg-[#020218] p-4 overflow-x-hidden">
+        <SaveStatus />
         <div className="flex flex-col gap-8 sm:gap-12 lg:gap-[60px] w-full max-w-4xl mx-auto">
-          <div
-            className={`flex gap-2 sm:gap-4 relative left-1/2 transform -translate-x-1/2 items-center justify-center max-w-[320px] sm:max-w-[400px] lg:max-w-[520px] w-full ${getTopPosition()}`}
-          >
-            {[...Array(6)].map((_, index) => (
-              <div
-                key={index}
-                className={`w-[10%] p-[1px] sm:p-[2px] ${
-                  page - 1 > index ? "bg-[#5D29FF]" : "bg-white"
-                }`}
-              ></div>
-            ))}
+          <div className={`${getTopPosition()}`}>
+            <ProgressIndicator />
           </div>
           <Card className="text-white flex flex-col gap-6 sm:gap-10 lg:gap-[80px] w-full">
             <CardHeader className="flex flex-col gap-6 sm:gap-10 text-center items-center w-full px-4 sm:px-6">
@@ -251,7 +133,7 @@ export default function ProfileSetup() {
               />
               <div className="grid grid-cols-1 gap-3">
                 <CardTitle className="text-lg sm:text-xl lg:text-display-sm-semibold font-inter">
-                  Welcome! Let's create your profile
+                  Welcome! Let&apos;s create your profile
                 </CardTitle>
                 <div className="text-sm sm:text-base lg:text-text-md-regular font-inter text-[#94969C]">
                   Apply privately to thousands of tech companies and start-ups
@@ -260,14 +142,14 @@ export default function ProfileSetup() {
               </div>
             </CardHeader>
             <CardContent className="w-full px-4 sm:px-6 lg:w-[80%] lg:mx-auto">
-              {authLoading ? (
+              {state.authLoading ? (
                 <div className="flex justify-center items-center py-8">
                   <p className="text-gray-400">Loading...</p>
                 </div>
               ) : (
                 <>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-                {page === 1 && (
+                {state.currentPage === 1 && (
                   <div className="grid gap-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div className="grid gap-2">
@@ -277,7 +159,7 @@ export default function ProfileSetup() {
                           name="firstName"
                           type="text"
                           placeholder="Enter your First Name"
-                          value={formData.firstName}
+                          value={state.formData.firstName}
                           onChange={handleChange}
  onKeyDown={(e) => {
     if (e.key === "Enter") {
@@ -286,9 +168,9 @@ export default function ProfileSetup() {
     }
   }}
                           required
-                          className={errors.firstName ? "border-red-500" : ""}
+                          className={state.errors.firstName ? "border-red-500" : ""}
                         />
-                        {errors.firstName && (
+                        {state.errors.firstName && (
                           <p className="text-red-500">First Name is required</p>
                         )}
                       </div>
@@ -299,7 +181,7 @@ export default function ProfileSetup() {
                           name="lastName"
                           type="text"
                           placeholder="Enter your Last Name"
-                          value={formData.lastName}
+                          value={state.formData.lastName}
                           onChange={handleChange}
  onKeyDown={(e) => {
     if (e.key === "Enter") {
@@ -308,9 +190,9 @@ export default function ProfileSetup() {
     }
   }}
                           required
-                          className={errors.lastName ? "border-red-500" : ""}
+                          className={state.errors.lastName ? "border-red-500" : ""}
                         />
-                        {errors.lastName && (
+                        {state.errors.lastName && (
                           <p className="text-red-500">Last Name is required</p>
                         )}
                       </div>
@@ -322,7 +204,7 @@ export default function ProfileSetup() {
                         name="mobileNumber"
                         type="text"
                         placeholder="Enter your Mobile Number"
-                        value={formData.mobileNumber}
+                        value={state.formData.mobileNumber}
                         onChange={handleChange}
  onKeyDown={(e) => {
     if (e.key === "Enter") {
@@ -331,9 +213,9 @@ export default function ProfileSetup() {
     }
   }}
                         required
-                        className={errors.mobileNumber ? "border-red-500" : ""}
+                        className={state.errors.mobileNumber ? "border-red-500" : ""}
                       />
-                      {errors.mobileNumber && (
+                      {state.errors.mobileNumber && (
                         <p className="text-red-500">
                           Mobile Number is required and should be in the format
                           +91-XXXXXXXXXX
@@ -343,7 +225,7 @@ export default function ProfileSetup() {
                     <div className="grid gap-2">
                       <Label htmlFor="email">
                         Email
-                        {isGoogleUser && (
+                        {state.isGoogleUser && (
                           <span className="ml-2 text-xs text-blue-400 font-normal">
                             (from Google account)
                           </span>
@@ -354,7 +236,7 @@ export default function ProfileSetup() {
                         name="email"
                         type="email"
                         placeholder="Enter your Email"
-                        value={formData.email}
+                        value={state.formData.email}
                         onChange={handleChange}
  onKeyDown={(e) => {
     if (e.key === "Enter") {
@@ -363,15 +245,15 @@ export default function ProfileSetup() {
     }
   }}
                         required
-                        readOnly={isGoogleUser}
-                        className={`${errors.email ? "border-red-500" : ""} ${
-                          isGoogleUser ? "bg-gray-800/50 cursor-not-allowed" : ""
+                        readOnly={state.isGoogleUser}
+                        className={`${state.errors.email ? "border-red-500" : ""} ${
+                          state.isGoogleUser ? "bg-gray-800/50 cursor-not-allowed" : ""
                         }`}
                       />
-                      {errors.email && (
+                      {state.errors.email && (
                         <p className="text-red-500">Email is required</p>
                       )}
-                      {isGoogleUser && (
+                      {state.isGoogleUser && (
                         <p className="text-xs text-gray-400">
                           This email is from your Google account and cannot be changed
                         </p>
@@ -380,29 +262,24 @@ export default function ProfileSetup() {
                   </div>
                 )}
 
-                {page === 2 && (
+                {state.currentPage === 2 && (
                   <div className="grid gap-6">
                     <div className="grid gap-2 relative">
                       <Label htmlFor="jobTitle">Aiming Job Title</Label>
                       <div className="relative">
                         <div
                           className={`p-3 border border-[#333741] rounded-md cursor-pointer flex justify-between items-center ${
-                            errors.jobTitle ? "border-red-500" : ""
+                            state.errors.jobTitle ? "border-red-500" : ""
                           }`}
-                          onClick={() =>
-                            setFormData((prevData) => ({
-                              ...prevData,
-                              showDropdown: !prevData.showDropdown,
-                            }))
-                          }
+                          onClick={() => setShowDropdown(!showDropdown)}
                         >
                           <span className="text-[#85888E] text-text-md-regular">
-                            {formData.jobTitle ||
+                            {state.formData.jobTitle ||
                               "Select your aiming job title"}
                           </span>
                           <ChevronDown className="w-5 h-5 text-[#85888E]" />
                         </div>
-                        {formData.showDropdown && (
+                        {showDropdown && (
                           <div className="absolute mt-2 w-full z-10 bg-[#020218]">
                             <Input
                               type="text"
@@ -428,13 +305,10 @@ export default function ProfileSetup() {
                                   <div
                                     key={index}
                                     className="p-2 hover:bg-[#7960c2] cursor-pointer text-text-md-regular"
-                                    onClick={() =>
-                                      setFormData({
-                                        ...formData,
-                                        jobTitle: role,
-                                        showDropdown: false,
-                                      })
-                                    }
+                                    onClick={() => {
+                                      updateFormData({ jobTitle: role });
+                                      setShowDropdown(false);
+                                    }}
                                   >
                                     {role}
                                   </div>
@@ -443,7 +317,7 @@ export default function ProfileSetup() {
                           </div>
                         )}
                       </div>
-                      {errors.jobTitle && (
+                      {state.errors.jobTitle && (
                         <p className="text-red-500">
                           Aiming Job Title is required
                         </p>
@@ -455,14 +329,14 @@ export default function ProfileSetup() {
                     </div>
                   </div>
                 )}
-                {page === 3 && (
+                {state.currentPage === 3 && (
                   <div className="grid gap-6">
                     <div className="grid gap-2">
                       <Label htmlFor="skills">Skills</Label>
                       <div className="flex flex-col gap-4 max-w-[640px]">
                         <div className="text-text-sm-regular font-inter text-[#94969C]">
                           Suggested skills based on your selected role:{" "}
-                          {roleBasedSkills[formData.jobTitle]?.join(", ") ||
+                          {roleBasedSkills[state.formData.jobTitle]?.join(", ") ||
                             "None"}
                         </div>
                         <div className="flex flex-wrap gap-4">
@@ -481,17 +355,11 @@ export default function ProfileSetup() {
 
                        <Input
   value={skillsInput}
-  onChange={(e) => setSkillsInput(e.target.value)}
+  onChange={(e) => handleSkillsInputChange(e.target.value)}
   placeholder="Add Skills"
-  onKeyDown={async (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation(); // Add this line to prevent event bubbling
-      await addSkill();
-    }
-  }}
+  onKeyDown={handleSkillsInputKeyDown}
 />
-                        {errors.skills && (
+                        {state.errors.skills && (
                           <p className="text-red-500">Skills required</p>
                         )}
                         <p className="text-text-sm-regular font-inter text-[#94969C]">
@@ -501,39 +369,7 @@ export default function ProfileSetup() {
                     </div>
                   </div>
                 )}
-                {page === 4 && (
-                  <div className="grid gap-6">
-                    <div className="grid gap-2">
-                      <Label htmlFor="currentCTC">Current CTC</Label>
-                      <Input
-                        id="currentCTC"
-                        name="currentCTC"
-                        type="text"
-                        placeholder="Enter your Current CTC"
-                        value={formData.currentCTC}
-                        onChange={handleChange}
- onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
-                        required
-                        className={errors.currentCTC ? "border-red-500" : ""}
-                      />
-                      {errors.currentCTC && (
-                        <p className="text-red-500">
-                          Current CTC is required and should be in the format X
-                          LPA
-                        </p>
-                      )}
-                      <p className="text-text-sm-regular font-inter text-[#94969C]">
-                        Ex: 10LPA, 20LPA, 30LPA.
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {page === 5 && (
+                {state.currentPage === 4 && (
                   <div className="grid gap-6">
                     <div className="grid gap-2">
                       <Label htmlFor="expectedCTC">Expected CTC</Label>
@@ -542,7 +378,7 @@ export default function ProfileSetup() {
                         name="expectedCTC"
                         type="text"
                         placeholder="Enter your Expected CTC"
-                        value={formData.expectedCTC}
+                        value={state.formData.expectedCTC}
                         onChange={handleChange}
  onKeyDown={(e) => {
     if (e.key === "Enter") {
@@ -551,9 +387,9 @@ export default function ProfileSetup() {
     }
   }}
                         required
-                        className={errors.expectedCTC ? "border-red-500" : ""}
+                        className={state.errors.expectedCTC ? "border-red-500" : ""}
                       />
-                      {errors.expectedCTC && (
+                      {state.errors.expectedCTC && (
                         <p className="text-red-500">
                           Expected CTC is required and should be in the format X
                           LPA
@@ -565,7 +401,7 @@ export default function ProfileSetup() {
                     </div>
                   </div>
                 )}
-                {page === 6 && (
+                {state.currentPage === 5 && (
                   <div className="grid gap-6">
                     <div className="grid gap-2">
                       <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
@@ -574,7 +410,7 @@ export default function ProfileSetup() {
                         name="linkedinProfile"
                         type="text"
                         placeholder="https://"
-                        value={formData.linkedinProfile}
+                        value={state.formData.linkedinProfile}
                         onChange={handleChange}
  onKeyDown={(e) => {
     if (e.key === "Enter") {
@@ -584,10 +420,10 @@ export default function ProfileSetup() {
   }}
                         required
                         className={
-                          errors.linkedinProfile ? "border-red-500" : ""
+                          state.errors.linkedinProfile ? "border-red-500" : ""
                         }
                       />
-                      {errors.linkedinProfile && (
+                      {state.errors.linkedinProfile && (
                         <p className="text-red-500">
                           LinkedIn Profile is required and should be a valid URL
                           starting with https://
@@ -597,8 +433,8 @@ export default function ProfileSetup() {
                   </div>
                 )}
                 <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-16">
-                  {page > 1 && (
-                    <Button type="button" onClick={handleBack} className="w-full sm:w-auto h-12">
+                  {state.currentPage > 1 && (
+                    <Button type="button" onClick={handleBack} className="w-full sm:w-auto h-12" disabled={state.isSaving}>
                       <Image
                         src="/static/icons/arrow-left.svg"
                         alt="Back"
@@ -608,8 +444,8 @@ export default function ProfileSetup() {
                       Back
                     </Button>
                   )}
-                  {page < 6 ? (
-                    <Button type="button" onClick={handleNext} className="w-full sm:w-auto h-12">
+                  {state.currentPage < 5 ? (
+                    <Button type="button" onClick={handleNext} className="w-full sm:w-auto h-12" disabled={state.isSaving}>
                       Next
                       <Image
                         src="/static/icons/arrow-right.svg"
@@ -619,8 +455,8 @@ export default function ProfileSetup() {
                       />
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={loading} className="w-full sm:w-auto h-12">
-                      {loading ? "Submitting..." : "Submit"}
+                    <Button type="submit" disabled={state.isSaving} className="w-full sm:w-auto h-12">
+                      {state.isSaving ? "Completing..." : "Complete Setup"}
                     </Button>
                   )}
                 </div>
@@ -636,5 +472,13 @@ export default function ProfileSetup() {
         </div>
       </div>
     </>
+  );
+};
+
+export default function ProfileSetup() {
+  return (
+    <OnboardingProvider>
+      <ProfileSetupContent />
+    </OnboardingProvider>
   );
 }

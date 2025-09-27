@@ -78,6 +78,7 @@ export interface UserDetails {
   phone?: string;
   platformCredentials?: PlatformCredentialsData;
   subscription?: UserSubscription;
+  onboardingCompleted?: boolean;
 }
 
 export interface DashboardData {
