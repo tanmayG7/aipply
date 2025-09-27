@@ -302,7 +302,16 @@ export function sanitizeStringArray(
 /**
  * Batch sanitization for form data
  */
-export function sanitizeFormData(formData: Record<string, unknown>): {
+export function sanitizeFormData(formData: Record<string, unknown> | {
+  firstName?: string;
+  lastName?: string;
+  mobileNumber?: string;
+  email?: string;
+  jobTitle?: string;
+  expectedCTC?: string;
+  linkedinProfile?: string;
+  skills?: string[];
+}): {
   sanitized: Record<string, unknown>;
   results: Record<string, SanitizationResult>;
   isValid: boolean;
@@ -321,7 +330,7 @@ export function sanitizeFormData(formData: Record<string, unknown>): {
     linkedinProfile: 'url',
   };
 
-  Object.entries(formData).forEach(([key, value]) => {
+  Object.entries(formData as Record<string, unknown>).forEach(([key, value]) => {
     if (typeof value === 'string') {
       const type = fieldTypes[key] || 'text';
       const result = sanitizeInput(value, type);

@@ -221,8 +221,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const user = auth.currentUser;
     if (!user) return;
 
-    // Check if data has actually changed since last save (using memoized string)
-    const currentDataString = userDataString;
+    // Check if data has actually changed since last save
+    const currentDataString = JSON.stringify(state.formData);
     if (currentDataString === lastSaveDataRef.current) return;
 
     try {
@@ -271,7 +271,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }, ONBOARDING_CONFIG.ERROR_RETRY_DELAY);
       }
     }
-  }, [state.formData, state.isDirty, userDataString]);
+  }, [state.formData, state.isDirty]);
 
   // Memoize frequently used computed values
   const formCompletionStatus = useMemo(() => {
@@ -342,7 +342,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
             // Calculate which page user should be on based on completed data
             const { PAGES, PAGE_PROGRESSION } = ONBOARDING_CONFIG;
-            let targetPage = PAGES.PERSONAL_INFO;
+            let targetPage: number = PAGES.PERSONAL_INFO;
 
             if (PAGE_PROGRESSION.MIN_FIELDS_FOR_PAGE_2.every(field => existingProfile[field])) {
               targetPage = PAGES.JOB_TITLE;

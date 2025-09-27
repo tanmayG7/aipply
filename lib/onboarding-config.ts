@@ -141,14 +141,24 @@ export const formatPhoneNumber = (phoneNumber: string): string => {
   return cleaned;
 };
 
-export const calculateProgress = (formData: Record<string, unknown>): number => {
+export const calculateProgress = (formData: {
+  firstName?: string;
+  lastName?: string;
+  mobileNumber?: string;
+  email?: string;
+  jobTitle?: string;
+  expectedCTC?: string;
+  linkedinProfile?: string;
+  skills?: string[];
+}): number => {
   const { PROGRESS_FIELDS, SKILLS_FIELD_WEIGHT, REQUIRED_FIELDS_COUNT } = ONBOARDING_CONFIG;
 
-  const completedFields = PROGRESS_FIELDS.filter(field =>
-    formData[field as keyof typeof formData]
-  ).length;
+  const completedFields = PROGRESS_FIELDS.filter(field => {
+    const value = formData[field as keyof typeof formData];
+    return value && (typeof value === 'string' ? value.trim().length > 0 : true);
+  }).length;
 
-  const skillsCompleted = (formData.skills && formData.skills.length > 0) ? SKILLS_FIELD_WEIGHT : 0;
+  const skillsCompleted = (formData.skills && Array.isArray(formData.skills) && formData.skills.length > 0) ? SKILLS_FIELD_WEIGHT : 0;
   const totalFields = REQUIRED_FIELDS_COUNT + SKILLS_FIELD_WEIGHT;
 
   return Math.round(((completedFields + skillsCompleted) / totalFields) * 100);
