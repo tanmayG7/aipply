@@ -44,17 +44,12 @@ export default function ProfileSetup() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("🔍 AUTH CHANGED - User email:", user?.email);
-
       if (user) {
         // Detect Google user properly
         const hasGoogleProvider = user.providerData.some(provider =>
           provider.providerId === 'google.com'
         );
         setIsGoogleUser(hasGoogleProvider);
-
-        console.log("🔍 Provider data:", user.providerData);
-        console.log("🔍 Has Google provider:", hasGoogleProvider);
 
         setFormData((prevData) => ({
           ...prevData,
@@ -76,10 +71,6 @@ export default function ProfileSetup() {
     }
   }, [formData.jobTitle]);
 
-  useEffect(() => {
-    console.log("🔍 isGoogleUser state changed to:", isGoogleUser);
-    console.log("🔍 Rendering email field, isGoogleUser:", isGoogleUser);
-  }, [isGoogleUser]);
 
   const [errors, setErrors] = useState({
     firstName: false,
@@ -275,12 +266,6 @@ export default function ProfileSetup() {
                 </div>
               ) : (
                 <>
-                {/* Debug info - remove in production */}
-                <div className="bg-gray-800 p-2 rounded text-xs mb-4">
-                  <p>Debug: authLoading={authLoading.toString()}</p>
-                  <p>Debug: isGoogleUser={isGoogleUser.toString()}</p>
-                  <p>Debug: email={formData.email}</p>
-                </div>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                 {page === 1 && (
                   <div className="grid gap-6">
