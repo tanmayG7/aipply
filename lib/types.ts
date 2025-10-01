@@ -187,6 +187,7 @@ export interface PlatformCredentialsData {
   hirist?: PlatformCredential;
   shine?: PlatformCredential;
   timesjob?: PlatformCredential;
+  iimjobs?: PlatformCredential;
 }
 
 export interface JobPortal {
