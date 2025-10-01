@@ -55,6 +55,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
     hirist: false,
     shine: false,
     timesjob: false,
+    iimjobs: false,
   });
 
   const [credentials, setCredentials] = useState<PlatformCredentialsData>({});
@@ -153,6 +154,13 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
       iconName: "zap" as const,
       description: "Comprehensive job search platform by Times Group",
     },
+    {
+    id: "iimjobs" as keyof PlatformCredentialsData,  // Add this entire object
+    name: "IIM Jobs",
+    color: "bg-orange-600",
+    iconName: "graduation-cap" as const,
+    description: "Premium job portal for management professionals and executives",
+  },
   ];
 
   const togglePasswordVisibility = (
