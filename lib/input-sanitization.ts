@@ -94,27 +94,6 @@ export interface SanitizationResult {
 }
 
 /**
- * HTML entity encoding map
- */
-const HTML_ENTITIES: Record<string, string> = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-  '/': '&#x2F;',
-  '`': '&#x60;',
-  '=': '&#x3D;',
-};
-
-/**
- * Encodes HTML entities to prevent XSS
- */
-function encodeHtmlEntities(input: string): string {
-  return input.replace(/[&<>"'`=\/]/g, (match) => HTML_ENTITIES[match] || match);
-}
-
-/**
  * Strips HTML tags from input
  */
 function stripHtmlTags(input: string): string {
@@ -259,8 +238,20 @@ export function sanitizeInput(
     }
   }
 
-  // Encode remaining special characters for extra safety
-  sanitized = encodeHtmlEntities(sanitized);
+  // FIXED: Only encode dangerous HTML characters for display-type fields
+  // Never encode URLs, emails, or phone numbers as they need their special characters
+  if (type === 'text' || type === 'name' || type === 'jobTitle') {
+    // Only encode the most dangerous XSS characters
+    sanitized = sanitized.replace(/[<>"']/g, (match) => {
+      const safeEntities: Record<string, string> = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      };
+      return safeEntities[match] || match;
+    });
+  }
 
   return {
     sanitized,
