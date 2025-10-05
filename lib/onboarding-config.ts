@@ -23,6 +23,7 @@ export const ONBOARDING_CONFIG = {
   // Validation regex patterns
   PHONE_NUMBER_REGEX: /^\+91-\d{10}$/, // Indian phone number format
   CTC_REGEX: /^\d+LPA$/, // Expected CTC format (e.g., "10LPA")
+  LINKEDIN_URL_REGEX: /^https:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/, // LinkedIn profile URL format
 
   // UI configurations
   MOBILE_NUMBER_PREFIX: '+91-', // Default mobile number prefix
@@ -131,6 +132,10 @@ export const isValidPhoneNumber = (phoneNumber: string): boolean => {
 
 export const isValidCTC = (ctc: string): boolean => {
   return ONBOARDING_CONFIG.CTC_REGEX.test(ctc);
+};
+
+export const isValidLinkedInURL = (url: string): boolean => {
+  return ONBOARDING_CONFIG.LINKEDIN_URL_REGEX.test(url);
 };
 
 export const formatPhoneNumber = (phoneNumber: string): string => {

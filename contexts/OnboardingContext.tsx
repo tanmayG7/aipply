@@ -173,7 +173,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Validation rules for each page with error dispatch
   const validatePage = useCallback((page: number): boolean => {
     const newErrors: Record<string, boolean> = {};
-    const { PHONE_NUMBER_REGEX, CTC_REGEX, PAGES } = ONBOARDING_CONFIG;
+    const { PHONE_NUMBER_REGEX, CTC_REGEX, LINKEDIN_URL_REGEX, PAGES } = ONBOARDING_CONFIG;
 
     if (page === PAGES.PERSONAL_INFO) {
       newErrors.firstName = !state.formData.firstName;
@@ -187,7 +187,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } else if (page === PAGES.EXPECTED_CTC) {
       newErrors.expectedCTC = !state.formData.expectedCTC || !CTC_REGEX.test(state.formData.expectedCTC);
     } else if (page === PAGES.LINKEDIN_PROFILE) {
-      newErrors.linkedinProfile = !state.formData.linkedinProfile;
+      newErrors.linkedinProfile = !state.formData.linkedinProfile || !LINKEDIN_URL_REGEX.test(state.formData.linkedinProfile);
     }
 
     const isValid = !Object.values(newErrors).some((error) => error);
@@ -512,7 +512,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const isFormValid = useCallback((page?: number): boolean => {
     const targetPage = page ?? state.currentPage;
-    const { PHONE_NUMBER_REGEX, CTC_REGEX, PAGES } = ONBOARDING_CONFIG;
+    const { PHONE_NUMBER_REGEX, CTC_REGEX, LINKEDIN_URL_REGEX, PAGES } = ONBOARDING_CONFIG;
     const newErrors: Record<string, boolean> = {};
 
     if (targetPage === PAGES.PERSONAL_INFO) {
@@ -527,7 +527,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } else if (targetPage === PAGES.EXPECTED_CTC) {
       newErrors.expectedCTC = !state.formData.expectedCTC || !CTC_REGEX.test(state.formData.expectedCTC);
     } else if (targetPage === PAGES.LINKEDIN_PROFILE) {
-      newErrors.linkedinProfile = !state.formData.linkedinProfile;
+      newErrors.linkedinProfile = !state.formData.linkedinProfile || !LINKEDIN_URL_REGEX.test(state.formData.linkedinProfile);
     }
 
     return !Object.values(newErrors).some((error) => error);
