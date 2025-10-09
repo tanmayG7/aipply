@@ -368,20 +368,32 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             dispatch({ type: 'SET_FORM_DATA', payload: authData });
           }
         } catch (error) {
-          const onboardingError = handleOnboardingError(error, {
-            operation: 'profile-load',
-            userId: user?.uid,
-          });
+          // Check if this is a "profile not found" error (expected for new users)
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          const isProfileNotFound = errorMessage.includes('User profile not found') ||
+                                   errorMessage.includes('Failed to get profile');
 
-          setSystemError(onboardingError);
-
-          // For profile load errors, fall back to auth data
-          if (onboardingError.code === 'PROFILE_LOAD_ERROR' || onboardingError.recoverable) {
+          if (isProfileNotFound) {
+            // This is a new user - not an error, just use auth data
+            console.log('📝 New user detected, initializing with auth data');
             dispatch({ type: 'SET_FORM_DATA', payload: authData });
-            // Clear error after fallback
-            setTimeout(() => {
-              setSystemError(null);
-            }, 3000);
+          } else {
+            // This is an actual unexpected error
+            const onboardingError = handleOnboardingError(error, {
+              operation: 'profile-load',
+              userId: user?.uid,
+            });
+
+            setSystemError(onboardingError);
+
+            // For other profile load errors, fall back to auth data
+            if (onboardingError.code === 'PROFILE_LOAD_ERROR' || onboardingError.recoverable) {
+              dispatch({ type: 'SET_FORM_DATA', payload: authData });
+              // Clear error after fallback
+              setTimeout(() => {
+                setSystemError(null);
+              }, 3000);
+            }
           }
         }
       }
