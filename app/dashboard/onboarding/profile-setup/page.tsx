@@ -17,7 +17,7 @@ import { useSkillsManager } from "@/hooks/useSkillsManager";
 import { SaveStatus } from "@/components/ui/save-status";
 import { ProgressIndicator } from "@/components/ui/progress-indicator";
 import { useEffect, useState, useCallback } from "react";
-import { ONBOARDING_CONFIG, formatPhoneNumber, getValidationMessage, shouldSanitizeInput } from "@/lib/onboarding-config";
+import { ONBOARDING_CONFIG, formatPhoneNumber, formatLinkedInURL, getValidationMessage, shouldSanitizeInput } from "@/lib/onboarding-config";
 import { handleOnboardingError } from "@/lib/onboarding-errors";
 import { sanitizeInput } from "@/lib/input-sanitization";
 import { ErrorDisplay, OnboardingErrorBoundary } from "@/components/ui/error-display";
@@ -91,6 +91,8 @@ const ProfileSetupContent: React.FC = () => {
       formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
     } else if (name === "mobileNumber") {
       formattedValue = formatPhoneNumber(value);
+    } else if (name === "linkedinProfile") {
+      formattedValue = formatLinkedInURL(value);
     }
 
     // Apply sanitization if enabled (context will handle this, but we can pre-sanitize for immediate feedback)
@@ -339,11 +341,9 @@ const ProfileSetupContent: React.FC = () => {
                     <div className="grid gap-2">
                       <Label htmlFor="email">
                         Email
-                        {state.isGoogleUser && (
-                          <span className="ml-2 text-xs text-blue-400 font-normal">
-                            (from Google account)
-                          </span>
-                        )}
+                        <span className="ml-2 text-xs text-blue-400 font-normal">
+                          (from your account)
+                        </span>
                       </Label>
                       <Input
                         id="email"
@@ -359,21 +359,17 @@ const ProfileSetupContent: React.FC = () => {
     }
   }}
                         required
-                        readOnly={state.isGoogleUser}
-                        className={`${state.errors.email ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""} ${
-                          state.isGoogleUser ? ONBOARDING_CONFIG.CSS_CLASSES.DISABLED_BACKGROUND : ""
-                        }`}
+                        readOnly={true}
+                        className={`${state.errors.email ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""} ${ONBOARDING_CONFIG.CSS_CLASSES.DISABLED_BACKGROUND}`}
                       />
                       {state.errors.email && (
                         <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
                           {getValidationMessage('EMAIL_REQUIRED')}
                         </p>
                       )}
-                      {state.isGoogleUser && (
-                        <p className="text-xs text-gray-400">
-                          This email is from your Google account and cannot be changed
-                        </p>
-                      )}
+                      <p className="text-xs text-gray-400">
+                        This email is from your account and cannot be changed for security and data consistency
+                      </p>
                     </div>
                   </div>
                 )}
@@ -525,7 +521,7 @@ const ProfileSetupContent: React.FC = () => {
                         id="linkedinProfile"
                         name="linkedinProfile"
                         type="text"
-                        placeholder="https://"
+                        placeholder="www.linkedin.com/in/yourprofile"
                         value={state.formData.linkedinProfile}
                         onChange={handleChange}
  onKeyDown={(e) => {
@@ -541,8 +537,7 @@ const ProfileSetupContent: React.FC = () => {
                       />
                       {state.errors.linkedinProfile && (
                         <p className="text-red-500">
-                          LinkedIn Profile is required and should be a valid URL
-                          starting with https://
+                          {getValidationMessage('LINKEDIN_PROFILE_REQUIRED')}
                         </p>
                       )}
                     </div>

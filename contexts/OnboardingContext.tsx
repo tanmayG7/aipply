@@ -4,7 +4,7 @@ import React, { createContext, useContext, useReducer, useEffect, useCallback, u
 import { auth, saveUserProfile, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { mapOnboardingToUserDetails, mapUserDetailsToOnboarding } from '@/lib/interface-mappers';
-import { ONBOARDING_CONFIG, getValidationMessage, calculateProgress as calculateProgressHelper, shouldSanitizeInput } from '@/lib/onboarding-config';
+import { ONBOARDING_CONFIG, getValidationMessage, calculateProgress as calculateProgressHelper, shouldSanitizeInput, formatLinkedInURL } from '@/lib/onboarding-config';
 import { createOnboardingError, handleOnboardingError } from '@/lib/onboarding-errors';
 import { useOnboardingError } from './OnboardingErrorContext';
 import { sanitizeFormData, sanitizeInput, type SanitizationResult } from '@/lib/input-sanitization';
@@ -394,8 +394,14 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Context methods with sanitization
   const updateFormData = useCallback((data: Partial<OnboardingFormData>) => {
+    // Apply formatting to LinkedIn URL if present
+    let processedData = { ...data };
+    if (processedData.linkedinProfile) {
+      processedData.linkedinProfile = formatLinkedInURL(processedData.linkedinProfile);
+    }
+
     if (shouldSanitizeInput()) {
-      const { sanitized, results } = sanitizeFormData(data);
+      const { sanitized, results } = sanitizeFormData(processedData);
 
       // Extract warnings for user feedback
       const warnings: Record<string, string[]> = {};
@@ -417,7 +423,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       dispatch({ type: 'SET_SANITIZATION_WARNINGS', payload: warnings });
       dispatch({ type: 'SET_FORM_DATA', payload: sanitized as Partial<OnboardingFormData> });
     } else {
-      dispatch({ type: 'SET_FORM_DATA', payload: data });
+      dispatch({ type: 'SET_FORM_DATA', payload: processedData });
     }
   }, []);
 

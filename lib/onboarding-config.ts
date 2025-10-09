@@ -23,7 +23,7 @@ export const ONBOARDING_CONFIG = {
   // Validation regex patterns
   PHONE_NUMBER_REGEX: /^\+91-\d{10}$/, // Indian phone number format
   CTC_REGEX: /^\d+LPA$/, // Expected CTC format (e.g., "10LPA")
-  LINKEDIN_URL_REGEX: /^https:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/, // LinkedIn profile URL format
+  LINKEDIN_URL_REGEX: /^(https?:\/\/)?www\.linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?$/, // LinkedIn profile URL format (www. required, https:// optional and will be stripped)
 
   // UI configurations
   MOBILE_NUMBER_PREFIX: '+91-', // Default mobile number prefix
@@ -38,7 +38,7 @@ export const ONBOARDING_CONFIG = {
     JOB_TITLE_REQUIRED: 'Aiming Job Title is required',
     SKILLS_REQUIRED: 'Skills required',
     EXPECTED_CTC_REQUIRED: 'Expected CTC is required and should be in the format XLPA (e.g., 10LPA)',
-    LINKEDIN_PROFILE_REQUIRED: 'LinkedIn Profile is required and should be a valid URL',
+    LINKEDIN_PROFILE_REQUIRED: 'LinkedIn Profile is required and should start with www.linkedin.com/in/',
   },
 
   // Page-specific configurations
@@ -144,6 +144,11 @@ export const formatPhoneNumber = (phoneNumber: string): string => {
     return `${ONBOARDING_CONFIG.MOBILE_NUMBER_PREFIX}${cleaned}`;
   }
   return cleaned;
+};
+
+export const formatLinkedInURL = (url: string): string => {
+  // Strip https:// or http:// prefix if present
+  return url.replace(/^https?:\/\//, '');
 };
 
 export const calculateProgress = (formData: {

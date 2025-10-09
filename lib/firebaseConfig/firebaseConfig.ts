@@ -725,10 +725,16 @@ const authenticateUser = async (
         console.log("✅ Sign in successful for existing user");
       } catch (signInError: any) {
         console.log("📝 Sign in failed, checking error:", signInError.code);
-        
+
         // Handle different sign-in errors
-        await handleSignInError(signInError, email, password, setError, navigate);
-        return; // Early return since handleSignInError will handle navigation
+        try {
+          await handleSignInError(signInError, email, password, setError, navigate);
+          return; // Early return since handleSignInError will handle navigation
+        } catch (handleError: any) {
+          console.error("❌ Error in handleSignInError:", handleError.message);
+          // Let the error propagate to be caught by the outer catch block
+          throw handleError;
+        }
       }
     }
 
@@ -743,14 +749,32 @@ const authenticateUser = async (
     } else {
       navigate("/dashboard/onboarding/profile-setup");
     }
-    
+
     return user;
   } catch (error: any) {
-    console.error("Authentication error:", error);
-    if (error.message !== "GOOGLE_ONLY_ACCOUNT") {
-      throw new Error(error.message);
+    console.error("❌ Authentication error:", error.message || error);
+
+    // Don't re-wrap GOOGLE_ONLY_ACCOUNT errors
+    if (error.message === "GOOGLE_ONLY_ACCOUNT") {
+      throw error;
     }
-    throw error;
+
+    // For other errors, ensure we have a meaningful error message
+    if (!error.message || error.message === "undefined") {
+      console.error("❌ Caught error with no message:", error);
+      setError("An unexpected error occurred. Please try again or contact support.");
+      throw new Error("Authentication failed");
+    }
+
+    // Log the error for debugging
+    console.error("❌ Full authentication error details:", {
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+
+    throw new Error(error.message);
   }
 };
 
@@ -768,24 +792,30 @@ const handleSignInError = async (
     
     if (!emailMethods.exists) {
       // User doesn't exist, create new account
-      console.log("👤 Creating new user account");
+      console.log("👤 Creating new user account for:", email);
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
+
         // New user - redirect to profile setup
         const user = userCredential.user;
+        console.log("✅ User account created successfully:", user.uid);
+
         const token = await user.getIdToken();
         localStorage.setItem("firebaseToken", token);
+        console.log("✅ Token saved, navigating to profile setup");
+
         navigate("/dashboard/onboarding/profile-setup");
         return user;
       } catch (createError: any) {
+        console.error("❌ Error creating user account:", createError.code, createError.message);
+
         if (createError.code === "auth/email-already-in-use") {
           // Email exists but createUserWithEmailAndPassword failed
           // This means it's likely a Google-only account
           console.log("🔍 Email already in use - checking for Google-only account");
           const emailMethods = await checkEmailSignInMethods(email);
           console.log("📧 Email methods result:", emailMethods);
-          
+
           if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
             console.log("✅ Confirmed Google-only account - showing password setup");
             setError("🔍 This email is registered with Google only");
@@ -798,10 +828,10 @@ const handleSignInError = async (
             // Firebase fetchSignInMethodsForEmail is unreliable for OAuth accounts
             // We need a more sophisticated approach to determine the account type
             console.log("🔧 Firebase API returned empty methods but email exists");
-            
+
             // Strategy: Try to differentiate between wrong password and Google-only account
             // by attempting a secondary verification
-            
+
             // For now, we'll err on the side of assuming wrong password for better UX
             // since the user is trying to use email/password login
             console.log("🤔 Assuming wrong password since user is attempting email/password login");
@@ -812,9 +842,32 @@ const handleSignInError = async (
             setError("An account with this email already exists. Please try signing in.");
             throw new Error("Email already in use");
           }
+        } else if (createError.code === "auth/weak-password") {
+          console.log("❌ Weak password error");
+          setError("Password should be at least 6 characters.");
+          throw new Error("Weak password");
+        } else if (createError.code === "auth/invalid-email") {
+          console.log("❌ Invalid email error");
+          setError("Please enter a valid email address.");
+          throw new Error("Invalid email");
+        } else if (createError.code === "auth/operation-not-allowed") {
+          console.log("❌ Operation not allowed error");
+          setError("Email/password accounts are not enabled. Please contact support.");
+          throw new Error("Operation not allowed");
+        } else if (createError.code === "auth/network-request-failed") {
+          console.log("❌ Network error");
+          setError("Network error. Please check your internet connection and try again.");
+          throw new Error("Network error");
         } else {
-          setError(createError.message);
-          throw new Error(createError.message);
+          // Log the unexpected error for debugging
+          console.error("❌ Unexpected error during account creation:", {
+            code: createError.code,
+            message: createError.message,
+            email: email,
+            timestamp: new Date().toISOString()
+          });
+          setError(`Unable to create account: ${createError.message}. Please try again or contact support.`);
+          throw new Error(createError.message || "Account creation failed");
         }
       }
     } else if (emailMethods.hasGoogle && !emailMethods.hasPassword) {
