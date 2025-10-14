@@ -536,26 +536,6 @@ const saveContactFormSubmission = async (formData: ContactFormData) => {
   }
 };
 
-// Get all contact submissions (for admin panel)
-const getContactSubmissions = async () => {
-  try {
-    const querySnapshot = await getDocs(
-      query(
-        collection(firestore, CONTACT_SUBMISSIONS_COLLECTION),
-        orderBy("submittedAt", "desc")
-      )
-    );
-
-    return querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  } catch (error: any) {
-    console.error("Error fetching contact submissions:", error);
-    throw new Error(error.message);
-  }
-};
-
 const listenToAuthChanges = (setUser: (user: any) => void) => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -2074,8 +2054,7 @@ export {
   listenToAuthChanges,
   logoutUser,
   saveContactFormSubmission,
-  getContactSubmissions,
-  
+
   // New subscription functions
   createUserSubscription,
   getUserSubscription,

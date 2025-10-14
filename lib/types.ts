@@ -79,7 +79,6 @@ export interface UserDetails {
   platformCredentials?: PlatformCredentialsData;
   subscription?: UserSubscription;
   onboardingCompleted?: boolean;
-  userRole?: 'user' | 'admin'; // Admin role for access control
   createdAt?: string;
   updatedAt?: string;
 }
@@ -287,27 +286,4 @@ export interface RetentionOffer {
   discountPercent?: number;
   pauseMonths?: number;
   newPlanType?: 'monthly' | 'quarterly' | 'yearly';
-}
-
-export interface AdminAction {
-  actionId: string;
-  adminUserId: string;
-  adminEmail: string;
-  targetUserId: string;
-  actionType: 'cancel_subscription' | 'extend_subscription' | 'refund' | 'change_plan';
-  actionDetails: Record<string, any>;
-  timestamp: string;
-  ipAddress?: string;
-}
-
-export interface SubscriptionAnalytics {
-  totalSubscriptions: number;
-  activeSubscriptions: number;
-  cancelledSubscriptions: number;
-  expiredSubscriptions: number;
-  gracePeriodSubscriptions: number;
-  monthlyRecurringRevenue: number;
-  churnRate: number;
-  retentionRate: number;
-  cancellationReasons: Record<CancellationReason, number>;
 }
