@@ -79,6 +79,9 @@ export interface UserDetails {
   platformCredentials?: PlatformCredentialsData;
   subscription?: UserSubscription;
   onboardingCompleted?: boolean;
+  userRole?: 'user' | 'admin'; // Admin role for access control
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface DashboardData {
@@ -252,3 +255,59 @@ export const PLAN_FEATURES = {
 
 export const GRACE_PERIOD_DAYS = 7;
 export const INDIA_TIMEZONE = 'Asia/Kolkata';
+
+// Cancellation reasons
+export type CancellationReason =
+  | 'too_expensive'
+  | 'not_using'
+  | 'found_better'
+  | 'technical_issues'
+  | 'missing_features'
+  | 'other';
+
+export interface SubscriptionCancellation {
+  userId: string;
+  subscriptionId: string;
+  reason: CancellationReason;
+  reasonDetails?: string;
+  cancelledAt: string;
+  cancelledBy: 'user' | 'admin';
+  cancellationType: 'immediate' | 'end_of_period';
+  retentionOfferShown: boolean;
+  retentionOfferType?: 'discount' | 'pause' | 'downgrade';
+  retentionOfferAccepted: boolean;
+  refundIssued: boolean;
+  refundAmount?: number;
+}
+
+export interface RetentionOffer {
+  type: 'discount' | 'pause' | 'downgrade';
+  title: string;
+  description: string;
+  discountPercent?: number;
+  pauseMonths?: number;
+  newPlanType?: 'monthly' | 'quarterly' | 'yearly';
+}
+
+export interface AdminAction {
+  actionId: string;
+  adminUserId: string;
+  adminEmail: string;
+  targetUserId: string;
+  actionType: 'cancel_subscription' | 'extend_subscription' | 'refund' | 'change_plan';
+  actionDetails: Record<string, any>;
+  timestamp: string;
+  ipAddress?: string;
+}
+
+export interface SubscriptionAnalytics {
+  totalSubscriptions: number;
+  activeSubscriptions: number;
+  cancelledSubscriptions: number;
+  expiredSubscriptions: number;
+  gracePeriodSubscriptions: number;
+  monthlyRecurringRevenue: number;
+  churnRate: number;
+  retentionRate: number;
+  cancellationReasons: Record<CancellationReason, number>;
+}

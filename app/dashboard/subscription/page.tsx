@@ -1,26 +1,31 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { auth, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
+import { auth, getUserSubscription } from '@/lib/firebaseConfig/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { UserSubscription } from '@/lib/types';
-import { Crown, Calendar, CreditCard, AlertTriangle, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Crown, Calendar, CreditCard, AlertTriangle, CheckCircle2, ExternalLink, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import CancellationWizard from '@/components/subscription/CancellationWizard';
+import { getMonthlyEquivalentPrice } from '@/lib/utils/retentionOffers';
 
 const SubscriptionPage = () => {
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [showCancellationWizard, setShowCancellationWizard] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
         try {
-          const profile = await getUserProfile(currentUser.uid);
-          setUserSubscription(profile.subscription || null);
+          const subscription = await getUserSubscription(currentUser.uid);
+          console.log('🔍 Subscription data fetched:', subscription);
+          setUserSubscription(subscription);
         } catch (error) {
           console.error('Error fetching subscription:', error);
+          setUserSubscription(null);
         }
       } else {
         setUser(null);
@@ -31,6 +36,27 @@ const SubscriptionPage = () => {
 
     return () => unsubscribe();
   }, []);
+
+  const fetchSubscriptionData = async () => {
+    setLoading(true);
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      try {
+        const subscription = await getUserSubscription(currentUser.uid);
+        console.log('🔄 Subscription data refreshed:', subscription);
+        setUserSubscription(subscription);
+      } catch (error) {
+        console.error('Error fetching subscription:', error);
+        setUserSubscription(null);
+      }
+    }
+    setLoading(false);
+  };
+
+  const handleCancellationComplete = () => {
+    // Refresh subscription data
+    fetchSubscriptionData();
+  };
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
@@ -116,44 +142,68 @@ const SubscriptionPage = () => {
           </CardHeader>
           <CardContent>
             {userSubscription ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Status</p>
-                  <p className={`text-lg font-semibold capitalize ${getStatusColor(userSubscription.subscriptionStatus)}`}>
-                    {userSubscription.subscriptionStatus.replace('_', ' ')}
-                  </p>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Status</p>
+                    <p className={`text-lg font-semibold capitalize ${getStatusColor(userSubscription.subscriptionStatus)}`}>
+                      {userSubscription.subscriptionStatus.replace('_', ' ')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Plan Type</p>
+                    <p className="text-white text-lg font-semibold capitalize">
+                      {userSubscription.planTier} - {userSubscription.planType || 'N/A'}
+                    </p>
+                  </div>
+                  {userSubscription.subscriptionStartDate && (
+                    <div>
+                      <p className="text-gray-400 text-sm mb-1">Started On</p>
+                      <p className="text-white text-lg">
+                        {formatDate(userSubscription.subscriptionStartDate)}
+                      </p>
+                    </div>
+                  )}
+                  {userSubscription.nextBillingDate && (
+                    <div>
+                      <p className="text-gray-400 text-sm mb-1">Next Billing</p>
+                      <p className="text-white text-lg">
+                        {formatDate(userSubscription.nextBillingDate)}
+                      </p>
+                    </div>
+                  )}
+                  {userSubscription.planPrice && (
+                    <div>
+                      <p className="text-gray-400 text-sm mb-1">Amount</p>
+                      <p className="text-white text-lg font-semibold">
+                        ₹{userSubscription.planPrice} / {userSubscription.planType}
+                      </p>
+                      <p className="text-gray-400 text-sm mt-1">
+                        (₹{getMonthlyEquivalentPrice(
+                          userSubscription.planType as 'monthly' | 'quarterly' | 'yearly',
+                          userSubscription.planPrice
+                        )}/month)
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Plan Type</p>
-                  <p className="text-white text-lg font-semibold capitalize">
-                    {userSubscription.planTier} - {userSubscription.planType || 'N/A'}
-                  </p>
-                </div>
-                {userSubscription.subscriptionStartDate && (
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">Started On</p>
-                    <p className="text-white text-lg">
-                      {formatDate(userSubscription.subscriptionStartDate)}
-                    </p>
+
+                {/* Cancellation Notice if Cancelled */}
+                {userSubscription.cancelledDate && (
+                  <div className="mt-6 p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-yellow-200">
+                        <strong>Subscription Cancelled</strong>
+                        <p className="mt-1">
+                          Cancelled on {formatDate(userSubscription.cancelledDate)}.
+                          You'll keep premium access until {formatDate(userSubscription.renewalDate || userSubscription.nextBillingDate)}.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
-                {userSubscription.nextBillingDate && (
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">Next Billing</p>
-                    <p className="text-white text-lg">
-                      {formatDate(userSubscription.nextBillingDate)}
-                    </p>
-                  </div>
-                )}
-                {userSubscription.planPrice && (
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">Amount</p>
-                    <p className="text-white text-lg font-semibold">
-                      ₹{userSubscription.planPrice} / {userSubscription.planType}
-                    </p>
-                  </div>
-                )}
-              </div>
+              </>
             ) : (
               <div className="text-center py-8">
                 <p className="text-gray-400 text-lg mb-4">You're currently on the free plan</p>
@@ -209,12 +259,12 @@ const SubscriptionPage = () => {
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-3">
                 <CreditCard className="w-6 h-6" />
-                Subscription Actions
+                Manage Subscription
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
+                <Button
                   onClick={() => window.open('/pricing', '_blank')}
                   variant="outline"
                   className="border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -222,16 +272,25 @@ const SubscriptionPage = () => {
                   <ExternalLink className="w-4 h-4 mr-2" />
                   View All Plans
                 </Button>
-                
-                {userSubscription.subscriptionStatus === 'premium' && (
-                  <Button 
-                    onClick={() => alert('Contact support to manage your subscription: support@aipply.io')}
+
+                {userSubscription.subscriptionStatus === 'premium' && !userSubscription.cancelledDate && (
+                  <Button
+                    onClick={() => setShowCancellationWizard(true)}
                     variant="outline"
-                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
+                    className="border-red-600 text-red-400 hover:bg-red-900/20"
                   >
-                    <AlertTriangle className="w-4 h-4 mr-2" />
+                    <XCircle className="w-4 h-4 mr-2" />
                     Cancel Subscription
                   </Button>
+                )}
+
+                {userSubscription.cancelledDate && userSubscription.subscriptionStatus === 'premium' && (
+                  <div className="flex-1 p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                    <p className="text-sm text-blue-200">
+                      <strong>Want to keep your subscription?</strong><br />
+                      Contact support to reactivate: <a href="mailto:support@aipply.io" className="text-blue-400 hover:underline">support@aipply.io</a>
+                    </p>
+                  </div>
                 )}
               </div>
               
@@ -246,6 +305,16 @@ const SubscriptionPage = () => {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Cancellation Wizard */}
+        {userSubscription && (
+          <CancellationWizard
+            isOpen={showCancellationWizard}
+            onClose={() => setShowCancellationWizard(false)}
+            subscription={userSubscription}
+            onCancellationComplete={handleCancellationComplete}
+          />
         )}
       </div>
     </div>
