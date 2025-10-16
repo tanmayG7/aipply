@@ -190,3 +190,20 @@ header {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Force dark color scheme for all form elements */
+select, textarea, input {
+  color-scheme: dark;
+}
+
+/* Ensure text visibility in select/textarea elements */
+select, textarea {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* Fix for select options */
+select option {
+  background-color: white !important;
+  color: black !important;
+}

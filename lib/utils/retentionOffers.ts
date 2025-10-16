@@ -28,7 +28,7 @@ export function calculateRetentionOffers(subscription: UserSubscription): Retent
     pauseMonths: 2,
   });
 
-  // Offer 3: Downgrade Plan (if applicable)
+  // Offer 3: Plan Change (upgrade or downgrade based on current plan)
   if (planType === 'yearly') {
     offers.push({
       type: 'downgrade',
@@ -42,6 +42,19 @@ export function calculateRetentionOffers(subscription: UserSubscription): Retent
       title: 'Switch to Monthly Plan',
       description: 'Maximum flexibility with monthly billing at ₹666/month. Cancel anytime.',
       newPlanType: 'monthly',
+    });
+  } else if (planType === 'monthly') {
+    // For monthly users, offer upgrade to annual with significant savings
+    const yearlyPrice = 4188;
+    const monthlyEquivalent = Math.round(yearlyPrice / 12); // ₹349/month
+    const currentMonthlyPrice = 666;
+    const annualSavings = (currentMonthlyPrice * 12) - yearlyPrice; // ₹3,804 savings
+
+    offers.push({
+      type: 'downgrade', // Using same type for consistency with API
+      title: 'Upgrade to Annual Plan - Save 40%',
+      description: `Pay only ₹${monthlyEquivalent}/month (₹${yearlyPrice}/year) instead of ₹${currentMonthlyPrice}/month. Save ₹${annualSavings} annually!`,
+      newPlanType: 'yearly',
     });
   }
 
@@ -66,7 +79,12 @@ export function calculateOfferSavings(
       return currentPrice;
 
     case 'downgrade':
-      if (subscription.planType === 'yearly') {
+      if (subscription.planType === 'monthly') {
+        // Monthly to Annual - significant savings
+        const yearlyPrice = 4188;
+        const currentAnnualCost = currentPrice * 12; // ₹7,992
+        return currentAnnualCost - yearlyPrice; // ₹3,804 savings
+      } else if (subscription.planType === 'yearly') {
         // Yearly (₹349/mo) to Quarterly (₹499/mo) - actually costs more monthly
         // But provides flexibility, so show as "More flexibility"
         return 0;

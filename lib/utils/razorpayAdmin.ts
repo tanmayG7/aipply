@@ -8,8 +8,13 @@ const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
 function getAuthHeader(): string {
   if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+    console.error('❌ [Razorpay] Missing credentials!');
+    console.error('❌ [Razorpay] KEY_ID exists:', !!RAZORPAY_KEY_ID);
+    console.error('❌ [Razorpay] KEY_SECRET exists:', !!RAZORPAY_KEY_SECRET);
     throw new Error('Razorpay credentials not configured');
   }
+
+  console.log('🔑 [Razorpay] Using KEY_ID:', RAZORPAY_KEY_ID?.substring(0, 10) + '...');
   return Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
 }
 
@@ -21,8 +26,19 @@ export async function cancelRazorpaySubscription(
   cancelAtCycleEnd: boolean = false
 ): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
+    console.log('🔍 [Razorpay Cancel] Starting cancellation process');
+    console.log('📋 [Razorpay Cancel] Subscription ID:', subscriptionId);
+    console.log('⏰ [Razorpay Cancel] Cancel at cycle end:', cancelAtCycleEnd);
+
     const auth = getAuthHeader();
     const url = `https://api.razorpay.com/v1/subscriptions/${subscriptionId}/cancel`;
+
+    console.log('🌐 [Razorpay Cancel] API URL:', url);
+
+    const requestBody = {
+      cancel_at_cycle_end: cancelAtCycleEnd ? 1 : 0
+    };
+    console.log('📤 [Razorpay Cancel] Request body:', JSON.stringify(requestBody));
 
     const response = await fetch(url, {
       method: 'POST',
@@ -30,29 +46,48 @@ export async function cancelRazorpaySubscription(
         'Authorization': `Basic ${auth}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        cancel_at_cycle_end: cancelAtCycleEnd ? 1 : 0
-      })
+      body: JSON.stringify(requestBody)
     });
 
+    console.log('📥 [Razorpay Cancel] Response status:', response.status, response.statusText);
+
     const data = await response.json();
+    console.log('📥 [Razorpay Cancel] Response data:', JSON.stringify(data, null, 2));
 
     if (!response.ok) {
+      // Log the full error structure
+      console.error('❌ [Razorpay Cancel] API returned error');
+      console.error('❌ [Razorpay Cancel] Status:', response.status);
+      console.error('❌ [Razorpay Cancel] Error object:', data.error);
+      console.error('❌ [Razorpay Cancel] Full response:', data);
+
+      // Extract detailed error message
+      const errorMessage =
+        data.error?.description ||
+        data.error?.message ||
+        data.message ||
+        `Razorpay API error (${response.status})`;
+
       return {
         success: false,
-        error: data.error?.description || 'Failed to cancel subscription'
+        error: errorMessage,
+        data: data // Include full response for debugging
       };
     }
 
+    console.log('✅ [Razorpay Cancel] Cancellation successful');
     return {
       success: true,
       data
     };
   } catch (error: any) {
-    console.error('Error cancelling Razorpay subscription:', error);
+    console.error('💥 [Razorpay Cancel] Exception occurred:', error);
+    console.error('💥 [Razorpay Cancel] Error message:', error.message);
+    console.error('💥 [Razorpay Cancel] Error stack:', error.stack);
+
     return {
       success: false,
-      error: error.message || 'Unknown error occurred'
+      error: `Network error: ${error.message}`
     };
   }
 }
@@ -180,6 +215,54 @@ export async function getRazorpaySubscription(
     return {
       success: false,
       error: error.message || 'Unknown error occurred'
+    };
+  }
+}
+
+/**
+ * Check if subscription can be cancelled
+ */
+export async function checkSubscriptionCancellable(
+  subscriptionId: string
+): Promise<{ cancellable: boolean; reason?: string; status?: string }> {
+  try {
+    console.log('🔍 [Razorpay] Checking if subscription is cancellable...');
+    const result = await getRazorpaySubscription(subscriptionId);
+
+    if (!result.success) {
+      console.error('❌ [Razorpay] Cannot fetch subscription:', result.error);
+      return {
+        cancellable: false,
+        reason: `Cannot fetch subscription: ${result.error}`
+      };
+    }
+
+    const status = result.data.status;
+    console.log('📊 [Razorpay] Subscription status:', status);
+
+    // Razorpay subscription statuses:
+    // - created, authenticated, active, pending, halted, cancelled, completed, expired
+    const cancellableStatuses = ['active', 'authenticated'];
+
+    if (!cancellableStatuses.includes(status)) {
+      console.warn(`⚠️ [Razorpay] Subscription is in '${status}' state and cannot be cancelled`);
+      return {
+        cancellable: false,
+        reason: `Subscription is in '${status}' state and cannot be cancelled`,
+        status
+      };
+    }
+
+    console.log('✅ [Razorpay] Subscription is cancellable');
+    return {
+      cancellable: true,
+      status
+    };
+  } catch (error: any) {
+    console.error('💥 [Razorpay] Error checking subscription:', error);
+    return {
+      cancellable: false,
+      reason: `Error checking subscription: ${error.message}`
     };
   }
 }
