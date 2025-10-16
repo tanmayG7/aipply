@@ -143,7 +143,7 @@ const SubscriptionPage = () => {
           <CardContent>
             {userSubscription ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4 md:gap-6">
                   <div>
                     <p className="text-gray-400 text-sm mb-1">Status</p>
                     <p className={`text-lg font-semibold capitalize ${getStatusColor(userSubscription.subscriptionStatus)}`}>
@@ -226,9 +226,6 @@ const SubscriptionPage = () => {
                 <CheckCircle2 className="w-6 h-6 text-green-500" />
                 Premium Features Active
               </CardTitle>
-              <CardDescription className="text-gray-300">
-                You have access to all premium features
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

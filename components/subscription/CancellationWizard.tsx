@@ -160,8 +160,8 @@ export default function CancellationWizard({
             html: `
               <div class="text-left space-y-3">
                 <p class="text-white">Your subscription has been cancelled.</p>
-                <p class="text-gray-300">You'll keep premium access until <strong class="text-white">${new Date(data.accessEndDate).toLocaleDateString()}</strong> (${data.remainingDays} days)</p>
-                <p class="text-gray-300 text-sm mt-4">We're sorry to see you go. You can reactivate anytime by contacting support.</p>
+                <p class="text-gray-300">You'll keep premium access until <strong class="text-white">${new Date(data.accessEndDate).toLocaleDateString()}</strong></p>
+                <p class="text-gray-300 text-sm mt-4">We're sorry to see you go.</p>
               </div>
             `,
             background: '#1f2937',
@@ -195,12 +195,12 @@ export default function CancellationWizard({
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="text-center">
               <div className="flex justify-center mb-4">
-                <Frown className="w-16 h-16 text-yellow-500" />
+                <Frown className="w-12 h-12 sm:w-16 sm:h-16 text-yellow-500" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
                 We're Sorry to See You Go
               </h2>
               <p className="text-gray-400">
@@ -208,12 +208,12 @@ export default function CancellationWizard({
               </p>
             </div>
 
-            <div className="bg-red-900/20 border border-red-700/50 rounded-xl p-4">
+            <div className="bg-red-900/20 border border-red-700/50 rounded-xl p-3 sm:p-4">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                <div className="space-y-2 text-sm text-red-200">
+                <div className="space-y-2 text-xs sm:text-sm text-red-200">
                   <p className="font-semibold">You'll lose access to:</p>
-                  <ul className="space-y-2 mt-2">
+                  <ul className="space-y-1.5 sm:space-y-2 mt-2">
                     <li className="flex items-start gap-2">
                       <span className="text-red-400 mt-0.5 flex-shrink-0">•</span>
                       <span>Automatic job applications (up to {subscription.features.maxAutoApplyPerDay} per day)</span>
@@ -239,12 +239,12 @@ export default function CancellationWizard({
               </div>
             </div>
 
-            <div className="bg-green-900/20 border border-green-700/50 rounded-xl p-4">
+            <div className="bg-green-900/20 border border-green-700/50 rounded-xl p-3 sm:p-4">
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                <div className="space-y-2 text-sm text-green-200">
+                <div className="space-y-2 text-xs sm:text-sm text-green-200">
                   <p className="font-semibold">You'll keep:</p>
-                  <ul className="space-y-2 mt-2">
+                  <ul className="space-y-1.5 sm:space-y-2 mt-2">
                     <li className="flex items-start gap-2">
                       <span className="text-green-400 mt-0.5 flex-shrink-0">•</span>
                       <span>Your profile and saved information</span>
@@ -266,7 +266,7 @@ export default function CancellationWizard({
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-3">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
               <button
                 onClick={onClose}
                 className={BUTTON_STYLES.primary}
@@ -299,22 +299,19 @@ export default function CancellationWizard({
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Reason for Cancellation *
               </label>
-              <div className="relative">
-                <select
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value as CancellationReason)}
-                  className="w-full px-4 py-2.5 pr-10 bg-gray-700 text-white border border-gray-500 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                >
-                  <option value="">Select a reason...</option>
-                  <option value="too_expensive">Too Expensive</option>
-                  <option value="not_using">Not Using the Service</option>
-                  <option value="found_better">Found a Better Alternative</option>
-                  <option value="technical_issues">Technical Issues</option>
-                  <option value="missing_features">Missing Features</option>
-                  <option value="other">Other</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-              </div>
+              <select
+                value={reason}
+                onChange={(e) => setReason(e.target.value as CancellationReason)}
+                className="w-full px-4 py-2.5 bg-gray-700 text-white border border-gray-500 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+              >
+                <option value="">Select a reason...</option>
+                <option value="too_expensive">Too Expensive</option>
+                <option value="not_using">Not Using the Service</option>
+                <option value="found_better">Found a Better Alternative</option>
+                <option value="technical_issues">Technical Issues</option>
+                <option value="missing_features">Missing Features</option>
+                <option value="other">Other</option>
+              </select>
             </div>
 
             <div>
@@ -382,18 +379,13 @@ export default function CancellationWizard({
               <div>
                 <p className="text-sm text-gray-300">Your Premium Access Until</p>
                 {isDateValid ? (
-                  <>
-                    <p className="text-lg font-semibold text-green-400">
-                      {new Date(accessEndDate).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })} at 11:59 PM IST
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      You'll have full access until the end of this day
-                    </p>
-                  </>
+                  <p className="text-lg font-semibold text-green-400">
+                    {new Date(accessEndDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })} at 11:59 PM IST
+                  </p>
                 ) : (
                   <>
                     <p className="text-lg font-semibold text-orange-400">
@@ -423,10 +415,6 @@ export default function CancellationWizard({
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                     <span>After that, you'll be moved to the free plan</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>You can reactivate anytime by contacting support</span>
                   </li>
                 </ul>
               </div>
