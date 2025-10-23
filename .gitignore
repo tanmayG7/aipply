@@ -51,3 +51,6 @@ screen-20250813-151214.mp4
 bun.lock
 *.png
 build-output.log
+
+.gemini/
+gha-creds-*.json
