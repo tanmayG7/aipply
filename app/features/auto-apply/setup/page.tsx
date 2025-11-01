@@ -120,8 +120,8 @@ export default function AutoApplySetup() {
       const user = auth.currentUser;
       if (user) {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const profile: any = await getUserProfile(user.uid);
-          setUserProfile(profile);
 
           // Pre-populate with user's existing data
           if (profile.autoApplySettings) {
