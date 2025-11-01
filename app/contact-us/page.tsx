@@ -87,7 +87,7 @@ const ContactUsPage = () => {
                 Contact Us
               </h1>
               <h2 className="font-manrope font-semibold text-[28px] custom-md:text-[36px] leading-[120%] text-[#52A9FF] mb-4">
-                Let's Connect & Build Together
+                Let&apos;s Connect & Build Together
               </h2>
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#CECFD2] max-w-3xl mx-auto">
                 Got questions? Want to partner with us? Looking to join our mission? We'd love to hear from you.

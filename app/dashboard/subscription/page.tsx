@@ -206,7 +206,7 @@ const SubscriptionPage = () => {
               </>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-400 text-lg mb-4">You're currently on the free plan</p>
+                <p className="text-gray-400 text-lg mb-4">You&apos;re currently on the free plan</p>
                 <Button 
                   onClick={() => window.open('/pricing', '_blank')}
                   className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"

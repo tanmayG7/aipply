@@ -219,7 +219,7 @@ export function ButtonDebugger() {
         <div className="mt-4 p-4 bg-blue-900 rounded-lg">
           <h3 className="text-white font-semibold mb-2">💡 Quick Fixes</h3>
           <ul className="text-blue-200 text-sm space-y-1">
-            <li>• If router test fails: Make sure you're using this component inside a Next.js page</li>
+            <li>• If router test fails: Make sure you&apos;re using this component inside a Next.js page</li>
             <li>• If Firebase test fails: Check your environment variables (.env.local)</li>
             <li>• If auth function fails: Verify Firebase config and imports</li>
             <li>• If all tests pass but buttons don't work: Check browser console for errors</li>

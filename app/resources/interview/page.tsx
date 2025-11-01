@@ -322,7 +322,7 @@ const InterviewPreparation = () => {
               {/* Don'ts */}
               <div className="bg-[#111111] bg-opacity-50 border border-red-500 border-opacity-20 rounded-[20px] p-8">
                 <h3 className="font-manrope text-[24px] font-semibold text-red-400 mb-6 flex items-center gap-2">
-                  <Icon name="x-circle" size={24} ariaLabel="Don't" />
+                  <Icon name="x-circle" size={24} ariaLabel="Don&apos;t" />
                   Don'ts
                 </h3>
                 <ul className="space-y-4">

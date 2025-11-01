@@ -160,8 +160,8 @@ export default function CancellationWizard({
             html: `
               <div class="text-left space-y-3">
                 <p class="text-white">Your subscription has been cancelled.</p>
-                <p class="text-gray-300">You'll keep premium access until <strong class="text-white">${new Date(data.accessEndDate).toLocaleDateString()}</strong></p>
-                <p class="text-gray-300 text-sm mt-4">We're sorry to see you go.</p>
+                <p class="text-gray-300">You&apos;ll keep premium access until <strong class="text-white">${new Date(data.accessEndDate).toLocaleDateString()}</strong></p>
+                <p class="text-gray-300 text-sm mt-4">We&apos;re sorry to see you go.</p>
               </div>
             `,
             background: '#1f2937',
@@ -212,7 +212,7 @@ export default function CancellationWizard({
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div className="space-y-2 text-xs sm:text-sm text-red-200">
-                  <p className="font-semibold">You'll lose access to:</p>
+                  <p className="font-semibold">You&apos;ll lose access to:</p>
                   <ul className="space-y-1.5 sm:space-y-2 mt-2">
                     <li className="flex items-start gap-2">
                       <span className="text-red-400 mt-0.5 flex-shrink-0">•</span>
@@ -243,7 +243,7 @@ export default function CancellationWizard({
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                 <div className="space-y-2 text-xs sm:text-sm text-green-200">
-                  <p className="font-semibold">You'll keep:</p>
+                  <p className="font-semibold">You&apos;ll keep:</p>
                   <ul className="space-y-1.5 sm:space-y-2 mt-2">
                     <li className="flex items-start gap-2">
                       <span className="text-green-400 mt-0.5 flex-shrink-0">•</span>
@@ -406,7 +406,7 @@ export default function CancellationWizard({
                 <ul className="mt-3 space-y-2.5 text-sm text-gray-300">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>You'll keep premium access until your current billing period ends</span>
+                    <span>You&apos;ll keep premium access until your current billing period ends</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
@@ -414,7 +414,7 @@ export default function CancellationWizard({
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>After that, you'll be moved to the free plan</span>
+                    <span>After that, you&apos;ll be moved to the free plan</span>
                   </li>
                 </ul>
               </div>

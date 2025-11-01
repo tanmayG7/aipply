@@ -47,7 +47,7 @@ export default function TermsAndConditions() {
                       Agreement to Our Legal Terms
                     </h2>
                     <p className="font-manrope text-[16px] leading-[24px] mb-4">
-                      We are <strong className="text-[#F5F5F6]">DINMAY JOBSEARCH TECH LLP</strong>, doing business as <strong className="text-[#F5F5F6]">AiPply</strong> ("Company", "we", "us", "our"), a company registered in India at B-301, Golden Palms, Sector 168, Gautam Buddha Nagar, UP 201305.
+                      We are <strong className="text-[#F5F5F6]">DINMAY JOBSEARCH TECH LLP</strong>, doing business as <strong className="text-[#F5F5F6]">AiPply</strong> (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;), a company registered in India at B-301, Golden Palms, Sector 168, Gautam Buddha Nagar, UP 201305.
                     </p>
                     <p className="font-manrope text-[16px] leading-[24px] mb-4">
                       We operate the website <strong className="text-[#F5F5F6]">http://www.aipply.io</strong> (the "Site"), as well as any other related products and services that refer or link to these legal terms (the "Legal Terms") (collectively, the "Services").

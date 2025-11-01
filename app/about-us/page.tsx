@@ -35,7 +35,7 @@ const AboutUsPage = () => {
                 <strong>AiPply</strong> is your AI-powered job-seeking copilot that automates job discovery, personalizes resumes, and applies on your behalf — so you can focus on showing up, not signing in.
               </p>
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#CECFD2] mt-6 max-w-4xl mx-auto">
-                We're not building a tool. We're building a world where <strong className="text-[#52A9FF]">employees and employers have equal opportunity.</strong>
+                We&apos;re not building a tool. We&apos;re building a world where <strong className="text-[#52A9FF]">employees and employers have equal opportunity.</strong>
               </p>
             </div>
           </div>
@@ -75,7 +75,7 @@ const AboutUsPage = () => {
                 </p>
                 <div className="space-y-2">
                   <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#52A9FF]">
-                    👉 <em>What if applying to jobs didn't suck?</em>
+                    👉 <em>What if applying to jobs didn&apos;t suck?</em>
                   </p>
                   <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#52A9FF]">
                     👉 <em>What if tech could bring speed, scale, and fairness to the job market?</em>
