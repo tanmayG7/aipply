@@ -353,7 +353,7 @@ export default function AutoApplyDashboard() {
                         <span>{autoApplySettings.maxApplicationsPerDay}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span>Today's Progress</span>
+                        <span>Today&apos;s Progress</span>
                         <span>
                           {stats.todayApplications}/
                           {autoApplySettings.maxApplicationsPerDay}

@@ -4,7 +4,6 @@ import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import HeroSection from "@/components/sections/heroSection/heroSection";
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { Icon } from "@/components/ui/Icon";

@@ -8,12 +8,7 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import TestimonialsCard from "@/components/card/testimonialsCard/testimonialsCard";
 import { Icon } from "@/components/ui/Icon";
-// Declare Razorpay for TypeScript
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
+import type { RazorpayOptions, RazorpayResponse, RazorpayErrorResponse } from "@/types/razorpay";
 
 const FreeMeSpecial = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -47,7 +42,7 @@ const FreeMeSpecial = () => {
 
 useEffect(() => {
   // Listen for Razorpay payment success
-  const handlePaymentSuccess = (event: any) => {
+  const handlePaymentSuccess = (event: MessageEvent) => {
     if (event.data && event.data.action === 'payment_success') {
       setPaymentSuccess(true);
     }
@@ -73,14 +68,14 @@ const openRazorpayPayment = () => {
 };
 
 const initializePayment = () => {
-  const options = {
+  const options: RazorpayOptions = {
     key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Your Razorpay key
     amount: 19470, // Amount in paisa (₹194.7)
     currency: 'INR',
     name: 'AiPply',
     description: 'Free-me Independence Special - 1 Month Trial',
     image: '/favicon.ico', // Your logo
-    handler: function (response: any) {
+    handler: function (response: RazorpayResponse) {
       console.log('✅ Payment successful:', response);
       setPaymentSuccess(true);
     },
@@ -100,11 +95,11 @@ const initializePayment = () => {
   };
 
   const rzp = new window.Razorpay(options);
-  rzp.on('payment.failed', function (response: any) {
+  rzp.on('payment.failed', function (response: RazorpayErrorResponse) {
     console.error('❌ Payment failed:', response.error);
     alert('Payment failed: ' + response.error.description);
   });
-  
+
   rzp.open();
 };
   const testimonials = [

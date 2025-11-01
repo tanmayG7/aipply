@@ -32,13 +32,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
-
-// Extend Window interface for Razorpay
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
+import type { RazorpayResponse, RazorpayErrorResponse } from "@/types/razorpay";
 
 // Form validation error types
 interface FormErrors {
@@ -66,7 +60,11 @@ export default function CVServicesPage() {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [orderDetails, setOrderDetails] = useState<{
+    amount: number;
+    deliveryDays: number;
+    customerEmail: string;
+  } | null>(null);
   const [generalError, setGeneralError] = useState<string>("");
 
   // Load Razorpay script
@@ -165,8 +163,8 @@ export default function CVServicesPage() {
     e.preventDefault();
 
     // Analytics: Track payment initiation
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'begin_checkout', {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'begin_checkout', {
         currency: 'INR',
         value: 987,
         items: [{
@@ -183,8 +181,8 @@ export default function CVServicesPage() {
       setGeneralError("Please log in to continue with payment");
 
       // Analytics: Track abandoned checkout (not logged in)
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'checkout_abandoned', {
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'checkout_abandoned', {
           reason: 'not_logged_in'
         });
       }
@@ -200,8 +198,8 @@ export default function CVServicesPage() {
       setGeneralError("Please fix the errors above");
 
       // Analytics: Track validation error
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'form_validation_error', {
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'form_validation_error', {
           form_name: 'cv_payment_form'
         });
       }
@@ -256,7 +254,7 @@ export default function CVServicesPage() {
         theme: {
           color: '#5D29FF'
         },
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           console.log('💳 Payment successful, verifying...');
           await verifyPayment(response);
         },
@@ -270,7 +268,7 @@ export default function CVServicesPage() {
       };
 
       const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response: any){
+      rzp.on('payment.failed', function (response: RazorpayErrorResponse){
         console.error('❌ Payment failed:', response.error);
         setIsProcessing(false);
         setGeneralError(response.error.description || 'Payment failed. Please try again.');
@@ -278,14 +276,14 @@ export default function CVServicesPage() {
 
       rzp.open();
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Payment error:', error);
-      setGeneralError(error.message || 'Something went wrong. Please try again.');
+      setGeneralError(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
       setIsProcessing(false);
     }
   };
 
-  const verifyPayment = async (response: any) => {
+  const verifyPayment = async (response: RazorpayResponse) => {
     try {
       console.log('🔐 Verifying payment signature...');
       const verifyResponse = await fetch('/api/cv-services/verify-payment', {
@@ -307,8 +305,8 @@ export default function CVServicesPage() {
       console.log('✅ Payment verified successfully');
 
       // Analytics: Track successful purchase
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'purchase', {
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'purchase', {
           transaction_id: response.razorpay_order_id,
           value: 987,
           currency: 'INR',
@@ -321,7 +319,7 @@ export default function CVServicesPage() {
         });
 
         // Track conversion
-        (window as any).gtag('event', 'conversion', {
+        window.gtag('event', 'conversion', {
           send_to: 'AW-CONVERSION_ID/CONVERSION_LABEL', // Replace with actual conversion ID
           value: 987,
           currency: 'INR',
@@ -330,8 +328,8 @@ export default function CVServicesPage() {
       }
 
       // Facebook Pixel tracking (if configured)
-      if (typeof window !== 'undefined' && (window as any).fbq) {
-        (window as any).fbq('track', 'Purchase', {
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'Purchase', {
           value: 987,
           currency: 'INR',
           content_name: 'Professional CV Writing Service',
@@ -343,13 +341,13 @@ export default function CVServicesPage() {
       setShowSuccessModal(true);
       setIsProcessing(false);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Verification error:', error);
 
       // Analytics: Track payment failure
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'payment_failed', {
-          error_message: error.message
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'payment_failed', {
+          error_message: error instanceof Error ? error.message : 'Unknown error'
         });
       }
 
@@ -434,8 +432,8 @@ export default function CVServicesPage() {
       answer: "We deliver your professionally crafted CV within 48 hours of receiving your information and payment confirmation."
     },
     {
-      question: "What if I'm not satisfied with the CV?",
-      answer: "We offer unlimited revisions until you're completely satisfied. Your success is our priority, and we'll work with you until your CV is perfect."
+      question: "What if I&apos;m not satisfied with the CV?",
+      answer: "We offer unlimited revisions until you&apos;re completely satisfied. Your success is our priority, and we&apos;ll work with you until your CV is perfect."
     },
     {
       question: "Is my payment information secure?",
@@ -443,11 +441,11 @@ export default function CVServicesPage() {
     },
     {
       question: "What information do I need to provide?",
-      answer: "After payment, you'll receive a detailed form to fill out with your work experience, education, skills, and career goals. The more details you provide, the better we can tailor your CV."
+      answer: "After payment, you&apos;ll receive a detailed form to fill out with your work experience, education, skills, and career goals. The more details you provide, the better we can tailor your CV."
     },
     {
       question: "Do you offer refunds?",
-      answer: "Yes, we offer a 100% money-back guarantee if you're not satisfied with our service. Please refer to our refund policy for complete details."
+      answer: "Yes, we offer a 100% money-back guarantee if you&apos;re not satisfied with our service. Please refer to our refund policy for complete details."
     }
   ];
 
@@ -944,7 +942,7 @@ export default function CVServicesPage() {
                 Ready to Transform Your Career?
               </h2>
               <p className="text-[#CECFD2] text-lg mb-8 max-w-2xl mx-auto">
-                Don't let a poorly written CV hold you back. Invest in your future today and get the professional CV you deserve.
+                Don&apos;t let a poorly written CV hold you back. Invest in your future today and get the professional CV you deserve.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mb-8">
@@ -999,7 +997,7 @@ export default function CVServicesPage() {
                 Payment Successful!
               </h3>
               <p className="text-[#CECFD2] mb-6">
-                Your order has been confirmed. We'll start working on your professional CV right away.
+                Your order has been confirmed. We&apos;ll start working on your professional CV right away.
               </p>
 
               {/* Order Details */}
@@ -1037,7 +1035,7 @@ export default function CVServicesPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-[#AE94FF] mt-1">•</span>
-                    <span>We'll send you a form to collect your CV details</span>
+                    <span>We&apos;ll send you a form to collect your CV details</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-[#AE94FF] mt-1">•</span>

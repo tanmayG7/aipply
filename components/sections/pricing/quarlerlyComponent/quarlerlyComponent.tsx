@@ -5,12 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
-// Declare Razorpay for TypeScript
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
+import "@/types/razorpay";
 
 const QuarterlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);

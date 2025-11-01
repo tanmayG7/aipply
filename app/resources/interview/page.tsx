@@ -4,7 +4,6 @@ import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import HeroSection from "@/components/sections/heroSection/heroSection";
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { Icon } from "@/components/ui/Icon";
@@ -183,7 +182,7 @@ const InterviewPreparation = () => {
           <HeroSection
             image="/static/images/interview-preparation.jpeg"
             title="Ace Your Interview Resource"
-            subtitle="Master the art of interviewing with proven strategies. Your job isn't to answer everything perfectly—it's to show how you think!"
+            subtitle="Master the art of interviewing with proven strategies. Your job isn't to answer everything perfectly - it's to show how you think!"
             button={
               <div className="flex flex-col custom-md:flex-row gap-4">
                 <Link href="https://youtu.be/Tm0Gd7GILwc" target="_blank">
@@ -235,7 +234,7 @@ const InterviewPreparation = () => {
                 Key Takeaway
               </h2>
               <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
-                "Your job isn't to answer everything perfectly—it's to show how you think." Focus on demonstrating your problem-solving approach and thought process.
+                "Your job isn't to answer everything perfectly - it's to show how you think." Focus on demonstrating your problem-solving approach and thought process.
               </p>
             </div>
           </div>
@@ -343,7 +342,7 @@ const InterviewPreparation = () => {
           <div className="pt-[176px] flex flex-col gap-[76px] relative z-20">
             <div className="text-center">
               <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4">
-                💡 Smart Questions to Ask Interviewers
+                Smart Questions to Ask Interviewers
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Asking thoughtful questions shows maturity, interest, and confidence. Here are some great examples.
@@ -378,7 +377,7 @@ const InterviewPreparation = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="font-manrope text-[20px] font-semibold text-[#F5F5F6] mb-2">
-                    📖 Recommended Reading
+                    Recommended Reading
                   </h3>
                   <p className="font-manrope text-[16px] text-[#20CEB6]">
                     'Give and Take' by Adam Grant

@@ -109,7 +109,6 @@ export default function AutoApplySetup() {
   const [page, setPage] = useState(1);
   const [settings, setSettings] = useState<AutoApplySettings>(defaultSettings);
   const [loading, setLoading] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
   const [newJobTitle, setNewJobTitle] = useState("");
   const [newLocation, setNewLocation] = useState("");
   const [newKeyword, setNewKeyword] = useState("");

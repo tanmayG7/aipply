@@ -5,7 +5,6 @@ import { ResponsivePageContainer } from "@/components/common/responsivePageConta
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import HeroSection from "@/components/sections/heroSection/heroSection";
 import { Icon } from "@/components/ui/Icon";
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -239,7 +238,7 @@ const LinkedInOptimization = () => {
                 Key Takeaway
               </h2>
               <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
-                Your LinkedIn profile alone won't land you a job – networking, branding, and engagement are crucial to standing out. Start building your presence today!
+                Your LinkedIn profile alone won't land you a job - networking, branding, and engagement are crucial to standing out. Start building your presence today!
               </p>
             </div>
           </div>

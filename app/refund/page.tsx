@@ -218,13 +218,13 @@ export default function CancellationAndRefundPolicy() {
                     </h3>
                     <ul className="list-disc pl-6 space-y-2 mb-4">
                       <li>Your subscription renews automatically every 30 days from your initial sign-up date</li>
-                      <li>You'll receive an email notification 3 days before each renewal</li>
+                      <li>You&apos;ll receive an email notification 3 days before each renewal</li>
                       <li>Charges are processed automatically using your saved payment method (UPI or Razorpay)</li>
                       <li>Your automated job application service continues uninterrupted with each renewal</li>
                     </ul>
 
                     <h3 className="font-manrope text-[18px] font-semibold text-[#F5F5F6] mb-3">
-                      Avoiding Next Month's Charge
+                      Avoiding Next Month&apos;s Charge
                     </h3>
                     <div className="bg-[#1A1A1A] border border-[#AE94FF] rounded-lg p-4 mb-4">
                       <p className="font-manrope text-[16px] leading-[24px] text-[#AE94FF]">
@@ -255,7 +255,7 @@ export default function CancellationAndRefundPolicy() {
                     </p>
                     <ul className="list-disc pl-6 space-y-2 mb-4">
                       <li>Please contact our support team first at <a href="mailto:tanmay@aipply.io" className="text-[#AE94FF] hover:underline">tanmay@aipply.io</a></li>
-                      <li>We're committed to resolving issues directly and promptly</li>
+                      <li>We&apos;re committed to resolving issues directly and promptly</li>
                       <li>Chargebacks may result in immediate account suspension</li>
                       <li>We maintain detailed records of all transactions and service usage</li>
                     </ul>
@@ -306,7 +306,7 @@ export default function CancellationAndRefundPolicy() {
                       We reserve the right to update this Cancellation and Refund Policy at any time. Changes will be:
                     </p>
                     <ul className="list-disc pl-6 space-y-2 mb-4">
-                      <li>Posted on this page with an updated "Last modified" date</li>
+                      <li>Posted on this page with an updated &quot;Last modified&quot; date</li>
                       <li>Communicated to active subscribers via email</li>
                       <li>Effective immediately for new subscriptions</li>
                       <li>Applied to existing subscriptions at the next renewal cycle</li>

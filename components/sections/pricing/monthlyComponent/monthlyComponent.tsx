@@ -4,13 +4,7 @@ import CheckPointscard from "@/components/common/checkPointscard/checkPointscard
 import React, { useEffect, useState } from "react";
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
-
-// Declare Razorpay for TypeScript
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
+import "@/types/razorpay";
 
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);

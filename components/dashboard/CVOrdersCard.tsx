@@ -123,9 +123,9 @@ export default function CVOrdersCard() {
       setOrders(fetchedOrders);
       setLoading(false);
 
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ Error loading CV orders:', err);
-      setError(err.message || 'Failed to load orders');
+      setError(err instanceof Error ? err.message : 'Failed to load orders');
       setLoading(false);
     }
   };

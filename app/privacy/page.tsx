@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
                       1. Introduction
                     </h2>
                     <p className="font-manrope text-[16px] leading-[24px] mb-4">
-                      Welcome to Aipply ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our job application platform and services.
+                      Welcome to Aipply (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our job application platform and services.
                     </p>
                     <p className="font-manrope text-[16px] leading-[24px]">
                       By using our services, you agree to the collection and use of information in accordance with this policy.
