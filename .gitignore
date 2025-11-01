@@ -54,3 +54,9 @@ build-output.log
 
 .gemini/
 gha-creds-*.json
+/playwright-report
+/tests/e2e
+/tests
+test-auth-system.js
+test-complete-auth-flow.js
+PLAYWRIGHT_E2E_SETUP_SUMMARY.md

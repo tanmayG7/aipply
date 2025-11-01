@@ -16,6 +16,7 @@ import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
 import HeroSection from "@/components/ui/hero-section";
 import DashboardBentoGrid from "@/components/ui/dashboard-bento-grid";
 import MobileAutoApplyCarousel from "@/components/ui/mobile-auto-apply-carousel";
+import CVOrdersCard from "@/components/dashboard/CVOrdersCard";
 import {
   auth,
   getDashboardData,
@@ -449,6 +450,11 @@ const HomePage: React.FC = () => {
                       </div>
                     </>
                   )}
+
+                  {/* CV Orders Section */}
+                  <div className="mt-6">
+                    <CVOrdersCard />
+                  </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     {dashboardData && (

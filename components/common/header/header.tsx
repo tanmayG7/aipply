@@ -12,6 +12,10 @@ import { Button } from "@/components/ui/button";
 
 const resources = [
   {
+    name: "Professional CV Services",
+    redirectUrl: "/cv-services",
+  },
+  {
     name: "Smart Resume Analysis",
     redirectUrl: "/resume-analysis",
   },

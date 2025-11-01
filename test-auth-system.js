@@ -6,8 +6,8 @@ class AuthenticationTester {
     this.browser = null;
     this.context = null;
     this.page = null;
-    this.testEmail = `test${Date.now()}@example.com`;
-    this.testPassword = 'testpassword123';
+    this.testEmail = `tanmay-${Date.now()}@aipply.io`;
+    this.testPassword = 'Gethired@1';
     this.baseUrl = 'http://localhost:3000';
   }
 

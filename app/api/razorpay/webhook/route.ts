@@ -1,11 +1,12 @@
 // app/api/razorpay/webhook/route.ts (FIXED IMPORTS)
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { 
-  updateUserSubscription, 
-  createUserSubscription 
+import {
+  updateUserSubscription,
+  createUserSubscription
 } from '@/lib/firebaseConfig/firebaseConfig';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { sendCVOrderConfirmationEmail, sendCVOrderAdminNotification } from '@/lib/email/emailService';
 
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 
@@ -41,20 +42,29 @@ export async function POST(request: NextRequest) {
       case 'subscription.activated':
         await handleSubscriptionActivated(event);
         break;
-        
+
       case 'subscription.charged':
         await handleSubscriptionCharged(event);
         break;
-        
+
       case 'subscription.cancelled':
         await handleSubscriptionCancelled(event);
         break;
-        
+
       case 'subscription.completed':
       case 'subscription.halted':
         await handleSubscriptionExpired(event);
         break;
-        
+
+      // CV Service one-time payment events
+      case 'payment.captured':
+        await handlePaymentCaptured(event);
+        break;
+
+      case 'payment.failed':
+        await handlePaymentFailed(event);
+        break;
+
       default:
         console.log(`ℹ️ Unhandled webhook event: ${event.event}`);
     }
@@ -356,4 +366,127 @@ function getPlanDetails(planId: string) {
   };
   
   return planMap[planId] || null;
+}
+
+// Handle successful one-time payment (CV Services)
+async function handlePaymentCaptured(event: any) {
+  try {
+    console.log('💳 Processing one-time payment capture');
+
+    const payment = event.payload.payment.entity;
+    const orderId = payment.order_id;
+    const paymentId = payment.id;
+
+    if (!orderId) {
+      console.error('❌ No order_id found in payment.captured event');
+      return;
+    }
+
+    console.log(`💳 Payment captured for order: ${orderId}`);
+    console.log(`💰 Payment ID: ${paymentId}`);
+    console.log(`💵 Amount: ₹${payment.amount / 100}`);
+
+    // Check if this is a CV service order
+    const firestore = getFirestore();
+    const orderRef = doc(firestore, 'cv_orders', orderId);
+    const orderDoc = await getDoc(orderRef);
+
+    if (!orderDoc.exists()) {
+      console.log(`ℹ️ Order ${orderId} not found in cv_orders - might be a different service`);
+      return;
+    }
+
+    const orderData = orderDoc.data();
+
+    // Check if already processed
+    if (orderData.status === 'paid') {
+      console.log(`⚠️ Order ${orderId} already marked as paid`);
+      return;
+    }
+
+    // Update order status
+    const currentTimestamp = new Date().toISOString();
+    const { updateDoc } = await import('firebase/firestore');
+
+    await updateDoc(orderRef, {
+      'payment.razorpayPaymentId': paymentId,
+      'payment.status': 'completed',
+      'status': 'paid',
+      'paidAt': currentTimestamp,
+      'updatedAt': currentTimestamp
+    });
+
+    console.log(`✅ CV service order ${orderId} marked as paid via webhook`);
+    console.log(`📧 Customer: ${orderData.customerDetails.email}`);
+
+    // Send confirmation email to customer
+    const emailData = {
+      customerName: orderData.customerDetails.fullName,
+      customerEmail: orderData.customerDetails.email,
+      orderId: orderId,
+      amount: orderData.serviceDetails.price,
+      deliveryDays: orderData.serviceDetails.deliveryDays
+    };
+
+    // Send emails (non-blocking)
+    sendCVOrderConfirmationEmail(emailData).catch(err =>
+      console.error('Webhook email send error:', err)
+    );
+
+    sendCVOrderAdminNotification(emailData).catch(err =>
+      console.error('Webhook admin notification error:', err)
+    );
+
+  } catch (error) {
+    console.error('❌ Error in handlePaymentCaptured:', error);
+  }
+}
+
+// Handle failed one-time payment (CV Services)
+async function handlePaymentFailed(event: any) {
+  try {
+    console.log('❌ Processing payment failure');
+
+    const payment = event.payload.payment.entity;
+    const orderId = payment.order_id;
+
+    if (!orderId) {
+      console.error('❌ No order_id found in payment.failed event');
+      return;
+    }
+
+    console.log(`❌ Payment failed for order: ${orderId}`);
+    console.log(`💰 Payment ID: ${payment.id}`);
+    console.log(`⚠️ Error: ${payment.error_description || 'Unknown error'}`);
+
+    // Check if this is a CV service order
+    const firestore = getFirestore();
+    const orderRef = doc(firestore, 'cv_orders', orderId);
+    const orderDoc = await getDoc(orderRef);
+
+    if (!orderDoc.exists()) {
+      console.log(`ℹ️ Order ${orderId} not found in cv_orders - might be a different service`);
+      return;
+    }
+
+    // Update order status
+    const currentTimestamp = new Date().toISOString();
+    const { updateDoc } = await import('firebase/firestore');
+
+    await updateDoc(orderRef, {
+      'payment.status': 'failed',
+      'payment.failureReason': payment.error_description || 'Payment failed',
+      'status': 'payment_failed',
+      'updatedAt': currentTimestamp
+    });
+
+    console.log(`❌ CV service order ${orderId} marked as failed`);
+
+    // TODO: Send payment failure notification to customer
+    const orderData = orderDoc.data();
+    console.log(`📧 TODO: Send failure notification to ${orderData.customerDetails.email}`);
+
+  } catch (error) {
+    console.error('❌ Error in handlePaymentFailed:', error);
+  }
 }
