@@ -57,16 +57,17 @@ Open the downloaded JSON file in a text editor. You need TWO values:
 
 ```bash
 # Set client email
-firebase functions:secrets:set FIREBASE_ADMIN_CLIENT_EMAIL
+firebase functions:secrets:set ADMIN_CLIENT_EMAIL
 # Paste when prompted: firebase-adminsdk-xxxxx@aipply-17c23.iam.gserviceaccount.com
 
 # Set private key
-firebase functions:secrets:set FIREBASE_ADMIN_PRIVATE_KEY
+firebase functions:secrets:set ADMIN_PRIVATE_KEY
 # Paste when prompted: -----BEGIN PRIVATE KEY-----\nMIIEvQI...\n-----END PRIVATE KEY-----\n
 ```
 
 **IMPORTANT:**
 - Use `firebase functions:secrets:set` (NOT `config:set`)
+- Variable names use `ADMIN_` prefix (NOT `FIREBASE_ADMIN_`) to avoid Firebase's reserved prefixes
 - Run each command separately
 - Paste the value when prompted (don't include it in the command line)
 - Preserve the `\n` characters in the private key
@@ -77,18 +78,18 @@ firebase functions:secrets:set FIREBASE_ADMIN_PRIVATE_KEY
 2. Click the **"Secrets"** tab
 3. Click **"Create Secret"**
 4. Add two secrets:
-   - Name: `FIREBASE_ADMIN_CLIENT_EMAIL`
+   - Name: `ADMIN_CLIENT_EMAIL`
      Value: (paste the client_email from JSON)
 
-   - Name: `FIREBASE_ADMIN_PRIVATE_KEY`
+   - Name: `ADMIN_PRIVATE_KEY`
      Value: (paste the private_key from JSON, including \n)
 
 ### Step 4: Verify Secrets
 
 ```bash
 # Check if secrets are set
-firebase functions:secrets:access FIREBASE_ADMIN_CLIENT_EMAIL
-firebase functions:secrets:access FIREBASE_ADMIN_PRIVATE_KEY
+firebase functions:secrets:access ADMIN_CLIENT_EMAIL
+firebase functions:secrets:access ADMIN_PRIVATE_KEY
 ```
 
 You should see the values you set (private key will be partially masked).
@@ -120,12 +121,13 @@ For local testing, add credentials to `.env.local`:
 
 ```bash
 # Firebase Admin SDK (Local Development)
-FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-xxxxx@aipply-17c23.iam.gserviceaccount.com
-FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQI...\n-----END PRIVATE KEY-----\n"
+# Note: Using ADMIN_ prefix to avoid Firebase's reserved FIREBASE_ prefix
+ADMIN_CLIENT_EMAIL=firebase-adminsdk-xxxxx@aipply-17c23.iam.gserviceaccount.com
+ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQI...\n-----END PRIVATE KEY-----\n"
 ```
 
 **Notes:**
-- Keep the quotes around `FIREBASE_ADMIN_PRIVATE_KEY`
+- Keep the quotes around `ADMIN_PRIVATE_KEY`
 - Preserve the `\n` characters
 - Never commit `.env.local` to git (already in `.gitignore`)
 
@@ -143,7 +145,7 @@ npm run dev
 **Cause**: Environment variables not set or not loaded.
 
 **Solution**:
-1. Verify secrets are set: `firebase functions:secrets:access FIREBASE_ADMIN_CLIENT_EMAIL`
+1. Verify secrets are set: `firebase functions:secrets:access ADMIN_CLIENT_EMAIL`
 2. Redeploy: `firebase deploy`
 3. Check Firebase Console logs for initialization messages
 

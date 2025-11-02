@@ -10,8 +10,9 @@ export function getAdminApp(): App {
 
   try {
     // Check if explicit service account credentials are provided
-    const hasPrivateKey = !!process.env.FIREBASE_ADMIN_PRIVATE_KEY;
-    const hasClientEmail = !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+    // Note: Using ADMIN_ prefix to avoid Firebase's reserved FIREBASE_ prefix
+    const hasPrivateKey = !!process.env.ADMIN_PRIVATE_KEY;
+    const hasClientEmail = !!process.env.ADMIN_CLIENT_EMAIL;
 
     if (hasPrivateKey && hasClientEmail) {
       // Use explicit service account credentials (recommended for production)
@@ -20,8 +21,8 @@ export function getAdminApp(): App {
       adminApp = initializeApp({
         credential: cert({
           projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'aipply-17c23',
-          clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL!,
-          privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+          clientEmail: process.env.ADMIN_CLIENT_EMAIL!,
+          privateKey: process.env.ADMIN_PRIVATE_KEY!.replace(/\\n/g, '\n'),
         }),
       });
 
@@ -33,8 +34,8 @@ export function getAdminApp(): App {
     if (!hasPrivateKey || !hasClientEmail) {
       console.warn('⚠️ WARNING: Firebase Admin credentials not fully configured!');
       console.warn('Missing:', {
-        FIREBASE_ADMIN_PRIVATE_KEY: hasPrivateKey ? '✓' : '✗',
-        FIREBASE_ADMIN_CLIENT_EMAIL: hasClientEmail ? '✓' : '✗',
+        ADMIN_PRIVATE_KEY: hasPrivateKey ? '✓' : '✗',
+        ADMIN_CLIENT_EMAIL: hasClientEmail ? '✓' : '✗',
       });
       console.warn('Attempting to use Application Default Credentials (ADC)...');
       console.warn('This may fail in production. See FIREBASE_ADMIN_SETUP.md for setup instructions.');
@@ -60,8 +61,8 @@ export function getAdminApp(): App {
       console.error('🔧 SOLUTION: Configure Firebase Admin service account credentials');
       console.error('1. Download service account key from Firebase Console');
       console.error('2. Set environment variables:');
-      console.error('   - FIREBASE_ADMIN_CLIENT_EMAIL');
-      console.error('   - FIREBASE_ADMIN_PRIVATE_KEY');
+      console.error('   - ADMIN_CLIENT_EMAIL');
+      console.error('   - ADMIN_PRIVATE_KEY');
       console.error('3. See FIREBASE_ADMIN_SETUP.md for detailed instructions');
       console.error('');
     }

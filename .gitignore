@@ -60,3 +60,4 @@ gha-creds-*.json
 test-auth-system.js
 test-complete-auth-flow.js
 PLAYWRIGHT_E2E_SETUP_SUMMARY.md
+*.log
