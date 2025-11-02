@@ -9,8 +9,6 @@ import {
   Bars3Icon,
 } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
-import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
-
 export const HamburgerMenu = ({
   subPages,
   scrolled,

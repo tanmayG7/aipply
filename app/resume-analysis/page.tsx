@@ -81,7 +81,7 @@ export default function ResumeAnalysis() {
           <div className="px-container">
             <div className="text-center mb-16">
               <h2 className="font-manrope text-fluid-section font-bold text-[#F5F5F6] mb-4">
-                What You'll Get
+                What you&apos;ll Get
               </h2>
               <p className="text-[#CECFD2] text-lg max-w-2xl mx-auto">
                 Our AI analyzes your resume against industry standards and provides detailed insights

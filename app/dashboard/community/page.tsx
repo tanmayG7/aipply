@@ -49,7 +49,7 @@ const whatsInsideData = [
   {
     image: "/static/communityPage/newfeatures.png",
     title: "Early Access to New Features",
-    description: "Be the first to try new AiPply features before they're released to everyone."
+    description: "Be the first to try new AiPply features before they&apos;re released to everyone."
   },
   {
     image: "/static/communityPage/feedback.png",

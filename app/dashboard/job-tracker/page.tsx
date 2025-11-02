@@ -1,7 +1,6 @@
 "use client"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarProvider, SidebarInset, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
-import Image from "next/image"
 import type React from "react"
 import { useState, useEffect } from "react"
 import { auth, firestore } from "@/lib/firebaseConfig/firebaseConfig"

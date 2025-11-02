@@ -328,7 +328,7 @@ export function LoginForm({
                     <div className="flex flex-col gap-4">
                       <h3 className="text-white font-semibold">Set up password for your account</h3>
                       <p className="text-sm text-[#94969C]">
-                        You'll be able to sign in with either Google or email/password after this.
+                        you&apos;ll be able to sign in with either Google or email/password after this.
                       </p>
                       <div className="grid gap-2">
                         <Label htmlFor="setupPassword" className="text-[#CECFD2]">
@@ -392,7 +392,7 @@ export function LoginForm({
                     <div className="flex flex-col gap-4">
                       <h3 className="text-white font-semibold">Reset your password</h3>
                       <p className="text-sm text-[#94969C]">
-                        Enter your email address and we'll send you a link to reset your password.
+                        Enter your email address and we&apos;ll send you a link to reset your password.
                       </p>
                       <div className="grid gap-2">
                         <Label htmlFor="resetEmail" className="text-[#CECFD2]">

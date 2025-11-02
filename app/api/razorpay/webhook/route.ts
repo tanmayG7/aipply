@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle successful subscription activation/authentication
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handleSubscriptionActivated(event: any) {
   try {
     console.log('🎉 Processing subscription activation');
@@ -134,7 +135,7 @@ async function handleSubscriptionActivated(event: any) {
       console.log(`✅ Successfully activated premium subscription for user ${userId}`);
       console.log(`📅 Renewal date: ${renewalDate.toISOString()}`);
       console.log(`💎 Plan: ${planDetails.name} (${planDetails.type})`);
-    } catch (updateError) {
+    } catch (_updateError) {
       console.log('🔄 User subscription not found, creating new one...');
       await createUserSubscription(userId);
       await updateUserSubscription(userId, subscriptionUpdate);
@@ -147,6 +148,7 @@ async function handleSubscriptionActivated(event: any) {
 }
 
 // Handle successful subscription charges (renewals)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handleSubscriptionCharged(event: any) {
   try {
     console.log('💳 Processing subscription charge/renewal');
@@ -193,6 +195,7 @@ async function handleSubscriptionCharged(event: any) {
 }
 
 // Handle subscription cancellation
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handleSubscriptionCancelled(event: any) {
   try {
     console.log('❌ Processing subscription cancellation');

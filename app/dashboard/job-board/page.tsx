@@ -458,7 +458,7 @@ export default function Page() {
                     </button>
                   </div>
                   <p className="text-xs text-yellow-400 mt-3">
-                    If the page doesn't load initially, try "Force Restart" - this usually fixes the issue.
+                    If the page doesn&apos;t load initially, try "Force Restart" - this usually fixes the issue.
                   </p>
                 </div>
               </div>

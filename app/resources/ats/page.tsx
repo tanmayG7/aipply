@@ -331,7 +331,7 @@ const ATSCVInterviewPrep = () => {
                 <Icon name="target" size={32} className="text-[#20CEB6]" inline aria-hidden="true" /> Interview Preparation Guide
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
-                Comprehensive preparation steps to ensure you're ready to impress in any interview situation.
+                Comprehensive preparation steps to ensure you&apos;re ready to impress in any interview situation.
               </p>
             </div>
             

@@ -29,7 +29,7 @@ const AboutUsPage = () => {
                 Job Seeking, Solved.
               </h2>
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#CECFD2] max-w-4xl mx-auto">
-                Every day, millions of job seekers send out resumes into a void. They never hear back. The system's broken — and we're here to fix it.
+                Every day, millions of job seekers send out resumes into a void. They never hear back. The system's broken — and we&apos;re here to fix it.
               </p>
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-white mt-6 max-w-4xl mx-auto">
                 <strong>AiPply</strong> is your AI-powered job-seeking copilot that automates job discovery, personalizes resumes, and applies on your behalf — so you can focus on showing up, not signing in.
@@ -86,7 +86,7 @@ const AboutUsPage = () => {
                 From that question, <strong className="text-[#52A9FF]">AiPply</strong> was born — a copilot that <strong>finds jobs, tailors resumes, and applies for you.</strong>
               </p>
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#CECFD2]">
-                We're building fast, staying user-first, and focused on helping people get hired — globally.
+                we&apos;re building fast, staying user-first, and focused on helping people get hired — globally.
               </p>
             </div>
           </div>
@@ -191,10 +191,10 @@ const AboutUsPage = () => {
             </h2>
             <div className="max-w-4xl mx-auto space-y-6">
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#CECFD2]">
-                We're a small, scrappy, all-remote team building for job seekers everywhere. We believe in rapid execution, human connection, and problem-solving at scale.
+                we&apos;re a small, scrappy, all-remote team building for job seekers everywhere. We believe in rapid execution, human connection, and problem-solving at scale.
               </p>
               <p className="font-manrope font-bold text-[20px] custom-md:text-[24px] leading-[160%] text-[#52A9FF]">
-                We're hiring! Reach out at careers@aipply.io
+                we&apos;re hiring! Reach out at careers@aipply.io
               </p>
             </div>
           </div>

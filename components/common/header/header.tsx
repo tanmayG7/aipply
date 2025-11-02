@@ -64,8 +64,7 @@ const Header = () => {
   const [resourcesTimeout, setResourcesTimeout] = useState<NodeJS.Timeout | null>(null);
   
   const pathname = usePathname();
-  const router = useRouter();
-  const featuresDropdownRef = useRef<HTMLDivElement>(null);
+    const featuresDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
 
   // Scroll detection for sticky header

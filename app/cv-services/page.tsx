@@ -375,7 +375,7 @@ export default function CVServicesPage() {
     {
       icon: <Target className="w-8 h-8" />,
       title: "100% Satisfaction",
-      description: "Unlimited revisions until you're completely satisfied with your professional CV."
+      description: "Unlimited revisions until you&apos;re completely satisfied with your professional CV."
     }
   ];
 

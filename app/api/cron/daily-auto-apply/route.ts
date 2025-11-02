@@ -46,6 +46,7 @@
       }
 
       const userIds: string[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const invalidSubscriptions: any[] = [];
 
       subscriptionsSnapshot.docs.forEach((subscriptionDoc) => {
@@ -138,6 +139,7 @@
         return new Response(JSON.stringify(finalSummary), { status: 200 });
 
       } catch (error: any) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         console.error("💥 Error enqueuing auto-apply jobs:", error);
         return new Response(
           JSON.stringify({
@@ -152,6 +154,7 @@
       }
 
     } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       console.error("💥 Fatal error in daily auto-apply cron job:", error);
       return new Response(
         JSON.stringify({

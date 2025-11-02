@@ -234,7 +234,7 @@ const InterviewPreparation = () => {
                 Key Takeaway
               </h2>
               <p className="font-manrope text-[18px] text-[#F5F5F6] leading-[150%] max-w-[800px] mx-auto">
-                "Your job isn't to answer everything perfectly - it's to show how you think." Focus on demonstrating your problem-solving approach and thought process.
+                "Your job isn&apos;t to answer everything perfectly - it&apos;s to show how you think." Focus on demonstrating your problem-solving approach and thought process.
               </p>
             </div>
           </div>
@@ -295,7 +295,7 @@ const InterviewPreparation = () => {
             <div className="text-center">
               <h1 className="font-manrope text-[36px] leading-[44px] text-[#F5F5F6] font-semibold mb-4 flex items-center gap-3 justify-center">
                 <Icon name="target" size={32} ariaLabel="Target" />
-                Interview Appearance: Do's & Don'ts
+                Interview Appearance: Do's & don&apos;ts
               </h1>
               <p className="font-manrope text-[18px] text-[#B0B0B0] leading-[150%] max-w-[600px] mx-auto">
                 Professional appearance and body language can make or break your interview. Here's what to focus on.
@@ -319,11 +319,11 @@ const InterviewPreparation = () => {
                 </ul>
               </div>
 
-              {/* Don'ts */}
+              {/* don&apos;ts */}
               <div className="bg-[#111111] bg-opacity-50 border border-red-500 border-opacity-20 rounded-[20px] p-8">
                 <h3 className="font-manrope text-[24px] font-semibold text-red-400 mb-6 flex items-center gap-2">
                   <Icon name="x-circle" size={24} ariaLabel="Don&apos;t" />
-                  Don'ts
+                  don&apos;ts
                 </h3>
                 <ul className="space-y-4">
                   {interviewDonts.map((item, index) => (

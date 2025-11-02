@@ -55,9 +55,7 @@ const statsData = [
 ];
 
 export const AnimatedProductShowcase: React.FC<AnimatedProductShowcaseProps> = ({
-  isVisible,
-  onComplete
-}) => {
+  isVisible}) => {
   const [currentFeature, setCurrentFeature] = useState(0);
   const [showStats, setShowStats] = useState(false);
   const [animationPhase, setAnimationPhase] = useState(0);

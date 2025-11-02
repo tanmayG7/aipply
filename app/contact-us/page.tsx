@@ -183,7 +183,7 @@ const ContactUsPage = () => {
                 Send Us a Message
               </h2>
               <p className="font-manrope text-[18px] text-[#CECFD2]">
-                Fill out the form below and we'll get back to you within 24 hours.
+                Fill out the form below and we&apos;ll get back to you within 24 hours.
               </p>
             </div>
 
@@ -191,7 +191,7 @@ const ContactUsPage = () => {
               {submitStatus === 'success' && (
                 <div className="mb-8 p-4 bg-gradient-to-r from-[#22C55E] to-[#16A34A] rounded-[12px] text-center">
                   <p className="font-manrope text-white font-semibold">
-                    ✅ Message sent successfully! We'll get back to you soon.
+                    ✅ Message sent successfully! we&apos;ll get back to you soon.
                   </p>
                 </div>
               )}
@@ -358,7 +358,7 @@ const ContactUsPage = () => {
                 Are you hiring?
               </h3>
               <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
-                Yes! We're always looking for talented individuals to join our remote-first team. Send your resume to careers@aipply.io or check our current openings.
+                Yes! we&apos;re always looking for talented individuals to join our remote-first team. Send your resume to careers@aipply.io or check our current openings.
               </p>
             </div>
           </div>

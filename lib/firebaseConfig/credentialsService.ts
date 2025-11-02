@@ -76,6 +76,7 @@ export const updateJobCredentials = async (
 
     console.log('Job credentials updated successfully');
   } catch (error: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.error('Error updating job credentials:', error);
     throw new Error(`Failed to update credentials: ${error.message}`);
   }
@@ -96,6 +97,7 @@ export const getJobCredentials = async (
     
     return null;
   } catch (error: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.error('Error getting job credentials:', error);
     throw new Error(`Failed to get credentials: ${error.message}`);
   }
@@ -116,6 +118,7 @@ export const deleteJobCredential = async (
 
     console.log(`Deleted credential for platform: ${platform}`);
   } catch (error: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.error('Error deleting job credential:', error);
     throw new Error(`Failed to delete credential: ${error.message}`);
   }
@@ -136,6 +139,7 @@ export const validateCredentials = async (
     // Basic validation - check if email and password exist
     return !!(platformCredential.email && platformCredential.password);
   } catch (error: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.error('Error validating credentials:', error);
     return false;
   }
@@ -162,6 +166,7 @@ export const markCredentialAsUsed = async (
 
     await updateJobCredentials(userId, updatedCredentials);
   } catch (error: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.error('Error marking credential as used:', error);
     // Don't throw error as this is not critical
   }
@@ -177,9 +182,10 @@ export const getActiveCredentials = async (
     }
 
     return Object.entries(credentials)
-      .filter(([_, credential]) => credential?.isActive)
+      .filter(([_credential, credential]) => credential?.isActive)
       .map(([platform]) => platform);
   } catch (error: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.error('Error getting active credentials:', error);
     return [];
   }

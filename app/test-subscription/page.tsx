@@ -1,21 +1,24 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebaseConfig/firebaseConfig';
-import { 
-  createUserSubscription, 
-  getUserSubscription, 
-  canUseFeature, 
+import {
+  createUserSubscription,
+  getUserSubscription,
+  canUseFeature,
   incrementAutoApplyUsage,
-  checkSubscriptionStatus,
+  _checkSubscriptionStatus,
   getSubscriptionStatusWithWarnings,
   updateUserSubscription
 } from '@/lib/firebaseConfig/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 
 export default function TestSubscription() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [subscription, setSubscription] = useState<any>(null);
-  const [featureTest, setFeatureTest] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [_featureTest, setFeatureTest] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<string[]>([]);
 
@@ -45,6 +48,7 @@ export default function TestSubscription() {
       log("✅ Subscription created successfully!");
       log(`📊 Status: ${newSubscription.subscriptionStatus}, Tier: ${newSubscription.planTier}`);
     } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       log(`❌ Error creating subscription: ${error.message}`);
     }
     setLoading(false);
@@ -66,6 +70,7 @@ export default function TestSubscription() {
       log(`💼 Features: Auto-apply: ${userSubscription.features.autoApply}, AI Resume: ${userSubscription.features.aiResumeBuilder}`);
       log(`📈 Usage: Today: ${userSubscription.usage.autoApplyToday}/${userSubscription.features.maxAutoApplyPerDay}`);
     } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       log(`❌ Error getting subscription: ${error.message}`);
     }
     setLoading(false);
@@ -87,6 +92,7 @@ export default function TestSubscription() {
         log(`📝 Reason: ${access.reason}`);
       }
     } catch (error: any) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       log(`❌ Error testing feature: ${error.message}`);
     }
     setLoading(false);

@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       const existingCustomerData = await existingCustomerResponse.json();
       
       if (existingCustomerData.items && existingCustomerData.items.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const matchingCustomer = existingCustomerData.items.find(
           (customer: any) => customer.email === userEmail
         );

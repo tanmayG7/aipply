@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { auth, getUserSubscription } from '@/lib/firebaseConfig/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { UserSubscription } from '@/lib/types';
-import { Crown, Calendar, CreditCard, AlertTriangle, CheckCircle2, ExternalLink, XCircle } from 'lucide-react';
+import { Crown, CreditCard, AlertTriangle, CheckCircle2, ExternalLink, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CancellationWizard from '@/components/subscription/CancellationWizard';
 import { getMonthlyEquivalentPrice } from '@/lib/utils/retentionOffers';
 
