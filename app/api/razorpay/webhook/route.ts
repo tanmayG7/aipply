@@ -8,6 +8,49 @@ import {
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { sendCVOrderConfirmationEmail, sendCVOrderAdminNotification } from '@/lib/email/emailService';
 
+interface RazorpayWebhookEvent {
+  event: string;
+  payload: {
+    subscription?: {
+      entity: {
+        id: string;
+        plan_id: string;
+        customer_id: string;
+        status: string;
+        notes?: Record<string, string>;
+      };
+    };
+    payment?: {
+      entity: {
+        id: string;
+        order_id: string;
+        amount: number;
+        status: string;
+        error_code?: string;
+        error_description?: string;
+        error_reason?: string;
+      };
+    };
+  };
+}
+
+interface PlanDetails {
+  name: string;
+  type: 'monthly' | 'quarterly' | 'yearly';
+  price: number;
+  durationDays: number;
+  features: {
+    autoApply: boolean;
+    unlimitedJobListings: boolean;
+    aiResumeBuilder: boolean;
+    aiMockInterviews: boolean;
+    prioritySupport: boolean;
+    maxAutoApplyPerDay: number;
+    maxAutoApplyPerMonth: number;
+    hasManualApply: boolean;
+  };
+}
+
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 
 export async function POST(request: NextRequest) {
@@ -135,7 +178,7 @@ async function handleSubscriptionActivated(event: any) {
       console.log(`✅ Successfully activated premium subscription for user ${userId}`);
       console.log(`📅 Renewal date: ${renewalDate.toISOString()}`);
       console.log(`💎 Plan: ${planDetails.name} (${planDetails.type})`);
-    } catch (_updateError) {
+    } catch {
       console.log('🔄 User subscription not found, creating new one...');
       await createUserSubscription(userId);
       await updateUserSubscription(userId, subscriptionUpdate);
@@ -266,13 +309,18 @@ async function handleSubscriptionCancelled(event: any) {
 }
 
 // Handle subscription expiry/completion
-async function handleSubscriptionExpired(event: any) {
+async function handleSubscriptionExpired(event: RazorpayWebhookEvent) {
   try {
     console.log('⏰ Processing subscription expiry');
-    
+
+    if (!event.payload.subscription) {
+      console.error('❌ No subscription data in event');
+      return;
+    }
+
     const subscription = event.payload.subscription.entity;
     const userId = subscription.notes?.userId;
-    
+
     if (!userId) {
       console.error('❌ No userId found in subscription expiry event');
       return;
@@ -298,8 +346,8 @@ async function handleSubscriptionExpired(event: any) {
 }
 
 // Helper function to get plan details
-function getPlanDetails(planId: string) {
-  const planMap: Record<string, any> = {
+function getPlanDetails(planId: string): PlanDetails | null {
+  const planMap: Record<string, PlanDetails> = {
     // LIVE Plan IDs
     'plan_Qpq8Ccn726wjfX': {
       name: 'Monthly Premium',
@@ -372,9 +420,14 @@ function getPlanDetails(planId: string) {
 }
 
 // Handle successful one-time payment (CV Services)
-async function handlePaymentCaptured(event: any) {
+async function handlePaymentCaptured(event: RazorpayWebhookEvent) {
   try {
     console.log('💳 Processing one-time payment capture');
+
+    if (!event.payload.payment) {
+      console.error('❌ No payment data in event');
+      return;
+    }
 
     const payment = event.payload.payment.entity;
     const orderId = payment.order_id;
@@ -446,9 +499,14 @@ async function handlePaymentCaptured(event: any) {
 }
 
 // Handle failed one-time payment (CV Services)
-async function handlePaymentFailed(event: any) {
+async function handlePaymentFailed(event: RazorpayWebhookEvent) {
   try {
     console.log('❌ Processing payment failure');
+
+    if (!event.payload.payment) {
+      console.error('❌ No payment data in event');
+      return;
+    }
 
     const payment = event.payload.payment.entity;
     const orderId = payment.order_id;

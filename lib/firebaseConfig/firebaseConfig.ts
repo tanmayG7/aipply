@@ -2,7 +2,6 @@
 import {
   UserSubscription,
   PLAN_FEATURES,
-  GRACE_PERIOD_DAYS,
   INDIA_TIMEZONE,
   FeatureAccess,
 } from "../types";
@@ -21,8 +20,6 @@ import {
   linkWithCredential,
   linkWithPopup,
   EmailAuthProvider,
-  updatePassword,
-  reauthenticateWithPopup,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -33,7 +30,6 @@ import {
   collection,
   getDocs,
   query,
-  orderBy,
   where,
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -564,16 +560,6 @@ const checkAuthToken = (navigate: (path: string) => void) => {
 // ========== UNIFIED AUTHENTICATION SYSTEM ==========
 
 // Helper functions for account linking memory
-const setAccountLinkingFlag = (email: string, hasPassword: boolean) => {
-  try {
-    const linkingData = JSON.parse(localStorage.getItem('aipply_account_linking') || '{}');
-    linkingData[email] = { hasPassword, timestamp: Date.now() };
-    localStorage.setItem('aipply_account_linking', JSON.stringify(linkingData));
-  } catch (error) {
-    console.warn("Could not save account linking data:", error);
-  }
-};
-
 const getAccountLinkingFlag = (email: string): { hasPassword: boolean } | null => {
   try {
     const linkingData = JSON.parse(localStorage.getItem('aipply_account_linking') || '{}');
@@ -1998,19 +1984,12 @@ const getJobTrackerData = async (userId: string) => {
     const jobsQuery = query(jobsRef, where("userId", "==", userId));
     const jobsSnapshot = await getDocs(jobsQuery);
 
-    const appliedJobs: any[] = [];
-    const personalArchive: any[] = [];
-    const followUp: any[] = [];
-    const noReply: any[] = [];
-
-
-       const jobs = jobsSnapshot.docs.map((doc) => ({
+    const jobs = jobsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
     return jobs;
- 
 
 
     // return {

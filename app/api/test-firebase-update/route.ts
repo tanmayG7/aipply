@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     try {
       currentSub = await getUserSubscription(userId);
       console.log('📊 Current subscription status:', currentSub.subscriptionStatus);
-    } catch (error) {
+    } catch {
       console.log('📝 No existing subscription found, creating one...');
       currentSub = await createUserSubscription(userId);
     }

@@ -6,19 +6,20 @@ import {
   getUserSubscription,
   canUseFeature,
   incrementAutoApplyUsage,
-  _checkSubscriptionStatus,
   getSubscriptionStatusWithWarnings,
   updateUserSubscription
 } from '@/lib/firebaseConfig/firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { UserSubscription } from '@/lib/types';
+
+interface FeatureAccessResult {
+  allowed: boolean;
+  reason?: string;
+}
 
 export default function TestSubscription() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [user, setUser] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [subscription, setSubscription] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [_featureTest, setFeatureTest] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<string[]>([]);
 
@@ -47,9 +48,9 @@ export default function TestSubscription() {
       setSubscription(newSubscription);
       log("✅ Subscription created successfully!");
       log(`📊 Status: ${newSubscription.subscriptionStatus}, Tier: ${newSubscription.planTier}`);
-    } catch (error: any) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      log(`❌ Error creating subscription: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      log(`❌ Error creating subscription: ${errorMessage}`);
     }
     setLoading(false);
   };
@@ -69,9 +70,9 @@ export default function TestSubscription() {
       log(`📊 Status: ${userSubscription.subscriptionStatus}`);
       log(`💼 Features: Auto-apply: ${userSubscription.features.autoApply}, AI Resume: ${userSubscription.features.aiResumeBuilder}`);
       log(`📈 Usage: Today: ${userSubscription.usage.autoApplyToday}/${userSubscription.features.maxAutoApplyPerDay}`);
-    } catch (error: any) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      log(`❌ Error getting subscription: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      log(`❌ Error getting subscription: ${errorMessage}`);
     }
     setLoading(false);
   };
@@ -85,15 +86,14 @@ export default function TestSubscription() {
     setLoading(true);
     try {
       log(`🔄 Testing feature access: ${feature}`);
-      const access = await canUseFeature(user.uid, feature as any);
-      setFeatureTest(access);
+      const access = await canUseFeature(user.uid, feature as "autoApply" | "aiResumeBuilder") as FeatureAccessResult;
       log(`✅ Feature test result: ${access.allowed ? '✅ ALLOWED' : '❌ BLOCKED'}`);
       if (!access.allowed && access.reason) {
         log(`📝 Reason: ${access.reason}`);
       }
-    } catch (error: any) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      log(`❌ Error testing feature: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      log(`❌ Error testing feature: ${errorMessage}`);
     }
     setLoading(false);
   };
@@ -114,8 +114,9 @@ export default function TestSubscription() {
       const updatedSubscription = await getUserSubscription(user.uid);
       setSubscription(updatedSubscription);
       log(`📈 Updated usage: ${updatedSubscription.usage.autoApplyToday}/${updatedSubscription.features.maxAutoApplyPerDay}`);
-    } catch (error: any) {
-      log(`❌ Error testing auto-apply: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      log(`❌ Error testing auto-apply: ${errorMessage}`);
     }
     setLoading(false);
   };
@@ -136,8 +137,9 @@ export default function TestSubscription() {
       } else {
         log("✅ No warnings");
       }
-    } catch (error: any) {
-      log(`❌ Error getting status: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      log(`❌ Error getting status: ${errorMessage}`);
     }
     setLoading(false);
   };
@@ -206,9 +208,10 @@ export default function TestSubscription() {
       // Refresh subscription data
       const updatedSubscription = await getUserSubscription(user.uid);
       setSubscription(updatedSubscription);
-      
-    } catch (error: any) {
-      log(`❌ Error upgrading subscription: ${error.message}`);
+
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      log(`❌ Error upgrading subscription: ${errorMessage}`);
     }
     setLoading(false);
   };

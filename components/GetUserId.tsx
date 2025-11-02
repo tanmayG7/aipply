@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebaseConfig/firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 export default function GetUserId() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export default function GetUserId() {
         fontSize: '12px', 
         opacity: '0.8' 
       }}>
-        💡 Click "Test Firebase Update" to check if Firebase integration is working
+        💡 Click &quot;Test Firebase Update&quot; to check if Firebase integration is working
       </div>
     </div>
   );

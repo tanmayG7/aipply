@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     try {
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       userId = decodedToken.user_id || decodedToken.uid;
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Unauthorized: Invalid token' },
         { status: 401 }
@@ -73,7 +73,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let result: any;
+    interface OfferResult {
+      success: boolean;
+      message: string;
+      newPrice?: number;
+      savings?: number;
+      pauseUntil?: string;
+      newPlanType?: string;
+    }
+
+    let result: OfferResult;
     const now = new Date();
 
     switch (offerType) {
@@ -220,10 +229,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error applying retention offer:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

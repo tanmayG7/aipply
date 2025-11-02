@@ -786,7 +786,7 @@ export default function CVServicesPage() {
                 How It Works
               </h2>
               <p className="text-[#CECFD2] text-lg max-w-2xl mx-auto">
-                From payment to delivery, we've streamlined the process to get you results fast.
+                From payment to delivery, we&apos;ve streamlined the process to get you results fast.
               </p>
             </div>
 
@@ -864,7 +864,7 @@ export default function CVServicesPage() {
                     </div>
 
                     <p className="text-[#CECFD2] text-sm leading-relaxed">
-                      "{testimonial.text}"
+                      &quot;{testimonial.text}&quot;
                     </p>
                   </Card>
                 ))}

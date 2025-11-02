@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ResponsivePageContainer } from "../responsivePageContainer/responsivePageContainer";
 import { HamburgerMenu } from "./hamburgerMenu";
 import { features } from "@/lib/staticData";
@@ -62,7 +62,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
   const [resourcesTimeout, setResourcesTimeout] = useState<NodeJS.Timeout | null>(null);
-  
+
   const pathname = usePathname();
     const featuresDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);

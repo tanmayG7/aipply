@@ -1,6 +1,14 @@
 // app/api/create-subscription/route.ts (UPDATED WITH TEST PLAN)
 import { NextRequest, NextResponse } from 'next/server';
 
+interface RazorpayCustomer {
+  id: string;
+  email: string;
+  name?: string;
+  contact?: string;
+  notes?: Record<string, string>;
+}
+
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
@@ -29,9 +37,9 @@ export async function POST(request: NextRequest) {
       const existingCustomerData = await existingCustomerResponse.json();
       
       if (existingCustomerData.items && existingCustomerData.items.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         const matchingCustomer = existingCustomerData.items.find(
-          (customer: any) => customer.email === userEmail
+          (customer: RazorpayCustomer) => customer.email === userEmail
         );
         
         if (matchingCustomer) {

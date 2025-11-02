@@ -3,7 +3,6 @@ import { LogOut, Settings, ChevronRight, Edit3, Zap, Star } from "lucide-react";
 import { auth, getUserProfile, checkSubscriptionStatus } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
-import { UserDetails} from "@/lib/types";
 
 import {
   Sidebar,

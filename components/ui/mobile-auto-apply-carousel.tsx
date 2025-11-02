@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 
 interface AutoApplyStats {
   totalAutoApplied: number;
@@ -21,11 +21,11 @@ const MobileAutoApplyCarousel: React.FC<MobileAutoApplyCarouselProps> = ({ stats
   const touchEndX = useRef<number>(0);
   const autoSlideInterval = useRef<NodeJS.Timeout | null>(null);
 
-  const statsData = [
+  const statsData = useMemo(() => [
     { key: 'total', label: 'Total', value: stats.totalAutoApplied },
     { key: 'today', label: 'Today', value: stats.todayAutoApplied },
     { key: 'month', label: 'This Month', value: stats.thisMonthAutoApplied }
-  ];
+  ], [stats.totalAutoApplied, stats.todayAutoApplied, stats.thisMonthAutoApplied]);
 
   // Auto slide functionality
   useEffect(() => {
@@ -113,7 +113,7 @@ const MobileAutoApplyCarousel: React.FC<MobileAutoApplyCarouselProps> = ({ stats
             className="flex transition-transform duration-300 ease-in-out w-full"
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
           >
-            {statsData.map((item, index) => (
+            {statsData.map((item) => (
               <div
                 key={item.key}
                 className="w-full flex-shrink-0 px-2"

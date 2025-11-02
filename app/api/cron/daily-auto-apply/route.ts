@@ -138,13 +138,13 @@
 
         return new Response(JSON.stringify(finalSummary), { status: 200 });
 
-      } catch (error: any) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error("💥 Error enqueuing auto-apply jobs:", error);
         return new Response(
           JSON.stringify({
             error: "Failed to enqueue jobs",
-            message: error.message,
+            message: errorMessage,
             userIds,
             totalUsers: userIds.length,
             timestamp: new Date().toISOString(),
@@ -153,13 +153,13 @@
         );
       }
 
-    } catch (error: any) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error("💥 Fatal error in daily auto-apply cron job:", error);
       return new Response(
         JSON.stringify({
           error: "Internal server error",
-          message: error.message,
+          message: errorMessage,
           timestamp: new Date().toISOString(),
         }),
         { status: 500 }

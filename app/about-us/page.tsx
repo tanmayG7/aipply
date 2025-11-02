@@ -29,7 +29,7 @@ const AboutUsPage = () => {
                 Job Seeking, Solved.
               </h2>
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-[#CECFD2] max-w-4xl mx-auto">
-                Every day, millions of job seekers send out resumes into a void. They never hear back. The system's broken — and we&apos;re here to fix it.
+                Every day, millions of job seekers send out resumes into a void. They never hear back. The system&apos;s broken — and we&apos;re here to fix it.
               </p>
               <p className="font-manrope font-normal text-[18px] custom-md:text-[20px] leading-[160%] text-white mt-6 max-w-4xl mx-auto">
                 <strong>AiPply</strong> is your AI-powered job-seeking copilot that automates job discovery, personalizes resumes, and applies on your behalf — so you can focus on showing up, not signing in.

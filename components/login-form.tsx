@@ -15,10 +15,9 @@ import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import Image from "next/image";
-import { 
-  authenticateUser, 
+import {
+  authenticateUser,
   checkEmailSignInMethods,
-  setupPasswordForGoogleAccount,
   auth,
   provider,
   firestore

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { auth, getUserSubscription } from '@/lib/firebaseConfig/firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { UserSubscription } from '@/lib/types';
 import { Crown, CreditCard, AlertTriangle, CheckCircle2, ExternalLink, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { getMonthlyEquivalentPrice } from '@/lib/utils/retentionOffers';
 const SubscriptionPage = () => {
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [showCancellationWizard, setShowCancellationWizard] = useState(false);
 
   useEffect(() => {
@@ -197,7 +197,7 @@ const SubscriptionPage = () => {
                         <strong>Subscription Cancelled</strong>
                         <p className="mt-1">
                           Cancelled on {formatDate(userSubscription.cancelledDate)}.
-                          You'll keep premium access until {formatDate(userSubscription.renewalDate || userSubscription.nextBillingDate)}.
+                          You&apos;ll keep premium access until {formatDate(userSubscription.renewalDate || userSubscription.nextBillingDate)}.
                         </p>
                       </div>
                     </div>

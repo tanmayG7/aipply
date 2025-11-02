@@ -36,7 +36,7 @@ export const EnvironmentChecker = () => {
     
     // Check for any missing Firebase config
     const missingFirebaseVars = Object.entries(firebaseConfig)
-      .filter(([key, value]) => !value)
+      .filter(([, value]) => !value)
       .map(([key]) => key);
     
     if (missingFirebaseVars.length > 0) {

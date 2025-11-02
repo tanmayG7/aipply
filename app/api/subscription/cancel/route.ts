@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserSubscription, updateUserSubscription, getUserProfile } from '@/lib/firebaseConfig/firebaseConfig';
 import { cancelRazorpaySubscription, checkSubscriptionCancellable } from '@/lib/utils/razorpayAdmin';
-import { firestore, auth } from '@/lib/firebaseConfig/firebaseConfig';
+import { firestore } from '@/lib/firebaseConfig/firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import { CancellationReason } from '@/lib/types';
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       // Decode token to get user ID
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       userId = decodedToken.user_id || decodedToken.uid;
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Unauthorized: Invalid token' },
         { status: 401 }
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         const userProfile = await getUserProfile(userId);
         userEmail = userProfile.email || '';
         userName = `${userProfile.firstName} ${userProfile.lastName}`.trim();
-      } catch (profileError) {
+      } catch {
         console.warn('⚠️ [Cancel Route] Could not fetch user profile, using fallback values');
       }
 
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
         };
 
         await addDoc(collection(firestore, 'cancellations'), cancellationLog);
-      } catch (logError) {
+      } catch {
         console.warn('⚠️ [Cancel Route] Could not log cancellation, but subscription was cancelled');
       }
 
@@ -207,7 +207,21 @@ export async function POST(request: NextRequest) {
 
     // Update subscription in Firebase
     const now = new Date();
-    const updateData: any = {
+    const updateData: {
+      cancelledDate: string;
+      subscriptionStatus?: 'cancelled' | 'premium';
+      planTier?: 'free';
+      features?: {
+        autoApply: boolean;
+        unlimitedJobListings: boolean;
+        aiResumeBuilder: boolean;
+        aiMockInterviews: boolean;
+        prioritySupport: boolean;
+        maxAutoApplyPerDay: number;
+        maxAutoApplyPerMonth: number;
+        hasManualApply: boolean;
+      };
+    } = {
       cancelledDate: now.toISOString(),
     };
 
@@ -240,7 +254,7 @@ export async function POST(request: NextRequest) {
       const userProfile = await getUserProfile(userId);
       userEmail = userProfile.email || '';
       userName = `${userProfile.firstName} ${userProfile.lastName}`.trim();
-    } catch (profileError) {
+    } catch {
       console.warn('⚠️ [Cancel Route] Could not fetch user profile, using fallback values');
     }
 
@@ -266,7 +280,7 @@ export async function POST(request: NextRequest) {
       };
 
       await addDoc(collection(firestore, 'cancellations'), cancellationLog);
-    } catch (logError) {
+    } catch {
       console.warn('⚠️ [Cancel Route] Could not log cancellation, but subscription was cancelled');
     }
 
@@ -286,10 +300,11 @@ export async function POST(request: NextRequest) {
         : 0,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error cancelling subscription:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

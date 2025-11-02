@@ -3,13 +3,27 @@ import PricingCard from '@/components/card/pricingCard/pricingCard';
 import CheckPointscard from '@/components/common/checkPointscard/checkPointscard';
 import React, { useEffect, useState } from 'react'
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 import "@/types/razorpay";
 
+interface RazorpayResponse {
+  razorpay_payment_id?: string;
+  razorpay_subscription_id?: string;
+  razorpay_signature?: string;
+}
+
+interface RazorpayErrorResponse {
+  error?: {
+    code?: string;
+    description?: string;
+    reason?: string;
+  };
+}
+
 const QuarterlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
   const [subscriptionCreated, setSubscriptionCreated] = useState(false);
@@ -93,8 +107,8 @@ const QuarterlyComponent = () => {
         subscription_id: subscriptionData.subscriptionId,
         name: 'AiPply Premium',
         description: 'Quarterly Premium Subscription - ₹1497',
-        
-        handler: function (response: any) {
+
+        handler: function (response: RazorpayResponse) {
           console.log('✅ Quarterly payment successful:', response);
           setPaymentSuccess(true);
           
@@ -106,8 +120,8 @@ const QuarterlyComponent = () => {
         },
         
         prefill: {
-          name: user.displayName || user.email,
-          email: user.email,
+          name: user.displayName || user.email || undefined,
+          email: user.email || undefined,
         },
         
         theme: {
@@ -123,10 +137,11 @@ const QuarterlyComponent = () => {
       };
 
       const rzp = new window.Razorpay(options);
-      
-      rzp.on('payment.failed', function (response: any) {
+
+      rzp.on('payment.failed', function (response: RazorpayErrorResponse) {
         console.error('❌ Quarterly payment failed:', response.error);
-        alert('Payment failed: ' + response.error.description);
+        const errorMsg = response.error?.description || 'Payment failed';
+        alert('Payment failed: ' + errorMsg);
         setIsCreatingSubscription(false);
       });
 

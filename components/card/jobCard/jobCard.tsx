@@ -4,10 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { getRelativeTime } from "@/utils/dateUtils";
-import {
-  auth,
-  getUserProfile,
-} from "@/lib/firebaseConfig/firebaseConfig";
 
 import {
   determineJobLocation,

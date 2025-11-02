@@ -166,10 +166,10 @@ const DashboardCommunityPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* What's Inside Section */}
+                  {/* What&apos;s Inside Section */}
                   <div>
                     <h2 className="text-lg sm:text-xl lg:text-display-xs-semibold font-inter mb-6">
-                      What's Inside
+                      What&apos;s Inside
                     </h2>
 
                     {/* Grid Layout for community features */}

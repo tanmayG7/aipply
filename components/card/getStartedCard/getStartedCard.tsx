@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { firestore, auth } from "@/lib/firebaseConfig/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import Image from "next/image";
@@ -22,7 +22,7 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
 
   const [loading, setLoading] = useState(true);
 
-  const fetchUserData = async (uid: string) => {
+  const fetchUserData = useCallback(async (uid: string) => {
     const userDoc = await getDoc(doc(firestore, "users", uid));
     if (userDoc.exists()) {
       const userData = userDoc.data();
@@ -39,7 +39,7 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
       });
     }
     setLoading(false);
-  };
+  }, [appliedJoblength]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -51,7 +51,7 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
     });
 
     return () => unsubscribe();
-  },[]);
+  }, [fetchUserData]);
 
   type Field = "profile" | "cv" | "coverLetter" | "firstJob" | "community";
 
@@ -89,7 +89,7 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
           Getting Started
         </h2>
         <p className="text-sm font-normal font-inter text-white/90 leading-relaxed">
-          Congratulations! You've set up your account.
+          Congratulations! You&apos;ve set up your account.
         </p>
       </div>
 

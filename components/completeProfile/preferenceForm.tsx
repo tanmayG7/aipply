@@ -121,12 +121,12 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
           onExitEditMode();
         }
       }, 2000);
-      
-    } catch (error: any) {
+
+    } catch (error: unknown) {
       console.error('Error saving preferences:', error);
       setSaveStatus('idle');
-      
-      const errorMessage = error?.message || 'Unknown error occurred';
+
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       alert(`Failed to save preferences: ${errorMessage}. Please try again.`);
     }
   };

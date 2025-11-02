@@ -103,12 +103,12 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
         }
       }, 2000);
       setTimeoutId(newTimeoutId);
-      
-    } catch (error: any) {
+
+    } catch (error: unknown) {
       console.error('Error saving social profiles:', error);
       setSaveStatus('idle');
-      
-      const errorMessage = error?.message || 'Unknown error occurred';
+
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       alert(`Failed to save social profiles: ${errorMessage}. Please try again.`);
     }
   };

@@ -56,7 +56,7 @@ const getAppliedJobs = async (userId: string): Promise<AutoAppliedJob[]> => {
     })) as AutoAppliedJob[]
 
     return jobs.sort((a, b) => new Date(b.appliedAt || b.appliedDate).getTime() - new Date(a.appliedAt || a.appliedDate).getTime())
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching applied jobs:", error)
     return []
   }
@@ -315,7 +315,6 @@ const StatsCard = ({ title, value, icon, color }: { title: string; value: number
 const JobTrackerPage: React.FC = () => {
   const [autoAppliedJobs, setAutoAppliedJobs] = useState<AutoAppliedJob[]>([])
   const [filteredJobs, setFilteredJobs] = useState<AutoAppliedJob[]>([])
-  const [userId, setUserId] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
@@ -327,7 +326,6 @@ const JobTrackerPage: React.FC = () => {
       if (user) {
         setLoading(true)
         const currentUserId = user.uid
-        setUserId(currentUserId)
 
         try {
           const jobs = await getAppliedJobs(currentUserId)

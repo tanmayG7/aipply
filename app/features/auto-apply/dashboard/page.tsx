@@ -16,6 +16,7 @@ import {
   getUserProfile,
   saveUserProfile,
 } from "@/lib/firebaseConfig/firebaseConfig";
+import { UserDetails } from "@/lib/types";
 import {
   Play,
   Pause,
@@ -31,6 +32,19 @@ import {
 } from "lucide-react";
 import Head from "next/head";
 import Link from "next/link";
+
+interface AutoApplySettings {
+  isEnabled?: boolean;
+  maxApplicationsPerDay?: number;
+  jobTitles?: string[];
+  locations?: string[];
+  platforms?: string[];
+  salaryRange?: {
+    min?: number;
+    max?: number;
+  };
+  updatedAt?: string;
+}
 
 interface AutoApplyStats {
   totalApplications: number;
@@ -55,7 +69,7 @@ interface RecentApplication {
 }
 
 export default function AutoApplyDashboard() {
-  const [autoApplySettings, setAutoApplySettings] = useState<any>(null);
+  const [autoApplySettings, setAutoApplySettings] = useState<AutoApplySettings | null>(null);
   const [stats, setStats] = useState<AutoApplyStats>({
     totalApplications: 0,
     todayApplications: 0,
@@ -79,8 +93,8 @@ export default function AutoApplyDashboard() {
     try {
       const user = auth.currentUser;
       if (user) {
-        const profile: any = await getUserProfile(user.uid);
-        setAutoApplySettings(profile.autoApplySettings);
+        const profile = await getUserProfile(user.uid) as UserDetails;
+        setAutoApplySettings(profile.autoApplySettings || null);
 
         // Load stats from API or Firebase
         // This would typically come from your backend
@@ -356,14 +370,16 @@ export default function AutoApplyDashboard() {
                         <span>Today&apos;s Progress</span>
                         <span>
                           {stats.todayApplications}/
-                          {autoApplySettings.maxApplicationsPerDay}
+                          {autoApplySettings.maxApplicationsPerDay || 0}
                         </span>
                       </div>
                       <Progress
                         value={
-                          (stats.todayApplications /
-                            autoApplySettings.maxApplicationsPerDay) *
-                          100
+                          autoApplySettings.maxApplicationsPerDay
+                            ? (stats.todayApplications /
+                                autoApplySettings.maxApplicationsPerDay) *
+                              100
+                            : 0
                         }
                         className="mt-2"
                       />

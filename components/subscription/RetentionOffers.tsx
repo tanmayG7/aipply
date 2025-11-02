@@ -87,12 +87,13 @@ export default function RetentionOffers({
       } else {
         throw new Error(data.error || 'Failed to apply offer');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error applying offer:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       MySwal.fire({
         icon: 'error',
         title: 'Failed to Apply Offer',
-        text: error.message || 'An error occurred',
+        text: errorMessage,
         background: '#1f2937',
         color: '#fff',
       });

@@ -211,9 +211,10 @@ export default function Page() {
 
       console.log(`Successfully fetched ${(result.jobs || []).length} jobs`);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error fetching jobs:`, error);
-      setError(`Failed to fetch jobs: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      setError(`Failed to fetch jobs: ${errorMessage}`);
       setJobs([]);
     } finally {
       setPageLoading(false);
@@ -254,9 +255,10 @@ export default function Page() {
 
       setIsInitialized(true);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error in initial data fetch:`, error);
-      setError(`Failed to load data: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      setError(`Failed to load data: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -268,7 +270,7 @@ export default function Page() {
       console.log('User profile loaded, fetching jobs...');
       fetchJobsWithPagination(1, filter);
     }
-  }, [isInitialized, userProfileValue, fetchJobsWithPagination, filter]);
+  }, [isInitialized, userProfileValue, fetchJobsWithPagination, filter, pageLoading]);
 
   // Force restart function
   const forceRestart = useCallback(() => {
@@ -372,9 +374,10 @@ export default function Page() {
         setHiddenJobs([...hiddenJobs, jobId]);
         fetchJobsWithPagination(currentPage, filter);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error hiding job:", error);
-      setError(`Failed to hide job: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      setError(`Failed to hide job: ${errorMessage}`);
     }
   };
 
@@ -413,9 +416,10 @@ export default function Page() {
           }
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error applying for job:", error);
-      setError(`Failed to apply for job: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      setError(`Failed to apply for job: ${errorMessage}`);
     }
   };
 
@@ -458,7 +462,7 @@ export default function Page() {
                     </button>
                   </div>
                   <p className="text-xs text-yellow-400 mt-3">
-                    If the page doesn&apos;t load initially, try "Force Restart" - this usually fixes the issue.
+                    If the page doesn&apos;t load initially, try &quot;Force Restart&quot; - this usually fixes the issue.
                   </p>
                 </div>
               </div>

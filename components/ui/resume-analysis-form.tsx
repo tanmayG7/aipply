@@ -8,7 +8,6 @@ import { UserDetails } from '@/lib/types';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { parsePhoneNumber, formatPhoneNumber } from '@/lib/countryCodes';
 import {
-  DocumentTextIcon,
   CloudArrowUpIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -29,13 +28,11 @@ export default function ResumeAnalysisForm() {
   });
   
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
-  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
-  
+
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(1);
-  const [hasSelectedPreferences, setHasSelectedPreferences] = useState(false);
   const [showAdvancedPreferences, setShowAdvancedPreferences] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [submissionMessage, setSubmissionMessage] = useState('');
@@ -69,8 +66,6 @@ export default function ResumeAnalysisForm() {
         }
       } catch (error) {
         console.log('User not logged in or profile not found:', error);
-      } finally {
-        setIsLoadingUserData(false);
       }
     };
 
@@ -80,7 +75,6 @@ export default function ResumeAnalysisForm() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    checkPreferencesSelected();
   };
 
   const handleFocusAreaChange = (area: string) => {
@@ -90,7 +84,6 @@ export default function ResumeAnalysisForm() {
         ? prev.focusAreas.filter(a => a !== area)
         : [...prev.focusAreas, area]
     }));
-    checkPreferencesSelected();
   };
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -170,30 +163,6 @@ export default function ResumeAnalysisForm() {
     setSubmissionMessage('Analyzing your resume...');
 
     try {
-      // Prepare data for n8n webhook - append individual fields and file to FormData
-      const webhookData = {
-        personalInfo: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: fullPhone,
-        },
-        preferences: {
-          targetRole: formData.targetRole || 'Not specified',
-          experienceLevel: formData.experienceLevel || 'Not specified',
-          focusAreas: formData.focusAreas,
-        },
-        fileInfo: {
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type,
-        },
-        metadata: {
-          submittedAt: new Date().toISOString(),
-          source: 'aipply-website',
-        }
-      };
-
       // Create FormData and append individual fields to avoid double JSON encoding
       const formDataToSend = new FormData();
       
@@ -255,26 +224,16 @@ export default function ResumeAnalysisForm() {
   };
 
   const focusAreaOptions = [
-    "ATS Optimization", 
-    "Content Review", 
-    "Format & Design", 
-    "Keyword Analysis", 
-    "Industry Alignment", 
+    "ATS Optimization",
+    "Content Review",
+    "Format & Design",
+    "Keyword Analysis",
+    "Industry Alignment",
     "Skills Assessment"
   ];
 
   const nextStep = () => {
     if (currentStep < 3) setCurrentStep(currentStep + 1);
-  };
-
-  const skipToContact = () => {
-    setCurrentStep(3); // Skip to contact information
-  };
-
-  // Check if user has selected any preferences
-  const checkPreferencesSelected = () => {
-    const hasPreferences = !!formData.targetRole || !!formData.experienceLevel || formData.focusAreas.length > 0;
-    setHasSelectedPreferences(hasPreferences);
   };
 
   const prevStep = () => {

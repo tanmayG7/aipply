@@ -341,7 +341,7 @@ const LinkedInOptimization = () => {
                     Recommended Reading
                   </h3>
                   <p className="font-manrope text-[16px] text-[#20CEB6]">
-                    'SEO for LinkedIn Optimization' by Neil Patel
+                    &apos;SEO for LinkedIn Optimization&apos; by Neil Patel
                   </p>
                 </div>
                 

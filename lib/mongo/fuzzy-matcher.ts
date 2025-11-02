@@ -98,7 +98,7 @@ class FuzzyJobMatcher {
         candidates = textSearchCandidates;
         searchStrategy = 'text_search';
       }
-    } catch (error) {
+    } catch {
       console.log('Text search failed, trying fallback strategies');
     }
 
@@ -501,7 +501,7 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
       searchStrategy = 'text_search';
       console.log(`📝 Text search found ${candidates.length} candidates`);
     }
-  } catch (error) {
+  } catch {
     console.log('Text search not available, using skill matching');
   }
 
@@ -625,8 +625,8 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
         primaryMethod: 'fuzzy_enhanced',
         distribution: {
           jobMap: 0,
-          textSearch: candidates.filter(job => searchStrategy === 'text_search').length,
-          skillsMatching: candidates.filter(job => searchStrategy === 'enhanced_skills').length,
+          textSearch: candidates.filter(() => searchStrategy === 'text_search').length,
+          skillsMatching: candidates.filter(() => searchStrategy === 'enhanced_skills').length,
           fuzzyScoring: mappedJobs.length,
           lastResort: 0
         },
@@ -730,9 +730,6 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
     }
   };
 };
-
-// Import the existing function to maintain compatibility
-import { getFilteredJobsByTitlePaginated } from './mongo';
 
 export { FuzzyJobMatcher };
 export type { ScoredJob, FuzzyMatchResult };

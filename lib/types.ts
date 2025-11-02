@@ -78,6 +78,18 @@ export interface UserDetails {
   phone?: string;
   platformCredentials?: PlatformCredentialsData;
   subscription?: UserSubscription;
+  autoApplySettings?: {
+    isEnabled?: boolean;
+    maxApplicationsPerDay?: number;
+    jobTitles?: string[];
+    locations?: string[];
+    platforms?: string[];
+    salaryRange?: {
+      min?: number;
+      max?: number;
+    };
+    updatedAt?: string;
+  };
   onboardingCompleted?: boolean;
   createdAt?: string;
   updatedAt?: string;

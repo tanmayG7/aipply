@@ -3,12 +3,26 @@ import PricingCard from "@/components/card/pricingCard/pricingCard";
 import CheckPointscard from "@/components/common/checkPointscard/checkPointscard";
 import React, { useEffect, useState } from "react";
 import { auth } from "@/lib/firebaseConfig/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import "@/types/razorpay";
+
+interface RazorpayResponse {
+  razorpay_payment_id?: string;
+  razorpay_subscription_id?: string;
+  razorpay_signature?: string;
+}
+
+interface RazorpayErrorResponse {
+  error?: {
+    code?: string;
+    description?: string;
+    reason?: string;
+  };
+}
 
 const MonthlyComponent = () => {
   const [showRazorpay, setShowRazorpay] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [isCreatingSubscription, setIsCreatingSubscription] = useState(false);
   const [subscriptionCreated, setSubscriptionCreated] = useState(false);
@@ -92,8 +106,8 @@ const MonthlyComponent = () => {
         subscription_id: subscriptionData.subscriptionId,
         name: 'AiPply Premium',
         description: 'Monthly Premium Subscription - ₹666',
-        
-        handler: function (response: any) {
+
+        handler: function (response: RazorpayResponse) {
           console.log('✅ Payment successful:', response);
           setPaymentSuccess(true);
           
@@ -107,8 +121,8 @@ const MonthlyComponent = () => {
         },
         
         prefill: {
-          name: user.displayName || user.email,
-          email: user.email,
+          name: user.displayName || user.email || undefined,
+          email: user.email || undefined,
         },
         
         theme: {
@@ -125,14 +139,14 @@ const MonthlyComponent = () => {
       };
 
       const rzp = new window.Razorpay(options);
-      
-      rzp.on('payment.failed', function (response: any) {
+
+      rzp.on('payment.failed', function (response: RazorpayErrorResponse) {
         console.error('❌ Payment failed - Full response:', response);
         console.error('❌ Error object:', response.error);
         console.error('❌ Error description:', response.error?.description);
         console.error('❌ Error code:', response.error?.code);
         console.error('❌ Error reason:', response.error?.reason);
-        
+
         const errorMsg = response.error?.description || response.error?.reason || 'Payment failed';
         alert('Payment failed: ' + errorMsg);
         setIsCreatingSubscription(false);

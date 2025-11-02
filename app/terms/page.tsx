@@ -50,10 +50,10 @@ export default function TermsAndConditions() {
                       We are <strong className="text-[#F5F5F6]">DINMAY JOBSEARCH TECH LLP</strong>, doing business as <strong className="text-[#F5F5F6]">AiPply</strong> (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;), a company registered in India at B-301, Golden Palms, Sector 168, Gautam Buddha Nagar, UP 201305.
                     </p>
                     <p className="font-manrope text-[16px] leading-[24px] mb-4">
-                      We operate the website <strong className="text-[#F5F5F6]">http://www.aipply.io</strong> (the "Site"), as well as any other related products and services that refer or link to these legal terms (the "Legal Terms") (collectively, the "Services").
+                      We operate the website <strong className="text-[#F5F5F6]">http://www.aipply.io</strong> (the &quot;Site&quot;), as well as any other related products and services that refer or link to these legal terms (the &quot;Legal Terms&quot;) (collectively, the &quot;Services&quot;).
                     </p>
                     <p className="font-manrope text-[16px] leading-[24px] mb-4">
-                      These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you"), and DINMAY JOBSEARCH TECH LLP, concerning your access to and use of the Services.
+                      These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity (&quot;you&quot;), and DINMAY JOBSEARCH TECH LLP, concerning your access to and use of the Services.
                     </p>
                     <p className="font-manrope text-[16px] leading-[24px] text-[#FF6B6B]">
                       <strong>IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.</strong>
@@ -80,7 +80,7 @@ export default function TermsAndConditions() {
                       Our Intellectual Property
                     </h3>
                     <p className="font-manrope text-[16px] leading-[24px] mb-4">
-                      We are the owner or the licensee of all intellectual property rights in our Services, including all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics in the Services (collectively, the "Content"), as well as the trademarks, service marks, and logos contained therein (the "Marks").
+                      We are the owner or the licensee of all intellectual property rights in our Services, including all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics in the Services (collectively, the &quot;Content&quot;), as well as the trademarks, service marks, and logos contained therein (the &quot;Marks&quot;).
                     </p>
 
                     <h3 className="font-manrope text-[18px] font-semibold text-[#F5F5F6] mb-3">

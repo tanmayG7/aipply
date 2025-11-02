@@ -31,7 +31,7 @@ import { doc, getDoc } from "firebase/firestore";
 
 const DEBUG = process.env.NODE_ENV === "development";
 
-const debugLog = (message: string, data?: any) => {
+const debugLog = (message: string, data?: unknown) => {
   if (DEBUG) {
     console.log(`🏠 HomePage: ${message}`, data || "");
   }
@@ -74,13 +74,19 @@ const getUserSubscription = async (
       return subscriptionDoc.data() as UserSubscription;
     }
     return null;
-  } catch (error: any) {
+  } catch (error: unknown) {
     debugLog("Error fetching subscription:", error);
     return null;
   }
 };
 
-const calculateAutoAppliedStats = (appliedJobs: any[]): AutoAppliedStats => {
+interface AppliedJob {
+  autoApplied?: boolean;
+  appliedDate?: string;
+  appliedAt?: string;
+}
+
+const calculateAutoAppliedStats = (appliedJobs: AppliedJob[]): AutoAppliedStats => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -89,12 +95,14 @@ const calculateAutoAppliedStats = (appliedJobs: any[]): AutoAppliedStats => {
   const autoAppliedJobs = appliedJobs.filter((job) => job.autoApplied === true);
 
   const todayAutoApplied = autoAppliedJobs.filter((job) => {
-    const appliedDate = new Date(job.appliedDate || job.appliedAt);
+    const dateStr = job.appliedDate || job.appliedAt || new Date().toISOString();
+    const appliedDate = new Date(dateStr);
     return appliedDate >= today;
   }).length;
 
   const thisMonthAutoApplied = autoAppliedJobs.filter((job) => {
-    const appliedDate = new Date(job.appliedDate || job.appliedAt);
+    const dateStr = job.appliedDate || job.appliedAt || new Date().toISOString();
+    const appliedDate = new Date(dateStr);
     return appliedDate >= thisMonth;
   }).length;
 
@@ -105,6 +113,12 @@ const calculateAutoAppliedStats = (appliedJobs: any[]): AutoAppliedStats => {
   };
 };
 
+interface CronResult {
+  success?: boolean;
+  error?: string;
+  [key: string]: unknown;
+}
+
 const HomePage: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
@@ -112,12 +126,11 @@ const HomePage: React.FC = () => {
   const [autoAppliedStats, setAutoAppliedStats] =
     useState<AutoAppliedStats | null>(null);
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Add cron testing states
   const [cronLoading, setCronLoading] = useState(false);
-  const [cronResult, setCronResult] = useState<any>(null);
+  const [cronResult, setCronResult] = useState<CronResult | null>(null);
 
 
 
@@ -216,9 +229,10 @@ const HomePage: React.FC = () => {
       if (auth.currentUser) {
         fetchDashboardData(auth.currentUser.uid);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error testing cron job:", error);
-      setCronResult({ error: "Failed to run cron job: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      setCronResult({ error: "Failed to run cron job: " + errorMessage });
     } finally {
       setCronLoading(false);
     }
@@ -227,7 +241,6 @@ const HomePage: React.FC = () => {
   const fetchDashboardData = async (uid: string) => {
     try {
       debugLog("Fetching dashboard data", { uid });
-      setLoading(true);
       setError(null);
 
       const data = await getDashboardData(uid);
@@ -238,10 +251,11 @@ const HomePage: React.FC = () => {
       });
 
       setDashboardData(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching dashboard data:", error);
       debugLog("Error fetching dashboard data", error);
-      setError(`Failed to load dashboard: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      setError(`Failed to load dashboard: ${errorMessage}`);
     }
   };
 
@@ -268,18 +282,21 @@ const HomePage: React.FC = () => {
         const appliedJobs = await getAppliedJobs(uid);
         debugLog("Applied jobs fetched", { appliedJobs});
 
-        // Calculate auto-applied stats
-        const stats = calculateAutoAppliedStats(appliedJobs);
+        // Calculate auto-applied stats - map to AppliedJob type
+        const mappedJobs: AppliedJob[] = appliedJobs.map((job) => ({
+          autoApplied: (job as AppliedJob).autoApplied,
+          appliedDate: (job as AppliedJob).appliedDate,
+          appliedAt: (job as AppliedJob).appliedAt,
+        }));
+        const stats = calculateAutoAppliedStats(mappedJobs);
         debugLog("Auto-applied stats calculated", stats);
 
         setAutoAppliedStats(stats);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching auto-applied data:", error);
       debugLog("Error fetching auto-applied data", error);
       // Don't set error state for auto-applied data to avoid blocking the main dashboard
-    } finally {
-      setLoading(false);
     }
   };
 

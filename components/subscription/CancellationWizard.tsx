@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { X, AlertTriangle, CheckCircle2, Frown, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { X, AlertTriangle, CheckCircle2, Frown } from 'lucide-react';
 import { UserSubscription, CancellationReason } from '@/lib/types';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -39,70 +39,7 @@ export default function CancellationWizard({
 
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Keyboard Navigation (Issue #13)
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape key to close modal
-      if (e.key === 'Escape' && !loading) {
-        onClose();
-      }
-
-      // Enter key to proceed
-      if (e.key === 'Enter' && !loading) {
-        if (currentStep === 1) {
-          handleNext();
-        } else if (currentStep === 2 && reason) {
-          handleNext();
-        } else if (currentStep === 3) {
-          handleFinalCancel();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, currentStep, loading, reason]);
-
-  // Focus Management (Issue #13)
-  useEffect(() => {
-    if (!isOpen || !modalRef.current) return;
-
-    const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusableElements.length > 0) {
-      // Focus first element after a brief delay to ensure render is complete
-      setTimeout(() => {
-        focusableElements[0]?.focus();
-      }, 100);
-    }
-
-    // Trap focus within modal
-    const handleTab = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      if (e.shiftKey && document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement?.focus();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement?.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleTab);
-    return () => document.removeEventListener('keydown', handleTab);
-  }, [isOpen, currentStep]);
-
-  if (!isOpen) return null;
-
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentStep === 1) {
       setCurrentStep(2);
     } else if (currentStep === 2) {
@@ -118,15 +55,9 @@ export default function CancellationWizard({
       }
       setCurrentStep(3);
     }
-  };
+  }, [currentStep, reason]);
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep((currentStep - 1) as Step);
-    }
-  };
-
-  const handleFinalCancel = async () => {
+  const handleFinalCancel = useCallback(async () => {
     setLoading(true);
 
     try {
@@ -177,17 +108,87 @@ export default function CancellationWizard({
       } else {
         throw new Error(data.error || 'Failed to cancel subscription');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error cancelling subscription:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       MySwal.fire({
         icon: 'error',
         title: 'Cancellation Failed',
-        text: error.message || 'An error occurred',
+        text: errorMessage,
         background: '#1f2937',
         color: '#fff',
       });
     } finally {
       setLoading(false);
+    }
+  }, [reason, reasonDetails, onClose, onCancellationComplete]);
+
+  // Keyboard Navigation (Issue #13)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape key to close modal
+      if (e.key === 'Escape' && !loading) {
+        onClose();
+      }
+
+      // Enter key to proceed
+      if (e.key === 'Enter' && !loading) {
+        if (currentStep === 1) {
+          handleNext();
+        } else if (currentStep === 2 && reason) {
+          handleNext();
+        } else if (currentStep === 3) {
+          handleFinalCancel();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, currentStep, loading, reason, handleNext, handleFinalCancel, onClose]);
+
+  // Focus Management (Issue #13)
+  useEffect(() => {
+    if (!isOpen || !modalRef.current) return;
+
+    const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length > 0) {
+      // Focus first element after a brief delay to ensure render is complete
+      setTimeout(() => {
+        focusableElements[0]?.focus();
+      }, 100);
+    }
+
+    // Trap focus within modal
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement?.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [isOpen, currentStep]);
+
+  if (!isOpen) return null;
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep((currentStep - 1) as Step);
     }
   };
 
@@ -201,7 +202,7 @@ export default function CancellationWizard({
                 <Frown className="w-12 h-12 sm:w-16 sm:h-16 text-yellow-500" />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                We're Sorry to See You Go
+                We&apos;re Sorry to See You Go
               </h2>
               <p className="text-gray-400">
                 Are you sure you want to cancel your premium subscription?
@@ -291,7 +292,7 @@ export default function CancellationWizard({
                 Help Us Improve
               </h2>
               <p className="text-gray-400">
-                Please tell us why you're cancelling
+                Please tell us why you&apos;re cancelling
               </p>
             </div>
 
@@ -359,7 +360,7 @@ export default function CancellationWizard({
                 Final Confirmation
               </h2>
               <p className="text-gray-400">
-                You're about to cancel your premium subscription
+                You&apos;re about to cancel your premium subscription
               </p>
             </div>
 

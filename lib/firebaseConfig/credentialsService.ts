@@ -4,6 +4,20 @@ import { PlatformCredentialsData } from '../types';
 
 const CREDENTIALS_COLLECTION = 'userCredentials';
 
+// Helper function to extract error message from unknown error
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String(error.message);
+  }
+  return 'Unknown error occurred';
+}
+
 // TODO: SECURITY RISK - Replace with proper AES encryption before production
 // Base64 encoding is NOT secure and is easily reversible
 // This poses a significant security risk for user credentials
@@ -75,10 +89,10 @@ export const updateJobCredentials = async (
     );
 
     console.log('Job credentials updated successfully');
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error updating job credentials:', error);
-    throw new Error(`Failed to update credentials: ${error.message}`);
+    throw new Error(`Failed to update credentials: ${errorMessage}`);
   }
 };
 
@@ -94,12 +108,12 @@ export const getJobCredentials = async (
         return decryptCredentials(data.credentials);
       }
     }
-    
+
     return null;
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error getting job credentials:', error);
-    throw new Error(`Failed to get credentials: ${error.message}`);
+    throw new Error(`Failed to get credentials: ${errorMessage}`);
   }
 };
 
@@ -117,10 +131,10 @@ export const deleteJobCredential = async (
     await updateJobCredentials(userId, currentCredentials);
 
     console.log(`Deleted credential for platform: ${platform}`);
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error deleting job credential:', error);
-    throw new Error(`Failed to delete credential: ${error.message}`);
+    throw new Error(`Failed to delete credential: ${errorMessage}`);
   }
 };
 
@@ -138,8 +152,7 @@ export const validateCredentials = async (
 
     // Basic validation - check if email and password exist
     return !!(platformCredential.email && platformCredential.password);
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
     console.error('Error validating credentials:', error);
     return false;
   }
@@ -165,8 +178,7 @@ export const markCredentialAsUsed = async (
     };
 
     await updateJobCredentials(userId, updatedCredentials);
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
     console.error('Error marking credential as used:', error);
     // Don't throw error as this is not critical
   }
@@ -182,10 +194,9 @@ export const getActiveCredentials = async (
     }
 
     return Object.entries(credentials)
-      .filter(([_credential, credential]) => credential?.isActive)
+      .filter(([, credential]) => credential?.isActive)
       .map(([platform]) => platform);
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
     console.error('Error getting active credentials:', error);
     return [];
   }

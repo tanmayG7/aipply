@@ -29,8 +29,7 @@ const ProfileSetupContent: React.FC = () => {
     nextPage,
     previousPage,
     saveProgress,
-    validateCurrentPage,
-    formCompletionStatus
+    validateCurrentPage
   } = useOnboarding();
 
   const {

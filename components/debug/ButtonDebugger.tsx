@@ -222,7 +222,7 @@ export function ButtonDebugger() {
             <li>• If router test fails: Make sure you&apos;re using this component inside a Next.js page</li>
             <li>• If Firebase test fails: Check your environment variables (.env.local)</li>
             <li>• If auth function fails: Verify Firebase config and imports</li>
-            <li>• If all tests pass but buttons don't work: Check browser console for errors</li>
+            <li>• If all tests pass but buttons don&apos;t work: Check browser console for errors</li>
           </ul>
         </div>
       </div>

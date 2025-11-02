@@ -16,7 +16,7 @@ interface DashboardChartProps {
 }
 
 export function DashboardChart({ packageAppliedTo }: DashboardChartProps) {
-  const COLORS = ["#53389E", "#6941C6", "#7F56D9", "#9E77ED", "#B692F6"];
+  const COLORS = React.useMemo(() => ["#53389E", "#6941C6", "#7F56D9", "#9E77ED", "#B692F6"], []);
 
   const chartData = React.useMemo(() => {
     return Object.entries(packageAppliedTo)
@@ -27,7 +27,7 @@ export function DashboardChart({ packageAppliedTo }: DashboardChartProps) {
       }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 4);
-  }, [packageAppliedTo]);
+  }, [packageAppliedTo, COLORS]);
 
   const chartConfig = React.useMemo(() => {
     return chartData.reduce((acc, { label, fill }) => {

@@ -254,7 +254,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
           isValidating: false,
         },
       }));
-    } catch (error) {
+    } catch {
       setValidationStatus((prev) => ({
         ...prev,
         [platform]: {

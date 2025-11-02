@@ -3,6 +3,127 @@
  * Helper functions for admin subscription management via Razorpay API
  */
 
+// Razorpay API Type Definitions
+export interface RazorpayError {
+  description?: string;
+  message?: string;
+}
+
+export interface RazorpayErrorResponse {
+  error?: RazorpayError;
+  message?: string;
+}
+
+export interface RazorpaySubscription {
+  id: string;
+  status: 'created' | 'authenticated' | 'active' | 'pending' | 'halted' | 'cancelled' | 'completed' | 'expired';
+  plan_id: string;
+  customer_id: string;
+  quantity: number;
+  total_count: number;
+  paid_count: number;
+  remaining_count: number;
+  current_start: number;
+  current_end: number;
+  ended_at: number | null;
+  charge_at: number;
+  start_at: number;
+  end_at: number;
+  auth_attempts: number;
+  notes: Record<string, string>;
+  cancel_at_cycle_end?: boolean;
+  cancelled_at?: number | null;
+}
+
+export interface RazorpayCustomer {
+  id: string;
+  entity: string;
+  name: string;
+  email: string;
+  contact: string;
+  gstin: string | null;
+  notes: Record<string, string>;
+  created_at: number;
+}
+
+export interface RazorpayPlan {
+  id: string;
+  entity: string;
+  interval: number;
+  period: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  item: {
+    id: string;
+    active: boolean;
+    name: string;
+    description: string;
+    amount: number;
+    currency: string;
+  };
+  notes: Record<string, string>;
+  created_at: number;
+}
+
+export interface RazorpayPayment {
+  id: string;
+  entity: string;
+  amount: number;
+  currency: string;
+  status: string;
+  order_id: string;
+  invoice_id: string | null;
+  method: string;
+  captured: boolean;
+  fee: number;
+  tax: number;
+  created_at: number;
+}
+
+export interface RazorpayPaymentsResponse {
+  entity: string;
+  count: number;
+  items: RazorpayPayment[];
+}
+
+export interface RazorpayRefund {
+  id: string;
+  entity: string;
+  amount: number;
+  currency: string;
+  payment_id: string;
+  notes: Record<string, string>;
+  receipt: string | null;
+  status: string;
+  created_at: number;
+}
+
+export interface RazorpayInvoice {
+  id: string;
+  entity: string;
+  customer_id: string;
+  subscription_id: string;
+  type: string;
+  status: string;
+  amount: number;
+  currency: string;
+  paid_at: number | null;
+  issued_at: number;
+  created_at: number;
+}
+
+// Helper function to extract error message from unknown error
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String(error.message);
+  }
+  return 'Unknown error occurred';
+}
+
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
@@ -21,11 +142,10 @@ function getAuthHeader(): string {
 /**
  * Cancel a Razorpay subscription
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function cancelRazorpaySubscription(
   subscriptionId: string,
   cancelAtCycleEnd: boolean = false
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<{ success: boolean; data?: RazorpaySubscription; error?: string }> {
   try {
     console.log('🔍 [Razorpay Cancel] Starting cancellation process');
     console.log('📋 [Razorpay Cancel] Subscription ID:', subscriptionId);
@@ -81,15 +201,17 @@ export async function cancelRazorpaySubscription(
       success: true,
       data
     };
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('💥 [Razorpay Cancel] Exception occurred:', error);
-    console.error('💥 [Razorpay Cancel] Error message:', error.message);
-    console.error('💥 [Razorpay Cancel] Error stack:', error.stack);
+    console.error('💥 [Razorpay Cancel] Error message:', errorMessage);
+    if (error instanceof Error) {
+      console.error('💥 [Razorpay Cancel] Error stack:', error.stack);
+    }
 
     return {
       success: false,
-      error: `Network error: ${error.message}`
+      error: `Network error: ${errorMessage}`
     };
   }
 }
@@ -97,11 +219,10 @@ export async function cancelRazorpaySubscription(
 /**
  * Pause a Razorpay subscription
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function pauseRazorpaySubscription(
   subscriptionId: string,
   pauseAt: 'now' | number = 'now'
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<{ success: boolean; data?: RazorpaySubscription; error?: string }> {
   try {
     const auth = getAuthHeader();
     const url = `https://api.razorpay.com/v1/subscriptions/${subscriptionId}/pause`;
@@ -130,12 +251,12 @@ export async function pauseRazorpaySubscription(
       success: true,
       data
     };
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error pausing Razorpay subscription:', error);
     return {
       success: false,
-      error: error.message || 'Unknown error occurred'
+      error: errorMessage
     };
   }
 }
@@ -143,11 +264,10 @@ export async function pauseRazorpaySubscription(
 /**
  * Resume a paused Razorpay subscription
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function resumeRazorpaySubscription(
   subscriptionId: string,
   resumeAt: 'now' | number = 'now'
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<{ success: boolean; data?: RazorpaySubscription; error?: string }> {
   try {
     const auth = getAuthHeader();
     const url = `https://api.razorpay.com/v1/subscriptions/${subscriptionId}/resume`;
@@ -176,12 +296,12 @@ export async function resumeRazorpaySubscription(
       success: true,
       data
     };
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error resuming Razorpay subscription:', error);
     return {
       success: false,
-      error: error.message || 'Unknown error occurred'
+      error: errorMessage
     };
   }
 }
@@ -189,10 +309,9 @@ export async function resumeRazorpaySubscription(
 /**
  * Get Razorpay subscription details
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getRazorpaySubscription(
   subscriptionId: string
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<{ success: boolean; data?: RazorpaySubscription; error?: string }> {
   try {
     const auth = getAuthHeader();
     const url = `https://api.razorpay.com/v1/subscriptions/${subscriptionId}`;
@@ -217,12 +336,12 @@ export async function getRazorpaySubscription(
       success: true,
       data
     };
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error fetching Razorpay subscription:', error);
     return {
       success: false,
-      error: error.message || 'Unknown error occurred'
+      error: errorMessage
     };
   }
 }
@@ -230,7 +349,6 @@ export async function getRazorpaySubscription(
 /**
  * Check if subscription can be cancelled
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function checkSubscriptionCancellable(
   subscriptionId: string
 ): Promise<{ cancellable: boolean; reason?: string; status?: string }> {
@@ -238,11 +356,11 @@ export async function checkSubscriptionCancellable(
     console.log('🔍 [Razorpay] Checking if subscription is cancellable...');
     const result = await getRazorpaySubscription(subscriptionId);
 
-    if (!result.success) {
+    if (!result.success || !result.data) {
       console.error('❌ [Razorpay] Cannot fetch subscription:', result.error);
       return {
         cancellable: false,
-        reason: `Cannot fetch subscription: ${result.error}`
+        reason: `Cannot fetch subscription: ${result.error || 'No data returned'}`
       };
     }
 
@@ -267,12 +385,12 @@ export async function checkSubscriptionCancellable(
       cancellable: true,
       status
     };
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('💥 [Razorpay] Error checking subscription:', error);
     return {
       cancellable: false,
-      reason: `Error checking subscription: ${error.message}`
+      reason: `Error checking subscription: ${errorMessage}`
     };
   }
 }
@@ -280,18 +398,20 @@ export async function checkSubscriptionCancellable(
 /**
  * Create a refund for a payment
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createRefund(
   paymentId: string,
   amount?: number,
   notes?: Record<string, string>
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<{ success: boolean; data?: RazorpayRefund; error?: string }> {
   try {
     const auth = getAuthHeader();
     const url = 'https://api.razorpay.com/v1/refunds';
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body: any = {
+    const body: {
+      payment_id: string;
+      amount?: number;
+      notes?: Record<string, string>;
+    } = {
       payment_id: paymentId
     };
 
@@ -325,12 +445,12 @@ export async function createRefund(
       success: true,
       data
     };
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error creating refund:', error);
     return {
       success: false,
-      error: error.message || 'Unknown error occurred'
+      error: errorMessage
     };
   }
 }
@@ -338,10 +458,9 @@ export async function createRefund(
 /**
  * Get all payments for a subscription
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getSubscriptionPayments(
   subscriptionId: string
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<{ success: boolean; data?: RazorpayPaymentsResponse; error?: string }> {
   try {
     const auth = getAuthHeader();
     const url = `https://api.razorpay.com/v1/payments?subscription_id=${subscriptionId}`;
@@ -366,12 +485,12 @@ export async function getSubscriptionPayments(
       success: true,
       data
     };
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error fetching subscription payments:', error);
     return {
       success: false,
-      error: error.message || 'Unknown error occurred'
+      error: errorMessage
     };
   }
 }
@@ -379,7 +498,6 @@ export async function getSubscriptionPayments(
 /**
  * Update subscription schedule (for extending subscription)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateSubscriptionSchedule(
   subscriptionId: string,
   scheduleChange: {
@@ -387,7 +505,7 @@ export async function updateSubscriptionSchedule(
     quantity?: number;
     schedule_change_at: 'now' | number;
   }
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<{ success: boolean; data?: RazorpaySubscription; error?: string }> {
   try {
     const auth = getAuthHeader();
     const url = `https://api.razorpay.com/v1/subscriptions/${subscriptionId}`;
@@ -414,12 +532,12 @@ export async function updateSubscriptionSchedule(
       success: true,
       data
     };
-  } catch (error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
     console.error('Error updating subscription schedule:', error);
     return {
       success: false,
-      error: error.message || 'Unknown error occurred'
+      error: errorMessage
     };
   }
 }

@@ -45,14 +45,9 @@ export const getJobsByPreferences = async (location: string, role: string) => {
     .toArray();
 };
 
-// Add this helper function at the top of the file
-const normalizeLocation = (location: string | string[]): string => {
-  return Array.isArray(location) ? location.join(", ") : location;
-};
-
 export const getJobByTitleandSkills = async(userProfile: UserDetails) => {
   const db = await connectToMongoDB();
-  
+
   // Get enhanced skills for user's job title (now using 703 job titles!)
   const enhancedSkills = getSkillsForJobTitle(userProfile.jobTitle || '');
   const userSkills = userProfile.skills || [];

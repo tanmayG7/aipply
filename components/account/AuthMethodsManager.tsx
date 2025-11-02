@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,22 +30,22 @@ export function AuthMethodsManager({ userEmail }: AuthMethodsManagerProps) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (userEmail) {
-      loadAuthMethods();
-    }
-  }, [userEmail]);
-
-  const loadAuthMethods = async () => {
+  const loadAuthMethods = useCallback(async () => {
     if (!userEmail) return;
-    
+
     try {
       const methods = await checkEmailSignInMethods(userEmail);
       setAuthMethods(methods);
     } catch (error: any) {
       console.error("Error loading auth methods:", error);
     }
-  };
+  }, [userEmail]);
+
+  useEffect(() => {
+    if (userEmail) {
+      loadAuthMethods();
+    }
+  }, [userEmail, loadAuthMethods]);
 
   const handleLinkPassword = async (e: React.FormEvent) => {
     e.preventDefault();

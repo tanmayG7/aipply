@@ -147,7 +147,7 @@ function validateUrl(url: string): { isValid: boolean; errors: string[] } {
       }
     }
 
-  } catch (error) {
+  } catch {
     errors.push('Invalid URL format');
   }
 

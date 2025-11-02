@@ -163,7 +163,7 @@ export default function ResumeAnalysis() {
                   <h3 className="text-[#F5F5F6] text-xl font-semibold">Actionable Recommendations</h3>
                 </div>
                 <p className="text-[#CECFD2] text-sm leading-relaxed">
-                  Get step-by-step guidance on exactly what to change to improve your resume's effectiveness.
+                  Get step-by-step guidance on exactly what to change to improve your resume&apos;s effectiveness.
                 </p>
               </div>
             </div>
