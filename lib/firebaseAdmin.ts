@@ -9,28 +9,63 @@ export function getAdminApp(): App {
   }
 
   try {
-    // For production/deployment, use service account credentials from environment
-    if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
+    // Check if explicit service account credentials are provided
+    const hasPrivateKey = !!process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+    const hasClientEmail = !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+
+    if (hasPrivateKey && hasClientEmail) {
+      // Use explicit service account credentials (recommended for production)
+      console.log('🔑 Initializing Firebase Admin with service account credentials...');
+
       adminApp = initializeApp({
         credential: cert({
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'aipply-17c23',
+          clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL!,
+          privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY!.replace(/\\n/g, '\n'),
         }),
       });
-      console.log('🔑 Firebase Admin initialized with service account credentials');
-    } else {
-      // For local development, use application default credentials
-      // This works when you've run `firebase login` or have GOOGLE_APPLICATION_CREDENTIALS set
-      adminApp = initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'aipply-17c23',
-      });
-      console.log('🔑 Firebase Admin initialized with default credentials');
+
+      console.log('✅ Firebase Admin initialized with service account credentials');
+      return adminApp;
     }
+
+    // Warn about missing credentials
+    if (!hasPrivateKey || !hasClientEmail) {
+      console.warn('⚠️ WARNING: Firebase Admin credentials not fully configured!');
+      console.warn('Missing:', {
+        FIREBASE_ADMIN_PRIVATE_KEY: hasPrivateKey ? '✓' : '✗',
+        FIREBASE_ADMIN_CLIENT_EMAIL: hasClientEmail ? '✓' : '✗',
+      });
+      console.warn('Attempting to use Application Default Credentials (ADC)...');
+      console.warn('This may fail in production. See FIREBASE_ADMIN_SETUP.md for setup instructions.');
+    }
+
+    // Fallback to Application Default Credentials
+    // This works in local development if you've run `firebase login`
+    // but may NOT work in Firebase Hosting production environment
+    adminApp = initializeApp({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'aipply-17c23',
+    });
+
+    console.log('🔑 Firebase Admin initialized with Application Default Credentials');
+    console.log('⚠️ If you see authentication errors, configure service account credentials.');
 
     return adminApp;
   } catch (error) {
-    console.error('❌ Error initializing Firebase Admin:', error);
+    console.error('❌ Error initializing Firebase Admin SDK');
+    console.error('Error details:', error);
+
+    if (error instanceof Error && error.message.includes('Could not load the default credentials')) {
+      console.error('');
+      console.error('🔧 SOLUTION: Configure Firebase Admin service account credentials');
+      console.error('1. Download service account key from Firebase Console');
+      console.error('2. Set environment variables:');
+      console.error('   - FIREBASE_ADMIN_CLIENT_EMAIL');
+      console.error('   - FIREBASE_ADMIN_PRIVATE_KEY');
+      console.error('3. See FIREBASE_ADMIN_SETUP.md for detailed instructions');
+      console.error('');
+    }
+
     throw error;
   }
 }
