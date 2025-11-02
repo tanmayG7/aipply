@@ -23,6 +23,8 @@ It means Firebase Admin SDK credentials are **not configured** in your productio
 
 ## Quick Setup (5 Minutes)
 
+⚠️ **IMPORTANT**: You MUST complete ALL steps below BEFORE running `firebase deploy`. Setting secrets after deployment will cause timeout errors.
+
 ### Step 1: Download Service Account Key
 
 1. Go to [Firebase Console - Service Accounts](https://console.firebase.google.com/project/aipply-17c23/settings/serviceaccounts/adminsdk)
@@ -139,6 +141,32 @@ npm run dev
 ---
 
 ## Troubleshooting
+
+### Error: "User code failed to load. Cannot determine backend specification. Timeout after 10000"
+
+**Cause**: Firebase deployment is timing out during build phase because Admin SDK credentials are not set.
+
+**Solution**:
+1. **You MUST set secrets BEFORE first deployment**:
+   ```bash
+   firebase functions:secrets:set ADMIN_CLIENT_EMAIL
+   firebase functions:secrets:set ADMIN_PRIVATE_KEY
+   ```
+
+2. Verify secrets are set:
+   ```bash
+   firebase functions:secrets:access ADMIN_CLIENT_EMAIL
+   firebase functions:secrets:access ADMIN_PRIVATE_KEY
+   ```
+
+3. Now deploy:
+   ```bash
+   firebase deploy
+   ```
+
+**Why this happens**: Firebase analyzes your code during deployment and may attempt to initialize the Admin SDK. Without credentials, it times out waiting for Application Default Credentials.
+
+**Prevention**: Always set secrets before deploying, not after.
 
 ### Error: "Could not load the default credentials"
 

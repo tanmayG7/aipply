@@ -8,11 +8,36 @@ export function getAdminApp(): App {
     return getApps()[0];
   }
 
+  // Check if explicit service account credentials are provided
+  // Note: Using ADMIN_ prefix to avoid Firebase's reserved FIREBASE_ prefix
+  const hasPrivateKey = !!process.env.ADMIN_PRIVATE_KEY;
+  const hasClientEmail = !!process.env.ADMIN_CLIENT_EMAIL;
+
+  // Build-time safeguard: Fail fast if credentials are missing in production
+  // This prevents deployment timeouts when Firebase tries to analyze the code
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+
+  if (isProduction && !hasPrivateKey && !hasClientEmail && !isBuildPhase) {
+    const errorMessage = [
+      '❌ Firebase Admin SDK credentials not configured!',
+      '',
+      'Required environment variables are missing:',
+      '  - ADMIN_CLIENT_EMAIL',
+      '  - ADMIN_PRIVATE_KEY',
+      '',
+      'To fix this:',
+      '1. Download service account key from Firebase Console',
+      '2. Set secrets using: firebase functions:secrets:set ADMIN_CLIENT_EMAIL',
+      '3. Set secrets using: firebase functions:secrets:set ADMIN_PRIVATE_KEY',
+      '4. See ADMIN_SETUP.md for detailed instructions',
+      ''
+    ].join('\n');
+
+    throw new Error(errorMessage);
+  }
+
   try {
-    // Check if explicit service account credentials are provided
-    // Note: Using ADMIN_ prefix to avoid Firebase's reserved FIREBASE_ prefix
-    const hasPrivateKey = !!process.env.ADMIN_PRIVATE_KEY;
-    const hasClientEmail = !!process.env.ADMIN_CLIENT_EMAIL;
 
     if (hasPrivateKey && hasClientEmail) {
       // Use explicit service account credentials (recommended for production)
@@ -38,7 +63,7 @@ export function getAdminApp(): App {
         ADMIN_CLIENT_EMAIL: hasClientEmail ? '✓' : '✗',
       });
       console.warn('Attempting to use Application Default Credentials (ADC)...');
-      console.warn('This may fail in production. See FIREBASE_ADMIN_SETUP.md for setup instructions.');
+      console.warn('This may fail in production. See ADMIN_SETUP.md for setup instructions.');
     }
 
     // Fallback to Application Default Credentials
@@ -63,7 +88,7 @@ export function getAdminApp(): App {
       console.error('2. Set environment variables:');
       console.error('   - ADMIN_CLIENT_EMAIL');
       console.error('   - ADMIN_PRIVATE_KEY');
-      console.error('3. See FIREBASE_ADMIN_SETUP.md for detailed instructions');
+      console.error('3. See ADMIN_SETUP.md for detailed instructions');
       console.error('');
     }
 
