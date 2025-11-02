@@ -1,24 +1,10 @@
 // app/api/cv-services/verify-payment/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import CryptoJS from 'crypto-js';
 import { sendCVOrderConfirmationEmail, sendCVOrderAdminNotification } from '@/lib/email/emailService';
 
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
-
-// Initialize Firebase
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const firestore = getFirestore(app);
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,11 +44,12 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Payment signature verified successfully`);
 
-    // Get order from Firebase
-    const orderRef = doc(firestore, 'cv_orders', razorpay_order_id);
-    const orderDoc = await getDoc(orderRef);
+    // Get order from Firebase using Admin SDK
+    const firestore = getAdminFirestore();
+    const orderRef = firestore.collection('cv_orders').doc(razorpay_order_id);
+    const orderDoc = await orderRef.get();
 
-    if (!orderDoc.exists()) {
+    if (!orderDoc.exists) {
       console.error(`❌ Order not found in database: ${razorpay_order_id}`);
       return NextResponse.json({
         error: 'Order not found',
@@ -71,6 +58,14 @@ export async function POST(request: NextRequest) {
     }
 
     const orderData = orderDoc.data();
+
+    if (!orderData) {
+      console.error(`❌ Order data is empty: ${razorpay_order_id}`);
+      return NextResponse.json({
+        error: 'Order data not found',
+        details: 'The order data is corrupted or missing'
+      }, { status: 404 });
+    }
 
     // Check if already processed
     if (orderData.status === 'paid') {
@@ -83,9 +78,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Update order status in Firebase
+    // Update order status in Firebase using Admin SDK
     const currentTimestamp = new Date().toISOString();
-    await updateDoc(orderRef, {
+    await orderRef.update({
       'payment.razorpayPaymentId': razorpay_payment_id,
       'payment.status': 'completed',
       'status': 'paid',

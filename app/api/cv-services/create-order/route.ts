@@ -1,23 +1,9 @@
 // app/api/cv-services/create-order/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
 
 const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
-
-// Initialize Firebase (reuse existing app if available)
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const firestore = getFirestore(app);
 
 export async function POST(request: NextRequest) {
   try {
@@ -152,7 +138,9 @@ export async function POST(request: NextRequest) {
       updatedAt: currentTimestamp
     };
 
-    await setDoc(doc(firestore, 'cv_orders', order.id), orderDocument);
+    // Save to Firestore using Admin SDK
+    const firestore = getAdminFirestore();
+    await firestore.collection('cv_orders').doc(order.id).set(orderDocument);
     console.log(`✅ Order saved to Firebase: ${order.id}`);
 
     return NextResponse.json({
