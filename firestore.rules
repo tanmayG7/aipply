@@ -45,6 +45,49 @@ service cloud.firestore {
       allow create: if request.auth != null;
     }
 
+    // Dashboard Data Collection
+    match /dashboardData/{userId} {
+      // Users can read and write their own dashboard data
+      allow read, write: if request.auth != null &&
+                            request.auth.uid == userId;
+    }
+
+    // Applied Jobs Collection
+    match /appliedJobs/{userId} {
+      // Users can read and write their own applied jobs
+      allow read, write: if request.auth != null &&
+                            request.auth.uid == userId;
+    }
+
+    // Current Jobs Collection
+    match /currentJobs/{userId} {
+      // Users can read and write their own current jobs
+      allow read, write: if request.auth != null &&
+                            request.auth.uid == userId;
+    }
+
+    // Archived Jobs Collection
+    match /archiveJobs/{userId} {
+      // Users can read and write their own archived jobs
+      allow read, write: if request.auth != null &&
+                            request.auth.uid == userId;
+    }
+
+    // Hidden Jobs Collection
+    match /hiddenJobs/{userId} {
+      // Users can read and write their own hidden jobs
+      allow read, write: if request.auth != null &&
+                            request.auth.uid == userId;
+    }
+
+    // Contact Submissions Collection
+    match /contactSubmissions/{submissionId} {
+      // Allow authenticated users to create contact submissions
+      allow create: if request.auth != null;
+      // Admin-only read access (deny for regular users)
+      allow read: if false;
+    }
+
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;
