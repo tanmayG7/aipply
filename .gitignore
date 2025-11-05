@@ -61,3 +61,4 @@ test-auth-system.js
 test-complete-auth-flow.js
 PLAYWRIGHT_E2E_SETUP_SUMMARY.md
 *.log
+conversation-2025-11-06-020249.txt

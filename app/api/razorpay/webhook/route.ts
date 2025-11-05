@@ -454,9 +454,15 @@ async function handlePaymentCaptured(event: RazorpayWebhookEvent) {
 
     const orderData = orderDoc.data();
 
-    // Check if already processed
+    // Idempotency check: verify payment hasn't been processed already
     if (orderData.status === 'paid') {
       console.log(`⚠️ Order ${orderId} already marked as paid`);
+      return;
+    }
+
+    // Additional idempotency check: verify payment ID hasn't been processed
+    if (orderData.payment?.razorpayPaymentId === paymentId) {
+      console.log(`⚠️ Payment ${paymentId} already processed for order ${orderId}`);
       return;
     }
 
@@ -543,9 +549,19 @@ async function handlePaymentFailed(event: RazorpayWebhookEvent) {
 
     console.log(`❌ CV service order ${orderId} marked as failed`);
 
-    // TODO: Send payment failure notification to customer
+    // Send payment failure notification to customer
     const orderData = orderDoc.data();
-    console.log(`📧 TODO: Send failure notification to ${orderData.customerDetails.email}`);
+    const { sendCVOrderFailureEmail } = await import('@/lib/email/emailService');
+
+    await sendCVOrderFailureEmail({
+      customerName: orderData.customerDetails.fullName,
+      customerEmail: orderData.customerDetails.email,
+      orderId: orderId,
+      amount: orderData.amount,
+      failureReason: payment.error_description
+    });
+
+    console.log(`📧 Payment failure notification sent to ${orderData.customerDetails.email}`);
 
   } catch (error) {
     console.error('❌ Error in handlePaymentFailed:', error);

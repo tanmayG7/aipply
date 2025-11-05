@@ -59,6 +59,11 @@ const data = {
       url: "/dashboard/job-board",
       image: "/static/sidebarIcons/jobBoard.svg",
     },
+    {
+      title: "CV Services",
+      url: "/dashboard/cv-services",
+      image: "/static/icons/briefcase.svg",
+    },
     // {
     //   title: "Reminder",
     //   url: "/dashboard/reminder",
