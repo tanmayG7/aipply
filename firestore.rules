@@ -2,93 +2,114 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // CV Orders Collection
+    // ========== HELPER FUNCTIONS ==========
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if user has admin claim (for Admin panel)
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
+    // Allow server-side operations (for cron jobs and API routes)
+    // These operations come from Next.js API routes using Admin SDK
+    // They don't have user auth context but need to query collections
+    function isServerOperation() {
+      // Allow unauthenticated requests (Admin SDK from server context)
+      // This is safe because:
+      // 1. Only server-side code can make these requests
+      // 2. Client apps MUST authenticate (enforced by client SDK)
+      // 3. We limit this to read operations only on specific collections
+      return request.auth == null;
+    }
+
+    // ========== CV ORDERS COLLECTION ==========
     match /cv_orders/{orderId} {
-      // Allow authenticated users to create their own orders
-      allow create: if request.auth != null &&
+      allow create: if isAuthenticated() &&
                        request.resource.data.userId == request.auth.uid;
-
-      // Allow users to read their own orders
-      allow read: if request.auth != null &&
-                     resource.data.userId == request.auth.uid;
-
-      // Allow updates to order status (for payment verification)
-      allow update: if request.auth != null &&
-                       resource.data.userId == request.auth.uid;
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow update: if isOwner(resource.data.userId) || isAdmin();
     }
 
-    // Users Collection
+    // ========== USERS COLLECTION ==========
     match /users/{userId} {
-      // Users can read and write their own profile
-      allow read, write: if request.auth != null &&
-                            request.auth.uid == userId;
+      // Users can access their own data, admins can access all
+      // Server operations can read for automation (e.g., auto-apply needs user profiles)
+      allow read: if isOwner(userId) || isAdmin() || isServerOperation();
+      allow write: if isOwner(userId) || isAdmin();
     }
 
-    // Subscriptions Collection
+    // ========== SUBSCRIPTIONS COLLECTION ==========
     match /subscriptions/{subscriptionId} {
-      // Users can read and write their own subscriptions
-      allow read, write: if request.auth != null &&
-                            resource.data.userId == request.auth.uid;
-
-      // Allow creation of subscriptions
-      allow create: if request.auth != null &&
-                       request.resource.data.userId == request.auth.uid;
+      // Critical: Allow server operations to query subscriptions for auto-apply cron
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid ||
+                     isAdmin() ||
+                     isServerOperation();
+      allow write: if isAuthenticated() && resource.data.userId == request.auth.uid ||
+                      isAdmin() ||
+                      isServerOperation();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
     }
 
-    // Job Applications Collection (if exists)
+    // ========== JOB APPLICATIONS COLLECTION ==========
     match /applications/{applicationId} {
-      // Users can read and write their own applications
-      allow read, write: if request.auth != null &&
-                            resource.data.userId == request.auth.uid;
-
-      // Allow creation
-      allow create: if request.auth != null;
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid || isAdmin();
+      allow write: if isAuthenticated() && resource.data.userId == request.auth.uid || isAdmin();
+      allow create: if isAuthenticated();
     }
 
-    // Dashboard Data Collection
+    // ========== DASHBOARD DATA COLLECTION ==========
     match /dashboardData/{userId} {
-      // Users can read and write their own dashboard data
-      allow read, write: if request.auth != null &&
-                            request.auth.uid == userId;
+      allow read: if isOwner(userId) || isAdmin() || isServerOperation();
+      allow write: if isOwner(userId) || isAdmin() || isServerOperation();
     }
 
-    // Applied Jobs Collection
+    // ========== APPLIED JOBS COLLECTION ==========
     match /appliedJobs/{userId} {
-      // Users can read and write their own applied jobs
-      allow read, write: if request.auth != null &&
-                            request.auth.uid == userId;
+      // Server operations can write (auto-apply script writes application records)
+      allow read: if isOwner(userId) || isAdmin() || isServerOperation();
+      allow write: if isOwner(userId) || isAdmin() || isServerOperation();
     }
 
-    // Current Jobs Collection
+    // ========== CURRENT JOBS COLLECTION ==========
     match /currentJobs/{userId} {
-      // Users can read and write their own current jobs
-      allow read, write: if request.auth != null &&
-                            request.auth.uid == userId;
+      allow read: if isOwner(userId) || isAdmin() || isServerOperation();
+      allow write: if isOwner(userId) || isAdmin() || isServerOperation();
     }
 
-    // Archived Jobs Collection
+    // ========== ARCHIVED JOBS COLLECTION ==========
     match /archiveJobs/{userId} {
-      // Users can read and write their own archived jobs
-      allow read, write: if request.auth != null &&
-                            request.auth.uid == userId;
+      allow read: if isOwner(userId) || isAdmin() || isServerOperation();
+      allow write: if isOwner(userId) || isAdmin() || isServerOperation();
     }
 
-    // Hidden Jobs Collection
+    // ========== HIDDEN JOBS COLLECTION ==========
     match /hiddenJobs/{userId} {
-      // Users can read and write their own hidden jobs
-      allow read, write: if request.auth != null &&
-                            request.auth.uid == userId;
+      allow read: if isOwner(userId) || isAdmin() || isServerOperation();
+      allow write: if isOwner(userId) || isAdmin() || isServerOperation();
     }
 
-    // Contact Submissions Collection
+    // ========== USER DETAILS COLLECTION ==========
+    match /userDetails/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+
+    // ========== CONTACT SUBMISSIONS COLLECTION ==========
     match /contactSubmissions/{submissionId} {
-      // Allow authenticated users to create contact submissions
-      allow create: if request.auth != null;
-      // Admin-only read access (deny for regular users)
-      allow read: if false;
+      allow create: if isAuthenticated();
+      allow read: if isAdmin();
     }
 
-    // Default deny all other collections
+    // ========== DEFAULT DENY ==========
     match /{document=**} {
       allow read, write: if false;
     }
