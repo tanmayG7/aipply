@@ -8,7 +8,7 @@ pnpm install
 # or
 npm install
 ```
-
+.
 Then, run the development server:
 
 ```bash
