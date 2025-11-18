@@ -301,7 +301,7 @@ export function LoginForm({
                             type="button"
                             variant="secondary"
                             size="sm"
-                            className="text-black"
+                            className="bg-white text-black hover:bg-gray-100"
                             onClick={handleGoogleLogin}
                             disabled={loading}
                           >
@@ -449,7 +449,7 @@ export function LoginForm({
               <div className="flex flex-col gap-4">
                 <Button
                   variant="secondary"
-                  className="w-full text-black"
+                  className="w-full bg-white text-black hover:bg-gray-100"
                   onClick={handleGoogleLogin}
                   disabled={loading}
                 >

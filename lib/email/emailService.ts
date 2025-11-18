@@ -31,7 +31,7 @@ export async function sendCVOrderConfirmationEmail(data: CVOrderConfirmationEmai
 
     const resend = getResendClient();
     const emailResponse = await resend.emails.send({
-      from: 'AiPply <noreply@aipply.io>',
+      from: 'AiPply <noreply@updates.aipply.io>',
       to: customerEmail,
       subject: '✅ Your CV Order Confirmation - AiPply',
       html: `
@@ -231,8 +231,8 @@ export async function sendCVOrderAdminNotification(data: CVOrderConfirmationEmai
 
     const resend = getResendClient();
     const emailResponse = await resend.emails.send({
-      from: 'AiPply Orders <noreply@aipply.io>',
-      to: 'admin@aipply.io', // Replace with actual admin email
+      from: 'AiPply Orders <orders@updates.aipply.io>',
+      to: 'tanmay@aipply.io', // Admin receives order notifications
       subject: `🎯 New CV Order: ${orderId}`,
       html: `
         <!DOCTYPE html>
@@ -294,7 +294,7 @@ export async function sendCVOrderFailureEmail(data: CVOrderFailureEmailData) {
 
     const resend = getResendClient();
     const emailResponse = await resend.emails.send({
-      from: 'AiPply <noreply@aipply.io>',
+      from: 'AiPply <noreply@updates.aipply.io>',
       to: customerEmail,
       subject: '⚠️ Payment Failed - AiPply CV Service',
       html: `
