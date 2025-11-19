@@ -58,6 +58,8 @@ export function LoginForm({
     hasGoogle: boolean;
     exists: boolean;
   }>({ hasPassword: false, hasGoogle: false, exists: false });
+  const [aiConsentChecked, setAiConsentChecked] = useState(true);
+  const [showConsentError, setShowConsentError] = useState(false);
 
   // Watch for error changes to detect GOOGLE_ONLY_ACCOUNT and update local error state
   useEffect(() => {
@@ -90,7 +92,23 @@ export function LoginForm({
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if user has consented to AI data usage
+    if (!aiConsentChecked) {
+      setShowConsentError(true);
+      setError("Please consent to AI data usage to continue");
+      return;
+    }
+
+    setShowConsentError(false);
     setIsGoogleOnlyAccount(false);
+
+    // Store AI consent in localStorage for new user creation
+    localStorage.setItem('aipply_ai_consent', JSON.stringify({
+      consent: aiConsentChecked,
+      timestamp: Date.now()
+    }));
+
     onLogin(email, password);
   };
 
@@ -162,7 +180,22 @@ export function LoginForm({
   };
 
   const handleGoogleLogin = async () => {
+    // Check if user has consented to AI data usage
+    if (!aiConsentChecked) {
+      setShowConsentError(true);
+      setError("Please consent to AI data usage to continue");
+      return;
+    }
+
+    setShowConsentError(false);
+
     try {
+      // Store AI consent in localStorage for new user creation
+      localStorage.setItem('aipply_ai_consent', JSON.stringify({
+        consent: aiConsentChecked,
+        timestamp: Date.now()
+      }));
+
       await authenticateUser(
         "",
         "",
@@ -383,7 +416,42 @@ export function LoginForm({
                 )}
 
                 {/* Error messages */}
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && !showConsentError && <p className="text-red-500 text-sm">{error}</p>}
+
+                {/* AI Data Consent Checkbox */}
+                <div className={`p-4 rounded-md border ${showConsentError ? 'border-red-500 bg-red-500/10' : 'border-[#333741] bg-[#1a1a2e]'} transition-all duration-200`}>
+                  <div className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      id="aiConsent"
+                      checked={aiConsentChecked}
+                      onChange={(e) => {
+                        setAiConsentChecked(e.target.checked);
+                        if (e.target.checked) {
+                          setShowConsentError(false);
+                          setError("");
+                        }
+                      }}
+                      className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <Label
+                      htmlFor="aiConsent"
+                      className="text-text-sm-regular font-inter text-[#CECFD2] cursor-pointer"
+                    >
+                      I consent to my data being used by AI for improving services, personalized job recommendations, and automated application assistance
+                    </Label>
+                  </div>
+                  {showConsentError && (
+                    <div className="mt-3 flex items-start space-x-2 text-red-400">
+                      <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-text-sm-regular font-inter">
+                        You must consent to AI data usage to create an account or sign in. This helps us provide personalized job recommendations and automated application assistance.
+                      </p>
+                    </div>
+                  )}
+                </div>
 
                 {/* Forgot Password Modal */}
                 {showForgotPassword && (

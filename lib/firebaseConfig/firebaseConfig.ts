@@ -683,6 +683,33 @@ const authenticateUser = async (
     if (isGoogleSignIn) {
       // Google Sign-in
       userCredential = await signInWithPopup(auth, provider);
+
+      // For Google sign-in, save AI consent if this is a new user
+      const user = userCredential.user;
+      const userDoc = await getDoc(doc(firestore, "users", user.uid));
+
+      if (!userDoc.exists()) {
+        // New Google user - save consent
+        try {
+          const consentData = localStorage.getItem('aipply_ai_consent');
+          if (consentData) {
+            const { consent } = JSON.parse(consentData);
+            console.log("💾 Saving AI consent for Google user:", consent);
+
+            await setDoc(doc(firestore, "users", user.uid), {
+              aiDataConsent: consent,
+              aiConsentDate: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }, { merge: true });
+
+            console.log("✅ AI consent saved for Google user");
+            localStorage.removeItem('aipply_ai_consent');
+          }
+        } catch (consentError) {
+          console.error("⚠️ Error saving AI consent for Google user:", consentError);
+        }
+      }
     } else {
       // Email/Password flow - Try sign in first, then create account
       try {
@@ -769,6 +796,31 @@ const handleSignInError = async (
         const token = await user.getIdToken();
         localStorage.setItem("firebaseToken", token);
         console.log("✅ Token saved, navigating to profile setup");
+
+        // Save AI consent if available
+        try {
+          const consentData = localStorage.getItem('aipply_ai_consent');
+          if (consentData) {
+            const { consent } = JSON.parse(consentData);
+            console.log("💾 Saving AI consent:", consent);
+
+            // Save consent to user profile
+            await setDoc(doc(firestore, "users", user.uid), {
+              aiDataConsent: consent,
+              aiConsentDate: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }, { merge: true });
+
+            console.log("✅ AI consent saved successfully");
+
+            // Clear consent from localStorage
+            localStorage.removeItem('aipply_ai_consent');
+          }
+        } catch (consentError) {
+          console.error("⚠️ Error saving AI consent:", consentError);
+          // Don't block signup if consent save fails
+        }
 
         navigate("/dashboard/onboarding/profile-setup");
         return user;
