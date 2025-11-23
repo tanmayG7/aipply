@@ -90,12 +90,16 @@ export const getJobsByTitle = async (
         .toArray()
     )
   );
-  return data.map((job: any) => ({
-    ...job,
-    id: job._id.toString(),
-    jobId: job.id,
-    postedDate: job.postedDate?.toISOString?.(),
-  }));
+  return data.map((job: any) => {
+    const jobIdValue = job.id || job._id?.toString();
+    return {
+      ...job,
+      _id: job._id?.toString(),
+      id: jobIdValue,
+      jobId: jobIdValue,
+      postedDate: job.postedDate?.toISOString?.(),
+    };
+  });
 };
 
 export const getFilteredJobsByTitle = async (
@@ -127,11 +131,15 @@ export const getFilteredJobsByTitle = async (
     .toArray();
 
     if(results.length > 0){
-    return results.map((job: any) => ({
-      ...job,
-      id: job._id.toString(),
-      jobId: job.id,
-    }));
+    return results.map((job: any) => {
+      const jobIdValue = job.id || job._id?.toString();
+      return {
+        ...job,
+        _id: job._id?.toString(),
+        id: jobIdValue,
+        jobId: jobIdValue,
+      };
+    });
   }
   else {
     return [];
@@ -146,11 +154,15 @@ export const getFilteredJobsByTitle = async (
     .find({ id: { $in: jobIds } })
     .toArray();
 
-  return jobs.map((job: any) => ({
-    ...job,
-    id: job._id.toString(),
-    jobId: job.id,
-  }));
+  return jobs.map((job: any) => {
+    const jobIdValue = job.id || job._id?.toString();
+    return {
+      ...job,
+      _id: job._id?.toString(),
+      id: jobIdValue,
+      jobId: jobIdValue,
+    };
+  });
 };
 
 // NEW PAGINATED VERSION OF getFilteredJobsByTitle
@@ -220,11 +232,15 @@ export const getFilteredJobsByTitlePaginated = async (
       .toArray();
 
     return {
-      jobs: results.map((job: any) => ({
-        ...job,
-        id: job._id.toString(),
-        jobId: job.id,
-      })),
+      jobs: results.map((job: any) => {
+        const jobIdValue = job.id || job._id?.toString();
+        return {
+          ...job,
+          _id: job._id?.toString(),
+          id: jobIdValue,
+          jobId: jobIdValue,
+        };
+      }),
       hasMore: skip + limit < skillsTotal,
       totalCount: skillsTotal,
       currentPage: page,
@@ -261,11 +277,15 @@ export const getFilteredJobsByTitlePaginated = async (
     .find({ id: { $in: jobIds } })
     .toArray();
 
-  const mappedJobs = jobs.map((job: any) => ({
-    ...job,
-    id: job._id.toString(),
-    jobId: job.id,
-  }));
+  const mappedJobs = jobs.map((job: any) => {
+    const jobIdValue = job.id || job._id?.toString();
+    return {
+      ...job,
+      _id: job._id?.toString(),
+      id: jobIdValue,
+      jobId: jobIdValue,
+    };
+  });
 
   return {
     jobs: mappedJobs,
@@ -539,28 +559,31 @@ export const getJobsByIdsPaginated = async (
   }
 
   return {
-    jobs: jobs.map((job) => ({
-      _id: job._id.toString(),
-      id: job.id.toString(),
-      jobId: job.id,
-      title: job.title,
-      company: job.company,
-      salary: job.salary,
-      location: job.location,
-      role: job.role,
-      description: job.description,
-      requirements: job.requirements,
-      benefits: job.benefits,
-      postedDate: job.postedDate,
-      applyLink: job.applyLink,
-      experience: job.experience,
-      recruiter: job.recruiter,
-      jobUrl: job.jobUrl,
-      platform: job.platform,
-      logoUrl: job.logoUrl,
-      tags: job.tags,
-      type: job.type,
-    })) as Job[],
+    jobs: jobs.map((job) => {
+      const jobIdValue = job.id || job._id?.toString();
+      return {
+        _id: job._id?.toString(),
+        id: jobIdValue,
+        jobId: jobIdValue,
+        title: job.title,
+        company: job.company,
+        salary: job.salary,
+        location: job.location,
+        role: job.role,
+        description: job.description,
+        requirements: job.requirements,
+        benefits: job.benefits,
+        postedDate: job.postedDate,
+        applyLink: job.applyLink,
+        experience: job.experience,
+        recruiter: job.recruiter,
+        jobUrl: job.jobUrl,
+        platform: job.platform,
+        logoUrl: job.logoUrl,
+        tags: job.tags,
+        type: job.type,
+      };
+    }) as Job[],
     hasMore: skip + limit < jobIds.length,
     totalCount: jobIds.length,
     currentPage: page,

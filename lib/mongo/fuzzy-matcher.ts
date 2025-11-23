@@ -182,9 +182,9 @@ class FuzzyJobMatcher {
     return {
       jobs: result.jobs.map(job => ({
         ...job,
-        _id: job._id?.toString() || job.id,
-        id: job.id?.toString() || job._id?.toString(),
-        jobId: job.id || job._id,
+        _id: job._id?.toString(),
+        id: job.id || job._id?.toString(),
+        jobId: job.id || job._id?.toString(),
       })),
       hasMore: result.totalMatches > page * limit,
       totalCount: result.totalMatches,
@@ -427,12 +427,12 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
         .toArray();
 
       const mappedJobs = jobs.map((job: any) => {
-        const jobId = job.id || job._id?.toString();
-        console.log(`[DEBUG] Job mapping - Original job.id: "${job.id}", _id: "${job._id}", Final jobId: "${jobId}"`);
+        const jobIdValue = job.id || job._id?.toString();
         return {
           ...job,
-          jobId: jobId,
           _id: job._id?.toString(),
+          id: jobIdValue,
+          jobId: jobIdValue,
         };
       });
 
@@ -533,11 +533,15 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
     
     // Return early if we have enough good matches
     if (skillsCandidates.length >= limit) {
-      const mappedJobs = skillsCandidates.slice(0, limit).map((job: any) => ({
-        ...job,
-        jobId: job.id || job._id?.toString(), // Use original job.id as jobId
-        _id: job._id?.toString(), // Keep _id as string for consistency
-      }));
+      const mappedJobs = skillsCandidates.slice(0, limit).map((job: any) => {
+        const jobIdValue = job.id || job._id?.toString();
+        return {
+          ...job,
+          _id: job._id?.toString(),
+          id: jobIdValue,
+          jobId: jobIdValue,
+        };
+      });
 
       return {
         jobs: mappedJobs,
@@ -593,11 +597,15 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
       .sort((a, b) => b.fuzzyScore - a.fuzzyScore)
       .slice(0, limit);
 
-    const mappedJobs = sortedJobs.map((job: any) => ({
-      ...job,
-      jobId: job.id || job._id?.toString(), // Use original job.id as jobId
-      _id: job._id?.toString(), // Keep _id as string for consistency
-    }));
+    const mappedJobs = sortedJobs.map((job: any) => {
+      const jobIdValue = job.id || job._id?.toString();
+      return {
+        ...job,
+        _id: job._id?.toString(),
+        id: jobIdValue,
+        jobId: jobIdValue,
+      };
+    });
 
     console.log(`✅ Fuzzy matching returned ${mappedJobs.length} scored jobs`);
     // Calculate debug stats for fuzzy scoring
@@ -657,11 +665,15 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
       .sort((a, b) => b.fuzzyScore - a.fuzzyScore)
       .slice(skip, skip + limit);
 
-    const mappedJobs = sortedJobs.map((job: any) => ({
-      ...job,
-      jobId: job.id || job._id?.toString(), // Use original job.id as jobId
-      _id: job._id?.toString(), // Keep _id as string for consistency
-    }));
+    const mappedJobs = sortedJobs.map((job: any) => {
+      const jobIdValue = job.id || job._id?.toString();
+      return {
+        ...job,
+        _id: job._id?.toString(),
+        id: jobIdValue,
+        jobId: jobIdValue,
+      };
+    });
 
     const debugStats = {
       exactMatches: mappedJobs.filter(job => job.matchType === 'exact').length,
@@ -669,7 +681,7 @@ export const getFilteredJobsByTitlePaginatedWithFuzzy = async (
       titleMatches: mappedJobs.filter(job => job.matchType === 'title').length,
       enhancedMatches: mappedJobs.filter(job => job.matchType === 'enhanced').length
     };
-    
+
     const fuzzyDistribution = {
       high: mappedJobs.filter(job => job.fuzzyScore >= 0.8).length,
       medium: mappedJobs.filter(job => job.fuzzyScore >= 0.5 && job.fuzzyScore < 0.8).length,
