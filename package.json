@@ -7,14 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "npm run build && firebase deploy",
+    "deploy": "bun run build && firebase deploy",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "audit:emoji": "npx ts-node scripts/find-emojis.ts",
-    "verify:no-emoji": "npx ts-node scripts/find-emojis.ts --fail",
-    "check:debug": "node scripts/check-debug-statements.js",
-    "precommit": "npm run check:debug && npm run lint"
+    "audit:emoji": "bun scripts/find-emojis.ts",
+    "verify:no-emoji": "bun scripts/find-emojis.ts --fail",
+    "check:debug": "bun scripts/check-debug-statements.js",
+    "precommit": "bun run check:debug && bun run lint"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

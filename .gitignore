@@ -48,7 +48,6 @@ next-env.d.ts
 /e2e
 playwright.config.ts
 screen-20250813-151214.mp4
-bun.lock
 *.png
 build-output.log
 

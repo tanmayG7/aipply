@@ -1,12 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      'firebasestorage.googleapis.com',
-      'img.naukimg.com',
-      'img.naukri.com',
-      'images.unsplash.com', // CV services hero image
-      'i.pravatar.cc' // Testimonial avatars
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.naukimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.naukri.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
+      },
     ],
   },
   eslint: {
