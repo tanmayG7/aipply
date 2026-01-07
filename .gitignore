@@ -61,3 +61,18 @@ test-complete-auth-flow.js
 PLAYWRIGHT_E2E_SETUP_SUMMARY.md
 *.log
 conversation-2025-11-06-020249.txt
+
+# Debugging and investigation scripts
+audit-cancelled-users.js
+check-*.js
+find-user-by-subscription.js
+investigate-subscription-cancellation.js
+list-all-subscriptions.js
+manual-subscription-activation.js
+query-razorpay-subscription.js
+search-*.js
+test-cancel-*.js
+update-*.js
+verify-*.js
+*-SUMMARY.md
+GIT-CHANGES-SUMMARY.md
