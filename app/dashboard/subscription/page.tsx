@@ -14,6 +14,8 @@ const SubscriptionPage = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [showCancellationWizard, setShowCancellationWizard] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -56,6 +58,61 @@ const SubscriptionPage = () => {
   const handleCancellationComplete = () => {
     // Refresh subscription data
     fetchSubscriptionData();
+  };
+
+  const handleSyncSubscription = async () => {
+    setSyncing(true);
+    setSyncMessage(null);
+
+    try {
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get Firebase auth token
+      const token = await user.getIdToken();
+
+      console.log('🔄 Syncing subscription with Razorpay...');
+
+      const response = await fetch('/api/subscription/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to sync subscription');
+      }
+
+      console.log('✅ Sync response:', data);
+
+      if (data.foundActiveSubscription) {
+        setSyncMessage({
+          type: 'success',
+          text: `Subscription synced successfully! Your ${data.subscription.planType} plan is now active.`
+        });
+
+        // Refresh subscription data
+        await fetchSubscriptionData();
+      } else {
+        setSyncMessage({
+          type: 'info',
+          text: data.message || 'No active subscription found in Razorpay.'
+        });
+      }
+    } catch (error) {
+      console.error('❌ Sync error:', error);
+      setSyncMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to sync subscription'
+      });
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const formatDate = (dateString: string | null) => {
@@ -187,6 +244,45 @@ const SubscriptionPage = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Sync Subscription Button (for free users who may have paid) */}
+                {userSubscription.subscriptionStatus === 'free' && (
+                  <div className="mt-6 p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm text-blue-200 mb-3">
+                          <strong>Paid but not seeing your subscription?</strong> Click below to sync with Razorpay.
+                        </p>
+                        <Button
+                          onClick={handleSyncSubscription}
+                          disabled={syncing}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          {syncing ? (
+                            <>
+                              <span className="mr-2">Syncing...</span>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            </>
+                          ) : (
+                            'Sync Subscription'
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sync Message */}
+                {syncMessage && (
+                  <div className={`mt-4 p-4 rounded-lg border ${
+                    syncMessage.type === 'success' ? 'bg-green-900/20 border-green-700/50 text-green-200' :
+                    syncMessage.type === 'error' ? 'bg-red-900/20 border-red-700/50 text-red-200' :
+                    'bg-blue-900/20 border-blue-700/50 text-blue-200'
+                  }`}>
+                    <p className="text-sm">{syncMessage.text}</p>
+                  </div>
+                )}
 
                 {/* Cancellation Notice if Cancelled */}
                 {userSubscription.cancelledDate && (

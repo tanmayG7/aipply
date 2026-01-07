@@ -73,10 +73,32 @@ service cloud.firestore {
     }
 
     // ========== APPLIED JOBS COLLECTION ==========
-    match /appliedJobs/{userId} {
-      // Server operations can write (auto-apply script writes application records)
-      allow read: if isOwner(userId) || isAdmin() || isServerOperation();
-      allow write: if isOwner(userId) || isAdmin() || isServerOperation();
+    // Updated to support both structures:
+    // 1. Individual job documents with userId field (from auto-apply backend)
+    // 2. Collection queries filtering by userId field (from job tracker frontend)
+    match /appliedJobs/{docId} {
+      // Allow read if:
+      // - Document contains userId field matching authenticated user (collection queries)
+      // - Document ID is the user ID (legacy single-doc-per-user structure)
+      // - User is admin
+      // - Server operation (auto-apply cron jobs)
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid ||
+                     isOwner(docId) ||
+                     isAdmin() ||
+                     isServerOperation();
+
+      // Allow write if:
+      // - Creating/updating document with own userId in data
+      // - Document ID is the user ID (legacy)
+      // - User is admin
+      // - Server operation
+      allow write: if isAuthenticated() && request.resource.data.userId == request.auth.uid ||
+                      isOwner(docId) ||
+                      isAdmin() ||
+                      isServerOperation();
+
+      // Allow creation if authenticated (userId validation in write rule above)
+      allow create: if isAuthenticated() || isServerOperation();
     }
 
     // ========== CURRENT JOBS COLLECTION ==========

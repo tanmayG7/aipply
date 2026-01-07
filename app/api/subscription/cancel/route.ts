@@ -189,10 +189,12 @@ export async function POST(request: NextRequest) {
     console.log('✅ [Cancel Route] Subscription is cancellable, proceeding...');
 
     // Cancel subscription in Razorpay
-    const cancelAtCycleEnd = cancellationType === 'end_of_period';
+    // ALWAYS cancel immediately in Razorpay to stop future charges
+    // Firebase handles "end of period" access control via renewalDate check
+    // This prevents the bug where cancel_at_cycle_end=1 doesn't work reliably
     const cancelResult = await cancelRazorpaySubscription(
       subscription.razorpaySubscriptionId,
-      cancelAtCycleEnd
+      false  // Always immediate cancellation in Razorpay
     );
 
     if (!cancelResult.success) {

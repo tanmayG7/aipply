@@ -187,18 +187,29 @@ export default function Page() {
 
       console.log(`Fetching jobs for page ${page}, search: "${searchTerm}"`);
 
-      const result = await getUpdatedJobsPaginated(
-        auth.currentUser?.uid || '',
-        userProfileValue,
-        page,
-        JOBS_PER_PAGE,
-        searchTerm,
-        {
-          salaryRange,
-          experience,
-          jobType
-        }
-      );
+      // Add 15-second timeout to prevent infinite loading
+      const TIMEOUT_MS = 15000;
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('⏱️ Request timed out after 15 seconds. This may indicate a database connection issue. Please check your internet connection or try again later.'));
+        }, TIMEOUT_MS);
+      });
+
+      const result = await Promise.race([
+        getUpdatedJobsPaginated(
+          auth.currentUser?.uid || '',
+          userProfileValue,
+          page,
+          JOBS_PER_PAGE,
+          searchTerm,
+          {
+            salaryRange,
+            experience,
+            jobType
+          }
+        ),
+        timeoutPromise
+      ]) as any;
 
       if (!result || typeof result !== 'object') {
         throw new Error('Invalid response from getUpdatedJobsPaginated');
@@ -212,8 +223,42 @@ export default function Page() {
       console.log(`Successfully fetched ${(result.jobs || []).length} jobs`);
 
     } catch (error: unknown) {
-      console.error(`Error fetching jobs:`, error);
+      console.error(`❌ [Job Board] Error fetching jobs:`, error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+      // Show error toast notification
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to Load Jobs',
+        html: `
+          <div class="text-left">
+            <p class="mb-2 text-red-600 font-semibold">Unable to fetch jobs from the database.</p>
+            <p class="text-sm text-gray-600 mb-3">This may be due to:</p>
+            <ul class="text-sm text-gray-700 list-disc pl-5 mb-3">
+              <li>Database connection issues</li>
+              <li>Network connectivity problems</li>
+              <li>Server configuration errors</li>
+            </ul>
+            <details class="text-sm text-gray-600 mt-2">
+              <summary class="cursor-pointer font-semibold hover:text-gray-800">🔍 Technical Details</summary>
+              <pre class="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto max-h-32">${errorMessage}</pre>
+            </details>
+          </div>
+        `,
+        confirmButtonText: 'Retry',
+        showCancelButton: true,
+        cancelButtonText: 'Dismiss',
+        customClass: {
+          confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded',
+          cancelButton: 'bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Retry by calling fetchJobsWithPagination again
+          fetchJobsWithPagination(currentPage, searchTerm);
+        }
+      });
+
       setError(`Failed to fetch jobs: ${errorMessage}`);
       setJobs([]);
     } finally {

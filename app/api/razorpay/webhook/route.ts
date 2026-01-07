@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import {
   updateUserSubscription,
-  createUserSubscription
+  createUserSubscription,
+  getUserSubscription
 } from '@/lib/firebaseConfig/firebaseConfig';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { sendCVOrderConfirmationEmail, sendCVOrderAdminNotification } from '@/lib/email/emailService';
 
 interface RazorpayWebhookEvent {
@@ -53,15 +54,56 @@ interface PlanDetails {
 
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 
+// Helper function to log webhook events to Firestore for auditing
+async function logWebhookEvent(
+  eventType: string,
+  userId: string | null,
+  success: boolean,
+  errorMessage?: string,
+  additionalData?: Record<string, unknown>
+) {
+  try {
+    const firestore = getFirestore();
+    const webhookLogsRef = collection(firestore, 'webhook_logs');
+
+    await addDoc(webhookLogsRef, {
+      eventType,
+      userId,
+      success,
+      errorMessage: errorMessage || null,
+      additionalData: additionalData || null,
+      timestamp: serverTimestamp(),
+      createdAt: new Date().toISOString()
+    });
+
+    console.log(`📝 Logged webhook event: ${eventType} (${success ? 'SUCCESS' : 'FAILURE'})`);
+  } catch (error) {
+    // Don't throw - logging failure shouldn't break webhook processing
+    console.error('❌ Failed to log webhook event:', error);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🔔 Razorpay webhook received');
-    
+    console.log('📋 Headers:', {
+      'x-razorpay-signature': request.headers.get('x-razorpay-signature') ? 'Present' : 'Missing',
+      'content-type': request.headers.get('content-type'),
+      'user-agent': request.headers.get('user-agent')
+    });
+    console.log('🔑 Environment check:', {
+      'RAZORPAY_WEBHOOK_SECRET': RAZORPAY_WEBHOOK_SECRET ? 'Present' : 'MISSING!',
+      'RAZORPAY_KEY_SECRET': process.env.RAZORPAY_KEY_SECRET ? 'Present' : 'Missing'
+    });
+
     const body = await request.text();
+    console.log('📦 Webhook body length:', body.length, 'bytes');
+
     const signature = request.headers.get('x-razorpay-signature');
-    
+
     if (!signature || !RAZORPAY_WEBHOOK_SECRET) {
       console.error('❌ Missing signature or webhook secret');
+      await logWebhookEvent('unknown', null, false, 'Missing signature or webhook secret');
       return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
     }
     
@@ -70,14 +112,20 @@ export async function POST(request: NextRequest) {
       .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET)
       .update(body)
       .digest('hex');
-    
+
     if (signature !== expectedSignature) {
       console.error('❌ Invalid webhook signature');
+      console.error('Expected:', expectedSignature.substring(0, 10) + '...');
+      console.error('Received:', signature.substring(0, 10) + '...');
+      await logWebhookEvent('unknown', null, false, 'Invalid webhook signature');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
-    
+
+    console.log('✅ Webhook signature verified');
+
     const event = JSON.parse(body);
-    console.log('📧 Webhook event:', event.event);
+    console.log('📧 Webhook event type:', event.event);
+    console.log('📦 Event payload keys:', Object.keys(event.payload || {}));
     
     // Handle different webhook events
     switch (event.event) {
@@ -125,25 +173,37 @@ export async function POST(request: NextRequest) {
 async function handleSubscriptionActivated(event: any) {
   try {
     console.log('🎉 Processing subscription activation');
-    
+
     const subscription = event.payload.subscription.entity;
     const userId = subscription.notes?.userId;
-    
+
     if (!userId) {
-      console.error('❌ No userId found in subscription notes');
-      return;
+      const error = 'No userId found in subscription notes';
+      console.error(`❌ ${error}`);
+      console.error('📋 Subscription notes:', JSON.stringify(subscription.notes));
+      await logWebhookEvent(event.event, null, false, error, {
+        subscriptionId: subscription.id,
+        planId: subscription.plan_id,
+        notes: subscription.notes
+      });
+      throw new Error(error); // Don't return silently
     }
-    
+
     console.log(`👤 Activating subscription for user: ${userId}`);
     console.log(`📋 Plan ID: ${subscription.plan_id}`);
     console.log(`💰 Subscription ID: ${subscription.id}`);
-    
+
     // Determine plan details based on plan_id
     const planDetails = getPlanDetails(subscription.plan_id);
-    
+
     if (!planDetails) {
-      console.error(`❌ Unknown plan ID: ${subscription.plan_id}`);
-      return;
+      const error = `Unknown plan ID: ${subscription.plan_id}`;
+      console.error(`❌ ${error}`);
+      await logWebhookEvent(event.event, userId, false, error, {
+        subscriptionId: subscription.id,
+        planId: subscription.plan_id
+      });
+      throw new Error(error); // Don't return silently
     }
     
     // Calculate dates
@@ -172,21 +232,91 @@ async function handleSubscriptionActivated(event: any) {
       gracePeriodEndDate: null,
     };
     
-    // Update or create user subscription
-    try {
-      await updateUserSubscription(userId, subscriptionUpdate);
-      console.log(`✅ Successfully activated premium subscription for user ${userId}`);
-      console.log(`📅 Renewal date: ${renewalDate.toISOString()}`);
-      console.log(`💎 Plan: ${planDetails.name} (${planDetails.type})`);
-    } catch {
-      console.log('🔄 User subscription not found, creating new one...');
-      await createUserSubscription(userId);
-      await updateUserSubscription(userId, subscriptionUpdate);
-      console.log(`✅ Created and activated subscription for user ${userId}`);
+    // Update or create user subscription with retry logic
+    let retryCount = 0;
+    const maxRetries = 3;
+    let lastError;
+
+    while (retryCount < maxRetries) {
+      try {
+        await updateUserSubscription(userId, subscriptionUpdate);
+        console.log(`✅ Successfully activated premium subscription for user ${userId} (attempt ${retryCount + 1})`);
+        console.log(`📅 Renewal date: ${renewalDate.toISOString()}`);
+        console.log(`💎 Plan: ${planDetails.name} (${planDetails.type})`);
+        break; // Success - exit retry loop
+      } catch (updateError) {
+        if (retryCount === 0) {
+          // First failure - might need to create subscription first
+          console.log('🔄 User subscription not found, creating new one...');
+          try {
+            await createUserSubscription(userId);
+            console.log('✅ Created new subscription document');
+          } catch (createError) {
+            console.error('❌ Error creating subscription:', createError);
+          }
+        }
+        lastError = updateError;
+        retryCount++;
+        if (retryCount < maxRetries) {
+          const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+          console.log(`⏳ Retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
     }
-    
+
+    if (retryCount === maxRetries) {
+      const error = `Failed to update subscription after ${maxRetries} attempts`;
+      console.error(`❌ ${error}`, lastError);
+      await logWebhookEvent(event.event, userId, false, error, {
+        subscriptionId: subscription.id,
+        planId: subscription.plan_id,
+        lastError: lastError instanceof Error ? lastError.message : String(lastError)
+      });
+      throw new Error(error);
+    }
+
+    // Verify subscription was updated correctly
+    console.log('🔍 Verifying subscription update...');
+    const updatedSub = await getUserSubscription(userId);
+
+    if (!updatedSub || updatedSub.subscriptionStatus !== 'premium') {
+      const error = 'Subscription update verification failed';
+      console.error(`❌ ${error}`, {
+        expected: 'premium',
+        actual: updatedSub?.subscriptionStatus || 'null'
+      });
+      await logWebhookEvent(event.event, userId, false, error, {
+        subscriptionId: subscription.id,
+        planId: subscription.plan_id,
+        actualStatus: updatedSub?.subscriptionStatus
+      });
+      throw new Error(error);
+    }
+
+    if (!updatedSub.features.autoApply) {
+      console.warn('⚠️ Warning: autoApply feature not enabled after subscription activation');
+    }
+
+    console.log('✅ Subscription verification passed');
+    console.log(`📊 Status: ${updatedSub.subscriptionStatus}, Features: autoApply=${updatedSub.features.autoApply}`);
+
+    // Log successful activation to Firestore
+    await logWebhookEvent(event.event, userId, true, undefined, {
+      subscriptionId: subscription.id,
+      planId: subscription.plan_id,
+      planType: planDetails.type,
+      subscriptionStatus: updatedSub.subscriptionStatus,
+      autoApplyEnabled: updatedSub.features.autoApply,
+      renewalDate: renewalDate.toISOString()
+    });
+
+    console.log(`🎊 Subscription activation complete for user ${userId}`);
+
   } catch (error) {
     console.error('❌ Error in handleSubscriptionActivated:', error);
+    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+    throw error; // Re-throw to be caught by main handler
   }
 }
 

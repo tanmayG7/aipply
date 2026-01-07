@@ -22,10 +22,11 @@ export class PasswordEncryption {
       // Generate a unique salt for this user if not provided
       const salt = userSalt || CryptoJS.lib.WordArray.random(128/8).toString();
       
-      // Create a key using PBKDF2 with the salt
+      // Create a key using PBKDF2 with the salt (SHA256 to match backend)
       const key = CryptoJS.PBKDF2(PasswordEncryption.ENCRYPTION_KEY, salt, {
         keySize: 256/32,
-        iterations: 10000
+        iterations: 10000,
+        hasher: CryptoJS.algo.SHA256
       });
       
       // Generate a random IV for this encryption
@@ -56,10 +57,11 @@ export class PasswordEncryption {
     try {
       const { encryptedPassword, iv, salt } = encryptedData;
       
-      // Recreate the key using the same salt
+      // Recreate the key using the same salt (SHA256 to match backend)
       const key = CryptoJS.PBKDF2(PasswordEncryption.ENCRYPTION_KEY, salt, {
         keySize: 256/32,
-        iterations: 10000
+        iterations: 10000,
+        hasher: CryptoJS.algo.SHA256
       });
       
       // Decrypt the password

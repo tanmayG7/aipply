@@ -20,13 +20,32 @@ let cachedDb: Db | null = null;
 
 export const connectToMongoDB = async (): Promise<Db> => {
   if (cachedDb) {
+    console.log('✅ [MongoDB] Using cached connection');
     return cachedDb;
   }
 
-  const client = new MongoClient(MONGODB_URI);
+  console.log('🔄 [MongoDB] Creating new connection...');
+  console.log('🔍 [MongoDB] MONGODB_URI defined:', !!process.env.MONGODB_URI);
+
+  const client = new MongoClient(MONGODB_URI, {
+    serverSelectionTimeoutMS: 10000, // 10 second timeout
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+  });
+
+  console.log('⏳ [MongoDB] Attempting connection...');
+  const startTime = Date.now();
+
   await client.connect();
-  console.log('Db connected');
+
+  const elapsed = Date.now() - startTime;
+  console.log(`✅ [MongoDB] Connected in ${elapsed}ms`);
+
   cachedDb = client.db(MONGODB_DB);
+
+  // Verify connection with ping
+  await cachedDb.command({ ping: 1 });
+  console.log('✅ [MongoDB] Database ping successful');
 
   return cachedDb;
 };

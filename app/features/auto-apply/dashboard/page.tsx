@@ -13,9 +13,11 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   auth,
+  firestore,
   getUserProfile,
   saveUserProfile,
 } from "@/lib/firebaseConfig/firebaseConfig";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { UserDetails } from "@/lib/types";
 import {
   Play,
@@ -53,7 +55,7 @@ interface AutoApplyStats {
   pendingApplications: number;
   rejectedApplications: number;
   interviewRequests: number;
-  lastRunTime: string;
+  lastRunTime: string | null;
   isRunning: boolean;
 }
 
@@ -77,7 +79,7 @@ export default function AutoApplyDashboard() {
     pendingApplications: 0,
     rejectedApplications: 0,
     interviewRequests: 0,
-    lastRunTime: "",
+    lastRunTime: null,
     isRunning: false,
   });
   const [recentApplications, setRecentApplications] = useState<
@@ -96,43 +98,87 @@ export default function AutoApplyDashboard() {
         const profile = await getUserProfile(user.uid) as UserDetails;
         setAutoApplySettings(profile.autoApplySettings || null);
 
-        // Load stats from API or Firebase
-        // This would typically come from your backend
-        setStats({
-          totalApplications: 156,
-          todayApplications: 12,
-          successRate: 78,
-          pendingApplications: 23,
-          rejectedApplications: 8,
-          interviewRequests: 5,
-          lastRunTime: new Date().toISOString(),
-          isRunning: profile.autoApplySettings?.isEnabled || false,
-        });
+        // Fetch real stats from Firestore appliedJobs collection
+        try {
+          const jobsRef = collection(firestore, "appliedJobs");
+          const jobsQuery = query(
+            jobsRef,
+            where("userId", "==", user.uid),
+            where("autoApplied", "==", true)
+          );
+          const jobsSnapshot = await getDocs(jobsQuery);
 
-        // Mock recent applications
-        setRecentApplications([
-          {
-            id: "1",
-            jobTitle: "Senior Software Engineer",
-            company: "TechCorp",
-            platform: "Naukri",
-            appliedAt: new Date().toISOString(),
-            status: "success",
-            salary: "15-20 LPA",
-            location: "Bangalore",
-          },
-          {
-            id: "2",
-            jobTitle: "Full Stack Developer",
-            company: "StartupXYZ",
-            platform: "Hirist",
-            appliedAt: new Date(Date.now() - 3600000).toISOString(),
-            status: "pending",
-            salary: "12-18 LPA",
-            location: "Remote",
-          },
-          // Add more mock data...
-        ]);
+          const jobs = jobsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+
+          // Calculate real stats
+          const now = new Date();
+          const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+          const todayJobs = jobs.filter((job: any) =>
+            new Date(job.appliedAt || job.appliedDate) >= todayStart
+          );
+
+          const successfulJobs = jobs.filter((job: any) =>
+            job.status === "applied_successfully" || job.status === "interview"
+          );
+
+          const pendingJobs = jobs.filter((job: any) => job.status === "pending");
+          const rejectedJobs = jobs.filter((job: any) => job.status === "rejected");
+          const interviewJobs = jobs.filter((job: any) => job.status === "interview");
+
+          setStats({
+            totalApplications: jobs.length,
+            todayApplications: todayJobs.length,
+            successRate: jobs.length > 0 ? Math.round((successfulJobs.length / jobs.length) * 100) : 0,
+            pendingApplications: pendingJobs.length,
+            rejectedApplications: rejectedJobs.length,
+            interviewRequests: interviewJobs.length,
+            lastRunTime: jobs.length > 0
+              ? (jobs.sort((a: any, b: any) =>
+                  new Date(b.appliedAt || b.appliedDate).getTime() -
+                  new Date(a.appliedAt || a.appliedDate).getTime()
+                )[0] as any).appliedAt
+              : null,
+            isRunning: profile.autoApplySettings?.isEnabled || false,
+          });
+
+          // Set recent applications (real data, not mock)
+          setRecentApplications(
+            jobs
+              .sort((a: any, b: any) =>
+                new Date(b.appliedAt || b.appliedDate).getTime() -
+                new Date(a.appliedAt || a.appliedDate).getTime()
+              )
+              .slice(0, 10)
+              .map((job: any) => ({
+                id: job.id,
+                jobTitle: job.title,
+                company: job.company,
+                platform: job.platform,
+                appliedAt: job.appliedAt || job.appliedDate,
+                status: job.status === "applied_successfully" ? "success" : job.status,
+                salary: job.salary,
+                location: job.location,
+              }))
+          );
+        } catch (error) {
+          console.error("Error loading auto-apply stats:", error);
+          // Set default stats on error
+          setStats({
+            totalApplications: 0,
+            todayApplications: 0,
+            successRate: 0,
+            pendingApplications: 0,
+            rejectedApplications: 0,
+            interviewRequests: 0,
+            lastRunTime: null,
+            isRunning: profile.autoApplySettings?.isEnabled || false,
+          });
+          setRecentApplications([]);
+        }
       }
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -384,7 +430,7 @@ export default function AutoApplyDashboard() {
                         className="mt-2"
                       />
                       <div className="text-sm text-gray-400">
-                        Last run: {new Date(stats.lastRunTime).toLocaleString()}
+                        Last run: {stats.lastRunTime ? new Date(stats.lastRunTime).toLocaleString() : 'Never'}
                       </div>
                     </CardContent>
                   </Card>
