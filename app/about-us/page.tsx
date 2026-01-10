@@ -3,6 +3,7 @@ import Footer from "@/components/common/footer/footer";
 import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
+import TeamCard from "@/components/card/teamCard/TeamCard";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -145,37 +146,44 @@ const AboutUsPage = () => {
             <h2 className="font-manrope text-[36px] custom-md:text-[48px] font-semibold leading-[160%] text-white mb-12">
               Meet the Team
             </h2>
-            <div className="grid grid-cols-1 custom-md:grid-cols-2 gap-8 custom-md:gap-12 max-w-5xl mx-auto">
-              {/* Tanmay Garg */}
-              <div className="bg-[#111111] p-8 rounded-[30px] border border-[#333741]">
-                <Image 
-                  src="/static/images/tanmay-garg.jpg" 
-                  alt="Tanmay Garg" 
-                  width={96}
-                  height={96}
-                  className="mx-auto mb-6 rounded-full object-cover"
-                />
-                <h3 className="font-manrope text-[24px] font-bold text-white mb-2">Tanmay Garg</h3>
-                <p className="font-manrope text-[18px] font-semibold text-[#52A9FF] mb-4">Co-Founder & CEO</p>
-                <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
-                  <em>A marketing monk who used to dance.</em> 2X entrepreneur with 13 years of experience. Ex-AdPushup, Allevents, Artishus. Built a $230M ARR pipeline at AdPushup.
-                </p>
+            
+            {/* Triangular Layout - Responsive Grid */}
+            <div className="max-w-6xl mx-auto">
+              {/* Single Column on Mobile and Tablet, Triangular on Desktop */}
+              <div className="grid grid-cols-1 custom-lg:grid-cols-2 gap-8 custom-lg:gap-12 custom-lg:place-items-center">
+                {/* Top Row - Two Co-founders */}
+                <div className="w-full max-w-sm custom-lg:max-w-none">
+                  <TeamCard
+                    name="Tanmay Garg"
+                    role="Co-Founder & CEO"
+                    description="A marketing monk who used to dance. 2X entrepreneur with 13 years of experience. Ex-AdPushup, Allevents, Artishus. Built a $230M ARR pipeline at AdPushup."
+                    imageSrc="/static/images/tanmay-garg.jpg"
+                    imageAlt="Tanmay Garg"
+                  />
+                </div>
+                
+                <div className="w-full max-w-sm custom-lg:max-w-none">
+                  <TeamCard
+                    name="Disha Garg"
+                    role="Co-Founder & CTO"
+                    description="Tech genius. Ex-1MG, Location Labs, Koovs. Currently building AiPply while raising a 6-month-old. ❤️"
+                    imageSrc="/static/images/disha-garg.jpg"
+                    imageAlt="Disha Garg"
+                  />
+                </div>
               </div>
               
-              {/* Disha Garg */}
-              <div className="bg-[#111111] p-8 rounded-[30px] border border-[#333741]">
-                <Image 
-                  src="/static/images/disha-garg.jpg" 
-                  alt="Disha Garg" 
-                  width={96}
-                  height={96}
-                  className="mx-auto mb-6 rounded-full object-cover"
-                />
-                <h3 className="font-manrope text-[24px] font-bold text-white mb-2">Disha Garg</h3>
-                <p className="font-manrope text-[18px] font-semibold text-[#52A9FF] mb-4">Co-Founder & CTO</p>
-                <p className="font-manrope text-[16px] text-[#CECFD2] leading-[150%]">
-                  Tech genius. Ex-1MG, Location Labs, Koovs. Currently building AiPply while raising a 6-month-old. ❤️
-                </p>
+              {/* Bottom Row - Third Team Member (Centered Triangle Vertex) */}
+              <div className="grid grid-cols-1 custom-lg:grid-cols-1 gap-8 custom-lg:gap-12 mt-8 custom-lg:mt-12 custom-lg:place-items-center">
+                <div className="w-full max-w-sm custom-lg:max-w-none custom-lg:w-1/2 custom-lg:mx-auto">
+                  <TeamCard
+                    name="Kushagra Golash"
+                    role="Founding Tech Engineer"
+                    description="Builds things that work at 3 AM. CS @ BITS Pilani. Architecting AiPply's multi-portal automation engine. Ships Playwright pipelines, Vertex AI integrations, and Redux state at startup speed."
+                    imageSrc="/static/images/Kushagra-Golash potrait.png"
+                    imageAlt="Kushagra Golash"
+                  />
+                </div>
               </div>
             </div>
           </div>
