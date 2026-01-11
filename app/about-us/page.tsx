@@ -150,7 +150,7 @@ const AboutUsPage = () => {
             {/* Triangular Layout - Responsive Grid */}
             <div className="max-w-6xl mx-auto">
               {/* Single Column on Mobile and Tablet, Triangular on Desktop */}
-              <div className="grid grid-cols-1 custom-lg:grid-cols-2 gap-8 custom-lg:gap-12 custom-lg:place-items-center">
+              <div className="grid grid-cols-1 custom-lg:grid-cols-2 gap-8 custom-lg:gap-12 place-items-center">
                 {/* Top Row - Two Co-founders */}
                 <div className="w-full max-w-sm custom-lg:max-w-none">
                   <TeamCard
@@ -174,7 +174,7 @@ const AboutUsPage = () => {
               </div>
               
               {/* Bottom Row - Third Team Member (Centered Triangle Vertex) */}
-              <div className="grid grid-cols-1 custom-lg:grid-cols-1 gap-8 custom-lg:gap-12 mt-8 custom-lg:mt-12 custom-lg:place-items-center">
+              <div className="grid grid-cols-1 custom-lg:grid-cols-1 gap-8 custom-lg:gap-12 mt-8 custom-lg:mt-12 place-items-center">
                 <div className="w-full max-w-sm custom-lg:max-w-none custom-lg:w-1/2 custom-lg:mx-auto">
                   <TeamCard
                     name="Kushagra Golash"
