@@ -139,7 +139,7 @@ const AboutUsPage = () => {
 
       {/* Team Section */}
       <ResponsivePageContainer>
-        <div className="pt-[80px] pb-[80px] relative">
+        <div id="team" className="pt-[80px] pb-[80px] relative scroll-mt-24">
           <div className="absolute z-0 w-full h-[600px] top-[0px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-20 blur-[250px] backdrop-blur-[400px] rounded-full -z-10"></div>
           
           <div className="relative z-10 text-center">
