@@ -1,7 +1,8 @@
 import * as React from "react";
 import { LogOut, Settings, ChevronRight, Edit3, Zap, Star } from "lucide-react";
-import { auth, getUserProfile, checkSubscriptionStatus } from "@/lib/firebaseConfig/firebaseConfig";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "@/lib/firebaseConfig/firebaseConfig";
+import { signOut } from "firebase/auth";
+import { useUserContext } from "@/app/contexts/UserContext";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
 
 import {
@@ -202,59 +203,21 @@ const PremiumCTAButton: React.FC<{
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isMobile = useIsMobile();
-  const [userProfile, setUserProfile] = React.useState<{
-    firstName: string;
-    lastName: string;
-    email: string;
-    profileImage: string;
-    subscriptionStatus?: 'free' | 'premium' | 'grace_period';
-  } | null>(null);
 
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          console.log('🔄 Fetching user profile and subscription status for:', user.email);
-          
-          // Fetch user profile and effective subscription status
-          const [profile, effectiveStatus] = await Promise.all([
-            getUserProfile(user.uid),
-            checkSubscriptionStatus(user.uid)
-          ]);
+  // Get user profile and subscription data from context
+  // This data is fetched once when dashboard loads and persists across page navigation
+  const { profile, subscriptionStatus } = useUserContext();
 
-          console.log('📊 User subscription status:', effectiveStatus);
-
-          setUserProfile({
-            firstName: profile.firstName || "",
-            lastName: profile.lastName || "",
-            email: profile.email || "",
-            profileImage: profile.uploadFile || "",
-            subscriptionStatus: effectiveStatus,
-          });
-        } catch (error) {
-          console.error('❌ Error fetching user data:', error);
-          // Set profile without subscription if there's an error
-          try {
-            const profile = await getUserProfile(user.uid);
-            setUserProfile({
-              firstName: profile.firstName || "",
-              lastName: profile.lastName || "",
-              email: profile.email || "",
-              profileImage: profile.uploadFile || "",
-              subscriptionStatus: 'free', // Default to free on error
-            });
-          } catch (profileError) {
-            console.error('❌ Error fetching profile:', profileError);
-            setUserProfile(null);
-          }
-        }
-      } else {
-        setUserProfile(null);
+  // Build userProfile object for rendering (maintains existing rendering logic)
+  const userProfile = profile
+    ? {
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
+        email: profile.email || "",
+        profileImage: profile.profileImage || "",
+        subscriptionStatus: subscriptionStatus,
       }
-    });
-
-    return () => unsubscribe();
-  }, []);
+    : null;
 
   return (
     <Sidebar
