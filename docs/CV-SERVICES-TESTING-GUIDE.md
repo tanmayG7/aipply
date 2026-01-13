@@ -835,7 +835,7 @@ vercel env add RESEND_API_KEY production
 - [WAVE Accessibility](https://wave.webaim.org/)
 
 ### Contact
-- **Email:** support@aipply.io
+- **Email:** tanmay@aipply.io
 - **GitHub Issues:** [Report Bug](https://github.com/your-org/aipply/issues)
 
 ---

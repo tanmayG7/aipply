@@ -361,7 +361,7 @@ POST /api/razorpay/webhook (extended for CV services)
 - [Firebase Docs](https://firebase.google.com/docs)
 
 ### Contact
-- Email: support@aipply.io
+- Email: tanmay@aipply.io
 - GitHub: [Issues](https://github.com/your-org/aipply/issues)
 
 ---

@@ -551,7 +551,7 @@ const initializePayment = () => {
               </div>
               
               <p className="font-manrope text-[#B0B0B0] mt-6 text-lg">
-                Questions? Email <span className="text-[#20CEB6]">support@aipply.io</span>
+                Questions? Email <span className="text-[#20CEB6]">tanmay@aipply.io</span>
               </p>
             </div>
           </div>

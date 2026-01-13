@@ -193,7 +193,7 @@ export async function sendCVOrderConfirmationEmail(data: CVOrderConfirmationEmai
               </center>
 
               <p style="margin-top: 30px; color: #666; font-size: 14px;">
-                <strong>Need help?</strong> Reply to this email or contact us at <a href="mailto:support@aipply.io" style="color: #5D29FF;">support@aipply.io</a>
+                <strong>Need help?</strong> Reply to this email or contact us at <a href="mailto:tanmay@aipply.io" style="color: #5D29FF;">tanmay@aipply.io</a>
               </p>
             </div>
 
@@ -458,7 +458,7 @@ export async function sendCVOrderFailureEmail(data: CVOrderFailureEmailData) {
               </center>
 
               <p style="margin-top: 30px; color: #666; font-size: 14px;">
-                <strong>Need help?</strong> Contact us at <a href="mailto:support@aipply.io" style="color: #5D29FF;">support@aipply.io</a> and we'll assist you with your payment.
+                <strong>Need help?</strong> Contact us at <a href="mailto:tanmay@aipply.io" style="color: #5D29FF;">tanmay@aipply.io</a> and we'll assist you with your payment.
               </p>
             </div>
 

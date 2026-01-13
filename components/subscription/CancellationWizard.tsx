@@ -394,8 +394,8 @@ export default function CancellationWizard({
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
                       Please contact support at{' '}
-                      <a href="mailto:support@aipply.io" className="text-purple-400 hover:underline">
-                        support@aipply.io
+                      <a href="mailto:tanmay@aipply.io" className="text-purple-400 hover:underline">
+                        tanmay@aipply.io
                       </a>{' '}
                       for subscription details
                     </p>

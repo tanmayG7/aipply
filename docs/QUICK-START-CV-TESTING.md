@@ -104,7 +104,7 @@ For complete testing procedures, see:
 1. Check console logs (F12)
 2. Check server logs (terminal)
 3. Review [Testing Guide](./CV-SERVICES-TESTING-GUIDE.md)
-4. Contact: support@aipply.io
+4. Contact: tanmay@aipply.io
 
 ---
 

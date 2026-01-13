@@ -394,7 +394,7 @@ For issues or questions:
 - Check `ADMIN_PANEL_SETUP.md` for admin features
 - Review Firestore `cancellations` collection for logs
 - Check Razorpay dashboard for subscription status
-- Contact: support@aipply.io
+- Contact: tanmay@aipply.io
 
 ## ✨ Summary
 

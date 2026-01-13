@@ -381,7 +381,7 @@ const SubscriptionPage = () => {
                   <div className="flex-1 p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
                     <p className="text-sm text-blue-200">
                       <strong>Want to keep your subscription?</strong><br />
-                      Contact support to reactivate: <a href="mailto:support@aipply.io" className="text-blue-400 hover:underline">support@aipply.io</a>
+                      Contact support to reactivate: <a href="mailto:tanmay@aipply.io" className="text-blue-400 hover:underline">tanmay@aipply.io</a>
                     </p>
                   </div>
                 )}
@@ -390,8 +390,8 @@ const SubscriptionPage = () => {
               <div className="mt-6 p-4 bg-gray-900/50 rounded-lg">
                 <p className="text-gray-400 text-sm">
                   <strong>Need help?</strong> Contact our support team at{' '}
-                  <a href="mailto:support@aipply.io" className="text-purple-400 hover:underline">
-                    support@aipply.io
+                  <a href="mailto:tanmay@aipply.io" className="text-purple-400 hover:underline">
+                    tanmay@aipply.io
                   </a>{' '}
                   for subscription changes, billing questions, or technical support.
                 </p>
