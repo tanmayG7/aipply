@@ -174,6 +174,9 @@ export default function Page() {
   // Handle search with debouncing
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Track if initial fetch has been triggered to prevent infinite loops
+  const initialFetchTriggeredRef = useRef(false);
+
   // Function to fetch jobs with pagination
   const fetchJobsWithPagination = useCallback(async (page: number, searchTerm: string = '') => {
     try {
@@ -309,17 +312,23 @@ export default function Page() {
     }
   }, []);
 
-  // Fetch jobs when user profile is loaded
+  // Fetch jobs when user profile is loaded - ONCE on initialization
+  // Note: Removed pageLoading from deps to prevent infinite loop
+  // Using ref to ensure initial fetch happens only once
   useEffect(() => {
-    if (isInitialized && userProfileValue?.jobTitle && !pageLoading) {
+    if (isInitialized && userProfileValue?.jobTitle && !initialFetchTriggeredRef.current) {
+      initialFetchTriggeredRef.current = true;
       console.log('User profile loaded, fetching jobs...');
       fetchJobsWithPagination(1, filter);
     }
-  }, [isInitialized, userProfileValue, fetchJobsWithPagination, filter, pageLoading]);
+  }, [isInitialized, userProfileValue?.jobTitle, fetchJobsWithPagination, filter]);
 
   // Force restart function
   const forceRestart = useCallback(() => {
     console.log('Force restarting job board...');
+
+    // Reset the initial fetch flag so it can fetch again
+    initialFetchTriggeredRef.current = false;
 
     // Reset all state
     setJobs([]);
