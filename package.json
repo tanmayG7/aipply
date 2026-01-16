@@ -40,6 +40,7 @@
     "keyword-extractor": "^0.0.28",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.474.0",
+    "mini-svg-data-uri": "^1.4.4",
     "mongodb": "^6.13.0",
     "net": "^1.0.2",
     "next": "15.1.9",

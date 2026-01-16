@@ -22,10 +22,10 @@ import {
   provider,
   firestore
 } from "@/lib/firebaseConfig/firebaseConfig";
-import { 
-  signInWithPopup, 
-  EmailAuthProvider, 
-  linkWithCredential 
+import {
+  signInWithPopup,
+  EmailAuthProvider,
+  linkWithCredential
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -65,13 +65,35 @@ export function LoginForm({
   useEffect(() => {
     // Update local error state when parent error changes
     setError(errorText);
-    
+
     if (errorText && errorText.includes("Google")) {
       setIsGoogleOnlyAccount(true);
     } else {
       setIsGoogleOnlyAccount(false);
     }
   }, [errorText]);
+
+  // Check for email in URL params (from Offer Page)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const emailParam = params.get('email');
+      if (emailParam) {
+        setEmail(emailParam);
+      } else {
+        // Fallback to localStorage if set by offer page but param lost (unlikely but safe)
+        try {
+          const storedData = localStorage.getItem("aipply_promo_data");
+          if (storedData) {
+            const parsed = JSON.parse(storedData);
+            if (parsed.email) setEmail(parsed.email);
+          }
+        } catch (e) {
+          console.error("Error reading promo data:", e);
+        }
+      }
+    }
+  }, []);
 
   const handleEmailBlur = async () => {
     if (email && email.includes('@')) {
@@ -80,7 +102,7 @@ export function LoginForm({
         const methods = await checkEmailSignInMethods(email);
         console.log("📧 Email methods detected:", methods);
         setEmailMethods(methods);
-        
+
         // Reset password setup form when email changes
         setShowPasswordSetup(false);
         setError("");
@@ -123,32 +145,32 @@ export function LoginForm({
 
     try {
       console.log("🔐 Starting password setup for Google account");
-      
+
       // First, sign in with Google to establish the user session
       const userCredential = await signInWithPopup(auth, provider);
       const user = userCredential.user;
-      
+
       console.log("✅ Google sign-in successful, linking password...");
-      
+
       // Now link the email/password credential to the existing Google account
       const credential = EmailAuthProvider.credential(email, password);
       await linkWithCredential(user, credential);
-      
+
       console.log("✅ Password linked successfully!");
-      
+
       // Store the account linking information for future reference
       const linkingData = JSON.parse(localStorage.getItem('aipply_account_linking') || '{}');
       linkingData[email] = { hasPassword: true, timestamp: Date.now() };
       localStorage.setItem('aipply_account_linking', JSON.stringify(linkingData));
       console.log("💾 Saved account linking data for", email);
-      
+
       // Store the token
       const token = await user.getIdToken();
       localStorage.setItem("firebaseToken", token);
-      
+
       setError("");
       setShowPasswordSetup(false);
-      
+
       // Check if user has completed profile
       const userDoc = await getDoc(doc(firestore, "users", user.uid));
       if (userDoc.exists()) {
@@ -156,7 +178,7 @@ export function LoginForm({
       } else {
         router.push("/dashboard/onboarding/profile-setup");
       }
-      
+
     } catch (error: any) {
       console.error("❌ Password setup failed:", error);
       if (error.code === "auth/credential-already-in-use") {
@@ -228,14 +250,14 @@ export function LoginForm({
       console.log("🔐 Sending password reset email to:", email);
       await sendPasswordResetEmail(auth, email);
       console.log("✅ Password reset email sent successfully");
-      
+
       setForgotPasswordSuccess(true);
       setError("");
       setShowForgotPassword(false);
-      
+
     } catch (error: any) {
       console.error("❌ Password reset failed:", error);
-      
+
       if (error.code === "auth/user-not-found") {
         setError("No account found with this email address. Please check your email or create a new account.");
       } else if (error.code === "auth/invalid-email") {
@@ -375,16 +397,16 @@ export function LoginForm({
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button 
+                        <Button
                           onClick={handlePasswordSetup}
                           size="sm"
                           disabled={passwordSetupLoading || !password || password.length < 6}
                         >
                           {passwordSetupLoading ? "Setting up..." : "Set up password"}
                         </Button>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
+                        <Button
+                          type="button"
+                          variant="outline"
                           size="sm"
                           onClick={() => {
                             setShowPasswordSetup(false);
@@ -475,16 +497,16 @@ export function LoginForm({
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button 
+                        <Button
                           onClick={handleForgotPassword}
                           size="sm"
                           disabled={forgotPasswordLoading || !email}
                         >
                           {forgotPasswordLoading ? "Sending..." : "Send reset email"}
                         </Button>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
+                        <Button
+                          type="button"
+                          variant="outline"
                           size="sm"
                           onClick={() => {
                             setShowForgotPassword(false);
@@ -499,7 +521,7 @@ export function LoginForm({
                     </div>
                   </div>
                 )}
-                
+
                 {!showPasswordSetup && !showForgotPassword && (
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Signing in..." : "Sign In / Register"}
@@ -532,7 +554,7 @@ export function LoginForm({
               </div>
             </div>
           )}
-          
+
           {/* Show alternative text when Google-only account is detected */}
           {(isGoogleOnlyAccount || (emailMethods.hasGoogle && !emailMethods.hasPassword)) && (
             <div className="text-center mt-8">

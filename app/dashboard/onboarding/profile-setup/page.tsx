@@ -70,6 +70,34 @@ const ProfileSetupContent: React.FC = () => {
     }
   }, [state.formData.jobTitle, skills.length, updateFormData]);
 
+  // Check for promo data from Offer Page
+  useEffect(() => {
+    if (typeof window !== 'undefined' && state.currentPage === 1) {
+      try {
+        const storedData = localStorage.getItem("aipply_promo_data");
+        if (storedData) {
+          const parsed = JSON.parse(storedData);
+          // Only update if fields are empty to avoid overwriting user input
+          const updates: any = {};
+          if (parsed.firstName && !state.formData.firstName) updates.firstName = parsed.firstName;
+          if (parsed.lastName && !state.formData.lastName) updates.lastName = parsed.lastName;
+          if (parsed.mobileNumber && !state.formData.mobileNumber) updates.mobileNumber = parsed.mobileNumber;
+
+          if (Object.keys(updates).length > 0) {
+            console.log("Pre-filling profile data from offer:", updates);
+            updateFormData(updates);
+          }
+
+          // Optional: Clear data after use, or keep it until successful save? 
+          // Creating a flag in sessionStorage to ensure we don't clear it before it's used might be better,
+          // but for now, reading it non-destructively is safer.
+        }
+      } catch (e) {
+        console.error("Error reading promo data:", e);
+      }
+    }
+  }, [state.currentPage, updateFormData]);
+
   const handleNext = () => {
     nextPage();
   };
@@ -259,321 +287,320 @@ const ProfileSetupContent: React.FC = () => {
                 </div>
               ) : (
                 <>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-                {state.currentPage === 1 && (
-                  <div className="grid gap-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                      <div className="grid gap-2">
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input
-                          id="firstName"
-                          name="firstName"
-                          type="text"
-                          placeholder="Enter your First Name"
-                          value={state.formData.firstName}
-                          onChange={handleChange}
- onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
-                          required
-                          className={state.errors.firstName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
-                        />
-                        {state.errors.firstName && (
-                          <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
-                            {getValidationMessage('FIRST_NAME_REQUIRED')}
-                          </p>
-                        )}
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="lastName">Last Name</Label>
-                        <Input
-                          id="lastName"
-                          name="lastName"
-                          type="text"
-                          placeholder="Enter your Last Name"
-                          value={state.formData.lastName}
-                          onChange={handleChange}
- onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
-                          required
-                          className={state.errors.lastName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
-                        />
-                        {state.errors.lastName && (
-                          <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
-                            {getValidationMessage('LAST_NAME_REQUIRED')}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="mobileNumber">Mobile Number</Label>
-                      <Input
-                        id="mobileNumber"
-                        name="mobileNumber"
-                        type="text"
-                        placeholder="Enter your Mobile Number"
-                        value={state.formData.mobileNumber}
-                        onChange={handleChange}
- onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
-                        required
-                        className={state.errors.mobileNumber ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
-                      />
-                      {state.errors.mobileNumber && (
-                        <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
-                          {getValidationMessage('MOBILE_NUMBER_REQUIRED')}
-                        </p>
-                      )}
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="email">
-                        Email
-                        <span className="ml-2 text-xs text-blue-400 font-normal">
-                          (from your account)
-                        </span>
-                      </Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="Enter your Email"
-                        value={state.formData.email}
-                        onChange={handleChange}
- onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
-                        required
-                        readOnly={true}
-                        className={`${state.errors.email ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""} ${ONBOARDING_CONFIG.CSS_CLASSES.DISABLED_BACKGROUND}`}
-                      />
-                      {state.errors.email && (
-                        <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
-                          {getValidationMessage('EMAIL_REQUIRED')}
-                        </p>
-                      )}
-                      <p className="text-xs text-gray-400">
-                        This email is from your account and cannot be changed for security and data consistency
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {state.currentPage === 2 && (
-                  <div className="grid gap-6">
-                    <div className="grid gap-2 relative">
-                      <Label htmlFor="jobTitle">Aiming Job Title</Label>
-                      <div className="relative">
-                        <div
-                          className={`p-3 border border-[#333741] rounded-md cursor-pointer flex justify-between items-center ${
-                            state.errors.jobTitle ? "border-red-500" : ""
-                          }`}
-                          onClick={() => setShowDropdown(!showDropdown)}
-                        >
-                          <span className="text-[#85888E] text-text-md-regular">
-                            {state.formData.jobTitle ||
-                              "Select your aiming job title"}
-                          </span>
-                          <ChevronDown className="w-5 h-5 text-[#85888E]" />
-                        </div>
-                        {showDropdown && (
-                          <div className="absolute mt-2 w-full z-10 bg-[#020218]">
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+                    {state.currentPage === 1 && (
+                      <div className="grid gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                          <div className="grid gap-2">
+                            <Label htmlFor="firstName">First Name</Label>
                             <Input
+                              id="firstName"
+                              name="firstName"
                               type="text"
-                              placeholder="Search job roles"
-                              value={jobRoleSearch}
-                              onChange={(e) => setJobRoleSearch(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
-                              className="mb-2"
+                              placeholder="Enter your First Name"
+                              value={state.formData.firstName}
+                              onChange={handleChange}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }
+                              }}
+                              required
+                              className={state.errors.firstName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
                             />
-                            <div className="bg-[#4423a8] max-h-72 overflow-y-auto text-white w-full rounded-md shadow-lg">
-                              {jobRoles
-                                .filter((role) =>
-                                  role
-                                    .toLowerCase()
-                                    .includes(jobRoleSearch.toLowerCase())
-                                )
-                                .map((role, index) => (
-                                  <div
-                                    key={index}
-                                    className="p-2 hover:bg-[#7960c2] cursor-pointer text-text-md-regular"
-                                    onClick={() => {
-                                      updateFormData({ jobTitle: role });
-                                      setShowDropdown(false);
-                                    }}
-                                  >
-                                    {role}
-                                  </div>
-                                ))}
-                            </div>
+                            {state.errors.firstName && (
+                              <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
+                                {getValidationMessage('FIRST_NAME_REQUIRED')}
+                              </p>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      {state.errors.jobTitle && (
-                        <p className="text-red-500">
-                          Aiming Job Title is required
-                        </p>
-                      )}
-                      <p className="text-text-sm-regular font-inter text-[#94969C]">
-                        Ex: Marketing Manager, Software Engineer, Sales
-                        Associate.
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {state.currentPage === 3 && (
-                  <div className="grid gap-6">
-                    <div className="grid gap-2">
-                      <Label htmlFor="skills">Skills</Label>
-                      <div className="flex flex-col gap-4 max-w-[640px]">
-                        <div className="text-text-sm-regular font-inter text-[#94969C]">
-                          Suggested skills based on your selected role:{" "}
-                          {roleBasedSkills[state.formData.jobTitle]?.join(", ") ||
-                            "None"}
+                          <div className="grid gap-2">
+                            <Label htmlFor="lastName">Last Name</Label>
+                            <Input
+                              id="lastName"
+                              name="lastName"
+                              type="text"
+                              placeholder="Enter your Last Name"
+                              value={state.formData.lastName}
+                              onChange={handleChange}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }
+                              }}
+                              required
+                              className={state.errors.lastName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
+                            />
+                            {state.errors.lastName && (
+                              <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
+                                {getValidationMessage('LAST_NAME_REQUIRED')}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-4">
-                          {skills.map((skill) => (
+                        <div className="grid gap-2">
+                          <Label htmlFor="mobileNumber">Mobile Number</Label>
+                          <Input
+                            id="mobileNumber"
+                            name="mobileNumber"
+                            type="text"
+                            placeholder="Enter your Mobile Number"
+                            value={state.formData.mobileNumber}
+                            onChange={handleChange}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }
+                            }}
+                            required
+                            className={state.errors.mobileNumber ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
+                          />
+                          {state.errors.mobileNumber && (
+                            <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
+                              {getValidationMessage('MOBILE_NUMBER_REQUIRED')}
+                            </p>
+                          )}
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="email">
+                            Email
+                            <span className="ml-2 text-xs text-blue-400 font-normal">
+                              (from your account)
+                            </span>
+                          </Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="Enter your Email"
+                            value={state.formData.email}
+                            onChange={handleChange}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }
+                            }}
+                            required
+                            readOnly={true}
+                            className={`${state.errors.email ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""} ${ONBOARDING_CONFIG.CSS_CLASSES.DISABLED_BACKGROUND}`}
+                          />
+                          {state.errors.email && (
+                            <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
+                              {getValidationMessage('EMAIL_REQUIRED')}
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-400">
+                            This email is from your account and cannot be changed for security and data consistency
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {state.currentPage === 2 && (
+                      <div className="grid gap-6">
+                        <div className="grid gap-2 relative">
+                          <Label htmlFor="jobTitle">Aiming Job Title</Label>
+                          <div className="relative">
                             <div
-                              key={skill}
-                              className="px-6 py-2 rounded-full flex items-center gap-2 text-text-md-semibold text-white font-inter border border-white/15"
+                              className={`p-3 border border-[#333741] rounded-md cursor-pointer flex justify-between items-center ${state.errors.jobTitle ? "border-red-500" : ""
+                                }`}
+                              onClick={() => setShowDropdown(!showDropdown)}
                             >
-                              {skill}
-                              <button onClick={() => removeSkill(skill)}>
-                                ✕
-                              </button>
+                              <span className="text-[#85888E] text-text-md-regular">
+                                {state.formData.jobTitle ||
+                                  "Select your aiming job title"}
+                              </span>
+                              <ChevronDown className="w-5 h-5 text-[#85888E]" />
                             </div>
-                          ))}
+                            {showDropdown && (
+                              <div className="absolute mt-2 w-full z-10 bg-[#020218]">
+                                <Input
+                                  type="text"
+                                  placeholder="Search job roles"
+                                  value={jobRoleSearch}
+                                  onChange={(e) => setJobRoleSearch(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                    }
+                                  }}
+                                  className="mb-2"
+                                />
+                                <div className="bg-[#4423a8] max-h-72 overflow-y-auto text-white w-full rounded-md shadow-lg">
+                                  {jobRoles
+                                    .filter((role) =>
+                                      role
+                                        .toLowerCase()
+                                        .includes(jobRoleSearch.toLowerCase())
+                                    )
+                                    .map((role, index) => (
+                                      <div
+                                        key={index}
+                                        className="p-2 hover:bg-[#7960c2] cursor-pointer text-text-md-regular"
+                                        onClick={() => {
+                                          updateFormData({ jobTitle: role });
+                                          setShowDropdown(false);
+                                        }}
+                                      >
+                                        {role}
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          {state.errors.jobTitle && (
+                            <p className="text-red-500">
+                              Aiming Job Title is required
+                            </p>
+                          )}
+                          <p className="text-text-sm-regular font-inter text-[#94969C]">
+                            Ex: Marketing Manager, Software Engineer, Sales
+                            Associate.
+                          </p>
                         </div>
-
-                       <Input
-  value={skillsInput}
-  onChange={(e) => handleSkillsInputChange(e.target.value)}
-  placeholder="Add Skills"
-  onKeyDown={handleSkillsInputKeyDown}
-/>
-                        {state.errors.skills && (
-                          <p className="text-red-500">Skills required</p>
-                        )}
-                        <p className="text-text-sm-regular font-inter text-[#94969C]">
-                          Ex: Reactjs, NodeJs, C#, JavaScript ...
-                        </p>
                       </div>
-                    </div>
-                  </div>
-                )}
-                {state.currentPage === 4 && (
-                  <div className="grid gap-6">
-                    <div className="grid gap-2">
-                      <Label htmlFor="expectedCTC">Expected CTC</Label>
-                      <Input
-                        id="expectedCTC"
-                        name="expectedCTC"
-                        type="text"
-                        placeholder="Enter your Expected CTC"
-                        value={state.formData.expectedCTC}
-                        onChange={handleChange}
- onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
-                        required
-                        className={state.errors.expectedCTC ? "border-red-500" : ""}
-                      />
-                      {state.errors.expectedCTC && (
-                        <p className="text-red-500">
-                          Expected CTC is required and should be in the format X
-                          LPA
-                        </p>
-                      )}
-                      <p className="text-text-sm-regular font-inter text-[#94969C]">
-                        Ex: 10LPA, 20LPA, 30LPA.
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {state.currentPage === 5 && (
-                  <div className="grid gap-6">
-                    <div className="grid gap-2">
-                      <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
-                      <Input
-                        id="linkedinProfile"
-                        name="linkedinProfile"
-                        type="text"
-                        placeholder="www.linkedin.com/in/yourprofile"
-                        value={state.formData.linkedinProfile}
-                        onChange={handleChange}
- onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }}
-                        required
-                        className={
-                          state.errors.linkedinProfile ? "border-red-500" : ""
-                        }
-                      />
-                      {state.errors.linkedinProfile && (
-                        <p className="text-red-500">
-                          {getValidationMessage('LINKEDIN_PROFILE_REQUIRED')}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-                <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-16">
-                  {state.currentPage > 1 && (
-                    <Button type="button" onClick={handleBack} className="w-full sm:w-auto h-12" disabled={state.isSaving}>
-                      <Image
-                        src="/static/icons/arrow-left.svg"
-                        alt="Back"
-                        width={24}
-                        height={24}
-                      />
-                      Back
-                    </Button>
-                  )}
-                  {state.currentPage < 5 ? (
-                    <Button type="button" onClick={handleNext} className="w-full sm:w-auto h-12" disabled={state.isSaving}>
-                      Next
-                      <Image
-                        src="/static/icons/arrow-right.svg"
-                        alt="Next"
-                        width={24}
-                        height={24}
-                      />
-                    </Button>
-                  ) : (
-                    <Button type="submit" disabled={state.isSaving} className="w-full sm:w-auto h-12">
-                      {state.isSaving ? "Completing..." : "Complete Setup"}
-                    </Button>
-                  )}
-                </div>
-              </form>
+                    )}
+                    {state.currentPage === 3 && (
+                      <div className="grid gap-6">
+                        <div className="grid gap-2">
+                          <Label htmlFor="skills">Skills</Label>
+                          <div className="flex flex-col gap-4 max-w-[640px]">
+                            <div className="text-text-sm-regular font-inter text-[#94969C]">
+                              Suggested skills based on your selected role:{" "}
+                              {roleBasedSkills[state.formData.jobTitle]?.join(", ") ||
+                                "None"}
+                            </div>
+                            <div className="flex flex-wrap gap-4">
+                              {skills.map((skill) => (
+                                <div
+                                  key={skill}
+                                  className="px-6 py-2 rounded-full flex items-center gap-2 text-text-md-semibold text-white font-inter border border-white/15"
+                                >
+                                  {skill}
+                                  <button onClick={() => removeSkill(skill)}>
+                                    ✕
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
 
-                <div className="font-inter text-center text-text-md-regular text-muted-foreground text-[#94969C] mt-5">
-                  Already have an account, <Link href="/dashboard/onboarding/login" className="text-white hover:underline">sign-In</Link> now
-                </div>
+                            <Input
+                              value={skillsInput}
+                              onChange={(e) => handleSkillsInputChange(e.target.value)}
+                              placeholder="Add Skills"
+                              onKeyDown={handleSkillsInputKeyDown}
+                            />
+                            {state.errors.skills && (
+                              <p className="text-red-500">Skills required</p>
+                            )}
+                            <p className="text-text-sm-regular font-inter text-[#94969C]">
+                              Ex: Reactjs, NodeJs, C#, JavaScript ...
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {state.currentPage === 4 && (
+                      <div className="grid gap-6">
+                        <div className="grid gap-2">
+                          <Label htmlFor="expectedCTC">Expected CTC</Label>
+                          <Input
+                            id="expectedCTC"
+                            name="expectedCTC"
+                            type="text"
+                            placeholder="Enter your Expected CTC"
+                            value={state.formData.expectedCTC}
+                            onChange={handleChange}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }
+                            }}
+                            required
+                            className={state.errors.expectedCTC ? "border-red-500" : ""}
+                          />
+                          {state.errors.expectedCTC && (
+                            <p className="text-red-500">
+                              Expected CTC is required and should be in the format X
+                              LPA
+                            </p>
+                          )}
+                          <p className="text-text-sm-regular font-inter text-[#94969C]">
+                            Ex: 10LPA, 20LPA, 30LPA.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {state.currentPage === 5 && (
+                      <div className="grid gap-6">
+                        <div className="grid gap-2">
+                          <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
+                          <Input
+                            id="linkedinProfile"
+                            name="linkedinProfile"
+                            type="text"
+                            placeholder="www.linkedin.com/in/yourprofile"
+                            value={state.formData.linkedinProfile}
+                            onChange={handleChange}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }
+                            }}
+                            required
+                            className={
+                              state.errors.linkedinProfile ? "border-red-500" : ""
+                            }
+                          />
+                          {state.errors.linkedinProfile && (
+                            <p className="text-red-500">
+                              {getValidationMessage('LINKEDIN_PROFILE_REQUIRED')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-16">
+                      {state.currentPage > 1 && (
+                        <Button type="button" onClick={handleBack} className="w-full sm:w-auto h-12" disabled={state.isSaving}>
+                          <Image
+                            src="/static/icons/arrow-left.svg"
+                            alt="Back"
+                            width={24}
+                            height={24}
+                          />
+                          Back
+                        </Button>
+                      )}
+                      {state.currentPage < 5 ? (
+                        <Button type="button" onClick={handleNext} className="w-full sm:w-auto h-12" disabled={state.isSaving}>
+                          Next
+                          <Image
+                            src="/static/icons/arrow-right.svg"
+                            alt="Next"
+                            width={24}
+                            height={24}
+                          />
+                        </Button>
+                      ) : (
+                        <Button type="submit" disabled={state.isSaving} className="w-full sm:w-auto h-12">
+                          {state.isSaving ? "Completing..." : "Complete Setup"}
+                        </Button>
+                      )}
+                    </div>
+                  </form>
+
+                  <div className="font-inter text-center text-text-md-regular text-muted-foreground text-[#94969C] mt-5">
+                    Already have an account, <Link href="/dashboard/onboarding/login" className="text-white hover:underline">sign-In</Link> now
+                  </div>
                 </>
               )}
             </CardContent>
