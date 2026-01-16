@@ -15,6 +15,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { ButtonMovingBorder } from "@/components/ui/moving-border";
 
+import { Navbar } from "@/components/ui/navbar";
+import { FeatureHighlights } from "@/components/ui/feature-highlights";
+
 export default function OfferPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -87,6 +90,9 @@ export default function OfferPage() {
 
   return (
     <div className="min-h-screen bg-[#020218] text-white selection:bg-blue-500/30 relative overflow-hidden">
+      {/* Navbar (Fixed) */}
+      <Navbar />
+
       {/* Premium Background */}
       <BackgroundBeams />
 
@@ -94,23 +100,12 @@ export default function OfferPage() {
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        {/* Header / Logo */}
-        <div className="flex justify-center mb-8 lg:mb-16">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/static/icons/aipplyLogo.svg"
-              alt="Aipply Logo"
-              width={140}
-              height={40}
-              className="w-32 lg:w-40"
-            />
-          </div>
-        </div>
+      {/* Main Content - Added pt-24 for Fixed Header */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pt-24 lg:pt-32">
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-start">
           {/* Left Content Column */}
-          <div className="flex flex-col gap-8 text-center lg:text-left">
+          <div className="flex flex-col gap-6 sm:gap-8 text-center lg:text-left">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium mx-auto lg:mx-0 backdrop-blur-md">
                 <Star className="w-4 h-4 fill-blue-400" />
@@ -129,14 +124,15 @@ export default function OfferPage() {
               </p>
             </div>
 
-            <div className="grid gap-4">
+            <div className="grid gap-6">
+              {/* Limited Time Offer Card */}
               <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl hover:border-blue-500/30 transition-all duration-300">
                 <div className="flex items-baseline gap-2 justify-center lg:justify-start">
                   <span className="text-5xl font-bold">₹666</span>
                   <span className="text-xl text-gray-400">/month</span>
                 </div>
                 <p className="text-blue-300 mt-2 font-medium">Limited Time Offer</p>
-                <div className="mt-6 space-y-3">
+                <div className="mt-6 space-y-3 text-left">
                   <BenefitRow text="700 Automated Job Applications" />
                   <BenefitRow text="Smart Job Tracker Dashboard" />
                   <BenefitRow text="Curated Job Board Access" />
@@ -144,22 +140,27 @@ export default function OfferPage() {
                   <BenefitRow text="Resume Services Add-ons" />
                 </div>
               </div>
+
+              {/* Mobile VIEW: Feature Highlights (Between Offer and CTA) */}
+              <div className="lg:hidden w-full">
+                <FeatureHighlights />
+              </div>
+
+              {/* Mobile CTA */}
+              <div className="lg:hidden mt-2">
+                <ButtonMovingBorder
+                  borderRadius="0.75rem"
+                  className="bg-blue-600 dark:bg-blue-600 text-white dark:text-white border-neutral-200 dark:border-slate-800 text-lg font-bold"
+                  containerClassName="w-full h-14"
+                  onClick={() => document.getElementById('offer-form')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  Get Started Now <ArrowRight className="ml-2 w-5 h-5" />
+                </ButtonMovingBorder>
+              </div>
             </div>
 
-            {/* Mobile Only Form Anchor */}
-            <div className="lg:hidden">
-              <ButtonMovingBorder
-                borderRadius="0.75rem"
-                className="bg-blue-600 dark:bg-blue-600 text-white dark:text-white border-neutral-200 dark:border-slate-800 text-lg font-bold"
-                containerClassName="w-full h-14"
-                onClick={() => document.getElementById('offer-form')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Get Started Now <ArrowRight className="ml-2 w-5 h-5" />
-              </ButtonMovingBorder>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
+            {/* Desktop Trust Badges (Hidden on mobile to save space, or kept if essential? Keeping for now but visually minimal) */}
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10 hidden lg:grid">
               <div className="text-center group">
                 <h3 className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">4500+</h3>
                 <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Students</p>
@@ -175,7 +176,7 @@ export default function OfferPage() {
             </div>
           </div>
 
-          {/* Right Form Column */}
+          {/* Right Form Column - Desktop Only for Features Below */}
           <div className="relative">
             {/* Decorator */}
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20 rounded-3xl blur-3xl transform rotate-3 scale-105 opacity-40 pointer-events-none animate-pulse"></div>
@@ -263,12 +264,9 @@ export default function OfferPage() {
               </CardContent>
             </Card>
 
-            {/* Feature Highlights Grid (Below Form on Desktop) */}
-            <div className="mt-8 grid grid-cols-2 gap-4">
-              <FeatureCard icon={Briefcase} title="Auto-Apply" desc="20 applications/day" />
-              <FeatureCard icon={LayoutDashboard} title="Job Tracker" desc="Manage all applications" />
-              <FeatureCard icon={FileText} title="ATS Checker" desc="Optimize your resume" />
-              <FeatureCard icon={ShieldCheck} title="Verified Jobs" desc="No fake listings" />
+            {/* Desktop VIEW: Feature Highlights (Below Form) */}
+            <div className="mt-8 hidden lg:block">
+              <FeatureHighlights />
             </div>
           </div>
         </div>
