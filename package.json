@@ -37,6 +37,8 @@
     "firebase": "^11.6.1",
     "firebase-admin": "^13.5.0",
     "framer-motion": "^12.23.12",
+    "google-auth-library": "^10.5.0",
+    "google-spreadsheet": "^5.0.2",
     "keyword-extractor": "^0.0.28",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.474.0",

@@ -9,13 +9,14 @@ import { EnhancedInput } from "@/components/ui/enhanced-input";
 import { EnhancedLabel } from "@/components/ui/enhanced-label";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { formatPhoneNumber } from "@/lib/countryCodes";
+import { blockNonAlpha, validateName, validateEmail, validatePhone, formatPhoneE164 } from "@/lib/formValidation";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { ButtonMovingBorder } from "@/components/ui/moving-border";
 
-import { Navbar } from "@/components/ui/navbar";
+import Header from "@/components/common/header/header";
 import { FeatureHighlights } from "@/components/ui/feature-highlights";
 
 export default function OfferPage() {
@@ -38,29 +39,39 @@ export default function OfferPage() {
     if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    // Name validation
+    const firstNameResult = validateName(formData.firstName);
+    if (!firstNameResult.valid) {
+      setError(`First Name: ${firstNameResult.error}`);
+      return;
+    }
+
+    const lastNameResult = validateName(formData.lastName);
+    if (!lastNameResult.valid) {
+      setError(`Last Name: ${lastNameResult.error}`);
+      return;
+    }
+
     // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError("Please enter a valid email address.");
+    const emailResult = validateEmail(formData.email);
+    if (!emailResult.valid) {
+      setError(emailResult.error || "Invalid email");
       return;
     }
 
-    // Phone validation
-    const fullPhone = formatPhoneNumber(formData.countryCode, formData.phoneNumber);
-    const validatePhoneNumber = (phone: string): boolean => {
-      if (!phone.startsWith('+')) return false;
-      const cleanPhone = phone.replace(/[\s\-().]/g, '');
-      return cleanPhone.length >= 8 && cleanPhone.length <= 18 && /^\+\d+$/.test(cleanPhone);
-    };
-
-    if (!validatePhoneNumber(fullPhone)) {
-      setError("Please enter a valid phone number.");
+    // Phone validation (country-aware)
+    const countryCode = formData.countryCode.replace(/^\+/, ''); // Remove + for validation
+    const phoneResult = validatePhone(countryCode, formData.phoneNumber);
+    if (!phoneResult.valid) {
+      setError(phoneResult.error || "Invalid phone number");
       return;
     }
+
+    const fullPhone = formatPhoneE164(countryCode, formData.phoneNumber);
 
     setLoading(true);
 
@@ -77,6 +88,31 @@ export default function OfferPage() {
 
       localStorage.setItem("aipply_promo_data", JSON.stringify(promoData));
 
+      // --- Fire-and-Forget Lead Logging (Non-Blocking) ---
+      // Use sendBeacon for reliability even after page unload, fallback to fetch
+      const leadPayload = JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        mobileNumber: fullPhone,
+        source: 'offer_page_666'
+      });
+
+      // sendBeacon is ideal for "fire-and-forget" as it survives page navigation
+      if (navigator.sendBeacon) {
+        const blob = new Blob([leadPayload], { type: 'application/json' });
+        navigator.sendBeacon('/api/leads', blob);
+      } else {
+        // Fallback: fire fetch without await (non-blocking)
+        fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: leadPayload,
+          keepalive: true // Keeps request alive even after page unload
+        }).catch(() => { }); // Silently ignore errors
+      }
+      // -----------------------------------------------------
+
       const params = new URLSearchParams();
       if (formData.email) params.append("email", formData.email);
 
@@ -90,8 +126,8 @@ export default function OfferPage() {
 
   return (
     <div className="min-h-screen bg-[#020218] text-white selection:bg-blue-500/30 relative overflow-hidden">
-      {/* Navbar (Fixed) */}
-      <Navbar />
+      {/* Existing Website Header */}
+      <Header />
 
       {/* Premium Background */}
       <BackgroundBeams />
@@ -133,7 +169,7 @@ export default function OfferPage() {
                 </div>
                 <p className="text-blue-300 mt-2 font-medium">Limited Time Offer</p>
                 <div className="mt-6 space-y-3 text-left">
-                  <BenefitRow text="700 Automated Job Applications" />
+                  <BenefitRow text="600 Automated Job Applications" />
                   <BenefitRow text="Smart Job Tracker Dashboard" />
                   <BenefitRow text="Curated Job Board Access" />
                   <BenefitRow text="Free ATS Score Checker + Template" />
@@ -200,6 +236,7 @@ export default function OfferPage() {
                         required
                         value={formData.firstName}
                         onChange={handleChange}
+                        onKeyDown={blockNonAlpha}
                       />
                     </LabelInputContainer>
                     <LabelInputContainer>
@@ -211,6 +248,7 @@ export default function OfferPage() {
                         required
                         value={formData.lastName}
                         onChange={handleChange}
+                        onKeyDown={blockNonAlpha}
                       />
                     </LabelInputContainer>
                   </div>

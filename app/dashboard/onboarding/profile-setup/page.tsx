@@ -57,6 +57,7 @@ const ProfileSetupContent: React.FC = () => {
   const { skills, skillsInput, removeSkill, handleSkillsInputChange, handleSkillsInputKeyDown } = useSkillsManager();
   const [jobRoleSearch, setJobRoleSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isLockedByPromo, setIsLockedByPromo] = useState(false);
   const router = useRouter();
 
   // Auto-populate skills based on job title
@@ -70,33 +71,44 @@ const ProfileSetupContent: React.FC = () => {
     }
   }, [state.formData.jobTitle, skills.length, updateFormData]);
 
-  // Check for promo data from Offer Page
+  // Check for promo data from Offer Page with Strict Email Matching
   useEffect(() => {
-    if (typeof window !== 'undefined' && state.currentPage === 1) {
+    if (typeof window !== 'undefined' && state.currentPage === 1 && state.formData.email) {
       try {
         const storedData = localStorage.getItem("aipply_promo_data");
         if (storedData) {
           const parsed = JSON.parse(storedData);
-          // Only update if fields are empty to avoid overwriting user input
-          const updates: any = {};
-          if (parsed.firstName && !state.formData.firstName) updates.firstName = parsed.firstName;
-          if (parsed.lastName && !state.formData.lastName) updates.lastName = parsed.lastName;
-          if (parsed.mobileNumber && !state.formData.mobileNumber) updates.mobileNumber = parsed.mobileNumber;
 
-          if (Object.keys(updates).length > 0) {
-            console.log("Pre-filling profile data from offer:", updates);
-            updateFormData(updates);
+          // STRICT CHECK: Only pre-fill if the authenticated email matches the landing page email
+          const authEmail = state.formData.email.toLowerCase();
+          const promoEmail = parsed.email?.toLowerCase(); // Handle potential undefined
+
+          if (promoEmail && authEmail === promoEmail) {
+            console.log("✅ Email Match Detected: Pre-filling and Locking fields.");
+            setIsLockedByPromo(true);
+
+            const updates: any = {};
+            // Only update if fields are empty OR if we are locking them (enforcing the match)
+            // We prioritize the landing page data if emails match.
+            if (parsed.firstName && state.formData.firstName !== parsed.firstName) updates.firstName = parsed.firstName;
+            if (parsed.lastName && state.formData.lastName !== parsed.lastName) updates.lastName = parsed.lastName;
+            if (parsed.mobileNumber && state.formData.mobileNumber !== parsed.mobileNumber) updates.mobileNumber = parsed.mobileNumber;
+
+            if (Object.keys(updates).length > 0) {
+              updateFormData(updates);
+            }
+          } else {
+            console.log("⚠️ Email Mismatch or No Promo Email: Skipping pre-fill.");
+            // Requirement: "The other details cannot be pre filled Those text boxes must be Empty"
+            // Since this runs on mount/email change, we ensure we don't accidentally fill data.
+            setIsLockedByPromo(false);
           }
-
-          // Optional: Clear data after use, or keep it until successful save? 
-          // Creating a flag in sessionStorage to ensure we don't clear it before it's used might be better,
-          // but for now, reading it non-destructively is safer.
         }
       } catch (e) {
         console.error("Error reading promo data:", e);
       }
     }
-  }, [state.currentPage, updateFormData]);
+  }, [state.currentPage, state.formData.email, updateFormData]);
 
   const handleNext = () => {
     nextPage();
@@ -300,6 +312,7 @@ const ProfileSetupContent: React.FC = () => {
                               placeholder="Enter your First Name"
                               value={state.formData.firstName}
                               onChange={handleChange}
+                              disabled={isLockedByPromo}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                   e.preventDefault();
@@ -307,7 +320,7 @@ const ProfileSetupContent: React.FC = () => {
                                 }
                               }}
                               required
-                              className={state.errors.firstName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
+                              className={`${state.errors.firstName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""} ${isLockedByPromo ? "disabled:opacity-60 disabled:cursor-not-allowed bg-gray-900/50" : ""}`}
                             />
                             {state.errors.firstName && (
                               <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
@@ -324,6 +337,7 @@ const ProfileSetupContent: React.FC = () => {
                               placeholder="Enter your Last Name"
                               value={state.formData.lastName}
                               onChange={handleChange}
+                              disabled={isLockedByPromo}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                   e.preventDefault();
@@ -331,7 +345,7 @@ const ProfileSetupContent: React.FC = () => {
                                 }
                               }}
                               required
-                              className={state.errors.lastName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
+                              className={`${state.errors.lastName ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""} ${isLockedByPromo ? "disabled:opacity-60 disabled:cursor-not-allowed bg-gray-900/50" : ""}`}
                             />
                             {state.errors.lastName && (
                               <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>
@@ -349,6 +363,7 @@ const ProfileSetupContent: React.FC = () => {
                             placeholder="Enter your Mobile Number"
                             value={state.formData.mobileNumber}
                             onChange={handleChange}
+                            disabled={isLockedByPromo}
                             onKeyDown={(e) => {
                               if (e.key === "Enter") {
                                 e.preventDefault();
@@ -356,7 +371,7 @@ const ProfileSetupContent: React.FC = () => {
                               }
                             }}
                             required
-                            className={state.errors.mobileNumber ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""}
+                            className={`${state.errors.mobileNumber ? ONBOARDING_CONFIG.CSS_CLASSES.ERROR_BORDER : ""} ${isLockedByPromo ? "disabled:opacity-60 disabled:cursor-not-allowed bg-gray-900/50" : ""}`}
                           />
                           {state.errors.mobileNumber && (
                             <p className={ONBOARDING_CONFIG.CSS_CLASSES.ERROR_TEXT}>

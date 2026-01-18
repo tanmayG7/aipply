@@ -100,3 +100,5 @@ export function getAdminFirestore() {
   const app = getAdminApp();
   return getFirestore(app);
 }
+
+export const adminDb = getAdminFirestore();
