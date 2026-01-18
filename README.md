@@ -1,5 +1,5 @@
 ## Getting Started
-
+.
 First install the setup files
 ```bash
 pnpm install
