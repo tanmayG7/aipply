@@ -187,11 +187,16 @@ const getAutoApplyStatus = async (userId: string) => {
 
     const subscriptionData = subscriptionSnapshot.docs[0].data();
     
+    // Check both the feature flag AND valid subscription status (premium or grace_period)
+    const hasValidStatus = subscriptionData.subscriptionStatus === 'premium' ||
+                          subscriptionData.subscriptionStatus === 'grace_period';
+    const hasAutoApplyFeature = subscriptionData.features?.autoApply === true;
+
     return {
-      isEnabled: subscriptionData.subscriptionStatus === 'premium',
-      todayCount: subscriptionData.autoApplyToday || 0,
-      monthlyCount: subscriptionData.autoApplyThisMonth || 0,
-      lastRunDate: subscriptionData.lastAutoApplyDate || null
+      isEnabled: hasValidStatus && hasAutoApplyFeature,
+      todayCount: subscriptionData.usage?.autoApplyToday || subscriptionData.autoApplyToday || 0,
+      monthlyCount: subscriptionData.usage?.autoApplyThisMonth || subscriptionData.autoApplyThisMonth || 0,
+      lastRunDate: subscriptionData.usage?.lastAutoApplyDate || subscriptionData.lastAutoApplyDate || null
     };
   } catch (error) {
     console.error('Error getting auto-apply status:', error);

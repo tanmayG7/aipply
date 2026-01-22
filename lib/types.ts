@@ -258,8 +258,8 @@ export const PLAN_FEATURES = {
     aiResumeBuilder: true,
     aiMockInterviews: true,
     prioritySupport: true,
-    maxAutoApplyPerDay: 20,
-    maxAutoApplyPerMonth: 600,
+    maxAutoApplyPerDay: 5,
+    maxAutoApplyPerMonth: 100,
     hasManualApply: true
   }
 };

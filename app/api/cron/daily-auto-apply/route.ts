@@ -24,21 +24,49 @@
 
     try {
       const subscriptionsRef = collection(firestore, "subscriptions");
-      const activeSubscriptionsQuery = query(
+
+      // Query for premium users with autoApply enabled
+      const premiumSubscriptionsQuery = query(
         subscriptionsRef,
         where("subscriptionStatus", "==", "premium"),
         where("features.autoApply", "==", true)
       );
 
-      console.log("🔎 Fetching active premium subscriptions...");
-      const subscriptionsSnapshot = await getDocs(activeSubscriptionsQuery);
+      // Query for grace_period users with autoApply enabled (they still have 7 days of access)
+      const gracePeriodSubscriptionsQuery = query(
+        subscriptionsRef,
+        where("subscriptionStatus", "==", "grace_period"),
+        where("features.autoApply", "==", true)
+      );
+
+      console.log("🔎 Fetching active subscriptions (premium + grace_period)...");
+
+      // Execute both queries in parallel
+      const [premiumSnapshot, gracePeriodSnapshot] = await Promise.all([
+        getDocs(premiumSubscriptionsQuery),
+        getDocs(gracePeriodSubscriptionsQuery)
+      ]);
+
+      console.log(`📄 Found ${premiumSnapshot.size} premium subscriptions`);
+      console.log(`📄 Found ${gracePeriodSnapshot.size} grace_period subscriptions`);
+
+      // Combine results (using Map to avoid duplicates by userId)
+      const subscriptionDocs = new Map();
+      premiumSnapshot.docs.forEach(doc => subscriptionDocs.set(doc.id, doc));
+      gracePeriodSnapshot.docs.forEach(doc => subscriptionDocs.set(doc.id, doc));
+
+      const subscriptionsSnapshot = {
+        size: subscriptionDocs.size,
+        empty: subscriptionDocs.size === 0,
+        docs: Array.from(subscriptionDocs.values())
+      };
       console.log(`📄 Found ${subscriptionsSnapshot.size} active subscriptions`);
 
       if (subscriptionsSnapshot.empty) {
-        console.log("📝 No active premium subscribers found");
+        console.log("📝 No active subscribers found (checked premium + grace_period)");
         return new Response(
           JSON.stringify({
-            message: "No active premium subscribers found",
+            message: "No active subscribers found (checked premium + grace_period)",
             processedUsers: 0,
           }),
           { status: 200 }
