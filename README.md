@@ -1,5 +1,5 @@
 # AiPply Frontend
-
+.
 Web application for AiPply, an AI-powered job application automation platform for the Indian job market. Users manage profiles, track applications, configure auto-apply preferences, and handle subscriptions.
 
 ## Tech Stack
