@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import { ResponsivePageContainer } from "../responsivePageContainer/responsivePageContainer";
 import { HamburgerMenu } from "./hamburgerMenu";
 import { features } from "@/lib/staticData";
@@ -104,8 +103,8 @@ const Header = () => {
               role="navigation"
               aria-label="Main navigation"
             >
-              {/* --- FEATURES DROPDOWN (PURE CSS HOVER + ANIMATION) --- */}
-              <div className="relative hidden custom-md:flex group h-full py-3">
+              {/* --- FEATURES DROPDOWN (PURE HOVER) --- */}
+              <div className="relative hidden custom-md:flex group py-3">
                 <button
                   className="text-white flex items-center gap-1 px-4 py-2 rounded-lg group-hover:bg-white group-hover:bg-opacity-10 transition-colors duration-200 focus:outline-none"
                   type="button"
@@ -114,11 +113,9 @@ const Header = () => {
                   <ChevronDownIcon className="w-[20px] h-[20px] text-white transition-transform duration-200 group-hover:rotate-180" />
                 </button>
                 
-                {/* Tailwind handles display/hiding via `opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto`.
-                  Framer motion handles the physical sliding transition seamlessly.
-                */}
-                <div className="absolute z-[9999] top-full left-1/2 w-[215px] pt-2 -translate-x-1/2 transform opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 ease-out origin-top group-hover:translate-y-0 translate-y-2">
-                  <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
+                {/* Fixed container structure to allow automatic hover overlays */}
+                <div className="absolute z-[9999] top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 ease-out transform translate-y-2 group-hover:translate-y-0">
+                  <div className="w-[215px] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
                     {features.map((feature, index) => (
                       <NavLink
                         key={feature.redirectUrl}
@@ -139,8 +136,8 @@ const Header = () => {
                 </div>
               </div>
 
-              {/* --- RESOURCES DROPDOWN (PURE CSS HOVER + ANIMATION) --- */}
-              <div className="relative hidden custom-md:flex group h-full py-3">
+              {/* --- RESOURCES DROPDOWN (PURE HOVER) --- */}
+              <div className="relative hidden custom-md:flex group py-3">
                 <button
                   className="text-white flex items-center gap-1 px-4 py-2 rounded-lg group-hover:bg-white group-hover:bg-opacity-10 transition-colors duration-200 focus:outline-none"
                   type="button"
@@ -149,8 +146,8 @@ const Header = () => {
                   <ChevronDownIcon className="w-[20px] h-[20px] text-white transition-transform duration-200 group-hover:rotate-180" />
                 </button>
                 
-                <div className="absolute z-[9999] top-full left-1/2 w-[275px] pt-2 -translate-x-1/2 transform opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 ease-out origin-top group-hover:translate-y-0 translate-y-2">
-                  <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
+                <div className="absolute z-[9999] top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 ease-out transform translate-y-2 group-hover:translate-y-0">
+                  <div className="w-[275px] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
                     {resources.map((resource, index) => (
                       <NavLink
                         key={resource.redirectUrl}
