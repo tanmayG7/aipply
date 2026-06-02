@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion"; // Added Framer Motion
+import { motion } from "framer-motion";
 import { ResponsivePageContainer } from "../responsivePageContainer/responsivePageContainer";
 import { HamburgerMenu } from "./hamburgerMenu";
 import { features } from "@/lib/staticData";
@@ -55,25 +55,23 @@ const NavLink = ({
   );
 };
 
-// Custom GitHub-style Easing and Animation Settings
+// Premium, lightning-fast GitHub deceleration curve
 const dropdownVariants = {
-  hidden: { opacity: 0, y: 10, scale: 0.96 },
+  hidden: { 
+    opacity: 0, 
+    y: 6, 
+    scale: 0.96,
+    pointerEvents: "none" as const,
+    transition: { duration: 0.12, ease: "linear" }
+  },
   visible: { 
     opacity: 1, 
     y: 0, 
     scale: 1,
+    pointerEvents: "auto" as const,
     transition: {
-      duration: 0.2,
-      ease: [0.16, 1, 0.3, 1] // Apple/GitHub ease-out expo curve
-    }
-  },
-  exit: { 
-    opacity: 0, 
-    y: 6, 
-    scale: 0.98,
-    transition: {
-      duration: 0.12,
-      ease: "easeInOut"
+      duration: 0.18,
+      ease: [0.16, 1, 0.3, 1] // Easing curve used for slick micro-interactions
     }
   }
 };
@@ -90,17 +88,14 @@ const Header = () => {
   const featuresDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Scroll detection for sticky header
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Route change detection to close dropdowns
   useEffect(() => {
     const handleRouteChange = () => {
       setIsDropdownOpen(false);
@@ -108,11 +103,9 @@ const Header = () => {
       if (dropdownTimeout) clearTimeout(dropdownTimeout);
       if (resourcesTimeout) clearTimeout(resourcesTimeout);
     };
-
     handleRouteChange();
-  }, [pathname, dropdownTimeout, resourcesTimeout]);
+  }, [pathname]);
 
-  // Click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (featuresDropdownRef.current && !featuresDropdownRef.current.contains(event.target as Node)) {
@@ -122,12 +115,10 @@ const Header = () => {
         setIsResourcesDropdownOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -135,7 +126,6 @@ const Header = () => {
         setIsResourcesDropdownOpen(false);
       }
     };
-
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
@@ -144,7 +134,6 @@ const Header = () => {
     setIsMounted(true);
   }, []);
 
-  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (dropdownTimeout) clearTimeout(dropdownTimeout);
@@ -152,7 +141,6 @@ const Header = () => {
     };
   }, [dropdownTimeout, resourcesTimeout]);
 
-  // Helper function to check if path is active
   const isActiveLink = useCallback((path: string, basePath?: string) => {
     if (basePath) {
       return pathname.startsWith(basePath);
@@ -163,14 +151,8 @@ const Header = () => {
   if (!isMounted) return null;
 
   const handleDropdownEnter = () => {
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout);
-      setDropdownTimeout(null);
-    }
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
+    if (resourcesTimeout) clearTimeout(resourcesTimeout);
     setIsResourcesDropdownOpen(false);
     setIsDropdownOpen(true);
   };
@@ -183,14 +165,8 @@ const Header = () => {
   };
 
   const handleResourcesEnter = () => {
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout);
-      setDropdownTimeout(null);
-    }
+    if (resourcesTimeout) clearTimeout(resourcesTimeout);
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
     setIsDropdownOpen(false);
     setIsResourcesDropdownOpen(true);
   };
@@ -200,32 +176,6 @@ const Header = () => {
       setIsResourcesDropdownOpen(false);
     }, 150);
     setResourcesTimeout(timeout);
-  };
-
-  const handleDropdownClick = () => {
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout);
-      setDropdownTimeout(null);
-    }
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
-    setIsResourcesDropdownOpen(false);
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleResourcesClick = () => {
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout);
-      setDropdownTimeout(null);
-    }
-    setIsDropdownOpen(false);
-    setIsResourcesDropdownOpen(!isResourcesDropdownOpen);
   };
 
   return (
@@ -257,7 +207,7 @@ const Header = () => {
               role="navigation"
               aria-label="Main navigation"
             >
-              {/* Features Trigger */}
+              {/* Features Nav Dropdown Container */}
               <div
                 ref={featuresDropdownRef}
                 className="relative hidden custom-md:flex"
@@ -266,14 +216,12 @@ const Header = () => {
               >
                 <button
                   className="text-white flex items-center gap-1 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={handleDropdownClick}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   aria-expanded={isDropdownOpen}
                   aria-controls="features-dropdown"
                   aria-haspopup="true"
                 >
-                  <span className="text-white text-text-md-medium">
-                    Features
-                  </span>
+                  <span className="text-white text-text-md-medium">Features</span>
                   <ChevronDownIcon 
                     className={`w-[20px] h-[20px] text-white transition-transform duration-200 ${
                       isDropdownOpen ? 'rotate-180' : ''
@@ -281,50 +229,44 @@ const Header = () => {
                   />
                 </button>
                 
-                {/* Smooth Animation Container */}
-                <AnimatePresence>
-                  {isDropdownOpen && (
-                    <motion.div
-                      id="features-dropdown"
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="absolute z-[9999] top-full left-1/2 w-[215px] origin-top"
-                      style={{ marginTop: '-2px', x: '-50%' }}
-                      onMouseEnter={handleDropdownEnter}
-                      onMouseLeave={handleDropdownLeave}
-                      role="menu"
-                      aria-orientation="vertical"
-                    >
-                      <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] mt-2">
-                        {features.map((feature, index) => (
-                          <NavLink
-                            key={feature.redirectUrl}
-                            href={feature.redirectUrl}
-                            isActive={isActiveLink(feature.redirectUrl)}
-                            className={`block p-4 font-manrope text-[16px] leading-[160%] font-[500] text-white hover:bg-white hover:bg-opacity-15 active:bg-white active:bg-opacity-20 transition-colors duration-150 ${
-                              index !== features.length - 1
-                                ? "border-b border-white border-opacity-20"
-                                : ""
-                            } ${index === 0 ? "rounded-t-lg" : ""} ${
-                              index === features.length - 1 ? "rounded-b-lg" : ""
-                            }`}
-                            onClick={() => {
-                              setIsDropdownOpen(false);
-                              if (dropdownTimeout) clearTimeout(dropdownTimeout);
-                            }}
-                          >
-                            {feature.name}
-                          </NavLink>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* BUGBUSTER: Removed conditional React mounting. 
+                  Keeping the menu layout consistently bound to the DOM ensures transitions 
+                  never crash or skip midway when traversing hover areas.
+                */}
+                <motion.div
+                  id="features-dropdown"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate={isDropdownOpen ? "visible" : "hidden"}
+                  className="absolute z-[9999] top-full left-1/2 w-[215px] pt-2 origin-top -translate-x-1/2"
+                  onMouseEnter={handleDropdownEnter}
+                  onMouseLeave={handleDropdownLeave}
+                  role="menu"
+                  aria-orientation="vertical"
+                >
+                  <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
+                    {features.map((feature, index) => (
+                      <NavLink
+                        key={feature.redirectUrl}
+                        href={feature.redirectUrl}
+                        isActive={isActiveLink(feature.redirectUrl)}
+                        className={`block p-4 font-manrope text-[16px] leading-[160%] font-[500] text-white hover:bg-white hover:bg-opacity-15 active:bg-white active:bg-opacity-20 transition-colors duration-150 ${
+                          index !== features.length - 1
+                            ? "border-b border-white border-opacity-20"
+                            : ""
+                        } ${index === 0 ? "rounded-t-lg" : ""} ${
+                          index === features.length - 1 ? "rounded-b-lg" : ""
+                        }`}
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        {feature.name}
+                      </NavLink>
+                    ))}
+                  </div>
+                </motion.div>
               </div>
 
-              {/* Resources Trigger */}
+              {/* Resources Nav Dropdown Container */}
               <div
                 ref={resourcesDropdownRef}
                 className="relative hidden custom-md:flex"
@@ -333,14 +275,12 @@ const Header = () => {
               >
                 <button
                   className="text-white items-center gap-1 flex px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={handleResourcesClick}
+                  onClick={() => setIsResourcesDropdownOpen(!isResourcesDropdownOpen)}
                   aria-expanded={isResourcesDropdownOpen}
                   aria-controls="resources-dropdown"
                   aria-haspopup="true"
                 >
-                  <span className="text-white text-text-md-medium">
-                    Resources
-                  </span>
+                  <span className="text-white text-text-md-medium">Resources</span>
                   <ChevronDownIcon 
                     className={`w-[20px] h-[20px] text-white transition-transform duration-200 ${
                       isResourcesDropdownOpen ? 'rotate-180' : ''
@@ -348,47 +288,37 @@ const Header = () => {
                   />
                 </button>
                 
-                {/* Smooth Animation Container */}
-                <AnimatePresence>
-                  {isResourcesDropdownOpen && (
-                    <motion.div
-                      id="resources-dropdown"
-                      variants={dropdownVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="absolute z-[9999] top-full left-1/2 w-[275px] origin-top"
-                      style={{ marginTop: '-2px', x: '-50%' }}
-                      onMouseEnter={handleResourcesEnter}
-                      onMouseLeave={handleResourcesLeave}
-                      role="menu"
-                      aria-orientation="vertical"
-                    >
-                      <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] mt-2">
-                        {resources.map((resource, index) => (
-                          <NavLink
-                            key={resource.redirectUrl}
-                            href={resource.redirectUrl}
-                            isActive={isActiveLink(resource.redirectUrl, "/resources")}
-                            className={`block p-4 text-white font-manrope leading-[160%] text-[16px] font-[500] hover:bg-white hover:bg-opacity-15 active:bg-white active:bg-opacity-20 transition-colors duration-150 ${
-                              index !== resources.length - 1
-                                ? "border-b border-white border-opacity-20"
-                                : ""
-                            } ${index === 0 ? "rounded-t-lg" : ""} ${
-                              index === resources.length - 1 ? "rounded-b-lg" : ""
-                            }`}
-                            onClick={() => {
-                              setIsResourcesDropdownOpen(false);
-                              if (resourcesTimeout) clearTimeout(resourcesTimeout);
-                            }}
-                          >
-                            {resource.name}
-                          </NavLink>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <motion.div
+                  id="resources-dropdown"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate={isResourcesDropdownOpen ? "visible" : "hidden"}
+                  className="absolute z-[9999] top-full left-1/2 w-[275px] pt-2 origin-top -translate-x-1/2"
+                  onMouseEnter={handleResourcesEnter}
+                  onMouseLeave={handleResourcesLeave}
+                  role="menu"
+                  aria-orientation="vertical"
+                >
+                  <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
+                    {resources.map((resource, index) => (
+                      <NavLink
+                        key={resource.redirectUrl}
+                        href={resource.redirectUrl}
+                        isActive={isActiveLink(resource.redirectUrl, "/resources")}
+                        className={`block p-4 text-white font-manrope leading-[160%] text-[16px] font-[500] hover:bg-white hover:bg-opacity-15 active:bg-white active:bg-opacity-20 transition-colors duration-150 ${
+                          index !== resources.length - 1
+                            ? "border-b border-white border-opacity-20"
+                            : ""
+                        } ${index === 0 ? "rounded-t-lg" : ""} ${
+                          index === resources.length - 1 ? "rounded-b-lg" : ""
+                        }`}
+                        onClick={() => setIsResourcesDropdownOpen(false)}
+                      >
+                        {resource.name}
+                      </NavLink>
+                    ))}
+                  </div>
+                </motion.div>
               </div>
 
               <div className="hidden custom-md:flex flex-row gap-6">
