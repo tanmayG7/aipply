@@ -119,11 +119,11 @@ const Footer = () => {
                     Noida, Sector - 168
                   </p>
                   <a 
-                    href="mailto:tanmaygarg01@gmail.com"
+                    href="mailto:tanmay@aipply.io"
                     className="font-manrope text-[16px] text-[#CECFD2] hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent rounded-sm w-fit"
-                    aria-label="Send email to tanmaygarg01@gmail.com"
+                    aria-label="Send email to tanmay@aipply.io"
                   >
-                    tanmaygarg01@gmail.com
+                    tanmay@aipply.io
                   </a>
                   <a 
                     href="tel:+919999852132"
