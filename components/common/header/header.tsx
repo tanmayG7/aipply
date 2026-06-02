@@ -55,14 +55,14 @@ const NavLink = ({
   );
 };
 
-// Premium, lightning-fast GitHub deceleration curve
+// Premium ultra-snappy GitHub easing variants
 const dropdownVariants = {
   hidden: { 
     opacity: 0, 
-    y: 6, 
-    scale: 0.96,
+    y: 8, 
+    scale: 0.97,
     pointerEvents: "none" as const,
-    transition: { duration: 0.12, ease: "linear" }
+    transition: { duration: 0.1, ease: "easeInOut" }
   },
   visible: { 
     opacity: 1, 
@@ -70,8 +70,8 @@ const dropdownVariants = {
     scale: 1,
     pointerEvents: "auto" as const,
     transition: {
-      duration: 0.18,
-      ease: [0.16, 1, 0.3, 1] // Easing curve used for slick micro-interactions
+      duration: 0.15,
+      ease: [0.16, 1, 0.3, 1] // GitHub ease-out curve
     }
   }
 };
@@ -81,13 +81,12 @@ const Header = () => {
   const [isResourcesDropdownOpen, setIsResourcesDropdownOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [resourcesTimeout, setResourcesTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const pathname = usePathname();
   const featuresDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Scroll detection for sticky header
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
@@ -96,16 +95,13 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Route change detection to close dropdowns
   useEffect(() => {
-    const handleRouteChange = () => {
-      setIsDropdownOpen(false);
-      setIsResourcesDropdownOpen(false);
-      if (dropdownTimeout) clearTimeout(dropdownTimeout);
-      if (resourcesTimeout) clearTimeout(resourcesTimeout);
-    };
-    handleRouteChange();
+    setIsDropdownOpen(false);
+    setIsResourcesDropdownOpen(false);
   }, [pathname]);
 
+  // Click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (featuresDropdownRef.current && !featuresDropdownRef.current.contains(event.target as Node)) {
@@ -119,6 +115,7 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -134,13 +131,6 @@ const Header = () => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (dropdownTimeout) clearTimeout(dropdownTimeout);
-      if (resourcesTimeout) clearTimeout(resourcesTimeout);
-    };
-  }, [dropdownTimeout, resourcesTimeout]);
-
   const isActiveLink = useCallback((path: string, basePath?: string) => {
     if (basePath) {
       return pathname.startsWith(basePath);
@@ -149,34 +139,6 @@ const Header = () => {
   }, [pathname]);
 
   if (!isMounted) return null;
-
-  const handleDropdownEnter = () => {
-    if (dropdownTimeout) clearTimeout(dropdownTimeout);
-    if (resourcesTimeout) clearTimeout(resourcesTimeout);
-    setIsResourcesDropdownOpen(false);
-    setIsDropdownOpen(true);
-  };
-
-  const handleDropdownLeave = () => {
-    const timeout = setTimeout(() => {
-      setIsDropdownOpen(false);
-    }, 150);
-    setDropdownTimeout(timeout);
-  };
-
-  const handleResourcesEnter = () => {
-    if (resourcesTimeout) clearTimeout(resourcesTimeout);
-    if (dropdownTimeout) clearTimeout(dropdownTimeout);
-    setIsDropdownOpen(false);
-    setIsResourcesDropdownOpen(true);
-  };
-
-  const handleResourcesLeave = () => {
-    const timeout = setTimeout(() => {
-      setIsResourcesDropdownOpen(false);
-    }, 150);
-    setResourcesTimeout(timeout);
-  };
 
   return (
     <header 
@@ -207,16 +169,18 @@ const Header = () => {
               role="navigation"
               aria-label="Main navigation"
             >
-              {/* Features Nav Dropdown Container */}
+              {/* Features Trigger Box */}
               <div
                 ref={featuresDropdownRef}
                 className="relative hidden custom-md:flex"
-                onMouseEnter={handleDropdownEnter}
-                onMouseLeave={handleDropdownLeave}
+                onMouseEnter={() => {
+                  setIsResourcesDropdownOpen(false);
+                  setIsDropdownOpen(true);
+                }}
+                onMouseLeave={() => setIsDropdownOpen(false)}
               >
                 <button
                   className="text-white flex items-center gap-1 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   aria-expanded={isDropdownOpen}
                   aria-controls="features-dropdown"
                   aria-haspopup="true"
@@ -229,18 +193,13 @@ const Header = () => {
                   />
                 </button>
                 
-                {/* BUGBUSTER: Removed conditional React mounting. 
-                  Keeping the menu layout consistently bound to the DOM ensures transitions 
-                  never crash or skip midway when traversing hover areas.
-                */}
+                {/* Framer motion list panel */}
                 <motion.div
                   id="features-dropdown"
                   variants={dropdownVariants}
                   initial="hidden"
                   animate={isDropdownOpen ? "visible" : "hidden"}
                   className="absolute z-[9999] top-full left-1/2 w-[215px] pt-2 origin-top -translate-x-1/2"
-                  onMouseEnter={handleDropdownEnter}
-                  onMouseLeave={handleDropdownLeave}
                   role="menu"
                   aria-orientation="vertical"
                 >
@@ -266,16 +225,18 @@ const Header = () => {
                 </motion.div>
               </div>
 
-              {/* Resources Nav Dropdown Container */}
+              {/* Resources Trigger Box */}
               <div
                 ref={resourcesDropdownRef}
                 className="relative hidden custom-md:flex"
-                onMouseEnter={handleResourcesEnter}
-                onMouseLeave={handleResourcesLeave}
+                onMouseEnter={() => {
+                  setIsDropdownOpen(false);
+                  setIsResourcesDropdownOpen(true);
+                }}
+                onMouseLeave={() => setIsResourcesDropdownOpen(false)}
               >
                 <button
                   className="text-white items-center gap-1 flex px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={() => setIsResourcesDropdownOpen(!isResourcesDropdownOpen)}
                   aria-expanded={isResourcesDropdownOpen}
                   aria-controls="resources-dropdown"
                   aria-haspopup="true"
@@ -294,8 +255,6 @@ const Header = () => {
                   initial="hidden"
                   animate={isResourcesDropdownOpen ? "visible" : "hidden"}
                   className="absolute z-[9999] top-full left-1/2 w-[275px] pt-2 origin-top -translate-x-1/2"
-                  onMouseEnter={handleResourcesEnter}
-                  onMouseLeave={handleResourcesLeave}
                   role="menu"
                   aria-orientation="vertical"
                 >
