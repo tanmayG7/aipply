@@ -79,7 +79,6 @@ const dropdownVariants = {
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isResourcesDropdownOpen, setIsResourcesDropdownOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   const pathname = usePathname();
@@ -95,7 +94,7 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Route change detection to close dropdowns
+  // Route change detection to safely close dropdowns across client navigation loops
   useEffect(() => {
     setIsDropdownOpen(false);
     setIsResourcesDropdownOpen(false);
@@ -127,18 +126,12 @@ const Header = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const isActiveLink = useCallback((path: string, basePath?: string) => {
     if (basePath) {
       return pathname.startsWith(basePath);
     }
     return pathname === path;
   }, [pathname]);
-
-  if (!isMounted) return null;
 
   return (
     <header 
@@ -184,6 +177,7 @@ const Header = () => {
                   aria-expanded={isDropdownOpen}
                   aria-controls="features-dropdown"
                   aria-haspopup="true"
+                  type="button"
                 >
                   <span className="text-white text-text-md-medium">Features</span>
                   <ChevronDownIcon 
@@ -240,6 +234,7 @@ const Header = () => {
                   aria-expanded={isResourcesDropdownOpen}
                   aria-controls="resources-dropdown"
                   aria-haspopup="true"
+                  type="button"
                 >
                   <span className="text-white text-text-md-medium">Resources</span>
                   <ChevronDownIcon 
