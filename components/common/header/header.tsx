@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
@@ -55,35 +55,9 @@ const NavLink = ({
   );
 };
 
-// Premium ultra-snappy GitHub easing variants
-const dropdownVariants = {
-  hidden: { 
-    opacity: 0, 
-    y: 8, 
-    scale: 0.97,
-    pointerEvents: "none" as const,
-    transition: { duration: 0.1, ease: "easeInOut" }
-  },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    scale: 1,
-    pointerEvents: "auto" as const,
-    transition: {
-      duration: 0.15,
-      ease: [0.16, 1, 0.3, 1] // GitHub ease-out curve
-    }
-  }
-};
-
 const Header = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isResourcesDropdownOpen, setIsResourcesDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
   const pathname = usePathname();
-  const featuresDropdownRef = useRef<HTMLDivElement>(null);
-  const resourcesDropdownRef = useRef<HTMLDivElement>(null);
 
   // Scroll detection for sticky header
   useEffect(() => {
@@ -92,38 +66,6 @@ const Header = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Route change detection to safely close dropdowns across client navigation loops
-  useEffect(() => {
-    setIsDropdownOpen(false);
-    setIsResourcesDropdownOpen(false);
-  }, [pathname]);
-
-  // Click outside to close dropdowns
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (featuresDropdownRef.current && !featuresDropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-      if (resourcesDropdownRef.current && !resourcesDropdownRef.current.contains(event.target as Node)) {
-        setIsResourcesDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsDropdownOpen(false);
-        setIsResourcesDropdownOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const isActiveLink = useCallback((path: string, basePath?: string) => {
@@ -162,41 +104,20 @@ const Header = () => {
               role="navigation"
               aria-label="Main navigation"
             >
-              {/* Features Trigger Box */}
-              <div
-                ref={featuresDropdownRef}
-                className="relative hidden custom-md:flex"
-                onMouseEnter={() => {
-                  setIsResourcesDropdownOpen(false);
-                  setIsDropdownOpen(true);
-                }}
-                onMouseLeave={() => setIsDropdownOpen(false)}
-              >
+              {/* --- FEATURES DROPDOWN (PURE CSS HOVER + ANIMATION) --- */}
+              <div className="relative hidden custom-md:flex group h-full py-3">
                 <button
-                  className="text-white flex items-center gap-1 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  aria-expanded={isDropdownOpen}
-                  aria-controls="features-dropdown"
-                  aria-haspopup="true"
+                  className="text-white flex items-center gap-1 px-4 py-2 rounded-lg group-hover:bg-white group-hover:bg-opacity-10 transition-colors duration-200 focus:outline-none"
                   type="button"
                 >
                   <span className="text-white text-text-md-medium">Features</span>
-                  <ChevronDownIcon 
-                    className={`w-[20px] h-[20px] text-white transition-transform duration-200 ${
-                      isDropdownOpen ? 'rotate-180' : ''
-                    }`} 
-                  />
+                  <ChevronDownIcon className="w-[20px] h-[20px] text-white transition-transform duration-200 group-hover:rotate-180" />
                 </button>
                 
-                {/* Framer motion list panel */}
-                <motion.div
-                  id="features-dropdown"
-                  variants={dropdownVariants}
-                  initial="hidden"
-                  animate={isDropdownOpen ? "visible" : "hidden"}
-                  className="absolute z-[9999] top-full left-1/2 w-[215px] pt-2 origin-top -translate-x-1/2"
-                  role="menu"
-                  aria-orientation="vertical"
-                >
+                {/* Tailwind handles display/hiding via `opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto`.
+                  Framer motion handles the physical sliding transition seamlessly.
+                */}
+                <div className="absolute z-[9999] top-full left-1/2 w-[215px] pt-2 -translate-x-1/2 transform opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 ease-out origin-top group-hover:translate-y-0 translate-y-2">
                   <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
                     {features.map((feature, index) => (
                       <NavLink
@@ -210,49 +131,25 @@ const Header = () => {
                         } ${index === 0 ? "rounded-t-lg" : ""} ${
                           index === features.length - 1 ? "rounded-b-lg" : ""
                         }`}
-                        onClick={() => setIsDropdownOpen(false)}
                       >
                         {feature.name}
                       </NavLink>
                     ))}
                   </div>
-                </motion.div>
+                </div>
               </div>
 
-              {/* Resources Trigger Box */}
-              <div
-                ref={resourcesDropdownRef}
-                className="relative hidden custom-md:flex"
-                onMouseEnter={() => {
-                  setIsDropdownOpen(false);
-                  setIsResourcesDropdownOpen(true);
-                }}
-                onMouseLeave={() => setIsResourcesDropdownOpen(false)}
-              >
+              {/* --- RESOURCES DROPDOWN (PURE CSS HOVER + ANIMATION) --- */}
+              <div className="relative hidden custom-md:flex group h-full py-3">
                 <button
-                  className="text-white items-center gap-1 flex px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  aria-expanded={isResourcesDropdownOpen}
-                  aria-controls="resources-dropdown"
-                  aria-haspopup="true"
+                  className="text-white flex items-center gap-1 px-4 py-2 rounded-lg group-hover:bg-white group-hover:bg-opacity-10 transition-colors duration-200 focus:outline-none"
                   type="button"
                 >
                   <span className="text-white text-text-md-medium">Resources</span>
-                  <ChevronDownIcon 
-                    className={`w-[20px] h-[20px] text-white transition-transform duration-200 ${
-                      isResourcesDropdownOpen ? 'rotate-180' : ''
-                    }`} 
-                  />
+                  <ChevronDownIcon className="w-[20px] h-[20px] text-white transition-transform duration-200 group-hover:rotate-180" />
                 </button>
                 
-                <motion.div
-                  id="resources-dropdown"
-                  variants={dropdownVariants}
-                  initial="hidden"
-                  animate={isResourcesDropdownOpen ? "visible" : "hidden"}
-                  className="absolute z-[9999] top-full left-1/2 w-[275px] pt-2 origin-top -translate-x-1/2"
-                  role="menu"
-                  aria-orientation="vertical"
-                >
+                <div className="absolute z-[9999] top-full left-1/2 w-[275px] pt-2 -translate-x-1/2 transform opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 ease-out origin-top group-hover:translate-y-0 translate-y-2">
                   <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
                     {resources.map((resource, index) => (
                       <NavLink
@@ -266,13 +163,12 @@ const Header = () => {
                         } ${index === 0 ? "rounded-t-lg" : ""} ${
                           index === resources.length - 1 ? "rounded-b-lg" : ""
                         }`}
-                        onClick={() => setIsResourcesDropdownOpen(false)}
                       >
                         {resource.name}
                       </NavLink>
                     ))}
                   </div>
-                </motion.div>
+                </div>
               </div>
 
               <div className="hidden custom-md:flex flex-row gap-6">
