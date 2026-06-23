@@ -26,7 +26,7 @@ export default function ResumeAnalysisForm() {
     experienceLevel: "",
     focusAreas: [] as string[],
   });
-  
+  const [jobDescription, setJobDescription] = useState("");
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -319,7 +319,30 @@ export default function ResumeAnalysisForm() {
                 ) : (
                   <CloudArrowUpIcon className="w-12 h-12 text-[#AE94FF] mx-auto" />
                 )}
-                
+                <div className="mt-6">
+  <EnhancedLabel>
+    Job Description
+  </EnhancedLabel>
+
+  <textarea
+    value={jobDescription}
+    onChange={(e) => setJobDescription(e.target.value)}
+    placeholder="Paste the Job Description here..."
+    className="
+      w-full
+      min-h-[200px]
+      rounded-xl
+      border
+      border-[#333741]
+      bg-[#1A1D24]
+      text-[#F5F5F6]
+      p-4
+      mt-2
+      focus:outline-none
+      focus:border-[#AE94FF]
+    "
+  />
+</div>
                 <div>
                   {file ? (
                     <div>

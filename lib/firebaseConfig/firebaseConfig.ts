@@ -63,16 +63,25 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const firestore = getFirestore(app);
-const storage = getStorage(app);
+let app;
+
+if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+  app = !getApps().length
+    ? initializeApp(firebaseConfig)
+    : getApp();
+}
+const auth = app ? getAuth(app) : null;
+const firestore = app ? getFirestore(app) : null;
+const storage = app ? getStorage(app) : null;
 
 const provider = new GoogleAuthProvider();
 
-// Ensure authentication persistence across page refreshes
-setPersistence(auth, browserLocalPersistence).catch(console.error);
-
+if (auth) {
+  setPersistence(
+    auth,
+    browserLocalPersistence
+  ).catch(console.error);
+}
 /**
  * Safely encrypt platform credentials before saving to Firebase
  */

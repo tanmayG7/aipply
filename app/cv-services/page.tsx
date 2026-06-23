@@ -149,7 +149,7 @@ export default function CVServicesPage() {
         {/* Hero Section */}
         <section className="relative overflow-hidden">
           {/* Gradient blur background - OPTIMIZED */}
-          <div className="hidden lg:block absolute w-full h-[600px] top-[100px] left-1/2 transform -translate-x-1/2 bg-[#AE94FF] bg-opacity-40 rounded-full blur-[120px] z-0 will-change-transform motion-reduce:blur-none"></div>
+          
           
           <ResponsivePageContainer>
             <div className="relative z-10 pt-20 pb-32">
@@ -254,7 +254,7 @@ export default function CVServicesPage() {
 
         {/* Pricing & Payment Section */}
         <section id="payment" className="py-16 md:py-20 relative scroll-mt-24">
-          <div className="hidden lg:block absolute w-[60%] h-[300px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#5D29FF] bg-opacity-20 rounded-full blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div>
+          {/* <div className="hidden lg:block absolute w-[60%] h-[300px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#5D29FF] bg-opacity-20 rounded-full blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div> */}
           
           <ResponsivePageContainer>
             <div className="relative z-10 max-w-5xl mx-auto">
@@ -401,7 +401,7 @@ export default function CVServicesPage() {
 
         {/* Testimonials Section */}
         <section className="py-16 md:py-20 relative">
-          <div className="hidden lg:block absolute w-[50%] h-[200px] top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 bg-[#AE94FF] bg-opacity-15 rounded-full blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div>
+        {/*<div className="hidden lg:block absolute w-[50%] h-[200px] top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 bg-[#AE94FF] bg-opacity-15 rounded-full blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div>*/}
           
           <ResponsivePageContainer>
             <div className="relative z-10">
@@ -513,7 +513,7 @@ export default function CVServicesPage() {
 
         {/* Final CTA Section */}
         <section className="py-16 md:py-20 relative overflow-hidden">
-          <div className="hidden lg:block absolute w-full h-full top-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#5D29FF]/20 via-[#AE94FF]/30 to-[#52A9FF]/20 blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div>
+         {/*<div className="hidden lg:block absolute w-full h-full top-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#5D29FF]/20 via-[#AE94FF]/30 to-[#52A9FF]/20 blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div>*/}
           
           <ResponsivePageContainer>
             <div className="relative z-10 max-w-4xl mx-auto text-center">
