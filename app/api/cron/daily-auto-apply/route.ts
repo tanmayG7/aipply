@@ -26,7 +26,7 @@
       if (!firestore) {
         return new Response(JSON.stringify({ error: "Firestore is not initialized" }), { status: 500 });
       }
-      const subscriptionsRef = collection(firestore, "subscriptions");
+      const subscriptionsRef = collection(firestore!, "subscriptions");
 
       // Query for premium users with autoApply enabled
       const premiumSubscriptionsQuery = query(
