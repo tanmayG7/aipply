@@ -23,6 +23,9 @@
     console.log("✅ Authorization verified");
 
     try {
+      if (!firestore) {
+        return new Response(JSON.stringify({ error: "Firestore is not initialized" }), { status: 500 });
+      }
       const subscriptionsRef = collection(firestore, "subscriptions");
 
       // Query for premium users with autoApply enabled
