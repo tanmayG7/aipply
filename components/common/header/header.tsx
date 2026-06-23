@@ -1,6 +1,5 @@
- 
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
@@ -56,156 +55,24 @@ const NavLink = ({
 };
 
 const Header = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isResourcesDropdownOpen, setIsResourcesDropdownOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [resourcesTimeout, setResourcesTimeout] = useState<NodeJS.Timeout | null>(null);
-
   const pathname = usePathname();
-    const featuresDropdownRef = useRef<HTMLDivElement>(null);
-  const resourcesDropdownRef = useRef<HTMLDivElement>(null);
 
   // Scroll detection for sticky header
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Route change detection to close dropdowns
-  useEffect(() => {
-    const handleRouteChange = () => {
-      setIsDropdownOpen(false);
-      setIsResourcesDropdownOpen(false);
-      if (dropdownTimeout) clearTimeout(dropdownTimeout);
-      if (resourcesTimeout) clearTimeout(resourcesTimeout);
-    };
-
-    handleRouteChange(); // Close on initial load
-  }, [pathname, dropdownTimeout, resourcesTimeout]);
-
-  // Click outside to close dropdowns
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (featuresDropdownRef.current && !featuresDropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-      if (resourcesDropdownRef.current && !resourcesDropdownRef.current.contains(event.target as Node)) {
-        setIsResourcesDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsDropdownOpen(false);
-        setIsResourcesDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (dropdownTimeout) clearTimeout(dropdownTimeout);
-      if (resourcesTimeout) clearTimeout(resourcesTimeout);
-    };
-  }, [dropdownTimeout, resourcesTimeout]);
-
-  // Helper function to check if path is active
   const isActiveLink = useCallback((path: string, basePath?: string) => {
     if (basePath) {
       return pathname.startsWith(basePath);
     }
     return pathname === path;
   }, [pathname]);
-
-  if (!isMounted) return null;
-
-  const handleDropdownEnter = () => {
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout);
-      setDropdownTimeout(null);
-    }
-    // Close resources dropdown immediately when hovering features
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
-    setIsResourcesDropdownOpen(false);
-    setIsDropdownOpen(true);
-  };
-
-  const handleDropdownLeave = () => {
-    const timeout = setTimeout(() => {
-      setIsDropdownOpen(false);
-    }, 150);
-    setDropdownTimeout(timeout);
-  };
-
-  const handleResourcesEnter = () => {
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
-    // Close features dropdown immediately when hovering resources
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout);
-      setDropdownTimeout(null);
-    }
-    setIsDropdownOpen(false);
-    setIsResourcesDropdownOpen(true);
-  };
-
-  const handleResourcesLeave = () => {
-    const timeout = setTimeout(() => {
-      setIsResourcesDropdownOpen(false);
-    }, 150);
-    setResourcesTimeout(timeout);
-  };
-
-  const handleDropdownClick = () => {
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout);
-      setDropdownTimeout(null);
-    }
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
-    setIsResourcesDropdownOpen(false);
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleResourcesClick = () => {
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
-    if (dropdownTimeout) {
-      clearTimeout(dropdownTimeout);
-      setDropdownTimeout(null);
-    }
-    setIsDropdownOpen(false);
-    setIsResourcesDropdownOpen(!isResourcesDropdownOpen);
-  };
 
   return (
     <header 
@@ -236,40 +103,19 @@ const Header = () => {
               role="navigation"
               aria-label="Main navigation"
             >
-              <div
-                ref={featuresDropdownRef}
-                className="relative hidden custom-md:flex"
-                onMouseEnter={handleDropdownEnter}
-                onMouseLeave={handleDropdownLeave}
-              >
+              {/* --- FEATURES DROPDOWN (PURE HOVER) --- */}
+              <div className="relative hidden custom-md:flex group py-3">
                 <button
-                  className="text-white flex items-center gap-1 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={handleDropdownClick}
-                  aria-expanded={isDropdownOpen}
-                  aria-controls="features-dropdown"
-                  aria-haspopup="true"
+                  className="text-white flex items-center gap-1 px-4 py-2 rounded-lg group-hover:bg-white group-hover:bg-opacity-10 transition-colors duration-200 focus:outline-none"
+                  type="button"
                 >
-                  <span className="text-white text-text-md-medium">
-                    Features
-                  </span>
-                  <ChevronDownIcon 
-                    className={`w-[20px] h-[20px] text-white transition-transform duration-200 ${
-                      isDropdownOpen ? 'rotate-180' : ''
-                    }`} 
-                  />
+                  <span className="text-white text-text-md-medium">Features</span>
+                  <ChevronDownIcon className="w-[20px] h-[20px] text-white transition-transform duration-200 group-hover:rotate-180" />
                 </button>
                 
-                {isDropdownOpen && (
-                  <div
-                    id="features-dropdown"
-                    className="absolute z-[9999] top-full left-1/2 transform -translate-x-1/2 w-[215px]"
-                    style={{ marginTop: '-2px' }}
-                    onMouseEnter={handleDropdownEnter}
-                    onMouseLeave={handleDropdownLeave}
-                    role="menu"
-                    aria-orientation="vertical"
-                  >
-                    <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] mt-2">
+                {/* Fixed container structure to allow automatic hover overlays */}
+                <div className="absolute z-[9999] top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 ease-out transform translate-y-2 group-hover:translate-y-0">
+                  <div className="w-[215px] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
                     {features.map((feature, index) => (
                       <NavLink
                         key={feature.redirectUrl}
@@ -282,53 +128,26 @@ const Header = () => {
                         } ${index === 0 ? "rounded-t-lg" : ""} ${
                           index === features.length - 1 ? "rounded-b-lg" : ""
                         }`}
-                        onClick={() => {
-                          setIsDropdownOpen(false);
-                          if (dropdownTimeout) clearTimeout(dropdownTimeout);
-                        }}
                       >
                         {feature.name}
                       </NavLink>
                     ))}
-                    </div>
                   </div>
-                )}
+                </div>
               </div>
 
-              <div
-                ref={resourcesDropdownRef}
-                className="relative hidden custom-md:flex"
-                onMouseEnter={handleResourcesEnter}
-                onMouseLeave={handleResourcesLeave}
-              >
+              {/* --- RESOURCES DROPDOWN (PURE HOVER) --- */}
+              <div className="relative hidden custom-md:flex group py-3">
                 <button
-                  className="text-white items-center gap-1 flex px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-                  onClick={handleResourcesClick}
-                  aria-expanded={isResourcesDropdownOpen}
-                  aria-controls="resources-dropdown"
-                  aria-haspopup="true"
+                  className="text-white flex items-center gap-1 px-4 py-2 rounded-lg group-hover:bg-white group-hover:bg-opacity-10 transition-colors duration-200 focus:outline-none"
+                  type="button"
                 >
-                  <span className="text-white text-text-md-medium">
-                    Resources
-                  </span>
-                  <ChevronDownIcon 
-                    className={`w-[20px] h-[20px] text-white transition-transform duration-200 ${
-                      isResourcesDropdownOpen ? 'rotate-180' : ''
-                    }`} 
-                  />
+                  <span className="text-white text-text-md-medium">Resources</span>
+                  <ChevronDownIcon className="w-[20px] h-[20px] text-white transition-transform duration-200 group-hover:rotate-180" />
                 </button>
                 
-                {isResourcesDropdownOpen && (
-                  <div
-                    id="resources-dropdown"
-                    className="absolute z-[9999] top-full left-1/2 transform -translate-x-1/2 w-[275px]"
-                    style={{ marginTop: '-2px' }}
-                    onMouseEnter={handleResourcesEnter}
-                    onMouseLeave={handleResourcesLeave}
-                    role="menu"
-                    aria-orientation="vertical"
-                  >
-                    <div className="bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%] mt-2">
+                <div className="absolute z-[9999] top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 ease-out transform translate-y-2 group-hover:translate-y-0">
+                  <div className="w-[275px] bg-gradient-to-b from-[#4c4088] to-[#7030ca] shadow-lg rounded-lg border border-white border-opacity-[10%]">
                     {resources.map((resource, index) => (
                       <NavLink
                         key={resource.redirectUrl}
@@ -341,18 +160,14 @@ const Header = () => {
                         } ${index === 0 ? "rounded-t-lg" : ""} ${
                           index === resources.length - 1 ? "rounded-b-lg" : ""
                         }`}
-                        onClick={() => {
-                          setIsResourcesDropdownOpen(false);
-                          if (resourcesTimeout) clearTimeout(resourcesTimeout);
-                        }}
                       >
                         {resource.name}
                       </NavLink>
                     ))}
-                    </div>
                   </div>
-                )}
+                </div>
               </div>
+
               <div className="hidden custom-md:flex flex-row gap-6">
                 <Link 
                   href="/dashboard/onboarding/login"
