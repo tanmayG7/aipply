@@ -101,7 +101,7 @@ export default function CVOrdersCard() {
       console.log('📦 Loading CV orders for user:', user.uid);
 
       // Query cv_orders collection for this user
-      const ordersRef = collection(firestore, 'cv_orders');
+      const ordersRef = collection(firestore!, 'cv_orders');
       const q = query(
         ordersRef,
         where('userId', '==', user.uid),

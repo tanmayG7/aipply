@@ -64,7 +64,7 @@ async function logWebhookEvent(
 ) {
   try {
     const firestore = getFirestore();
-    const webhookLogsRef = collection(firestore, 'webhook_logs');
+    const webhookLogsRef = collection(firestore!, 'webhook_logs');
 
     await addDoc(webhookLogsRef, {
       eventType,

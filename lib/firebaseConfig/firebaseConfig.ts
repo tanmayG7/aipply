@@ -272,7 +272,7 @@ const createUserSubscription = async (
 ): Promise<UserSubscription> => {
   try {
     const subscription = createDefaultSubscription(userId);
-    await setDoc(doc(firestore, "subscriptions", userId), subscription);
+    await setDoc(doc(firestore!, "subscriptions", userId), subscription);
     console.log(`Created default subscription for user: ${userId}`);
     return subscription;
   } catch (error: any) {
@@ -287,7 +287,7 @@ const getUserSubscription = async (
 ): Promise<UserSubscription> => {
   try {
     const subscriptionDoc = await getDoc(
-      doc(firestore, "subscriptions", userId)
+      doc(firestore!, "subscriptions", userId)
     );
 
     if (subscriptionDoc.exists()) {
@@ -298,7 +298,7 @@ const getUserSubscription = async (
       // Save back to DB if usage was reset
       if (updatedSubscription.updatedAt !== subscription.updatedAt) {
         await setDoc(
-          doc(firestore, "subscriptions", userId),
+          doc(firestore!, "subscriptions", userId),
           updatedSubscription
         );
       }
@@ -328,7 +328,7 @@ const updateUserSubscription = async (
       updatedAt: new Date().toISOString(),
     };
 
-    await setDoc(doc(firestore, "subscriptions", userId), updatedSubscription);
+    await setDoc(doc(firestore!, "subscriptions", userId), updatedSubscription);
     console.log(`Updated subscription for user: ${userId}`);
   } catch (error: any) {
     console.error("Error updating user subscription:", error);
@@ -516,7 +516,7 @@ const saveContactFormSubmission = async (formData: ContactFormData) => {
 
     // Get reference to the contact submissions collection
     const contactSubmissionsRef = collection(
-      firestore,
+      firestore!,
       CONTACT_SUBMISSIONS_COLLECTION
     );
 
@@ -554,7 +554,7 @@ const listenToAuthChanges = (setUser: (user: any) => void) => {
 const checkAuthToken = (navigate: (path: string) => void) => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      const userDoc = await getDoc(doc(firestore, "users", user.uid));
+      const userDoc = await getDoc(doc(firestore!, "users", user.uid));
       if (userDoc.exists()) {
         navigate("/");
       } else {
@@ -695,7 +695,7 @@ const authenticateUser = async (
 
       // For Google sign-in, save AI consent if this is a new user
       const user = userCredential.user;
-      const userDoc = await getDoc(doc(firestore, "users", user.uid));
+      const userDoc = await getDoc(doc(firestore!, "users", user.uid));
 
       if (!userDoc.exists()) {
         // New Google user - save consent
@@ -705,7 +705,7 @@ const authenticateUser = async (
             const { consent } = JSON.parse(consentData);
             console.log("💾 Saving AI consent for Google user:", consent);
 
-            await setDoc(doc(firestore, "users", user.uid), {
+            await setDoc(doc(firestore!, "users", user.uid), {
               aiDataConsent: consent,
               aiConsentDate: new Date().toISOString(),
               createdAt: new Date().toISOString(),
@@ -745,7 +745,7 @@ const authenticateUser = async (
     const token = await user.getIdToken();
     localStorage.setItem("firebaseToken", token);
 
-    const userDoc = await getDoc(doc(firestore, "users", user.uid));
+    const userDoc = await getDoc(doc(firestore!, "users", user.uid));
     if (userDoc.exists()) {
       navigate("/dashboard/home");
     } else {
@@ -814,7 +814,7 @@ const handleSignInError = async (
             console.log("💾 Saving AI consent:", consent);
 
             // Save consent to user profile
-            await setDoc(doc(firestore, "users", user.uid), {
+            await setDoc(doc(firestore!, "users", user.uid), {
               aiDataConsent: consent,
               aiConsentDate: new Date().toISOString(),
               createdAt: new Date().toISOString(),
@@ -984,7 +984,7 @@ const saveUserProfile = async (userId: string, profileData: any) => {
     }
 
     await setDoc(
-      doc(firestore, "users", userId),
+      doc(firestore!, "users", userId),
       {
         ...processedProfileData,
         onboardingCompleted: processedProfileData.onboardingCompleted || false,
@@ -1008,7 +1008,7 @@ const getUserProfile = async (userId?: string): Promise<UserDetails> => {
       userId = user.uid;
     }
 
-    const userDoc = await getDoc(doc(firestore, "users", userId));
+    const userDoc = await getDoc(doc(firestore!, "users", userId));
     if (userDoc.exists()) {
       const userData = userDoc.data() as UserDetails;
       userData.userId = userId;
@@ -1086,7 +1086,7 @@ const updateUserProfile = async (userId: string, profileData: any) => {
       createdDate: profileData.createdDate || currentDate,
     };
 
-    await setDoc(doc(firestore, "users", userId), updatedProfileData, {
+    await setDoc(doc(firestore!, "users", userId), updatedProfileData, {
       merge: true,
     });
 
@@ -1195,7 +1195,7 @@ const deletePlatformCredential = async (
 
 const getUserDetails = async (userId: string) => {
   try {
-    const userDoc = await getDoc(doc(firestore, "userDetails", userId));
+    const userDoc = await getDoc(doc(firestore!, "userDetails", userId));
     if (userDoc.exists()) {
       return userDoc.data();
     } else {
@@ -1209,14 +1209,14 @@ const getUserDetails = async (userId: string) => {
 const setHideJob = async (userId: string, jobId: string) => {
   try {
     const currentDate = new Date().toISOString();
-    const hiddenJobsDoc = await getDoc(doc(firestore, "hiddenJobs", userId));
+    const hiddenJobsDoc = await getDoc(doc(firestore!, "hiddenJobs", userId));
     const hiddenJobs = hiddenJobsDoc.exists() ? hiddenJobsDoc.data().jobs : [];
     if (!hiddenJobs.includes(jobId)) {
       hiddenJobs.push(jobId);
     }
 
     await setDoc(
-      doc(firestore, "hiddenJobs", userId),
+      doc(firestore!, "hiddenJobs", userId),
       {
         jobs: hiddenJobs,
         updatedAt: currentDate,
@@ -1230,7 +1230,7 @@ const setHideJob = async (userId: string, jobId: string) => {
       let currentJobs = currentJobsDoc.data().jobs;
       currentJobs = currentJobs.filter((id: string) => id !== jobId);
       await setDoc(
-        doc(firestore, "currentJobs", userId),
+        doc(firestore!, "currentJobs", userId),
         {
           jobs: currentJobs,
           lastFetchedDate: currentJobsDoc.data().lastFetchedDate,
@@ -1248,7 +1248,7 @@ const saveCurrentJobs = async (userId: string, jobIds: string[]) => {
     const currentDate = new Date().toISOString();
 
     await setDoc(
-      doc(firestore, "currentJobs", userId),
+      doc(firestore!, "currentJobs", userId),
       {
         jobs: jobIds,
         lastFetchedDate: currentDate,
@@ -1269,7 +1269,7 @@ const saveArchivedJobs = async (userId: string, jobIds: string[]) => {
     const newArchivedJobsArray = Array.from(newArchivedJobs);
 
     await setDoc(
-      doc(firestore, "archiveJobs", userId),
+      doc(firestore!, "archiveJobs", userId),
       {
         jobs: newArchivedJobsArray,
         updatedAt: currentDate,
@@ -1285,7 +1285,7 @@ const saveArchivedJobs = async (userId: string, jobIds: string[]) => {
 
 const getCurrentJobs = async (userId: string) => {
   try {
-    const currentJobsDoc = await getDoc(doc(firestore, "currentJobs", userId));
+    const currentJobsDoc = await getDoc(doc(firestore!, "currentJobs", userId));
     if (currentJobsDoc?.exists()) {
       return currentJobsDoc.data();
     } else {
@@ -1317,7 +1317,7 @@ const getCurrentJobsByJobTitle = async (
 
 const getArchivedJobs = async (userId: string) => {
   try {
-    const archivedJobsDoc = await getDoc(doc(firestore, "archiveJobs", userId));
+    const archivedJobsDoc = await getDoc(doc(firestore!, "archiveJobs", userId));
     if (archivedJobsDoc.exists()) {
       return archivedJobsDoc.data().jobs || [];
     } else {
@@ -1330,7 +1330,7 @@ const getArchivedJobs = async (userId: string) => {
 
 const getHiddenJobs = async (userId: string) => {
   try {
-    const hiddenJobsDoc = await getDoc(doc(firestore, "hiddenJobs", userId));
+    const hiddenJobsDoc = await getDoc(doc(firestore!, "hiddenJobs", userId));
     if (hiddenJobsDoc.exists()) {
       return hiddenJobsDoc.data().jobs || [];
     } else {
@@ -1805,7 +1805,7 @@ const getTotalJobCount = async (userId: string, userProfile: UserDetails) => {
 const getDashboardData = async (userId: string): Promise<DashboardData> => {
   try {
     const dashboardDataDoc = await getDoc(
-      doc(firestore, "dashboardData", userId)
+      doc(firestore!, "dashboardData", userId)
     );
     if (dashboardDataDoc.exists()) {
       return dashboardDataDoc.data() as DashboardData;
@@ -1841,7 +1841,7 @@ const setAppliedJob = async (
     }
 
     await setDoc(
-      doc(firestore, "appliedJobs", userId),
+      doc(firestore!, "appliedJobs", userId),
       {
         appliedJobs: appliedJobs,
         updatedAt: new Date().toISOString(),
@@ -1860,7 +1860,7 @@ const updateJobStatus = async (
   currentStatus: string
 ) => {
   try {
-    const jobTrackerDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    const jobTrackerDoc = await getDoc(doc(firestore!, "appliedJobs", userId));
     if (jobTrackerDoc.exists()) {
       const jobTrackerData = jobTrackerDoc.data();
       const currentStatusJobs = jobTrackerData[currentStatus];
@@ -1874,7 +1874,7 @@ const updateJobStatus = async (
         newStatusJobs.push(job);
       }
       await setDoc(
-        doc(firestore, "appliedJobs", userId),
+        doc(firestore!, "appliedJobs", userId),
         {
           ...jobTrackerData,
           [currentStatus]: currentStatusJobs,
@@ -1998,7 +1998,7 @@ const updateDashboardOnJobApplied = async (
 
 const getAppliedJobs = async (userId: string) => {
   try {
-    const jobsRef = collection(firestore, "appliedJobs");
+    const jobsRef = collection(firestore!, "appliedJobs");
     const jobsQuery = query(jobsRef, where("userId", "==", userId));
     const jobsSnapshot = await getDocs(jobsQuery);
 
@@ -2018,7 +2018,7 @@ const updateDashboardData = async (userId: string, data: any) => {
   try {
     const currentDate = new Date().toISOString();
     const dashboardDataDoc = await getDoc(
-      doc(firestore, "dashboardData", userId)
+      doc(firestore!, "dashboardData", userId)
     );
     const existingData = dashboardDataDoc.exists()
       ? dashboardDataDoc.data()
@@ -2030,7 +2030,7 @@ const updateDashboardData = async (userId: string, data: any) => {
       updatedAt: currentDate,
     };
 
-    await setDoc(doc(firestore, "dashboardData", userId), updatedData, {
+    await setDoc(doc(firestore!, "dashboardData", userId), updatedData, {
       merge: true,
     });
   } catch (error: any) {
@@ -2041,7 +2041,7 @@ const updateDashboardData = async (userId: string, data: any) => {
 
 const getJobTrackerData = async (userId: string) => {
   try {
-    const jobsRef = collection(firestore, "appliedJobs");
+    const jobsRef = collection(firestore!, "appliedJobs");
     const jobsQuery = query(jobsRef, where("userId", "==", userId));
     const jobsSnapshot = await getDocs(jobsQuery);
 
@@ -2067,7 +2067,7 @@ const getJobTrackerData = async (userId: string) => {
 // Export all functions
 export {
   auth,
-  firestore,
+  firestore!,
   storage,
   checkAuthToken,
   authenticateUser,

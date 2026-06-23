@@ -100,7 +100,7 @@ export default function AutoApplyDashboard() {
 
         // Fetch real stats from Firestore appliedJobs collection
         try {
-          const jobsRef = collection(firestore, "appliedJobs");
+          const jobsRef = collection(firestore!, "appliedJobs");
           const jobsQuery = query(
             jobsRef,
             where("userId", "==", user.uid),
