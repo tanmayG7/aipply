@@ -1,0 +1,121 @@
+# robots.txt — aipply.io
+# Location: public/robots.txt
+# Live at:  https://www.aipply.io/robots.txt
+
+# ── Google ───────────────────────────────────────────────────────
+User-agent: Googlebot
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /test-subscription/
+Disallow: /test-webhook/
+Disallow: /user-id-test/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Mediapartners-Google
+Allow: /
+
+# ── Amazon — required for AWS credits ───────────────────────────
+User-agent: Amazonbot
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+
+User-agent: Amzn-SearchBot
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+
+# ── Bing / Microsoft ─────────────────────────────────────────────
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+
+User-agent: msnbot
+Allow: /
+
+# ── Apple ────────────────────────────────────────────────────────
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ── OpenAI / ChatGPT ─────────────────────────────────────────────
+User-agent: GPTBot
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# ── Anthropic / Claude ───────────────────────────────────────────
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# ── Perplexity AI ────────────────────────────────────────────────
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# ── Meta AI ──────────────────────────────────────────────────────
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+# ── Common Crawl ─────────────────────────────────────────────────
+User-agent: CCBot
+Allow: /
+
+# ── Others ───────────────────────────────────────────────────────
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# ── Default ──────────────────────────────────────────────────────
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /test-subscription/
+Disallow: /test-webhook/
+Disallow: /user-id-test/
+
+# ── Sitemap ──────────────────────────────────────────────────────
+Sitemap: https://www.aipply.io/sitemap.xml
