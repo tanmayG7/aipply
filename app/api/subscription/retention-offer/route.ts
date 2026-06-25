@@ -7,6 +7,14 @@ import { collection, addDoc } from 'firebase/firestore';
 
 export async function POST(request: NextRequest) {
   try {
+    // Guard: ensure Firestore is initialized before anything else
+    if (!firestore) {
+      return NextResponse.json(
+        { error: 'Database not initialized' },
+        { status: 500 }
+      );
+    }
+
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -86,18 +94,16 @@ export async function POST(request: NextRequest) {
     const now = new Date();
 
     switch (offerType) {
-      case 'discount':
+      case 'discount': {
         // Apply 20% discount
         const currentPrice = subscription.planPrice || 0;
         const discountedPrice = Math.round(currentPrice * 0.8);
 
-        // Update subscription in Firebase
         await updateUserSubscription(userId, {
           planPrice: discountedPrice,
           updatedAt: now.toISOString(),
         });
 
-        // Log retention offer acceptance
         await addDoc(collection(firestore, 'retentionOffers'), {
           userId,
           subscriptionId: subscription.razorpaySubscriptionId,
@@ -115,9 +121,9 @@ export async function POST(request: NextRequest) {
           savings: currentPrice - discountedPrice,
         };
         break;
+      }
 
-      case 'pause':
-        // Pause subscription
+      case 'pause': {
         const months = pauseMonths || 2;
         const pauseUntil = new Date();
         pauseUntil.setMonth(pauseUntil.getMonth() + months);
@@ -134,13 +140,11 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Update subscription in Firebase
         await updateUserSubscription(userId, {
-          subscriptionStatus: 'premium', // Keep premium during pause
+          subscriptionStatus: 'premium',
           updatedAt: now.toISOString(),
         });
 
-        // Log retention offer acceptance
         await addDoc(collection(firestore, 'retentionOffers'), {
           userId,
           subscriptionId: subscription.razorpaySubscriptionId,
@@ -156,9 +160,9 @@ export async function POST(request: NextRequest) {
           pauseUntil: pauseUntil.toISOString(),
         };
         break;
+      }
 
-      case 'downgrade':
-        // Downgrade to different plan
+      case 'downgrade': {
         if (!newPlanType) {
           return NextResponse.json(
             { error: 'New plan type is required for downgrade' },
@@ -174,7 +178,6 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Update subscription schedule in Razorpay
         const scheduleResult = await updateSubscriptionSchedule(
           subscription.razorpaySubscriptionId,
           {
@@ -192,7 +195,6 @@ export async function POST(request: NextRequest) {
 
         const newPrice = getPlanPrice(newPlanType);
 
-        // Update subscription in Firebase
         await updateUserSubscription(userId, {
           planType: newPlanType,
           planPrice: newPrice,
@@ -200,7 +202,6 @@ export async function POST(request: NextRequest) {
           updatedAt: now.toISOString(),
         });
 
-        // Log retention offer acceptance
         await addDoc(collection(firestore, 'retentionOffers'), {
           userId,
           subscriptionId: subscription.razorpaySubscriptionId,
@@ -219,6 +220,7 @@ export async function POST(request: NextRequest) {
           newPrice,
         };
         break;
+      }
 
       default:
         return NextResponse.json(
