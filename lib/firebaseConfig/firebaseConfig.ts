@@ -2067,7 +2067,7 @@ const getJobTrackerData = async (userId: string) => {
 // Export all functions
 export {
   auth,
-  firestore!,
+  firestore,
   storage,
   checkAuthToken,
   authenticateUser,
