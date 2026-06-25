@@ -1,12 +1,9 @@
 // app/sitemap.ts
-// Next.js 15 App Router — generates https://www.aipply.io/sitemap.xml
+// Replace the existing sitemap.ts with this file.
+// Next.js serves this at: https://www.aipply.io/sitemap.xml
 //
-// DEPLOY: Place at app/sitemap.ts in the aipply/ (frontend) repo.
-// VERIFY: https://www.aipply.io/sitemap.xml after next Vercel deploy.
-// SUBMIT: https://search.google.com/search-console → Sitemaps
-//
-// Pages confirmed from live site scrape + HANDOVER.md app structure.
-// Add/remove URLs to match your actual app/ routes.
+// Routes confirmed from app/ directory (June 2026).
+// Excluded: /dashboard, /api, /test-*, /user-id-test (not public pages)
 
 import type { MetadataRoute } from "next";
 
@@ -16,13 +13,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
   return [
-    // ── Marketing / Public pages ───────────────────────────────
+    // ── Homepage ───────────────────────────────────────────────
     {
       url: `${BASE}/`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1.0,
     },
+
+    // ── Core marketing ─────────────────────────────────────────
     {
       url: `${BASE}/pricing`,
       lastModified: now,
@@ -33,34 +32,57 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${BASE}/features`,
       lastModified: now,
       changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE}/about-us`,
+      lastModified: now,
+      changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${BASE}/about`,
+      url: `${BASE}/contact-us`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.6,
+    },
+
+    // ── Product / feature pages ─────────────────────────────────
+    {
+      url: `${BASE}/cover-letter`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE}/cv-services`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE}/resume-analysis`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE}/resources`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE}/free-me`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
-      url: `${BASE}/contact`,
+      url: `${BASE}/offer`,
       lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-
-    // ── Auth ───────────────────────────────────────────────────
-    // Only include if these are public landing pages in your app/
-    {
-      url: `${BASE}/login`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-    {
-      url: `${BASE}/signup`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.6,
+      changeFrequency: "weekly",
+      priority: 0.7,
     },
 
     // ── Legal ──────────────────────────────────────────────────
@@ -76,10 +98,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: `${BASE}/refund`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
 
-    // ── DO NOT include ─────────────────────────────────────────
-    // /dashboard/*    → protected, no SEO value
-    // /api/*          → API routes, not pages
-    // /admin/*        → admin panel, not public
+    // ── NOT included (intentionally excluded) ──────────────────
+    // /dashboard       → auth-protected, no SEO value
+    // /api/*           → API routes, not pages
+    // /test-subscription → internal test page
+    // /test-webhook    → internal test page
+    // /user-id-test    → internal test page
+    // /contexts        → Next.js context providers, not a page
   ];
 }
