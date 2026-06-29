@@ -1,21 +1,17 @@
 import { NextResponse } from 'next/server';
 import { connectToMongoDB } from '@/lib/mongo/mongo';
 
-export const dynamic = 'force-dynamic'; // Don't cache this endpoint
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const startTime = Date.now();
-
   try {
     console.log('🔍 [Health Check] Testing MongoDB connection...');
-
     const db = await connectToMongoDB();
 
-    // Test basic operations
     const collections = await db.listCollections().toArray();
     const jobsCount = await db.collection('jobs').estimatedDocumentCount();
     const jobMapCount = await db.collection('jobMap').estimatedDocumentCount();
-
     const elapsed = Date.now() - startTime;
 
     const response = {
@@ -39,17 +35,18 @@ export async function GET() {
     };
 
     console.log('✅ [Health Check] MongoDB is healthy:', response);
-
     return NextResponse.json(response);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    const errorCode = (error as NodeJS.ErrnoException).code;
     const elapsed = Date.now() - startTime;
 
     const response = {
       status: 'unhealthy',
       database: 'disconnected',
-      error: error.message,
-      errorCode: error.code,
-      errorName: error.name,
+      error: err.message,
+      errorCode: errorCode,
+      errorName: err.name,
       latency: `${elapsed}ms`,
       timestamp: new Date().toISOString(),
       environment: {
@@ -60,7 +57,6 @@ export async function GET() {
     };
 
     console.error('❌ [Health Check] MongoDB is unhealthy:', response);
-
     return NextResponse.json(response, { status: 503 });
   }
 }
