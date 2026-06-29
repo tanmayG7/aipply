@@ -1,58 +1,47 @@
 name: Check for Debug Statements
-
 on:
   pull_request:
     branches: [ main, develop ]
   push:
     branches: [ main, develop ]
-
 jobs:
   check-debug:
     name: Scan for Debug Code
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-
+      - name: Set up Bun          # ← added
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Install dependencies
         run: npm ci
-
       - name: Run debug statement check
         run: npm run check:debug
-
       - name: Run ESLint
         run: npm run lint
-
       - name: Check for debug patterns in diff
         if: github.event_name == 'pull_request'
         run: |
           echo "Checking for debug patterns in PR diff..."
-
-          # Get the diff for this PR
           git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
-
-          # Check for common debug patterns
           if grep -i "Debug:" pr_diff.txt; then
             echo "❌ ERROR: Found 'Debug:' text in PR diff"
             exit 1
           fi
-
           if grep "console\.log.*🔍" pr_diff.txt; then
             echo "❌ ERROR: Found debug console.log statements in PR diff"
             exit 1
           fi
-
           echo "✅ No debug statements found in PR diff"
-
       - name: Comment on PR if debug found
         if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
