@@ -103,7 +103,6 @@ export const UserContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
         error: errorMessage,
         isLoading: false,
         isInitialized: true,
-        // Fallback to free subscription on error, but show error state
         subscriptionStatus: 'free',
       }));
     }
@@ -113,6 +112,7 @@ export const UserContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
    * Method to manually refresh user data
    */
   const refreshUserData = useCallback(async () => {
+    if (!auth) return;
     const currentUser = auth.currentUser;
     if (currentUser) {
       await fetchUserData(currentUser.uid);
@@ -124,12 +124,20 @@ export const UserContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
    * Fetches user data when auth state changes
    */
   useEffect(() => {
+    if (!auth) {
+      // Auth not initialized — mark as initialized with logged-out state
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        isInitialized: true,
+      }));
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is logged in, fetch their data
         await fetchUserData(user.uid);
       } else {
-        // User is logged out, reset state
         setState({
           profile: null,
           subscriptionStatus: 'free',
