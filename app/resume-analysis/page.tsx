@@ -215,7 +215,7 @@ const resumeAnalysisFAQs = [
 
 const ResumeAnalysisFAQSection: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [_jobDescription, _setJobDescription] = useState("");
+ // const [jobDescription, setJobDescription] = useState("");
 
   const toggleFAQ = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
