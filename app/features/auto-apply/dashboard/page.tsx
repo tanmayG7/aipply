@@ -58,7 +58,18 @@ interface AutoApplyStats {
   lastRunTime: string | null;
   isRunning: boolean;
 }
-
+interface FirestoreJob {
+  id: string;
+  title: string;
+  company: string;
+  platform: string;
+  appliedAt?: string;
+  appliedDate?: string;
+  status: string;
+  salary?: string;
+  location?: string;
+  autoApplied?: boolean;
+}
 interface RecentApplication {
   id: string;
   jobTitle: string;
@@ -111,23 +122,23 @@ export default function AutoApplyDashboard() {
           const jobs = jobsSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
-          }));
+          }))as FirestoreJob[];
 
           // Calculate real stats
           const now = new Date();
           const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-          const todayJobs = jobs.filter((job: any) =>
+          const todayJobs = jobs.filter((job: FirestoreJob) =>
             new Date(job.appliedAt || job.appliedDate) >= todayStart
           );
 
-          const successfulJobs = jobs.filter((job: any) =>
+          const successfulJobs = jobs.filter((job: FirestoreJob) =>
             job.status === "applied_successfully" || job.status === "interview"
           );
 
-          const pendingJobs = jobs.filter((job: any) => job.status === "pending");
-          const rejectedJobs = jobs.filter((job: any) => job.status === "rejected");
-          const interviewJobs = jobs.filter((job: any) => job.status === "interview");
+          const pendingJobs = jobs.filter((job: FirestoreJob) => job.status === "pending");
+          const rejectedJobs = jobs.filter((job: FirestoreJob) => job.status === "rejected");
+          const interviewJobs = jobs.filter((job: FirestoreJob) => job.status === "interview");
 
           setStats({
             totalApplications: jobs.length,
@@ -137,10 +148,10 @@ export default function AutoApplyDashboard() {
             rejectedApplications: rejectedJobs.length,
             interviewRequests: interviewJobs.length,
             lastRunTime: jobs.length > 0
-              ? (jobs.sort((a: any, b: any) =>
+              ? (jobs.sort((a: FirestoreJob, b: FirestoreJob) =>
                   new Date(b.appliedAt || b.appliedDate).getTime() -
                   new Date(a.appliedAt || a.appliedDate).getTime()
-                )[0] as any).appliedAt
+                )[0]).appliedAt
               : null,
             isRunning: profile.autoApplySettings?.isEnabled || false,
           });
@@ -148,12 +159,12 @@ export default function AutoApplyDashboard() {
           // Set recent applications (real data, not mock)
           setRecentApplications(
             jobs
-              .sort((a: any, b: any) =>
+              .sort((a: FirestoreJob, b: FirestoreJob) =>
                 new Date(b.appliedAt || b.appliedDate).getTime() -
                 new Date(a.appliedAt || a.appliedDate).getTime()
               )
               .slice(0, 10)
-              .map((job: any) => ({
+              .map((job: FirestoreJob) => ({
                 id: job.id,
                 jobTitle: job.title,
                 company: job.company,
