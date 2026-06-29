@@ -30,21 +30,21 @@ import { auth } from "@/lib/firebaseConfig/firebaseConfig";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 export default function CVServicesPage() {
-  // Authentication state
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const router = useRouter();
 
-  // UI state
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
-  // Check authentication status
   useEffect(() => {
+    if (!auth) {
+      setAuthLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -148,19 +148,14 @@ export default function CVServicesPage() {
       <main className="pt-20 md:pt-24">
         {/* Hero Section */}
         <section className="relative overflow-hidden">
-          {/* Gradient blur background - OPTIMIZED */}
-          
-          
           <ResponsivePageContainer>
             <div className="relative z-10 pt-20 pb-32">
               <div className="max-w-4xl mx-auto text-center">
-                {/* Badge */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#AE94FF]/30 bg-[#AE94FF]/10 backdrop-blur-sm mb-8">
                   <Zap className="w-4 h-4 text-[#AE94FF]" />
                   <span className="text-sm font-medium text-[#F5F5F6]">Professional CV Services</span>
                 </div>
 
-                {/* Main headline */}
                 <h1 className="font-manrope text-fluid-hero font-bold text-[#F5F5F6] mb-6 text-balance">
                   Land Your Dream Job with a{" "}
                   <span className="bg-gradient-to-r from-[#52A9FF] to-[#AE94FF] bg-clip-text text-transparent">
@@ -168,12 +163,10 @@ export default function CVServicesPage() {
                   </span>
                 </h1>
 
-                {/* Subheadline */}
                 <p className="font-manrope text-fluid-lead text-[#CECFD2] mb-12 max-w-2xl mx-auto">
                   Expert-written CVs that pass ATS systems and impress recruiters. Get hired faster with a CV that showcases your true potential.
                 </p>
 
-                {/* CTA Button */}
                 <a href="#payment" className="inline-block">
                   <Button 
                     size="lg"
@@ -183,7 +176,6 @@ export default function CVServicesPage() {
                   </Button>
                 </a>
 
-                {/* Trust indicators */}
                 <div className="flex items-center justify-center gap-8 mt-12 flex-wrap">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-[#10B981]" />
@@ -202,7 +194,6 @@ export default function CVServicesPage() {
             </div>
           </ResponsivePageContainer>
 
-          {/* Hero Image - MOBILE OPTIMIZED */}
           <ResponsivePageContainer>
             <div className="relative z-10 -mt-16 mb-20">
               <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] rounded-2xl overflow-hidden border-2 sm:border-4 border-[#333741] shadow-2xl">
@@ -254,8 +245,6 @@ export default function CVServicesPage() {
 
         {/* Pricing & Payment Section */}
         <section id="payment" className="py-16 md:py-20 relative scroll-mt-24">
-          {/* <div className="hidden lg:block absolute w-[60%] h-[300px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#5D29FF] bg-opacity-20 rounded-full blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div> */}
-          
           <ResponsivePageContainer>
             <div className="relative z-10 max-w-5xl mx-auto">
               <div className="text-center mb-12">
@@ -268,7 +257,6 @@ export default function CVServicesPage() {
               </div>
 
               <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
-                {/* Pricing Card */}
                 <Card className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border-[#AE94FF]/30 p-8">
                   <div className="text-center mb-8">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#AE94FF]/10 border border-[#AE94FF]/30 mb-4">
@@ -311,7 +299,6 @@ export default function CVServicesPage() {
                   </div>
                 </Card>
 
-                {/* CTA Card */}
                 <Card className="bg-[#0F0F0F] border-[#333741] p-6 md:p-8">
                   <h3 className="font-manrope text-xl md:text-2xl font-bold text-[#F5F5F6] mb-4 text-center">
                     Ready to Get Started?
@@ -370,18 +357,15 @@ export default function CVServicesPage() {
             </div>
 
             <div className="relative max-w-5xl mx-auto">
-              {/* Connection line */}
               <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-[#AE94FF]/20 via-[#AE94FF]/50 to-[#AE94FF]/20 transform -translate-y-1/2"></div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
                 {processSteps.map((step, index) => (
                   <div key={index} className="relative">
                     <Card className="bg-[#0F0F0F] border-[#333741] p-6 text-center hover:border-[#AE94FF]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#AE94FF]/10 group">
-                      {/* Step number */}
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] flex items-center justify-center text-white font-bold text-sm">
                         {index + 1}
                       </div>
-
                       <div className="text-[#AE94FF] mb-4 flex justify-center group-hover:scale-110 transition-transform duration-300">
                         {step.icon}
                       </div>
@@ -401,8 +385,6 @@ export default function CVServicesPage() {
 
         {/* Testimonials Section */}
         <section className="py-16 md:py-20 relative">
-        {/*<div className="hidden lg:block absolute w-[50%] h-[200px] top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 bg-[#AE94FF] bg-opacity-15 rounded-full blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div>*/}
-          
           <ResponsivePageContainer>
             <div className="relative z-10">
               <div className="text-center mb-16">
@@ -435,13 +417,11 @@ export default function CVServicesPage() {
                         <p className="text-sm text-[#9CA3AF]">{testimonial.role}</p>
                       </div>
                     </div>
-
                     <div className="flex gap-1 mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <Star key={i} className="w-4 h-4 fill-[#FFA500] text-[#FFA500]" />
                       ))}
                     </div>
-
                     <p className="text-[#CECFD2] text-sm leading-relaxed">
                       &quot;{testimonial.text}&quot;
                     </p>
@@ -488,7 +468,6 @@ export default function CVServicesPage() {
                         aria-hidden="true"
                       />
                     </button>
-
                     <div
                       id={`faq-answer-${index}`}
                       role="region"
@@ -513,8 +492,6 @@ export default function CVServicesPage() {
 
         {/* Final CTA Section */}
         <section className="py-16 md:py-20 relative overflow-hidden">
-         {/*<div className="hidden lg:block absolute w-full h-full top-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#5D29FF]/20 via-[#AE94FF]/30 to-[#52A9FF]/20 blur-[100px] z-0 will-change-transform motion-reduce:blur-none"></div>*/}
-          
           <ResponsivePageContainer>
             <div className="relative z-10 max-w-4xl mx-auto text-center">
               <h2 className="font-manrope text-fluid-section font-bold text-[#F5F5F6] mb-6">
