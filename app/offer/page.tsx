@@ -3,15 +3,12 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Check, ArrowRight, Star, Briefcase, FileText, LayoutDashboard, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check, ArrowRight, Star } from "lucide-react";
 import { EnhancedInput } from "@/components/ui/enhanced-input";
 import { EnhancedLabel } from "@/components/ui/enhanced-label";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { formatPhoneNumber } from "@/lib/countryCodes";
 import { blockNonAlpha, validateName, validateEmail, validatePhone, formatPhoneE164 } from "@/lib/formValidation";
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { ButtonMovingBorder } from "@/components/ui/moving-border";
@@ -324,15 +321,15 @@ function BenefitRow({ text }: { text: string }) {
   );
 }
 
-function FeatureCard({ icon: Icon, title, desc }: { icon: any, title: string, desc: string }) {
-  return (
-    <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/20 transition-all hover:bg-white/10 group">
-      <Icon className="w-6 h-6 text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
-      <h4 className="font-semibold text-white">{title}</h4>
-      <p className="text-xs text-gray-400">{desc}</p>
-    </div>
-  )
-}
+//function FeatureCard({ icon: Icon, title, desc }: { icon: any, title: string, desc: string }) {
+  //return (
+    //<div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/20 transition-all hover:bg-white/10 group">
+      //<Icon className="w-6 h-6 text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
+      //<h4 className="font-semibold text-white">{title}</h4>
+      //<p className="text-xs text-gray-400">{desc}</p>
+    //</div>
+  //)
+//}
 
 const LabelInputContainer = ({
   children,
