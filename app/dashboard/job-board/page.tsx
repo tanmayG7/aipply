@@ -212,7 +212,7 @@ export default function Page() {
           }
         ),
         timeoutPromise
-      ]) as any;
+      ]) as { jobs: Job[]; currentPage: number; totalPages: number; totalJobs: number };
 
       if (!result || typeof result !== 'object') {
         throw new Error('Invalid response from getUpdatedJobsPaginated');
@@ -267,7 +267,7 @@ export default function Page() {
     } finally {
       setPageLoading(false);
     }
-  }, [userProfileValue, salaryRange, experience, jobType]);
+  }, [userProfileValue, salaryRange, experience, jobType, currentPage]);
 
   // Simplified initial data fetch
   const fetchInitialData = useCallback(async () => {
