@@ -542,7 +542,7 @@ const saveContactFormSubmission = async (formData: ContactFormData) => {
 };
 
 const listenToAuthChanges = (setUser: (user: any) => void) => {
-  onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth!, async (user) => {
     if (user) {
       setUser(user);
     } else {
@@ -552,7 +552,7 @@ const listenToAuthChanges = (setUser: (user: any) => void) => {
 };
 
 const checkAuthToken = (navigate: (path: string) => void) => {
-  onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth!, async (user) => {
     if (user) {
       const userDoc = await getDoc(doc(firestore!, "users", user.uid));
       if (userDoc.exists()) {
@@ -594,7 +594,7 @@ const checkEmailSignInMethods = async (email: string) => {
       console.log("💾 Using cached account linking data:", cachedData);
     }
     
-    const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+    const signInMethods = await fetchSignInMethodsForEmail(auth!, email);
     console.log("🔍 Raw Firebase signInMethods:", signInMethods);
     
     const result = {
@@ -622,7 +622,7 @@ const checkEmailSignInMethods = async (email: string) => {
 
 // Link email/password to existing Google account
 const linkEmailPasswordToAccount = async (email: string, password: string) => {
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   if (!user) throw new Error("No user is currently signed in");
   
   try {
@@ -643,7 +643,7 @@ const linkEmailPasswordToAccount = async (email: string, password: string) => {
 
 // Link Google account to existing email/password account
 const linkGoogleToAccount = async () => {
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   if (!user) throw new Error("No user is currently signed in");
   
   try {
@@ -661,7 +661,7 @@ const linkGoogleToAccount = async () => {
 
 // Setup password for Google-only accounts
 const setupPasswordForGoogleAccount = async (password: string) => {
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   if (!user) throw new Error("No user is currently signed in");
   
   try {
@@ -691,7 +691,7 @@ const authenticateUser = async (
 
     if (isGoogleSignIn) {
       // Google Sign-in
-      userCredential = await signInWithPopup(auth, provider);
+      userCredential = await signInWithPopup(auth!, provider);
 
       // For Google sign-in, save AI consent if this is a new user
       const user = userCredential.user;
@@ -723,7 +723,7 @@ const authenticateUser = async (
       // Email/Password flow - Try sign in first, then create account
       try {
         // First attempt: Try to sign in with existing account
-        userCredential = await signInWithEmailAndPassword(auth, email, password);
+        userCredential = await signInWithEmailAndPassword(auth!, email, password);
         console.log("✅ Sign in successful for existing user");
       } catch (signInError: any) {
         console.log("📝 Sign in failed, checking error:", signInError.code);
@@ -796,7 +796,7 @@ const handleSignInError = async (
       // User doesn't exist, create new account
       console.log("👤 Creating new user account for:", email);
       try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth!, email, password);
 
         // New user - redirect to profile setup
         const user = userCredential.user;
@@ -935,7 +935,7 @@ const handleSignInError = async (
 
 const logoutUser = async (navigate: (path: string) => void) => {
   try {
-    await signOut(auth);
+    await signOut(auth!);
     localStorage.removeItem("firebaseToken");
     navigate("/onboarding/login");
   } catch (error) {
@@ -1003,7 +1003,7 @@ const saveUserProfile = async (userId: string, profileData: any) => {
 const getUserProfile = async (userId?: string): Promise<UserDetails> => {
   try {
     if (!userId) {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) throw new Error("No user is currently signed in");
       userId = user.uid;
     }
@@ -1116,7 +1116,7 @@ const savePlatformCredentials = async (
     );
 
     await setDoc(
-      doc(firestore, "users", userId),
+      doc(firestore!, "users", userId),
       {
         platformCredentials: encryptedCredentials,
         updatedAt: new Date().toISOString(),
@@ -1138,7 +1138,7 @@ const getPlatformCredentials = async (
   userId: string
 ): Promise<Record<string, { email: string; password: string }>> => {
   try {
-    const userDoc = await getDoc(doc(firestore, "users", userId));
+    const userDoc = await getDoc(doc(firestore!, "users", userId));
 
     if (userDoc.exists()) {
       const userData = userDoc.data();
@@ -1225,7 +1225,7 @@ const setHideJob = async (userId: string, jobId: string) => {
     );
 
     // Remove the job from current jobs
-    const currentJobsDoc = await getDoc(doc(firestore, "currentJobs", userId));
+    const currentJobsDoc = await getDoc(doc(firestore!, "currentJobs", userId));
     if (currentJobsDoc.exists()) {
       let currentJobs = currentJobsDoc.data().jobs;
       currentJobs = currentJobs.filter((id: string) => id !== jobId);
@@ -1832,7 +1832,7 @@ const setAppliedJob = async (
   appliedDate: string
 ) => {
   try {
-    const appliedJobsDoc = await getDoc(doc(firestore, "appliedJobs", userId));
+    const appliedJobsDoc = await getDoc(doc(firestore!, "appliedJobs", userId));
     const appliedJobs = appliedJobsDoc.exists()
       ? appliedJobsDoc.data().appliedJobs
       : [];
