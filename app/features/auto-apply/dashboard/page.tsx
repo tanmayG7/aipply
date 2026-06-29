@@ -41,10 +41,7 @@ interface AutoApplySettings {
   jobTitles?: string[];
   locations?: string[];
   platforms?: string[];
-  salaryRange?: {
-    min?: number;
-    max?: number;
-  };
+  salaryRange?: { min?: number; max?: number };
   updatedAt?: string;
 }
 
@@ -58,6 +55,7 @@ interface AutoApplyStats {
   lastRunTime: string | null;
   isRunning: boolean;
 }
+
 interface FirestoreJob {
   id: string;
   title: string;
@@ -70,6 +68,7 @@ interface FirestoreJob {
   location?: string;
   autoApplied?: boolean;
 }
+
 interface RecentApplication {
   id: string;
   jobTitle: string;
@@ -93,9 +92,7 @@ export default function AutoApplyDashboard() {
     lastRunTime: null,
     isRunning: false,
   });
-  const [recentApplications, setRecentApplications] = useState<
-    RecentApplication[]
-  >([]);
+  const [recentApplications, setRecentApplications] = useState<RecentApplication[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -104,14 +101,26 @@ export default function AutoApplyDashboard() {
 
   const loadDashboardData = async () => {
     try {
+      // Guard: auth must be initialized
+      if (!auth) {
+        setLoading(false);
+        return;
+      }
+
       const user = auth.currentUser;
       if (user) {
         const profile = await getUserProfile(user.uid) as UserDetails;
         setAutoApplySettings(profile.autoApplySettings || null);
 
-        // Fetch real stats from Firestore appliedJobs collection
+        // Guard: firestore must be initialized before querying
+        if (!firestore) {
+          setStats(prev => ({ ...prev, isRunning: profile.autoApplySettings?.isEnabled || false }));
+          setLoading(false);
+          return;
+        }
+
         try {
-          const jobsRef = collection(firestore!, "appliedJobs");
+          const jobsRef = collection(firestore, "appliedJobs");
           const jobsQuery = query(
             jobsRef,
             where("userId", "==", user.uid),
@@ -122,23 +131,25 @@ export default function AutoApplyDashboard() {
           const jobs = jobsSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
-          }))as FirestoreJob[];
+          })) as FirestoreJob[];
 
-          // Calculate real stats
           const now = new Date();
           const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-          const todayJobs = jobs.filter((job: FirestoreJob) =>
-            new Date(job.appliedAt || job.appliedDate) >= todayStart
+          const todayJobs = jobs.filter((job) =>
+            new Date(job.appliedAt || job.appliedDate || 0) >= todayStart
           );
-
-          const successfulJobs = jobs.filter((job: FirestoreJob) =>
+          const successfulJobs = jobs.filter((job) =>
             job.status === "applied_successfully" || job.status === "interview"
           );
+          const pendingJobs = jobs.filter((job) => job.status === "pending");
+          const rejectedJobs = jobs.filter((job) => job.status === "rejected");
+          const interviewJobs = jobs.filter((job) => job.status === "interview");
 
-          const pendingJobs = jobs.filter((job: FirestoreJob) => job.status === "pending");
-          const rejectedJobs = jobs.filter((job: FirestoreJob) => job.status === "rejected");
-          const interviewJobs = jobs.filter((job: FirestoreJob) => job.status === "interview");
+          const sortedJobs = [...jobs].sort((a, b) =>
+            new Date(b.appliedAt || b.appliedDate || 0).getTime() -
+            new Date(a.appliedAt || a.appliedDate || 0).getTime()
+          );
 
           setStats({
             totalApplications: jobs.length,
@@ -147,37 +158,24 @@ export default function AutoApplyDashboard() {
             pendingApplications: pendingJobs.length,
             rejectedApplications: rejectedJobs.length,
             interviewRequests: interviewJobs.length,
-            lastRunTime: jobs.length > 0
-              ? (jobs.sort((a: FirestoreJob, b: FirestoreJob) =>
-                  new Date(b.appliedAt || b.appliedDate).getTime() -
-                  new Date(a.appliedAt || a.appliedDate).getTime()
-                )[0]).appliedAt
-              : null,
+            lastRunTime: sortedJobs.length > 0 ? (sortedJobs[0].appliedAt || null) : null,
             isRunning: profile.autoApplySettings?.isEnabled || false,
           });
 
-          // Set recent applications (real data, not mock)
           setRecentApplications(
-            jobs
-              .sort((a: FirestoreJob, b: FirestoreJob) =>
-                new Date(b.appliedAt || b.appliedDate).getTime() -
-                new Date(a.appliedAt || a.appliedDate).getTime()
-              )
-              .slice(0, 10)
-              .map((job: FirestoreJob) => ({
-                id: job.id,
-                jobTitle: job.title,
-                company: job.company,
-                platform: job.platform,
-                appliedAt: job.appliedAt || job.appliedDate,
-                status: job.status === "applied_successfully" ? "success" : job.status,
-                salary: job.salary,
-                location: job.location,
-              }))
+            sortedJobs.slice(0, 10).map((job) => ({
+              id: job.id,
+              jobTitle: job.title,
+              company: job.company,
+              platform: job.platform,
+              appliedAt: job.appliedAt || job.appliedDate || new Date().toISOString(),
+              status: job.status === "applied_successfully" ? "success" : job.status as "pending" | "success" | "failed",
+              salary: job.salary,
+              location: job.location,
+            }))
           );
         } catch (error) {
           console.error("Error loading auto-apply stats:", error);
-          // Set default stats on error
           setStats({
             totalApplications: 0,
             todayApplications: 0,
@@ -200,6 +198,7 @@ export default function AutoApplyDashboard() {
 
   const toggleAutoApply = async () => {
     try {
+      if (!auth) return;
       const user = auth.currentUser;
       if (user && autoApplySettings) {
         const newSettings = {
@@ -207,10 +206,9 @@ export default function AutoApplyDashboard() {
           isEnabled: !autoApplySettings.isEnabled,
           updatedAt: new Date().toISOString(),
         };
-
         await saveUserProfile(user.uid, { autoApplySettings: newSettings });
         setAutoApplySettings(newSettings);
-        setStats((prev) => ({ ...prev, isRunning: newSettings.isEnabled }));
+        setStats((prev) => ({ ...prev, isRunning: newSettings.isEnabled || false }));
       }
     } catch (error) {
       console.error("Error toggling auto-apply:", error);
@@ -219,27 +217,19 @@ export default function AutoApplyDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "success":
-        return "text-green-400";
-      case "failed":
-        return "text-red-400";
-      case "pending":
-        return "text-yellow-400";
-      default:
-        return "text-gray-400";
+      case "success": return "text-green-400";
+      case "failed": return "text-red-400";
+      case "pending": return "text-yellow-400";
+      default: return "text-gray-400";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "success":
-        return <CheckCircle className="w-4 h-4" />;
-      case "failed":
-        return <XCircle className="w-4 h-4" />;
-      case "pending":
-        return <Clock className="w-4 h-4" />;
-      default:
-        return <Eye className="w-4 h-4" />;
+      case "success": return <CheckCircle className="w-4 h-4" />;
+      case "failed": return <XCircle className="w-4 h-4" />;
+      case "pending": return <Clock className="w-4 h-4" />;
+      default: return <Eye className="w-4 h-4" />;
     }
   };
 
@@ -254,28 +244,19 @@ export default function AutoApplyDashboard() {
   if (!autoApplySettings) {
     return (
       <>
-        <Head>
-          <title>Auto-Apply Dashboard - AiPply</title>
-        </Head>
-        <SidebarProvider
-          style={{ "--sidebar-width": "19rem" } as React.CSSProperties}
-        >
+        <Head><title>Auto-Apply Dashboard - AiPply</title></Head>
+        <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
           <AppSidebar />
           <SidebarInset>
             <div className="flex flex-1 flex-col gap-4 p-4 bg-[#020218] text-white">
               <div className="text-center py-16">
                 <Zap className="w-16 h-16 mx-auto mb-6 text-[#20CEB6]" />
-                <h1 className="text-3xl font-bold mb-4">
-                  Auto-Apply Not Set Up
-                </h1>
+                <h1 className="text-3xl font-bold mb-4">Auto-Apply Not Set Up</h1>
                 <p className="text-gray-400 mb-8 max-w-md mx-auto">
-                  Set up your auto-apply preferences to start automatically
-                  applying to jobs that match your criteria.
+                  Set up your auto-apply preferences to start automatically applying to jobs that match your criteria.
                 </p>
                 <Link href="/dashboard/auto-apply/setup">
-                  <Button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC]">
-                    Set Up Auto-Apply
-                  </Button>
+                  <Button className="bg-gradient-to-r from-[#20CEB6] to-[#2E2ADC]">Set Up Auto-Apply</Button>
                 </Link>
               </div>
             </div>
@@ -287,12 +268,8 @@ export default function AutoApplyDashboard() {
 
   return (
     <>
-      <Head>
-        <title>Auto-Apply Dashboard - AiPply</title>
-      </Head>
-      <SidebarProvider
-        style={{ "--sidebar-width": "19rem" } as React.CSSProperties}
-      >
+      <Head><title>Auto-Apply Dashboard - AiPply</title></Head>
+      <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
         <AppSidebar />
         <SidebarInset>
           <div className="flex flex-1 flex-col gap-6 p-6 bg-[#020218] text-white">
@@ -300,25 +277,19 @@ export default function AutoApplyDashboard() {
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-bold">Auto-Apply Dashboard</h1>
-                <p className="text-gray-400">
-                  Monitor and manage your automated job applications
-                </p>
+                <p className="text-gray-400">Monitor and manage your automated job applications</p>
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-sm">Auto-Apply</span>
-                  <Switch
-                    checked={stats.isRunning}
-                    onCheckedChange={toggleAutoApply}
-                  />
+                  <Switch checked={stats.isRunning} onCheckedChange={toggleAutoApply} />
                   <Badge variant={stats.isRunning ? "default" : "secondary"}>
                     {stats.isRunning ? "Active" : "Paused"}
                   </Badge>
                 </div>
                 <Link href="/dashboard/auto-apply/setup">
                   <Button variant="outline" size="sm">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Settings
+                    <Settings className="w-4 h-4 mr-2" />Settings
                   </Button>
                 </Link>
               </div>
@@ -328,26 +299,18 @@ export default function AutoApplyDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Applications
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
                   <Target className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {stats.totalApplications}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    +{stats.todayApplications} today
-                  </p>
+                  <div className="text-2xl font-bold">{stats.totalApplications}</div>
+                  <p className="text-xs text-muted-foreground">+{stats.todayApplications} today</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Success Rate
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -362,29 +325,19 @@ export default function AutoApplyDashboard() {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {stats.pendingApplications}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Awaiting response
-                  </p>
+                  <div className="text-2xl font-bold">{stats.pendingApplications}</div>
+                  <p className="text-xs text-muted-foreground">Awaiting response</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Interviews
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Interviews</CardTitle>
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {stats.interviewRequests}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Interview requests
-                  </p>
+                  <div className="text-2xl font-bold">{stats.interviewRequests}</div>
+                  <p className="text-xs text-muted-foreground">Interview requests</p>
                 </CardContent>
               </Card>
             </div>
@@ -393,29 +346,23 @@ export default function AutoApplyDashboard() {
             <Tabs defaultValue="overview" className="space-y-4">
               <TabsList>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="applications">
-                  Recent Applications
-                </TabsTrigger>
+                <TabsTrigger value="applications">Recent Applications</TabsTrigger>
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 <TabsTrigger value="settings">Quick Settings</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Status Card */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Zap className="w-5 h-5" />
-                        Auto-Apply Status
+                        <Zap className="w-5 h-5" />Auto-Apply Status
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span>Status</span>
-                        <Badge
-                          variant={stats.isRunning ? "default" : "secondary"}
-                        >
+                        <Badge variant={stats.isRunning ? "default" : "secondary"}>
                           {stats.isRunning ? "Running" : "Paused"}
                         </Badge>
                       </div>
@@ -425,19 +372,12 @@ export default function AutoApplyDashboard() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Today&apos;s Progress</span>
-                        <span>
-                          {stats.todayApplications}/
-                          {autoApplySettings.maxApplicationsPerDay || 0}
-                        </span>
+                        <span>{stats.todayApplications}/{autoApplySettings.maxApplicationsPerDay || 0}</span>
                       </div>
                       <Progress
-                        value={
-                          autoApplySettings.maxApplicationsPerDay
-                            ? (stats.todayApplications /
-                                autoApplySettings.maxApplicationsPerDay) *
-                              100
-                            : 0
-                        }
+                        value={autoApplySettings.maxApplicationsPerDay
+                          ? (stats.todayApplications / autoApplySettings.maxApplicationsPerDay) * 100
+                          : 0}
                         className="mt-2"
                       />
                       <div className="text-sm text-gray-400">
@@ -446,85 +386,32 @@ export default function AutoApplyDashboard() {
                     </CardContent>
                   </Card>
 
-                  {/* Quick Actions */}
                   <Card>
-                    <CardHeader>
-                      <CardTitle>Quick Actions</CardTitle>
-                    </CardHeader>
+                    <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
                     <CardContent className="space-y-3">
-                      <Button
-                        onClick={toggleAutoApply}
-                        className="w-full"
-                        variant={stats.isRunning ? "destructive" : "default"}
-                      >
-                        {stats.isRunning ? (
-                          <>
-                            <Pause className="w-4 h-4 mr-2" />
-                            Pause Auto-Apply
-                          </>
-                        ) : (
-                          <>
-                            <Play className="w-4 h-4 mr-2" />
-                            Start Auto-Apply
-                          </>
-                        )}
+                      <Button onClick={toggleAutoApply} className="w-full" variant={stats.isRunning ? "destructive" : "default"}>
+                        {stats.isRunning ? (<><Pause className="w-4 h-4 mr-2" />Pause Auto-Apply</>) : (<><Play className="w-4 h-4 mr-2" />Start Auto-Apply</>)}
                       </Button>
                       <Link href="/dashboard/auto-apply/setup">
-                        <Button
-                          variant="outline"
-                          className="w-full bg-transparent"
-                        >
-                          <Settings className="w-4 h-4 mr-2" />
-                          Modify Settings
+                        <Button variant="outline" className="w-full bg-transparent">
+                          <Settings className="w-4 h-4 mr-2" />Modify Settings
                         </Button>
                       </Link>
-                      <Button
-                        variant="outline"
-                        className="w-full bg-transparent"
-                      >
-                        <BarChart3 className="w-4 h-4 mr-2" />
-                        View Full Analytics
+                      <Button variant="outline" className="w-full bg-transparent">
+                        <BarChart3 className="w-4 h-4 mr-2" />View Full Analytics
                       </Button>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Current Settings Summary */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Current Settings</CardTitle>
-                  </CardHeader>
+                  <CardHeader><CardTitle>Current Settings</CardTitle></CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="font-semibold text-gray-300">
-                          Job Titles
-                        </p>
-                        <p>
-                          {autoApplySettings.jobTitles?.join(", ") || "None"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-300">Locations</p>
-                        <p>
-                          {autoApplySettings.locations?.join(", ") || "None"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-300">Platforms</p>
-                        <p>
-                          {autoApplySettings.platforms?.join(", ") || "None"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-300">
-                          Salary Range
-                        </p>
-                        <p>
-                          {autoApplySettings.salaryRange?.min}-
-                          {autoApplySettings.salaryRange?.max} LPA
-                        </p>
-                      </div>
+                      <div><p className="font-semibold text-gray-300">Job Titles</p><p>{autoApplySettings.jobTitles?.join(", ") || "None"}</p></div>
+                      <div><p className="font-semibold text-gray-300">Locations</p><p>{autoApplySettings.locations?.join(", ") || "None"}</p></div>
+                      <div><p className="font-semibold text-gray-300">Platforms</p><p>{autoApplySettings.platforms?.join(", ") || "None"}</p></div>
+                      <div><p className="font-semibold text-gray-300">Salary Range</p><p>{autoApplySettings.salaryRange?.min}-{autoApplySettings.salaryRange?.max} LPA</p></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -532,49 +419,22 @@ export default function AutoApplyDashboard() {
 
               <TabsContent value="applications" className="space-y-4">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Recent Applications</CardTitle>
-                  </CardHeader>
+                  <CardHeader><CardTitle>Recent Applications</CardTitle></CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {recentApplications.map((app) => (
-                        <div
-                          key={app.id}
-                          className="flex items-center justify-between p-4 border border-gray-700 rounded-lg"
-                        >
+                        <div key={app.id} className="flex items-center justify-between p-4 border border-gray-700 rounded-lg">
                           <div className="flex items-center gap-4">
-                            <div
-                              className={`flex items-center gap-2 ${getStatusColor(
-                                app.status
-                              )}`}
-                            >
-                              {getStatusIcon(app.status)}
-                            </div>
+                            <div className={`flex items-center gap-2 ${getStatusColor(app.status)}`}>{getStatusIcon(app.status)}</div>
                             <div>
                               <h3 className="font-semibold">{app.jobTitle}</h3>
-                              <p className="text-sm text-gray-400">
-                                {app.company} • {app.platform}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {app.location} • {app.salary}
-                              </p>
+                              <p className="text-sm text-gray-400">{app.company} • {app.platform}</p>
+                              <p className="text-xs text-gray-500">{app.location} • {app.salary}</p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <Badge
-                              variant={
-                                app.status === "success"
-                                  ? "default"
-                                  : app.status === "failed"
-                                  ? "destructive"
-                                  : "secondary"
-                              }
-                            >
-                              {app.status}
-                            </Badge>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(app.appliedAt).toLocaleDateString()}
-                            </p>
+                            <Badge variant={app.status === "success" ? "default" : app.status === "failed" ? "destructive" : "secondary"}>{app.status}</Badge>
+                            <p className="text-xs text-gray-500 mt-1">{new Date(app.appliedAt).toLocaleDateString()}</p>
                           </div>
                         </div>
                       ))}
@@ -586,40 +446,25 @@ export default function AutoApplyDashboard() {
               <TabsContent value="analytics" className="space-y-4">
                 <div className="text-center py-16">
                   <BarChart3 className="w-16 h-16 mx-auto mb-6 text-gray-400" />
-                  <h3 className="text-xl font-semibold mb-4">
-                    Analytics Coming Soon
-                  </h3>
-                  <p className="text-gray-400">
-                    Detailed analytics and insights about your auto-apply
-                    performance will be available here.
-                  </p>
+                  <h3 className="text-xl font-semibold mb-4">Analytics Coming Soon</h3>
+                  <p className="text-gray-400">Detailed analytics and insights about your auto-apply performance will be available here.</p>
                 </div>
               </TabsContent>
 
               <TabsContent value="settings" className="space-y-4">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Quick Settings</CardTitle>
-                  </CardHeader>
+                  <CardHeader><CardTitle>Quick Settings</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold">Auto-Apply Enabled</h3>
-                        <p className="text-sm text-gray-400">
-                          Enable or disable auto-apply functionality
-                        </p>
+                        <p className="text-sm text-gray-400">Enable or disable auto-apply functionality</p>
                       </div>
-                      <Switch
-                        checked={stats.isRunning}
-                        onCheckedChange={toggleAutoApply}
-                      />
+                      <Switch checked={stats.isRunning} onCheckedChange={toggleAutoApply} />
                     </div>
                     <div className="pt-4">
                       <Link href="/dashboard/auto-apply/setup">
-                        <Button className="w-full">
-                          <Settings className="w-4 h-4 mr-2" />
-                          Open Full Settings
-                        </Button>
+                        <Button className="w-full"><Settings className="w-4 h-4 mr-2" />Open Full Settings</Button>
                       </Link>
                     </div>
                   </CardContent>
