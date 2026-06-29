@@ -87,7 +87,11 @@ const ProfileSetupContent: React.FC = () => {
             console.log("✅ Email Match Detected: Pre-filling and Locking fields.");
             setIsLockedByPromo(true);
 
-            const updates: any = {};
+            const updates: Partial<{
+            firstName: string;
+            lastName: string;
+            mobileNumber: string;
+            }> = {};
             // Only update if fields are empty OR if we are locking them (enforcing the match)
             // We prioritize the landing page data if emails match.
             if (parsed.firstName && state.formData.firstName !== parsed.firstName) updates.firstName = parsed.firstName;
@@ -108,7 +112,7 @@ const ProfileSetupContent: React.FC = () => {
         console.error("Error reading promo data:", e);
       }
     }
-  }, [state.currentPage, state.formData.email, updateFormData]);
+  }, [state.currentPage, state.formData.email, state.formData.firstName, state.formData.lastName, state.formData.mobileNumber, updateFormData]);
 
   const handleNext = () => {
     nextPage();
