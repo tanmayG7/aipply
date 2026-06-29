@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+//import Image from "next/image";
 import { Check, ArrowRight, Star } from "lucide-react";
 import { EnhancedInput } from "@/components/ui/enhanced-input";
 import { EnhancedLabel } from "@/components/ui/enhanced-label";
