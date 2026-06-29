@@ -19,6 +19,7 @@ import {
 import { auth, getUserProfile } from "@/lib/firebaseConfig/firebaseConfig";
 import CVOrdersCard from "@/components/dashboard/CVOrdersCard";
 import type { RazorpayResponse } from "@/types/razorpay";
+import type React from "react";
 
 interface UserData {
   userId: string;
@@ -30,7 +31,6 @@ interface UserData {
 export default function DashboardCVServices() {
   const router = useRouter();
 
-  // State
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -47,26 +47,22 @@ export default function DashboardCVServices() {
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
-    script.onload = () => {
-      console.log('✅ Razorpay script loaded');
-      setRazorpayLoaded(true);
-    };
-    script.onerror = () => {
-      console.error('❌ Failed to load Razorpay script');
-    };
+    script.onload = () => setRazorpayLoaded(true);
+    script.onerror = () => console.error('❌ Failed to load Razorpay script');
     document.body.appendChild(script);
-
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
+    return () => { if (document.body.contains(script)) document.body.removeChild(script); };
   }, []);
 
   // Load user data
   useEffect(() => {
     const loadUserData = async () => {
       try {
+        // Guard: auth must be initialized
+        if (!auth) {
+          router.push('/dashboard/onboarding/login?redirect=/dashboard/cv-services');
+          return;
+        }
+
         const user = auth.currentUser;
 
         if (!user) {
@@ -75,9 +71,7 @@ export default function DashboardCVServices() {
           return;
         }
 
-        console.log('Loading user profile for:', user.uid);
         const profile = await getUserProfile(user.uid);
-
         const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
 
         setUserData({
@@ -86,8 +80,6 @@ export default function DashboardCVServices() {
           email: profile.email || user.email || '',
           phone: profile.phone || ''
         });
-
-        console.log('User data loaded successfully');
       } catch (error) {
         console.error('Error loading user data:', error);
       } finally {
@@ -98,11 +90,8 @@ export default function DashboardCVServices() {
     loadUserData();
   }, [router]);
 
-  // Verify payment
   const verifyPayment = async (response: RazorpayResponse) => {
     try {
-      console.log('💳 Payment successful, verifying...');
-
       const verifyResponse = await fetch('/api/cv-services/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -116,28 +105,13 @@ export default function DashboardCVServices() {
       const verifyData = await verifyResponse.json();
 
       if (verifyResponse.ok && verifyData.success) {
-        console.log('✅ Payment verified successfully');
-
         setOrderDetails({
           orderId: verifyData.orderId,
           amount: verifyData.orderDetails?.amount || 987,
           deliveryDays: verifyData.orderDetails?.deliveryDays || 48
         });
-
         setShowSuccessModal(true);
 
-        // Google Analytics conversion tracking
-        // TODO: Update with actual Google Ads conversion ID when available
-        // if (typeof window !== 'undefined' && window.gtag) {
-        //   window.gtag('event', 'conversion', {
-        //     'send_to': 'AW-XXXXXXXXXX/XXXXXXXXXXXXX',  // Replace with your conversion ID
-        //     'value': 987,
-        //     'currency': 'INR',
-        //     'transaction_id': verifyData.orderId
-        //   });
-        // }
-
-        // Facebook Pixel conversion tracking
         if (typeof window !== 'undefined' && window.fbq) {
           window.fbq('track', 'Purchase', {
             value: 987,
@@ -157,18 +131,10 @@ export default function DashboardCVServices() {
     }
   };
 
-  // Handle payment
   const handlePayment = async () => {
-    if (!userData || !razorpayLoaded) {
-      console.error('User data or Razorpay not ready');
-      return;
-    }
-
+    if (!userData || !razorpayLoaded) return;
     setIsProcessing(true);
-
     try {
-      console.log('📝 Creating order...');
-
       const orderResponse = await fetch('/api/cv-services/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -181,9 +147,7 @@ export default function DashboardCVServices() {
       }
 
       const orderData = await orderResponse.json();
-      console.log('✅ Order created:', orderData.orderId);
 
-      // Razorpay options
       const options = {
         key: orderData.key,
         amount: orderData.amount,
@@ -192,28 +156,14 @@ export default function DashboardCVServices() {
         name: 'AiPply',
         description: 'Professional CV Writing Service',
         image: '/static/icons/logo.svg',
-        prefill: {
-          name: userData.fullName,
-          email: userData.email,
-          contact: userData.phone
-        },
-        theme: {
-          color: '#5D29FF'
-        },
-        handler: async function (response: RazorpayResponse) {
-          await verifyPayment(response);
-        },
-        modal: {
-          ondismiss: function() {
-            console.log('Payment cancelled by user');
-            setIsProcessing(false);
-          }
-        }
+        prefill: { name: userData.fullName, email: userData.email, contact: userData.phone },
+        theme: { color: '#5D29FF' },
+        handler: async function (response: RazorpayResponse) { await verifyPayment(response); },
+        modal: { ondismiss: function() { setIsProcessing(false); } }
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-
     } catch (error) {
       console.error('❌ Payment error:', error);
       alert(error instanceof Error ? error.message : 'Payment failed. Please try again.');
@@ -221,7 +171,6 @@ export default function DashboardCVServices() {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
@@ -243,19 +192,12 @@ export default function DashboardCVServices() {
       <SidebarInset>
         <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 relative bg-[#020218] text-white overflow-x-hidden min-h-screen">
 
-          {/* Page Header */}
           <div className="mb-6">
-            <h1 className="font-manrope text-3xl font-bold text-[#F5F5F6] mb-2">
-              CV Services
-            </h1>
-            <p className="text-[#CECFD2]">
-              Get your professionally crafted, ATS-optimized CV in 48 hours
-            </p>
+            <h1 className="font-manrope text-3xl font-bold text-[#F5F5F6] mb-2">CV Services</h1>
+            <p className="text-[#CECFD2]">Get your professionally crafted, ATS-optimized CV in 48 hours</p>
           </div>
 
-          {/* Pricing Card */}
           <Card className="bg-[#0F0F0F] border-[#333741] p-8 max-w-2xl">
-            {/* Most Popular Badge */}
             <div className="flex items-center justify-center mb-6">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#52A9FF]/20 to-[#5D29FF]/20 border border-[#5D29FF]/30 px-4 py-2 rounded-full">
                 <Sparkles className="w-4 h-4 text-[#AE94FF]" />
@@ -263,12 +205,8 @@ export default function DashboardCVServices() {
               </div>
             </div>
 
-            {/* Package Name */}
-            <h3 className="text-center text-2xl font-bold text-[#F5F5F6] mb-4">
-              Professional CV Package
-            </h3>
+            <h3 className="text-center text-2xl font-bold text-[#F5F5F6] mb-4">Professional CV Package</h3>
 
-            {/* Pricing */}
             <div className="text-center mb-2">
               <div className="flex items-center justify-center gap-3 mb-2">
                 <span className="text-5xl font-bold text-[#F5F5F6]">₹987</span>
@@ -279,18 +217,8 @@ export default function DashboardCVServices() {
 
             <Separator className="bg-[#333741] my-6" />
 
-            {/* Features */}
             <div className="space-y-4 mb-8">
-              {[
-                "ATS-Optimized CV",
-                "Professional Formatting",
-                "Keyword Optimization",
-                "48-Hour Delivery",
-                "Unlimited Revisions",
-                "LinkedIn Profile Tips",
-                "Cover Letter Template",
-                "Lifetime Access"
-              ].map((feature, index) => (
+              {["ATS-Optimized CV","Professional Formatting","Keyword Optimization","48-Hour Delivery","Unlimited Revisions","LinkedIn Profile Tips","Cover Letter Template","Lifetime Access"].map((feature, index) => (
                 <div key={index} className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0" />
                   <span className="text-[#CECFD2]">{feature}</span>
@@ -298,106 +226,62 @@ export default function DashboardCVServices() {
               ))}
             </div>
 
-            {/* Money-Back Guarantee */}
             <div className="flex items-center justify-center gap-2 text-sm text-[#CECFD2] mb-6">
               <Shield className="w-4 h-4 text-[#10B981]" />
               <span>100% Money-Back Guarantee</span>
             </div>
 
-            {/* Buttons */}
             <div className="space-y-3">
-              {/* Payment Button */}
               <Button
                 onClick={handlePayment}
                 disabled={isProcessing || !razorpayLoaded}
                 className="w-full bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:from-[#4298E8] hover:to-[#4C1FE8] text-white font-semibold py-6 text-lg shadow-lg shadow-[#5D29FF]/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Processing...
-                  </div>
+                  <div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" />Processing...</div>
                 ) : !razorpayLoaded ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Loading Payment System...
-                  </div>
+                  <div className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" />Loading Payment System...</div>
                 ) : (
-                  `Get Professional CV - ₹987`
+                  'Get Professional CV - ₹987'
                 )}
               </Button>
 
-              {/* Learn More Button */}
-              <Button
-                onClick={() => router.push('/cv-services')}
-                variant="outline"
-                className="w-full border-[#AE94FF] text-[#AE94FF] hover:bg-[#AE94FF]/10 py-6 text-base"
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Learn More About CV Services
+              <Button onClick={() => router.push('/cv-services')} variant="outline" className="w-full border-[#AE94FF] text-[#AE94FF] hover:bg-[#AE94FF]/10 py-6 text-base">
+                <ExternalLink className="w-4 h-4 mr-2" />Learn More About CV Services
               </Button>
             </div>
           </Card>
 
-          {/* Order History */}
           <div className="mt-8 max-w-2xl">
             <CVOrdersCard />
           </div>
 
-          {/* Success Modal */}
           {showSuccessModal && orderDetails && (
             <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
               <Card className="bg-[#0F0F0F] border-[#333741] p-8 max-w-md w-full relative">
-                {/* Close Button */}
-                <button
-                  onClick={() => setShowSuccessModal(false)}
-                  className="absolute top-4 right-4 text-[#9CA3AF] hover:text-white transition-colors"
-                >
+                <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 text-[#9CA3AF] hover:text-white transition-colors">
                   <X className="w-5 h-5" />
                 </button>
-
-                {/* Success Icon */}
                 <div className="flex justify-center mb-6">
                   <div className="w-16 h-16 bg-[#10B981]/20 rounded-full flex items-center justify-center">
                     <CheckCircle2 className="w-10 h-10 text-[#10B981]" />
                   </div>
                 </div>
-
-                {/* Title */}
-                <h2 className="text-2xl font-bold text-center text-[#F5F5F6] mb-4">
-                  Payment Successful!
-                </h2>
-
-                {/* Message */}
+                <h2 className="text-2xl font-bold text-center text-[#F5F5F6] mb-4">Payment Successful!</h2>
                 <div className="space-y-4 text-center mb-6">
-                  <p className="text-[#CECFD2]">
-                    Your CV service order has been confirmed. We&apos;ll deliver your professionally crafted CV within {orderDetails.deliveryDays} hours.
-                  </p>
-                  <p className="text-sm text-[#9CA3AF]">
-                    Order ID: <span className="text-[#AE94FF] font-mono">{orderDetails.orderId}</span>
-                  </p>
+                  <p className="text-[#CECFD2]">Your CV service order has been confirmed. We&apos;ll deliver your professionally crafted CV within {orderDetails.deliveryDays} hours.</p>
+                  <p className="text-sm text-[#9CA3AF]">Order ID: <span className="text-[#AE94FF] font-mono">{orderDetails.orderId}</span></p>
                 </div>
-
-                {/* Info Box */}
                 <div className="bg-[#5D29FF]/10 border border-[#5D29FF]/30 rounded-lg p-4 mb-6">
                   <p className="text-sm text-[#CECFD2]">
-                    <strong className="text-[#AE94FF]">Next Steps:</strong>
-                    <br />
-                    1. Check your email for the information collection form
-                    <br />
-                    2. Fill in your career details and preferences
-                    <br />
-                    3. Our experts will craft your CV
-                    <br />
+                    <strong className="text-[#AE94FF]">Next Steps:</strong><br />
+                    1. Check your email for the information collection form<br />
+                    2. Fill in your career details and preferences<br />
+                    3. Our experts will craft your CV<br />
                     4. Receive your professional CV via email
                   </p>
                 </div>
-
-                {/* Close Button */}
-                <Button
-                  onClick={() => setShowSuccessModal(false)}
-                  className="w-full bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:from-[#4298E8] hover:to-[#4C1FE8] text-white font-semibold"
-                >
+                <Button onClick={() => setShowSuccessModal(false)} className="w-full bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] hover:from-[#4298E8] hover:to-[#4C1FE8] text-white font-semibold">
                   Got it!
                 </Button>
               </Card>
