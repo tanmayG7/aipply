@@ -68,7 +68,7 @@ const getUserSubscription = async (
 ): Promise<UserSubscription | null> => {
   try {
     const subscriptionDoc = await getDoc(
-      doc(firestore, "subscriptions", userId)
+      doc(firestore!, "subscriptions", userId)
     );
     if (subscriptionDoc.exists()) {
       return subscriptionDoc.data() as UserSubscription;
@@ -137,7 +137,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     debugLog("Setting up auth listener");
 
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth!.onAuthStateChanged((user) => {
       debugLog("Auth state changed", { hasUser: !!user, uid: user?.uid });
 
       if (user) {
@@ -226,8 +226,8 @@ const HomePage: React.FC = () => {
       console.log("🚀 Cron job result:", result);
 
       // Refresh dashboard data after cron job
-      if (auth.currentUser) {
-        fetchDashboardData(auth.currentUser.uid);
+      if (auth?.currentUser) {
+        fetchDashboardData(auth?.currentUser.uid);
       }
     } catch (error: unknown) {
       console.error("Error testing cron job:", error);
@@ -328,9 +328,9 @@ const HomePage: React.FC = () => {
                     <button
                       onClick={() => {
                         setError(null);
-                        if (auth.currentUser) {
-                          fetchDashboardData(auth.currentUser.uid);
-                          fetchAutoAppliedData(auth.currentUser.uid);
+                        if (auth?.currentUser) {
+                          fetchDashboardData(auth?.currentUser.uid);
+                          fetchAutoAppliedData(auth?.currentUser.uid);
                         }
                       }}
                       className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md h-11"
