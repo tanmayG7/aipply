@@ -97,7 +97,7 @@ export const MovingBorder = ({
         if (!pathRef.current) return 0;
         try {
             return pathRef.current.getPointAtLength(val).x;
-        } catch (_error) {
+        } catch {
             return 0;
         }
     });
@@ -105,7 +105,7 @@ export const MovingBorder = ({
         if (!pathRef.current) return 0;
         try {
             return pathRef.current.getPointAtLength(val).y;
-        } catch (_error) {
+        } catch {
             return 0;
         }
     });
