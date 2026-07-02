@@ -23,7 +23,7 @@ import { UserIcon } from "@heroicons/react/24/solid";
 
 const handleLogout = async () => {
   try {
-    await signOut(auth);
+    await signOut(auth!);
     localStorage.removeItem("firebaseToken");
     window.location.href = "/";
   } catch (error) {
@@ -34,9 +34,9 @@ const handleLogout = async () => {
 const firestore = getFirestore();
 
 const handleCommunityJoin = async () => {
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   if (user) {
-    const userDocRef = doc(firestore, "users", user.uid);
+    const userDocRef = doc(firestore!, "users", user.uid);
     await updateDoc(userDocRef, {
       community: true,
     });

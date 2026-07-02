@@ -90,7 +90,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
     const file = e.target.files?.[0];
     if (file) {
       setFileName(file.name);
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         const storage = getStorage();
         const storageRef = ref(
@@ -127,7 +127,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
     
     setSaveStatus('saving');
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) {
         alert('Please log in to save your profile.');
         setSaveStatus('idle');

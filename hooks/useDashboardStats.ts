@@ -56,7 +56,7 @@ export const useDashboardStats = (userId: string) => {
       const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
 
       // Fetch applied jobs data
-      const appliedJobsRef = collection(firestore, 'appliedJobs');
+      const appliedJobsRef = collection(firestore!, 'appliedJobs');
       const appliedJobsQuery = query(appliedJobsRef, where('userId', '==', userId));
       const appliedJobsSnapshot = await getDocs(appliedJobsQuery);
 
@@ -112,7 +112,7 @@ export const useDashboardStats = (userId: string) => {
       const averagePackage = appliedJobsData.length > 0 ? totalPackage / appliedJobsData.length : 0;
 
       // Get total jobs shown (from currentJobs collection)
-      const currentJobsRef = collection(firestore, 'currentJobs');
+      const currentJobsRef = collection(firestore!, 'currentJobs');
       const currentJobsSnapshot = await getDocs(currentJobsRef);
       const totalJobsShown = currentJobsSnapshot.size;
 
@@ -172,7 +172,7 @@ export const useDashboardStats = (userId: string) => {
 // Helper function to get auto-apply status
 const getAutoApplyStatus = async (userId: string) => {
   try {
-    const subscriptionsRef = collection(firestore, 'subscriptions');
+    const subscriptionsRef = collection(firestore!, 'subscriptions');
     const subscriptionQuery = query(subscriptionsRef, where('userId', '==', userId));
     const subscriptionSnapshot = await getDocs(subscriptionQuery);
 

@@ -24,7 +24,7 @@ const AchievementsSection: React.FC<AchievementsSectionProps> = ({
   );
 
   const handleSave = async () => {
-    const user = auth.currentUser;
+    const user = auth?.currentUser;
     if (user) {
       await saveUserProfile(user.uid, { achievements });
     }

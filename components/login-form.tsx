@@ -147,7 +147,7 @@ export function LoginForm({
       console.log("🔐 Starting password setup for Google account");
 
       // First, sign in with Google to establish the user session
-      const userCredential = await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth!, provider);
       const user = userCredential.user;
 
       console.log("✅ Google sign-in successful, linking password...");
@@ -172,7 +172,7 @@ export function LoginForm({
       setShowPasswordSetup(false);
 
       // Check if user has completed profile
-      const userDoc = await getDoc(doc(firestore, "users", user.uid));
+      const userDoc = await getDoc(doc(firestore!, "users", user.uid));
       if (userDoc.exists()) {
         router.push("/dashboard/home");
       } else {
@@ -248,7 +248,7 @@ export function LoginForm({
 
     try {
       console.log("🔐 Sending password reset email to:", email);
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth!, email);
       console.log("✅ Password reset email sent successfully");
 
       setForgotPasswordSuccess(true);

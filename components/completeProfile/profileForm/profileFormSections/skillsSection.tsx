@@ -31,7 +31,7 @@ const addSkill = async () => {
 
   const removeSkill = async (skill: string) => {
     setSkills(skills.filter((s) => s !== skill));
-    const user = auth.currentUser;
+    const user = auth?.currentUser;
     if (user) {
       const userDetails = await getUserProfile(user.uid);
       const updatedSkills = (userDetails.skills ?? []).filter((s: string) => s !== skill);
@@ -42,7 +42,7 @@ const addSkill = async () => {
   };
 
   const handleSave = async () => {
-    const user = auth.currentUser;
+    const user = auth?.currentUser;
     if (user) {
       const userDetails = {
         skills,

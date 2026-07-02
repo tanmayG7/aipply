@@ -76,7 +76,7 @@ const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
     
     setSaveStatus('saving');
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) {
         alert('Please log in to save your social profiles.');
         setSaveStatus('idle');

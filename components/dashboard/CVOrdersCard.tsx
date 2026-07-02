@@ -92,7 +92,7 @@ export default function CVOrdersCard() {
 
   const loadCVOrders = async () => {
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) {
         setLoading(false);
         return;

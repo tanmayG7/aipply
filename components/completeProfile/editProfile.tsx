@@ -57,7 +57,7 @@ const EditProfile: React.FC = () => {
   };
 
   const refreshUserDetails = async () => {
-    const user = auth.currentUser;
+    const user = auth?.currentUser;
     if (user) {
       try {
         const details = await getUserProfile(user.uid);
@@ -70,7 +70,7 @@ const EditProfile: React.FC = () => {
 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         try {
           const details = await getUserProfile(user.uid);

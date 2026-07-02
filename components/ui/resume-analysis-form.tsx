@@ -41,7 +41,7 @@ export default function ResumeAnalysisForm() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const user = auth.currentUser;
+        const user = auth?.currentUser;
         if (user) {
           const userData = await getUserProfile(user.uid);
           if (userData) {

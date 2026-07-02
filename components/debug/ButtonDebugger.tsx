@@ -58,7 +58,7 @@ export function ButtonDebugger() {
   const testFirebaseAuth = () => {
     try {
       if (auth) {
-        const user = auth.currentUser;
+        const user = auth?.currentUser;
         addResult("Firebase Auth", "success", `Firebase auth available. User: ${user ? user.email : 'None'}`);
       } else {
         addResult("Firebase Auth", "error", "Firebase auth not available");

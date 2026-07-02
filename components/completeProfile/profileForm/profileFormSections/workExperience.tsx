@@ -75,7 +75,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const user = auth.currentUser;
+    const user = auth?.currentUser;
     if (user) {
       const updatedExperiences = editingExperience
         ? workExperiences.map((exp) =>

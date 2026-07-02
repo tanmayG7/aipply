@@ -57,7 +57,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     if (educations) {
       const updatedEducations = educations.filter((_, i) => i !== index);
       setEducations(updatedEducations);
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         await saveUserProfile(user.uid, { education: updatedEducations });
       }
@@ -87,7 +87,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     if (workExperiences) {
       const updatedExperiences = workExperiences.filter((_, i) => i !== index);
       setWorkExperiences(updatedExperiences);
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         saveUserProfile(user.uid, { experience: updatedExperiences });
       }
@@ -121,7 +121,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         const userDetails = await getUserProfile(user.uid);
         setEducations(userDetails.education || []);

@@ -73,7 +73,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     if (!editingEducation) {
       onAddEducation(education);
     }
-    const user = auth.currentUser;
+    const user = auth?.currentUser;
     if (user) {
       const newEducation = {
         education: updatedEducations,

@@ -218,7 +218,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const debouncedSave = useCallback(async () => {
     if (!state.isDirty) return;
 
-    const user = auth.currentUser;
+    const user = auth?.currentUser;
     if (!user) return;
 
     // Check if data has actually changed since last save
@@ -298,7 +298,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Set up debounced auto-save
   useEffect(() => {
-    if (state.isDirty && auth.currentUser) {
+    if (state.isDirty && auth?.currentUser) {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
@@ -317,7 +317,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Auth state listener and data recovery
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth!, async (user) => {
       if (user) {
         // Detect Google user
         const hasGoogleProvider = user.providerData.some(provider =>
@@ -471,7 +471,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, []);
 
   const saveProgress = useCallback(async () => {
-    const user = auth.currentUser;
+    const user = auth?.currentUser;
     if (!user) return;
 
     dispatch({ type: 'SET_SAVING', payload: true });

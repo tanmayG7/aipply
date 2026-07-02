@@ -31,7 +31,7 @@ const YearlyComponent = () => {
 
   // Listen for auth changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth!, (currentUser) => {
       setUser(currentUser);
     });
     return () => unsubscribe();

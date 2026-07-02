@@ -8,7 +8,7 @@ export default function GetUserId() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth!, (currentUser) => {
       console.log('🔍 Auth state changed:', currentUser ? 'User found' : 'No user');
       setUser(currentUser);
       setLoading(false);

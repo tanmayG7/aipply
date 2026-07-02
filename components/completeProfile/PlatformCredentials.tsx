@@ -220,7 +220,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
     }));
 
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) throw new Error("User not authenticated");
 
       // 🔐 Encrypt before sending
@@ -284,7 +284,7 @@ const PlatformCredentials: React.FC<PlatformCredentialsProps> = ({
     setSaveStatus("saving");
 
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         // Convert credentials to the format expected by savePlatformCredentials
         const credentialsToSave = Object.entries(credentials).reduce(

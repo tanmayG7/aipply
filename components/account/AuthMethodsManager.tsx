@@ -94,7 +94,7 @@ export function AuthMethodsManager({ userEmail }: AuthMethodsManagerProps) {
     }
   };
 
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return (
       <Card className="text-white">
         <CardContent className="p-6">

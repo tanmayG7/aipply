@@ -36,7 +36,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditM
         alert("Only PDF and DOC files are allowed.");
         return;
       }
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         const storage = getStorage();
         const storageRef = ref(storage, `resumes/${user.uid}/resume`);
@@ -59,7 +59,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditM
       const inputElement = document.getElementById(
         "uploadFile"
       ) as HTMLInputElement;
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
 
       if (!user) {
         alert('Please log in to save your resume.');
@@ -106,7 +106,7 @@ const UploadCv: React.FC<UploadCvProps> = ({ isEditing, userDetails, onExitEditM
     
     setCoverLetterSaveStatus('saving');
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
 
       if (!user) {
         alert('Please log in to save your cover letter.');

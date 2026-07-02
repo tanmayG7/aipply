@@ -94,7 +94,7 @@ const PreferenceForm: React.FC<PreferenceFormProps> = ({
     
     setSaveStatus('saving');
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (!user) {
         alert('Please log in to save your preferences.');
         setSaveStatus('idle');

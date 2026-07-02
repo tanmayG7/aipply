@@ -23,7 +23,7 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = useCallback(async (uid: string) => {
-    const userDoc = await getDoc(doc(firestore, "users", uid));
+    const userDoc = await getDoc(doc(firestore!, "users", uid));
     if (userDoc.exists()) {
       const userData = userDoc.data();
       setCheckedFields({
@@ -42,7 +42,7 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
   }, [appliedJoblength]);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth!.onAuthStateChanged((user) => {
       if (user) {
         fetchUserData(user.uid);
       } else {
@@ -62,9 +62,9 @@ const GetStartedCard: React.FC<GetStartedCardProps> = ({
     }));
 
     if (field === "community") {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
-        const userDocRef = doc(firestore, "users", user.uid);
+        const userDocRef = doc(firestore!, "users", user.uid);
         updateDoc(userDocRef, {
           community: !checkedFields.community,
         });
