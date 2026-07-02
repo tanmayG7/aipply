@@ -107,7 +107,7 @@ export default function AutoApplyDashboard() {
         return;
       }
 
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         const profile = await getUserProfile(user.uid) as UserDetails;
         setAutoApplySettings(profile.autoApplySettings || null);
@@ -120,7 +120,7 @@ export default function AutoApplyDashboard() {
         }
 
         try {
-          const jobsRef = collection(firestore, "appliedJobs");
+          const jobsRef = collection(firestore!, "appliedJobs");
           const jobsQuery = query(
             jobsRef,
             where("userId", "==", user.uid),
@@ -199,7 +199,7 @@ export default function AutoApplyDashboard() {
   const toggleAutoApply = async () => {
     try {
       if (!auth) return;
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user && autoApplySettings) {
         const newSettings = {
           ...autoApplySettings,

@@ -117,7 +117,7 @@ export default function AutoApplySetup() {
 
   useEffect(() => {
     const loadUserData = async () => {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -233,7 +233,7 @@ export default function AutoApplySetup() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const user = auth.currentUser;
+      const user = auth?.currentUser;
       if (user) {
         await saveUserProfile(user.uid, {
           autoApplySettings: {

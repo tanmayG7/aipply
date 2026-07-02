@@ -43,7 +43,7 @@ const MobileTrigger = () => {
 const getAppliedJobs = async (userId: string): Promise<AutoAppliedJob[]> => {
   if (!firestore) return []
   try {
-    const jobsRef = collection(firestore, "appliedJobs")
+    const jobsRef = collection(firestore!, "appliedJobs")
     const jobsQuery = query(jobsRef, where("userId", "==", userId), where("autoApplied", "==", true))
     const jobsSnapshot = await getDocs(jobsQuery)
     const jobs = jobsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as AutoAppliedJob[]
@@ -169,7 +169,7 @@ const JobTrackerPage: React.FC = () => {
 
   useEffect(() => {
     if (!auth) { setLoading(false); return; }
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth!, async (user) => {
       if (user) {
         setLoading(true)
         try {

@@ -64,7 +64,7 @@ async function logWebhookEvent(
   try {
     const firestore = getFirestore();
     if (!firestore) return; // Guard: don't crash if Firestore unavailable
-    const webhookLogsRef = collection(firestore, 'webhook_logs');
+    const webhookLogsRef = collection(firestore!, 'webhook_logs');
     await addDoc(webhookLogsRef, {
       eventType,
       userId,
@@ -246,7 +246,7 @@ async function handleSubscriptionCancelled(event: any) {
 
     const firestore = getFirestore();
     if (!firestore) { console.error('❌ Firestore not initialized'); return; }
-    const subscriptionDoc = await getDoc(doc(firestore, "subscriptions", userId));
+    const subscriptionDoc = await getDoc(doc(firestore!, "subscriptions", userId));
     if (!subscriptionDoc.exists()) { console.error('❌ No subscription document found'); return; }
 
     const currentSubscription = subscriptionDoc.data();
@@ -301,7 +301,7 @@ async function handlePaymentCaptured(event: RazorpayWebhookEvent) {
 
     const firestore = getFirestore();
     if (!firestore) { console.error('❌ Firestore not initialized'); return; }
-    const orderRef = doc(firestore, 'cv_orders', orderId);
+    const orderRef = doc(firestore!, 'cv_orders', orderId);
     const orderDoc = await getDoc(orderRef);
     if (!orderDoc.exists()) { console.log(`ℹ️ Order ${orderId} not found in cv_orders`); return; }
 
@@ -330,7 +330,7 @@ async function handlePaymentFailed(event: RazorpayWebhookEvent) {
 
     const firestore = getFirestore();
     if (!firestore) { console.error('❌ Firestore not initialized'); return; }
-    const orderRef = doc(firestore, 'cv_orders', orderId);
+    const orderRef = doc(firestore!, 'cv_orders', orderId);
     const orderDoc = await getDoc(orderRef);
     if (!orderDoc.exists()) { console.log(`ℹ️ Order ${orderId} not found in cv_orders`); return; }
 

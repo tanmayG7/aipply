@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
           isTestSubscription: true,
         };
  
-        await addDoc(collection(firestore, 'cancellations'), cancellationLog);
+        await addDoc(collection(firestore!, 'cancellations'), cancellationLog);
       } catch {
         console.warn('⚠️ [Cancel Route] Could not log cancellation, but subscription was cancelled');
       }
@@ -290,7 +290,7 @@ export async function POST(request: NextRequest) {
         planPrice: subscription.planPrice,
       };
  
-      await addDoc(collection(firestore, 'cancellations'), cancellationLog);
+      await addDoc(collection(firestore!, 'cancellations'), cancellationLog);
     } catch {
       console.warn('⚠️ [Cancel Route] Could not log cancellation, but subscription was cancelled');
     }

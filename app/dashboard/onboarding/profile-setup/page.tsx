@@ -180,7 +180,7 @@ const ProfileSetupContent: React.FC = () => {
     if (validateCurrentPage()) {
       const currentDate = new Date().toISOString();
       const finalFormData = {
-        userId: auth.currentUser?.uid || '',
+        userId: auth?.currentUser?.uid || '',
         ...state.formData,
         phone: state.formData.mobileNumber, // Map mobileNumber to phone for UserDetails interface
         socialMediaLinks: {
@@ -194,7 +194,7 @@ const ProfileSetupContent: React.FC = () => {
       };
 
       try {
-        const user = auth.currentUser;
+        const user = auth?.currentUser;
         if (user) {
           updateFormData(finalFormData);
           await saveProgress();
@@ -203,7 +203,7 @@ const ProfileSetupContent: React.FC = () => {
       } catch (error) {
         const onboardingError = handleOnboardingError(error, {
           operation: 'final-save',
-          userId: auth.currentUser?.uid,
+          userId: auth?.currentUser?.uid,
           formData: finalFormData,
         });
 

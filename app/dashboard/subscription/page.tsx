@@ -22,7 +22,7 @@ const SubscriptionPage = () => {
       setLoading(false);
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth!, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
         try {
@@ -44,7 +44,7 @@ const SubscriptionPage = () => {
   const fetchSubscriptionData = async () => {
     setLoading(true);
     if (!auth) { setLoading(false); return; }
-    const currentUser = auth.currentUser;
+    const currentUser = auth?.currentUser;
     if (currentUser) {
       try {
         const subscription = await getUserSubscription(currentUser.uid);

@@ -63,7 +63,7 @@ export default function DashboardCVServices() {
           return;
         }
 
-        const user = auth.currentUser;
+        const user = auth?.currentUser;
 
         if (!user) {
           console.log('No user logged in, redirecting to login');

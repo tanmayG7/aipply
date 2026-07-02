@@ -83,7 +83,7 @@ export const updateJobCredentials = async (
     };
 
     await setDoc(
-      doc(firestore, CREDENTIALS_COLLECTION, userId),
+      doc(firestore!, CREDENTIALS_COLLECTION, userId),
       credentialsData,
       { merge: true }
     );
@@ -100,7 +100,7 @@ export const getJobCredentials = async (
   userId: string
 ): Promise<PlatformCredentialsData | null> => {
   try {
-    const credentialsDoc = await getDoc(doc(firestore, CREDENTIALS_COLLECTION, userId));
+    const credentialsDoc = await getDoc(doc(firestore!, CREDENTIALS_COLLECTION, userId));
     
     if (credentialsDoc.exists()) {
       const data = credentialsDoc.data();

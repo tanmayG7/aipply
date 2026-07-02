@@ -41,7 +41,7 @@ export default function CVServicesPage() {
       setAuthLoading(false);
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth!, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
     });

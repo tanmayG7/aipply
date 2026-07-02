@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
           updatedAt: now.toISOString(),
         });
 
-        await addDoc(collection(firestore, 'retentionOffers'), {
+        await addDoc(collection(firestore!, 'retentionOffers'), {
           userId,
           subscriptionId: subscription.razorpaySubscriptionId,
           offerType: 'discount',
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
           updatedAt: now.toISOString(),
         });
 
-        await addDoc(collection(firestore, 'retentionOffers'), {
+        await addDoc(collection(firestore!, 'retentionOffers'), {
           userId,
           subscriptionId: subscription.razorpaySubscriptionId,
           offerType: 'pause',
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
           updatedAt: now.toISOString(),
         });
 
-        await addDoc(collection(firestore, 'retentionOffers'), {
+        await addDoc(collection(firestore!, 'retentionOffers'), {
           userId,
           subscriptionId: subscription.razorpaySubscriptionId,
           offerType: 'downgrade',

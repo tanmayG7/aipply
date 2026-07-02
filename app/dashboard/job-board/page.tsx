@@ -200,7 +200,7 @@ export default function Page() {
 
       const result = await Promise.race([
         getUpdatedJobsPaginated(
-          auth.currentUser?.uid || '',
+          auth?.currentUser?.uid || '',
           userProfileValue,
           page,
           JOBS_PER_PAGE,
@@ -276,7 +276,7 @@ export default function Page() {
     setError(null);
 
     try {
-      const currentUser = auth.currentUser;
+      const currentUser = auth?.currentUser;
 
       if (!currentUser) {
         throw new Error('No authenticated user found');
@@ -346,7 +346,7 @@ export default function Page() {
 
   // Simplified auth state listener
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth!.onAuthStateChanged((user) => {
       console.log('Auth state changed:', !!user);
       setAuthChecked(true);
 
@@ -422,7 +422,7 @@ export default function Page() {
 
   const handleHideJob = async (jobId: string) => {
     try {
-      const userId = auth.currentUser?.uid;
+      const userId = auth?.currentUser?.uid;
       if (userId) {
         await setHideJob(userId, jobId);
         setHiddenJobs([...hiddenJobs, jobId]);
@@ -437,7 +437,7 @@ export default function Page() {
 
   const handleAppliedJob = async (jobId: string, job: Job) => {
     try {
-      const userId = auth.currentUser?.uid;
+      const userId = auth?.currentUser?.uid;
       if (userId) {
         const appliedJobs = await getAppliedJobs(userId);
         MySwal.fire({

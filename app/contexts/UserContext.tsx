@@ -113,7 +113,7 @@ export const UserContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const refreshUserData = useCallback(async () => {
     if (!auth) return;
-    const currentUser = auth.currentUser;
+    const currentUser = auth?.currentUser;
     if (currentUser) {
       await fetchUserData(currentUser.uid);
     }
@@ -134,7 +134,7 @@ export const UserContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth!, async (user) => {
       if (user) {
         await fetchUserData(user.uid);
       } else {
