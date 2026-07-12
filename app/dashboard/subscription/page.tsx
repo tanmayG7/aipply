@@ -6,8 +6,15 @@ import { UserSubscription } from '@/lib/types';
 import { Crown, CreditCard, AlertTriangle, CheckCircle2, ExternalLink, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import CancellationWizard from '@/components/subscription/CancellationWizard';
+import dynamic from 'next/dynamic';
 import { getMonthlyEquivalentPrice } from '@/lib/utils/retentionOffers';
+
+// Loaded on demand: the wizard (and its sweetalert2/framer-motion deps) is
+// only fetched when the user starts a cancellation.
+const CancellationWizard = dynamic(
+  () => import('@/components/subscription/CancellationWizard'),
+  { ssr: false }
+);
 
 const SubscriptionPage = () => {
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
@@ -305,7 +312,7 @@ const SubscriptionPage = () => {
           </Card>
         )}
 
-        {userSubscription && (
+        {userSubscription && showCancellationWizard && (
           <CancellationWizard
             isOpen={showCancellationWizard}
             onClose={() => setShowCancellationWizard(false)}

@@ -19,8 +19,7 @@ import {
 import FilterCard from "@/components/card/filterCard/filterCard";
 import { mergeSalaryRanges } from "@/lib/utils";
 import { ShimmerJobCard } from "@/components/loaders/loader";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+import { getSwal } from "@/lib/lazySwal";
 
 const JOBS_PER_PAGE = 20;
 
@@ -139,7 +138,6 @@ const PaginationControls: React.FC<{
 };
 
 export default function Page() {
-  const MySwal = withReactContent(Swal);
   const [filter, setFilter] = useState("");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [userProfileValue, setUserProfileValue] = useState<UserDetails | null>(null);
@@ -230,6 +228,7 @@ export default function Page() {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
       // Show error toast notification
+      const Swal = await getSwal();
       Swal.fire({
         icon: 'error',
         title: 'Failed to Load Jobs',
@@ -440,7 +439,8 @@ export default function Page() {
       const userId = auth?.currentUser?.uid;
       if (userId) {
         const appliedJobs = await getAppliedJobs(userId);
-        MySwal.fire({
+        const Swal = await getSwal();
+        Swal.fire({
           title: "Did you apply for this job?",
           showDenyButton: true,
           confirmButtonText: "Yes",
