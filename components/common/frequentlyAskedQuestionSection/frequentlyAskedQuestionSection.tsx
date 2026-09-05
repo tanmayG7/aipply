@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { ResponsivePageContainer } from "../responsivePageContainer/responsivePageContainer";
 
-const faqs = [
+const defaultFaqs = [
   {
     question: "What is AiPply, and how does it help job seekers?",
     answer:
@@ -31,7 +31,13 @@ const faqs = [
   },
 ];
 
-const FrequentlyAskedQuestionSection: React.FC = () => {
+interface FrequentlyAskedQuestionSectionProps {
+  faqs?: { question: string; answer: string }[];
+}
+
+const FrequentlyAskedQuestionSection: React.FC<FrequentlyAskedQuestionSectionProps> = ({
+  faqs = defaultFaqs,
+}) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const toggleFAQ = (index: number) => {

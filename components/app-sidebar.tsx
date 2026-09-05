@@ -65,6 +65,11 @@ const data = {
       url: "/dashboard/cv-services",
       image: "/static/icons/briefcase.svg",
     },
+    {
+      title: "Interview Prep",
+      url: "/features/interview-prep/dashboard",
+      image: "/static/icons/interviewing.svg",
+    },
     // {
     //   title: "Reminder",
     //   url: "/dashboard/reminder",
