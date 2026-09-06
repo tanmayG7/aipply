@@ -364,7 +364,7 @@ function MockInterviewCard({
           if (data === "[DONE]") continue;
           try {
             const parsed = JSON.parse(data);
-            const delta = parsed?.delta?.text || "";
+            const delta = parsed?.choices?.[0]?.delta?.content || "";
             if (delta) {
               text += delta;
               setMessages([...history, { role: "assistant", content: text }]);

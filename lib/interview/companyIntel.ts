@@ -1,4 +1,4 @@
-import { completeJSON } from "./anthropic";
+import { completeJSON } from "./llm";
 
 export interface CompanyIntel {
   overview: string;

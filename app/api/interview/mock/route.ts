@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { streamAnthropic, LlmMessage } from "@/lib/interview/anthropic";
+import { streamText, LlmMessage } from "@/lib/interview/llm";
 import { interviewerSystemPrompt } from "@/lib/interview/mockPrompt";
 import { getUidFromRequest } from "@/lib/interview/auth";
 
@@ -30,9 +30,9 @@ export async function POST(request: NextRequest) {
   }
 
   const system = interviewerSystemPrompt({ company, jobTitle, jobDescription, profile: profile || "" });
-  const anthropicRes = await streamAnthropic({ system, messages: messages.slice(-40), maxTokens: 500 });
+  const groqRes = await streamText({ system, messages: messages.slice(-40), maxTokens: 500 });
 
-  return new Response(anthropicRes.body, {
+  return new Response(groqRes.body, {
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",

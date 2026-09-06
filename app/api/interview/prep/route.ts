@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { companyIntel } from "@/lib/interview/companyIntel";
-import { completeJSON } from "@/lib/interview/anthropic";
+import { completeJSON } from "@/lib/interview/llm";
 import { getUidFromRequest } from "@/lib/interview/auth";
 import { adminDb } from "@/lib/firebaseAdmin";
 
