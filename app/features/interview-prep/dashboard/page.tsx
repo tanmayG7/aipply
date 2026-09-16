@@ -7,7 +7,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,35 +15,15 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { UserDetails } from "@/lib/types";
 import { UserContextProvider } from "@/app/contexts/UserContext";
 import { profileSummary } from "@/lib/interview/profileSummary";
-import { Sparkles, Send, MessageSquareText, Flag } from "lucide-react";
+import { extractResumeText } from "@/lib/interview/resumeExtract";
+import { ResearchBundle } from "@/lib/interview/types";
+import { ResearchReviewPanel } from "@/components/interview-prep/ResearchReviewPanel";
+import { PrepDocumentView } from "@/components/interview-prep/PrepDocumentView";
+import { RecentPacksList, SavedPrepPack } from "@/components/interview-prep/RecentPacksList";
+import { Sparkles, Send, MessageSquareText, Search } from "lucide-react";
 import Head from "next/head";
 
-interface CompanyIntel {
-  overview: string;
-  rating: number | null;
-  pros: string[];
-  cons: string[];
-  redFlags: string[];
-  commonInterviewQuestions: string[];
-  salaryBands: { role: string; range: string }[];
-  verified: boolean;
-}
-
-interface PrepPack {
-  likelyQuestions: { q: string; whyAsked: string; strongAnswer: string }[];
-  talkingPoints: string[];
-  questionsToAsk: string[];
-  redFlagsToProbe: string[];
-  salaryContext: string;
-  story: string;
-}
-
-interface SavedPrepPack {
-  id: string;
-  company: string;
-  jobTitle?: string;
-  createdAt: string;
-}
+type Step = "input" | "researching" | "review" | "generating" | "result";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -74,13 +53,20 @@ function InterviewPrepDashboardInner() {
   const [profile, setProfile] = useState<UserDetails | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
+  const [step, setStep] = useState<Step>("input");
   const [company, setCompany] = useState("");
-  const [jobTitle, setJobTitle] = useState("");
+  const [roleTitle, setRoleTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
-  const [building, setBuilding] = useState(false);
-  const [buildError, setBuildError] = useState("");
-  const [intel, setIntel] = useState<CompanyIntel | null>(null);
-  const [pack, setPack] = useState<PrepPack | null>(null);
+  const [interviewerInput, setInterviewerInput] = useState("");
+  const [resumeText, setResumeText] = useState("");
+  const [extractingResume, setExtractingResume] = useState(false);
+  const [extractError, setExtractError] = useState("");
+
+  const [researchBundle, setResearchBundle] = useState<ResearchBundle | null>(null);
+  const [stepError, setStepError] = useState("");
+
+  const [generatedId, setGeneratedId] = useState<string | null>(null);
+  const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
 
   const [recentPacks, setRecentPacks] = useState<SavedPrepPack[]>([]);
 
@@ -92,7 +78,7 @@ function InterviewPrepDashboardInner() {
       }
       const p = await getUserProfile(auth.currentUser.uid).catch(() => null);
       setProfile(p);
-      setJobTitle((prev) => prev || p?.jobTitle || "");
+      setRoleTitle((prev) => prev || p?.jobTitle || "");
       setLoadingProfile(false);
       await loadRecentPacks(auth.currentUser.uid);
     })();
@@ -111,29 +97,85 @@ function InterviewPrepDashboardInner() {
     }
   }
 
-  async function buildPrepPack() {
-    if (!company.trim()) return setBuildError("Which company?");
-    setBuilding(true);
-    setBuildError("");
-    setIntel(null);
-    setPack(null);
+  async function handleResumeFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setExtractError("");
+    setExtractingResume(true);
+    try {
+      const text = await extractResumeText(file);
+      setResumeText(text);
+    } catch (err) {
+      setExtractError((err as Error).message);
+    } finally {
+      setExtractingResume(false);
+      e.target.value = "";
+    }
+  }
+
+  async function runResearch() {
+    if (!company.trim()) return setStepError("Which company?");
+    if (!roleTitle.trim()) return setStepError("Which role?");
+    if (!resumeText.trim()) return setStepError("Paste or upload your resume first, it's the only source of truth for your real facts.");
+    setStepError("");
+    setStep("researching");
+    try {
+      const res = await authedFetch("/api/interview/research", {
+        company: company.trim(),
+        roleTitle: roleTitle.trim(),
+        jobDescriptionText: jobDescription.trim(),
+        interviewerInput: interviewerInput.trim() || null,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to research");
+      setResearchBundle(data as ResearchBundle);
+      setStep("review");
+    } catch (err) {
+      setStepError((err as Error).message);
+      setStep("input");
+    }
+  }
+
+  async function generate() {
+    if (!researchBundle) return;
+    setStepError("");
+    setStep("generating");
     try {
       const res = await authedFetch("/api/interview/prep", {
         company: company.trim(),
-        jobTitle: jobTitle.trim(),
-        jobDescription: jobDescription.trim(),
+        roleTitle: roleTitle.trim(),
+        resumeText,
+        interviewerInput: interviewerInput.trim() || null,
         profile: profile ? profileSummary(profile) : "",
+        researchBundle,
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to build prep pack");
-      setIntel(data.intel || null);
-      setPack(data.pack || null);
+      if (!res.ok) throw new Error(data.error || "Failed to generate prep pack");
+      setGeneratedId(data.id || null);
+      setGeneratedHtml(data.html || null);
+      setStep("result");
       if (auth?.currentUser) await loadRecentPacks(auth.currentUser.uid);
     } catch (err) {
-      setBuildError((err as Error).message);
-    } finally {
-      setBuilding(false);
+      setStepError((err as Error).message);
+      setStep("review");
     }
+  }
+
+  function startOver() {
+    setStep("input");
+    setResearchBundle(null);
+    setGeneratedId(null);
+    setGeneratedHtml(null);
+    setStepError("");
+  }
+
+  function viewSavedPack(p: SavedPrepPack) {
+    if (!p.html) return;
+    setCompany(p.company);
+    setRoleTitle(p.jobTitle || "");
+    setGeneratedId(p.id);
+    setGeneratedHtml(p.html);
+    setStep("result");
   }
 
   if (loadingProfile) {
@@ -155,152 +197,131 @@ function InterviewPrepDashboardInner() {
           <div className="flex flex-1 flex-col gap-6 p-6 bg-[#020218] text-white">
             <div>
               <h1 className="text-3xl font-bold">Interview Prep</h1>
-              <p className="text-gray-400">Grounded in your resume, the JD, and public company data — reviews, questions, salary bands.</p>
+              <p className="text-gray-400">
+                Grounded in your real resume, live research on the company and interviewer, and a document built to carry into the room.
+              </p>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Build my prep pack</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Label>Company</Label>
-                    <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="e.g. Razorpay" />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Role</Label>
-                    <Input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="e.g. Product Manager" />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label>Job description (optional)</Label>
-                  <Textarea value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={5} placeholder="Paste the JD here…" />
-                </div>
-                {buildError && <p className="text-sm text-red-400">{buildError}</p>}
-                <Button onClick={buildPrepPack} disabled={building}>
-                  {building ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                      Researching {company || "…"}
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Build my prep pack
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {intel && (
+            {step === "input" && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 flex-wrap">
-                    {company} — company intel
-                    <Badge variant={intel.verified ? "default" : "secondary"}>
-                      {intel.verified ? "live public data" : "unverified"}
-                    </Badge>
-                  </CardTitle>
+                  <CardTitle>1. Tell us about the interview</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-gray-400">{intel.overview}</p>
-                  {intel.rating != null && (
-                    <div>
-                      Rating: <b>{intel.rating}</b>/5
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label>Company</Label>
+                      <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="e.g. Razorpay" />
                     </div>
-                  )}
-                  {(intel.redFlags || []).length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {intel.redFlags.map((f, i) => (
-                        <span key={i} className="text-yellow-400 text-sm flex items-center gap-1">
-                          <Flag className="w-3 h-3" /> {f}
-                        </span>
-                      ))}
+                    <div className="space-y-1">
+                      <Label>Role</Label>
+                      <Input value={roleTitle} onChange={(e) => setRoleTitle(e.target.value)} placeholder="e.g. Product Manager" />
                     </div>
-                  )}
-                  {(intel.salaryBands || []).map((s, i) => (
-                    <div key={i} className="text-gray-400 text-sm">
-                      {s.role}: {s.range}
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Interviewer name or LinkedIn URL (optional)</Label>
+                    <Input
+                      value={interviewerInput}
+                      onChange={(e) => setInterviewerInput(e.target.value)}
+                      placeholder="e.g. Jane Doe or a linkedin.com/in/... URL"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Your resume</Label>
+                    <p className="text-sm text-gray-500">
+                      Use your real, generic base resume, not a version already tailored for a different job, it&apos;s the only source of
+                      truth for your real facts.
+                    </p>
+                    <Textarea
+                      value={resumeText}
+                      onChange={(e) => setResumeText(e.target.value)}
+                      rows={8}
+                      placeholder="Paste your resume text here…"
+                    />
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept=".pdf,.docx,.txt"
+                        onChange={handleResumeFile}
+                        disabled={extractingResume}
+                        className="text-sm text-gray-400"
+                      />
+                      {extractingResume && <span className="text-sm text-gray-400">Extracting…</span>}
                     </div>
-                  ))}
+                    {extractError && <p className="text-sm text-red-400">{extractError}</p>}
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Job description (optional)</Label>
+                    <Textarea value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} rows={5} placeholder="Paste the JD here…" />
+                    <p className="text-sm text-gray-500">
+                      No JD? We&apos;ll search {company || "the company"}&apos;s own live postings for a similar role, or fall back to the
+                      interviewer&apos;s profile if you gave one, either way it&apos;ll be flagged clearly in your doc rather than guessed
+                      silently.
+                    </p>
+                  </div>
+
+                  {stepError && <p className="text-sm text-red-400">{stepError}</p>}
+
+                  <Button onClick={runResearch}>
+                    <Search className="w-4 h-4 mr-2" />
+                    Research
+                  </Button>
                 </CardContent>
               </Card>
             )}
 
-            {pack && (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Your 60-second story</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <pre className="whitespace-pre-wrap font-sans text-gray-200">{pack.story}</pre>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Likely questions</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {(pack.likelyQuestions || []).map((q, i) => (
-                      <div key={i}>
-                        <p className="font-semibold">{q.q}</p>
-                        <p className="text-sm text-gray-400 my-1">{q.whyAsked}</p>
-                        <p className="text-sm text-green-400">{q.strongAnswer}</p>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Talking points</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-wrap gap-2">
-                      {(pack.talkingPoints || []).map((t, i) => (
-                        <Badge key={i} variant="secondary">
-                          {t}
-                        </Badge>
-                      ))}
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Ask them</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-wrap gap-2">
-                      {(pack.questionsToAsk || []).map((t, i) => (
-                        <Badge key={i}>{t}</Badge>
-                      ))}
-                    </CardContent>
-                  </Card>
-                </div>
-              </>
-            )}
-
-            {recentPacks.length > 0 && (
+            {step === "researching" && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Recent prep packs</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {recentPacks.map((p) => (
-                    <div key={p.id} className="flex items-center justify-between text-sm border-t border-gray-700 pt-2 first:border-t-0 first:pt-0">
-                      <span>
-                        {p.company} {p.jobTitle ? `— ${p.jobTitle}` : ""}
-                      </span>
-                      <span className="text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  ))}
+                <CardContent className="py-10 flex items-center justify-center gap-3 text-gray-400">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Researching {company}…
                 </CardContent>
               </Card>
             )}
 
-            <MockInterviewCard company={company} jobTitle={jobTitle} jobDescription={jobDescription} profile={profile} />
+            {step === "review" && researchBundle && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">2. Check the research before we write anything</h2>
+                {stepError && <p className="text-sm text-red-400">{stepError}</p>}
+                <ResearchReviewPanel
+                  bundle={researchBundle}
+                  onChange={setResearchBundle}
+                  onBack={() => setStep("input")}
+                  onGenerate={generate}
+                  generating={false}
+                />
+              </div>
+            )}
+
+            {step === "generating" && (
+              <Card>
+                <CardContent className="py-10 flex items-center justify-center gap-3 text-gray-400">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Writing your prep pack…
+                </CardContent>
+              </Card>
+            )}
+
+            {step === "result" && generatedHtml && (
+              <PrepDocumentView
+                html={generatedHtml}
+                packId={generatedId}
+                company={company}
+                roleTitle={roleTitle}
+                onStartOver={startOver}
+                onCorrected={(result) => {
+                  setGeneratedId(result.id);
+                  setGeneratedHtml(result.html);
+                }}
+              />
+            )}
+
+            <RecentPacksList packs={recentPacks} onView={viewSavedPack} />
+
+            <MockInterviewCard company={company} jobTitle={roleTitle} jobDescription={jobDescription} profile={profile} />
           </div>
         </SidebarInset>
       </SidebarProvider>

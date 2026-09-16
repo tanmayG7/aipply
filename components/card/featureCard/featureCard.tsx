@@ -1,14 +1,16 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 interface Card {
   image: string;
   title: string;
   description: string;
+  href?: string;
 }
 
 const FeatureCard = ({ card }: { card: Card }) => {
-  return (
+  const content = (
     <div className="group flex flex-col w-full min-h-[260px] border border-[#404040] px-10 py-10 rounded-[10px] bg-[#0F0F0F] transition-all duration-300 hover:border-[#20CEB6] hover:-translate-y-1">
       <div className="p-5 bg-[#111111] rounded-[10px] w-fit">
         <Image
@@ -30,6 +32,16 @@ const FeatureCard = ({ card }: { card: Card }) => {
       </div>
     </div>
   );
+
+  if (card.href) {
+    return (
+      <Link href={card.href} className="block w-full">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 };
 
 export default FeatureCard;

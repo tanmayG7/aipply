@@ -28,6 +28,13 @@ const cardData = [
       "Get tailored cover letters, ATS-optimized resumes, and LinkedIn profile enhancements to boost your job search success.",
     image: "/static/featureCardIcons/jobtracker.svg",
   },
+  {
+    title: "Interview Prep",
+    description:
+      "Company research, likely questions, and a live mock interview, built from your real resume so you walk in prepared.",
+    image: "/static/featureCardIcons/interviewPrep.svg",
+    href: "/features/interview-prep",
+  },
 ];
 
 const FeaturesSection = () => {
