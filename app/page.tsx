@@ -11,6 +11,7 @@ import TestimonialSection from "@/components/sections/testimonialSection/testimo
 import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import Footer from "@/components/common/footer/footer";
 import Image from "next/image";
+import { IconBrandApple, IconBrandWindows } from "@tabler/icons-react";
 
 export default function Home() {
   const router = useRouter();
@@ -49,6 +50,28 @@ export default function Home() {
                     <Link href="/dashboard/onboarding/login">
                       <Button text="Start Job Search" />
                     </Link>
+                  </div>
+
+                  <div id="download" className="flex flex-col gap-3 items-center scroll-mt-20 md:scroll-mt-24">
+                    <div className="flex flex-wrap gap-3 items-center justify-center">
+                      <a
+                        href="https://aipplydownload.blob.core.windows.net/downloads/AiPply-Setup-Latest.exe"
+                        className="flex items-center gap-2 font-manrope font-bold uppercase text-[14px] leading-[20px] text-white bg-gradient-to-r from-[#52A9FF] to-[#5D29FF] rounded-full px-5 py-3 hover:opacity-90 transition-opacity"
+                      >
+                        <IconBrandWindows size={18} aria-hidden="true" />
+                        Download for Windows
+                      </a>
+                      <span
+                        aria-disabled="true"
+                        className="flex items-center gap-2 font-manrope font-bold uppercase text-[14px] leading-[20px] text-[#85888E] border border-[#333741] rounded-full px-5 py-3 cursor-not-allowed select-none"
+                      >
+                        <IconBrandApple size={18} aria-hidden="true" />
+                        Mac — Coming soon
+                      </span>
+                    </div>
+                    <p className="font-manrope font-normal text-[13px] leading-[20px] text-[#94969C] text-center px-4">
+                      Windows may show a security warning. Click More info → Run anyway.
+                    </p>
                   </div>
                 </div>
               </section>
