@@ -1,27 +1,31 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Header from "@/components/common/header/header";
 import { ResponsivePageContainer } from "@/components/common/responsivePageContainer/responsivePageContainer";
 import Button from "@/components/common/button/button";
-import FrequentlyAskedQuestionSection from "@/components/common/frequentlyAskedQuestionSection/frequentlyAskedQuestionSection";
 import FeaturesSection from "@/components/sections/featuresSection/featuresSection";
 import TestimonialSection from "@/components/sections/testimonialSection/testimonialSection";
-import ScrollToTopBtn from "@/components/common/scrollToTopBtn/scrollToTopBtn";
 import Footer from "@/components/common/footer/footer";
 import Image from "next/image";
 import { IconBrandApple, IconBrandWindows } from "@tabler/icons-react";
 
+// Below-the-fold interactive sections: split into their own chunks so the
+// initial bundle only carries the hero, navigation and CTAs.
+const FrequentlyAskedQuestionSection = dynamic(
+  () =>
+    import(
+      "@/components/common/frequentlyAskedQuestionSection/frequentlyAskedQuestionSection"
+    ),
+  {
+    loading: () => <div className="min-h-[600px]" aria-hidden="true" />,
+  }
+);
+
+const ScrollToTopBtn = dynamic(
+  () => import("@/components/common/scrollToTopBtn/scrollToTopBtn")
+);
+
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // checkAuthToken((path: string) => {
-    //   router.push(path);
-    // });
-  }, [router]);
-
   return (
     <div className="bg-[#000000]">
       <Header />
@@ -81,6 +85,7 @@ export default function Home() {
                   src="/static/images/HomePageImg.png"
                   alt="Description of image"
                   fill={true}
+                  priority
                   className="object-cover object-left rounded-xl border-[6px] border-[#333741]"
                 />
               </div>

@@ -1,7 +1,6 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import DashboardCard from "@/components/card/DashboardCard/DashboardCard";
-import { DashboardChart } from "@/components/charts/pieCharts";
 import { Button } from "@/components/ui/button";
 import {
   SidebarInset,
@@ -10,10 +9,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
-import Head from "next/head";
 import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
-import HeroSection from "@/components/ui/hero-section";
 import DashboardBentoGrid from "@/components/ui/dashboard-bento-grid";
 import MobileAutoApplyCarousel from "@/components/ui/mobile-auto-apply-carousel";
 import CVOrdersCard from "@/components/dashboard/CVOrdersCard";
@@ -24,10 +22,33 @@ import {
   getAppliedJobs,
 } from "@/lib/firebaseConfig/firebaseConfig";
 import { DashboardData } from "@/lib/types";
-import { DashboardBarChart } from "@/components/charts/barChart";
-// import { HomeShimmer } from "@/components/loaders/loader";
-// import { testSkillTree } from "@/lib/test-skill-tree";
 import { doc, getDoc } from "firebase/firestore";
+
+// Heavy visual components are code-split so recharts and framer-motion stay
+// out of this route's initial bundle and only download once the page shell
+// has rendered.
+const HeroSection = dynamic(() => import("@/components/ui/hero-section"), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-[500px] rounded-2xl border border-neutral-800/50 bg-neutral-900/50 animate-pulse" />
+  ),
+});
+
+const ChartSkeleton = () => (
+  <div className="min-h-[300px] rounded-xl border border-[#1F242F] bg-[#0C111D] animate-pulse" />
+);
+
+const DashboardBarChart = dynamic(
+  () =>
+    import("@/components/charts/barChart").then((mod) => mod.DashboardBarChart),
+  { ssr: false, loading: ChartSkeleton }
+);
+
+const DashboardChart = dynamic(
+  () =>
+    import("@/components/charts/pieCharts").then((mod) => mod.DashboardChart),
+  { ssr: false, loading: ChartSkeleton }
+);
 
 const DEBUG = process.env.NODE_ENV === "development";
 
@@ -141,9 +162,6 @@ const HomePage: React.FC = () => {
       debugLog("Auth state changed", { hasUser: !!user, uid: user?.uid });
 
       if (user) {
-        console.log('====================================');
-        console.log(user.uid,"user id");
-        console.log('====================================');
         fetchDashboardData(user.uid);
         fetchAutoAppliedData(user.uid);
       } else {
@@ -156,52 +174,6 @@ const HomePage: React.FC = () => {
       debugLog("Cleaning up auth listener");
       unsubscribe();
     };
-  }, []);
-
-  useEffect(() => {
-    console.log("🧪 Testing skill tree...");
-
-    // Import the test function directly
-    import("@/lib/test-skill-tree")
-      .then((testModule) => {
-        console.log("✅ Test module loaded:", Object.keys(testModule));
-
-        if (testModule.testSkillTree) {
-          console.log("🎯 Running testSkillTree...");
-          testModule.testSkillTree();
-        } else {
-          console.log("❌ testSkillTree function not found");
-        }
-      })
-      .catch((error) => {
-        console.error("❌ Failed to import test module:", error);
-
-        // If test module fails, try testing the enhanced-skill-tree directly
-        import("@/lib/enhanced-skill-tree")
-          .then((skillModule) => {
-            console.log(
-              "✅ Skill tree module loaded as fallback:",
-              Object.keys(skillModule)
-            );
-
-            if (skillModule.getSkillsStats) {
-              const stats = skillModule.getSkillsStats();
-              console.log("📊 Direct stats test:", stats);
-            }
-
-            if (skillModule.getSkillsForJobTitle) {
-              const skills =
-                skillModule.getSkillsForJobTitle("Software Engineer");
-              console.log("🔧 Software Engineer skills:", skills?.slice(0, 5));
-            }
-          })
-          .catch((skillError) => {
-            console.error("❌ Both imports failed:", {
-              testError: error,
-              skillError,
-            });
-          });
-      });
   }, []);
 
   // Add cron test function
@@ -265,17 +237,10 @@ const HomePage: React.FC = () => {
 
       // Check subscription status
       const subscription = await getUserSubscription(uid);
-      console.log('====================================');
-      console.log(subscription,"subscription");
-      console.log('====================================');
       const userIsSubscribed =
         subscription?.subscriptionStatus === "premium" ||
         subscription?.subscriptionStatus === "active";
       setIsSubscribed(userIsSubscribed);
-
-      console.log('====================================');
-      console.log(userIsSubscribed,"user is subscribed");
-      console.log('====================================');
 
       if (userIsSubscribed) {
         // Fetch applied jobs for subscribed users
@@ -304,13 +269,6 @@ const HomePage: React.FC = () => {
   if (error) {
     return (
       <>
-        <Head>
-          <title>Home - Aipply</title>
-          <meta
-            name="description"
-            content="Welcome to Aipply. Find your dream job today."
-          />
-        </Head>
         <SidebarProvider
           style={{ "--sidebar-width": "19rem" } as React.CSSProperties}
         >
@@ -349,13 +307,6 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>Home - Aipply</title>
-        <meta
-          name="description"
-          content="Welcome to Aipply. Find your dream job today."
-        />
-      </Head>
       <SidebarProvider
         style={{ "--sidebar-width": "19rem" } as React.CSSProperties}
       >
