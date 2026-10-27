@@ -15,6 +15,7 @@ import GetStartedCard from "@/components/card/getStartedCard/getStartedCard";
 import DashboardBentoGrid from "@/components/ui/dashboard-bento-grid";
 import MobileAutoApplyCarousel from "@/components/ui/mobile-auto-apply-carousel";
 import CVOrdersCard from "@/components/dashboard/CVOrdersCard";
+import DesktopAppCard from "@/components/dashboard/DesktopAppCard";
 import {
   auth,
   getDashboardData,
@@ -418,6 +419,8 @@ const HomePage: React.FC = () => {
                       </div>
                     </>
                   )}
+
+                  <DesktopAppCard />
 
                   {/* CV Orders Section */}
                   <div className="mt-6">
