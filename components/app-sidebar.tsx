@@ -20,6 +20,10 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserIcon } from "@heroicons/react/24/solid";
+import { IconBrandWindows } from "@tabler/icons-react";
+
+const WINDOWS_DOWNLOAD_URL =
+  "https://aipplydownload.blob.core.windows.net/downloads/AiPply-Setup-Latest.exe";
 
 const handleLogout = async () => {
   try {
@@ -343,6 +347,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a
+                    href={WINDOWS_DOWNLOAD_URL}
+                    title="Windows may show a security warning. Click More info → Run anyway."
+                    className={`text-white font-inter px-5 py-2 rounded-lg font-medium ${isMobile ? 'text-sm gap-2' : 'text-text-md-semibold gap-3'}`}
+                  >
+                    <IconBrandWindows size={isMobile ? 20 : 24} aria-hidden="true" />
+                    Download for Windows
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
           
